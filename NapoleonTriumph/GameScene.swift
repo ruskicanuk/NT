@@ -560,20 +560,19 @@ class GameScene: SKScene, NSXMLParserDelegate {
             //print(endTurnSelector!.selected)
             switch (manager!.phaseOld) {
                 
-            default:
-            
-            if endTurnSelector?.selected == .Option {
-                manager!.NewTurn()
-            } else if endTurnSelector?.selected == .On && manager!.orders.last?.order == .NormalThreat {
-                let theCode = manager!.NewPhase(1, reverse: false, playback: false)
-                if theCode == "TurnOnRetreat" {retreatSelector?.selected = .On}
-                break
-            } else if endTurnSelector?.selected == .On && manager!.orders.last?.order == .FeintThreat {
-                let theCode = manager!.NewPhase(2, reverse: false, playback: false)
-                if theCode == "TurnOnRetreat" {retreatSelector?.selected = .On}
-                break
-            }
-              
+                default:
+                
+                if endTurnSelector?.selected == .Option {
+                    manager!.NewTurn()
+                } else if endTurnSelector?.selected == .On && manager!.orders.last?.order == .NormalThreat {
+                    let theCode = manager!.NewPhase(1, reverse: false, playback: false)
+                    if theCode == "TurnOnRetreat" {retreatSelector?.selected = .On}
+                    break
+                } else if endTurnSelector?.selected == .On && manager!.orders.last?.order == .FeintThreat {
+                    let theCode = manager!.NewPhase(2, reverse: false, playback: false)
+                    if theCode == "TurnOnRetreat" {retreatSelector?.selected = .On}
+                    break
+                }
                 
             }
             
@@ -639,7 +638,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Create an order, execute and deselect everything
         let newOrder = Order(groupFromView: selectedGroup!, touchedNodeFromView: touchedNodeFromView, orderFromView: .FeintThreat, corpsOrder: nil, moveTypePassed: ReturnMoveType(), mapFromView:NTMap!)
         
-        retreatSelector?.selected = .On
+        endTurnSelector?.selected = .On
         
         newOrder.ExecuteOrder(NTMap)
         manager!.orders += [newOrder]
@@ -653,7 +652,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Create an order, execute and deselect everything
         let newOrder = Order(groupFromView: selectedGroup!, touchedNodeFromView: touchedNodeFromView, orderFromView: .FeintThreat, corpsOrder: nil, moveTypePassed: ReturnMoveType(), mapFromView:NTMap!)
         
-        retreatSelector?.selected = .On
+        endTurnSelector?.selected = .On
         
         newOrder.ExecuteOrder(NTMap)
         manager!.orders += [newOrder]
@@ -943,7 +942,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         corpsAttachSelector = SpriteSelector(parentNode: corpsAttachButtonHolder, initialSelection: .Off, theCoordinateSystem: NTMenu!)
         independentSelector = SpriteSelector(parentNode: independentButtonHolder, initialSelection: .Off, theCoordinateSystem: NTMenu!)
         retreatSelector = SpriteSelector(parentNode: retreatButtonHolder, initialSelection: .Off, theCoordinateSystem: NTMenu!)
-        endTurnSelector = SpriteSelector(parentNode: endTurnButton!, initialSelection: .Option, theCoordinateSystem: NTMenu!)
+        endTurnSelector = SpriteSelector(parentNode: endTurnButton!, initialSelection: .Option, theCoordinateSystem: NTMenu!, passDrawType: "EndTurn")
     
     }
     

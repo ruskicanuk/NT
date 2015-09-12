@@ -70,6 +70,7 @@ class SpriteSelector {
         selected = initialSelection
         drawOnNode = theCoordinateSystem
         drawType = passDrawType
+        toggleSelection()
     }
     
     func toggleSelection() {
@@ -84,6 +85,8 @@ class SpriteSelector {
             //print(parent!.calculateAccumulatedFrame().size)
             //selectionBox = SKShapeNode(rectOfSize: parent!.calculateAccumulatedFrame().size)
             selectionBox = SKShapeNode(ellipseOfSize: CGSize(width: parent!.calculateAccumulatedFrame().width, height: parent!.calculateAccumulatedFrame().width*0.5))
+        } else if drawType == "EndTurn" {
+            selectionBox = SKShapeNode(circleOfRadius: parent!.calculateAccumulatedFrame().width/2)
         }
         
         if selected == .On {
