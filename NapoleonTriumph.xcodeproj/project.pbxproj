@@ -1,0 +1,575 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8C18A3221B916B22008C9C9A /* Conflict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18A3211B916B22008C9C9A /* Conflict.swift */; };
+		8C18DADE1B5B342900FF30DF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DADD1B5B342900FF30DF /* AppDelegate.swift */; };
+		8C18DAE21B5B342900FF30DF /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAE11B5B342900FF30DF /* GameScene.swift */; };
+		8C18DAE41B5B342900FF30DF /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAE31B5B342900FF30DF /* GameViewController.swift */; };
+		8C18DAE71B5B342900FF30DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAE51B5B342900FF30DF /* Main.storyboard */; };
+		8C18DAE91B5B342900FF30DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAE81B5B342900FF30DF /* Assets.xcassets */; };
+		8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */; };
+		8C18DAF71B5B342900FF30DF /* NapoleonTriumphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAF61B5B342900FF30DF /* NapoleonTriumphTests.swift */; };
+		8C18DB021B5B342900FF30DF /* NapoleonTriumphUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DB011B5B342900FF30DF /* NapoleonTriumphUITests.swift */; };
+		8C208D981B5C82A400FAE45A /* Unit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208D971B5C82A400FAE45A /* Unit.swift */; };
+		8C208D9A1B5C8BE600FAE45A /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 8C208D991B5C8BE600FAE45A /* Notes */; };
+		8C208D9C1B60940300FAE45A /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208D9B1B60940300FAE45A /* Order.swift */; };
+		8C208D9E1B61DA0600FAE45A /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208D9D1B61DA0600FAE45A /* Location.swift */; };
+		8C208DA21B637D9900FAE45A /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208DA11B637D9900FAE45A /* Manager.swift */; };
+		8C208DA41B6F29E400FAE45A /* GameLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208DA31B6F29E400FAE45A /* GameLogic.swift */; };
+		8CCAB4811B5B480C00324D99 /* Approach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4801B5B480C00324D99 /* Approach.swift */; };
+		8CCAB4831B5B4A8100324D99 /* MapBuilder.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */; };
+		8CCAB4871B5B6C3A00324D99 /* Reserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4861B5B6C3A00324D99 /* Reserve.swift */; };
+		8CCAB4891B5B722100324D99 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4881B5B722100324D99 /* Command.swift */; };
+		8CF85B021B76D066008D7723 /* MenuView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8CF85B011B76D066008D7723 /* MenuView.xib */; };
+		8CF85B041B76F0E7008D7723 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF85B031B76F0E7008D7723 /* Support.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8C18DAF31B5B342900FF30DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C18DAD21B5B342900FF30DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C18DAD91B5B342900FF30DF;
+			remoteInfo = NapoleonTriumph;
+		};
+		8C18DAFE1B5B342900FF30DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C18DAD21B5B342900FF30DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C18DAD91B5B342900FF30DF;
+			remoteInfo = NapoleonTriumph;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		8C18A3211B916B22008C9C9A /* Conflict.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Conflict.swift; sourceTree = "<group>"; };
+		8C18DADA1B5B342900FF30DF /* NapoleonTriumph.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NapoleonTriumph.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C18DADD1B5B342900FF30DF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8C18DAE11B5B342900FF30DF /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		8C18DAE31B5B342900FF30DF /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		8C18DAE61B5B342900FF30DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		8C18DAE81B5B342900FF30DF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8C18DAEB1B5B342900FF30DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8C18DAED1B5B342900FF30DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C18DAF21B5B342900FF30DF /* NapoleonTriumphTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NapoleonTriumphTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C18DAF61B5B342900FF30DF /* NapoleonTriumphTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NapoleonTriumphTests.swift; sourceTree = "<group>"; };
+		8C18DAF81B5B342900FF30DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C18DAFD1B5B342900FF30DF /* NapoleonTriumphUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NapoleonTriumphUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C18DB011B5B342900FF30DF /* NapoleonTriumphUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NapoleonTriumphUITests.swift; sourceTree = "<group>"; };
+		8C18DB031B5B342900FF30DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C208D971B5C82A400FAE45A /* Unit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Unit.swift; sourceTree = "<group>"; };
+		8C208D991B5C8BE600FAE45A /* Notes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
+		8C208D9B1B60940300FAE45A /* Order.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
+		8C208D9D1B61DA0600FAE45A /* Location.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
+		8C208DA11B637D9900FAE45A /* Manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manager.swift; sourceTree = "<group>"; };
+		8C208DA31B6F29E400FAE45A /* GameLogic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameLogic.swift; sourceTree = "<group>"; };
+		8CCAB4801B5B480C00324D99 /* Approach.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Approach.swift; sourceTree = "<group>"; };
+		8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MapBuilder.xml; sourceTree = "<group>"; };
+		8CCAB4861B5B6C3A00324D99 /* Reserve.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reserve.swift; sourceTree = "<group>"; };
+		8CCAB4881B5B722100324D99 /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
+		8CF85B011B76D066008D7723 /* MenuView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MenuView.xib; sourceTree = "<group>"; };
+		8CF85B031B76F0E7008D7723 /* Support.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8C18DAD71B5B342900FF30DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C18DAEF1B5B342900FF30DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C18DAFA1B5B342900FF30DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8C18DAD11B5B342900FF30DF = {
+			isa = PBXGroup;
+			children = (
+				8C18DAF51B5B342900FF30DF /* NapoleonTriumphTests */,
+				8C208D991B5C8BE600FAE45A /* Notes */,
+				8C18DADC1B5B342900FF30DF /* NapoleonTriumph */,
+				8C18DB001B5B342900FF30DF /* NapoleonTriumphUITests */,
+				8C18DADB1B5B342900FF30DF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8C18DADB1B5B342900FF30DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8C18DADA1B5B342900FF30DF /* NapoleonTriumph.app */,
+				8C18DAF21B5B342900FF30DF /* NapoleonTriumphTests.xctest */,
+				8C18DAFD1B5B342900FF30DF /* NapoleonTriumphUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8C18DADC1B5B342900FF30DF /* NapoleonTriumph */ = {
+			isa = PBXGroup;
+			children = (
+				8C18DADD1B5B342900FF30DF /* AppDelegate.swift */,
+				8C208D971B5C82A400FAE45A /* Unit.swift */,
+				8C208DA11B637D9900FAE45A /* Manager.swift */,
+				8C18DAE11B5B342900FF30DF /* GameScene.swift */,
+				8C208DA31B6F29E400FAE45A /* GameLogic.swift */,
+				8CF85B031B76F0E7008D7723 /* Support.swift */,
+				8C208D9D1B61DA0600FAE45A /* Location.swift */,
+				8CCAB4881B5B722100324D99 /* Command.swift */,
+				8C18A3211B916B22008C9C9A /* Conflict.swift */,
+				8C208D9B1B60940300FAE45A /* Order.swift */,
+				8CCAB4801B5B480C00324D99 /* Approach.swift */,
+				8C18DAE31B5B342900FF30DF /* GameViewController.swift */,
+				8CF85B011B76D066008D7723 /* MenuView.xib */,
+				8C18DAE51B5B342900FF30DF /* Main.storyboard */,
+				8C18DAE81B5B342900FF30DF /* Assets.xcassets */,
+				8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */,
+				8CCAB4861B5B6C3A00324D99 /* Reserve.swift */,
+				8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */,
+				8C18DAED1B5B342900FF30DF /* Info.plist */,
+			);
+			path = NapoleonTriumph;
+			sourceTree = "<group>";
+		};
+		8C18DAF51B5B342900FF30DF /* NapoleonTriumphTests */ = {
+			isa = PBXGroup;
+			children = (
+				8C18DAF61B5B342900FF30DF /* NapoleonTriumphTests.swift */,
+				8C18DAF81B5B342900FF30DF /* Info.plist */,
+			);
+			path = NapoleonTriumphTests;
+			sourceTree = SOURCE_ROOT;
+		};
+		8C18DB001B5B342900FF30DF /* NapoleonTriumphUITests */ = {
+			isa = PBXGroup;
+			children = (
+				8C18DB011B5B342900FF30DF /* NapoleonTriumphUITests.swift */,
+				8C18DB031B5B342900FF30DF /* Info.plist */,
+			);
+			path = NapoleonTriumphUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8C18DAD91B5B342900FF30DF /* NapoleonTriumph */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C18DB061B5B342900FF30DF /* Build configuration list for PBXNativeTarget "NapoleonTriumph" */;
+			buildPhases = (
+				8C18DAD61B5B342900FF30DF /* Sources */,
+				8C18DAD71B5B342900FF30DF /* Frameworks */,
+				8C18DAD81B5B342900FF30DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NapoleonTriumph;
+			productName = NapoleonTriumph;
+			productReference = 8C18DADA1B5B342900FF30DF /* NapoleonTriumph.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8C18DAF11B5B342900FF30DF /* NapoleonTriumphTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C18DB091B5B342900FF30DF /* Build configuration list for PBXNativeTarget "NapoleonTriumphTests" */;
+			buildPhases = (
+				8C18DAEE1B5B342900FF30DF /* Sources */,
+				8C18DAEF1B5B342900FF30DF /* Frameworks */,
+				8C18DAF01B5B342900FF30DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8C18DAF41B5B342900FF30DF /* PBXTargetDependency */,
+			);
+			name = NapoleonTriumphTests;
+			productName = NapoleonTriumphTests;
+			productReference = 8C18DAF21B5B342900FF30DF /* NapoleonTriumphTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		8C18DAFC1B5B342900FF30DF /* NapoleonTriumphUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C18DB0C1B5B342900FF30DF /* Build configuration list for PBXNativeTarget "NapoleonTriumphUITests" */;
+			buildPhases = (
+				8C18DAF91B5B342900FF30DF /* Sources */,
+				8C18DAFA1B5B342900FF30DF /* Frameworks */,
+				8C18DAFB1B5B342900FF30DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8C18DAFF1B5B342900FF30DF /* PBXTargetDependency */,
+			);
+			name = NapoleonTriumphUITests;
+			productName = NapoleonTriumphUITests;
+			productReference = 8C18DAFD1B5B342900FF30DF /* NapoleonTriumphUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8C18DAD21B5B342900FF30DF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftMigration = 0700;
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Justin Anderson";
+				TargetAttributes = {
+					8C18DAD91B5B342900FF30DF = {
+						CreatedOnToolsVersion = 7.0;
+						DevelopmentTeam = 9Y4Q9J54AM;
+					};
+					8C18DAF11B5B342900FF30DF = {
+						CreatedOnToolsVersion = 7.0;
+						TestTargetID = 8C18DAD91B5B342900FF30DF;
+					};
+					8C18DAFC1B5B342900FF30DF = {
+						CreatedOnToolsVersion = 7.0;
+						TestTargetID = 8C18DAD91B5B342900FF30DF;
+					};
+				};
+			};
+			buildConfigurationList = 8C18DAD51B5B342900FF30DF /* Build configuration list for PBXProject "NapoleonTriumph" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8C18DAD11B5B342900FF30DF;
+			productRefGroup = 8C18DADB1B5B342900FF30DF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8C18DAD91B5B342900FF30DF /* NapoleonTriumph */,
+				8C18DAF11B5B342900FF30DF /* NapoleonTriumphTests */,
+				8C18DAFC1B5B342900FF30DF /* NapoleonTriumphUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8C18DAD81B5B342900FF30DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */,
+				8CF85B021B76D066008D7723 /* MenuView.xib in Resources */,
+				8C208D9A1B5C8BE600FAE45A /* Notes in Resources */,
+				8C18DAE91B5B342900FF30DF /* Assets.xcassets in Resources */,
+				8C18DAE71B5B342900FF30DF /* Main.storyboard in Resources */,
+				8CCAB4831B5B4A8100324D99 /* MapBuilder.xml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C18DAF01B5B342900FF30DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C18DAFB1B5B342900FF30DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8C18DAD61B5B342900FF30DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CCAB4871B5B6C3A00324D99 /* Reserve.swift in Sources */,
+				8C208DA41B6F29E400FAE45A /* GameLogic.swift in Sources */,
+				8C18DAE21B5B342900FF30DF /* GameScene.swift in Sources */,
+				8C208D9C1B60940300FAE45A /* Order.swift in Sources */,
+				8C18DAE41B5B342900FF30DF /* GameViewController.swift in Sources */,
+				8CF85B041B76F0E7008D7723 /* Support.swift in Sources */,
+				8C208D9E1B61DA0600FAE45A /* Location.swift in Sources */,
+				8C208D981B5C82A400FAE45A /* Unit.swift in Sources */,
+				8C18DADE1B5B342900FF30DF /* AppDelegate.swift in Sources */,
+				8C18A3221B916B22008C9C9A /* Conflict.swift in Sources */,
+				8CCAB4811B5B480C00324D99 /* Approach.swift in Sources */,
+				8C208DA21B637D9900FAE45A /* Manager.swift in Sources */,
+				8CCAB4891B5B722100324D99 /* Command.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C18DAEE1B5B342900FF30DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C18DAF71B5B342900FF30DF /* NapoleonTriumphTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C18DAF91B5B342900FF30DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C18DB021B5B342900FF30DF /* NapoleonTriumphUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8C18DAF41B5B342900FF30DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C18DAD91B5B342900FF30DF /* NapoleonTriumph */;
+			targetProxy = 8C18DAF31B5B342900FF30DF /* PBXContainerItemProxy */;
+		};
+		8C18DAFF1B5B342900FF30DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C18DAD91B5B342900FF30DF /* NapoleonTriumph */;
+			targetProxy = 8C18DAFE1B5B342900FF30DF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		8C18DAE51B5B342900FF30DF /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C18DAE61B5B342900FF30DF /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C18DAEB1B5B342900FF30DF /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		8C18DB041B5B342900FF30DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8C18DB051B5B342900FF30DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8C18DB071B5B342900FF30DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = NapoleonTriumph/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumph;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8C18DB081B5B342900FF30DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = NapoleonTriumph/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumph;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		8C18DB0A1B5B342900FF30DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = NapoleonTriumphTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumphTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NapoleonTriumph.app/NapoleonTriumph";
+			};
+			name = Debug;
+		};
+		8C18DB0B1B5B342900FF30DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = NapoleonTriumphTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumphTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NapoleonTriumph.app/NapoleonTriumph";
+			};
+			name = Release;
+		};
+		8C18DB0D1B5B342900FF30DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
+				INFOPLIST_FILE = NapoleonTriumphUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumphUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = NapoleonTriumph;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		8C18DB0E1B5B342900FF30DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
+				INFOPLIST_FILE = NapoleonTriumphUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumphUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = NapoleonTriumph;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8C18DAD51B5B342900FF30DF /* Build configuration list for PBXProject "NapoleonTriumph" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C18DB041B5B342900FF30DF /* Debug */,
+				8C18DB051B5B342900FF30DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8C18DB061B5B342900FF30DF /* Build configuration list for PBXNativeTarget "NapoleonTriumph" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C18DB071B5B342900FF30DF /* Debug */,
+				8C18DB081B5B342900FF30DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8C18DB091B5B342900FF30DF /* Build configuration list for PBXNativeTarget "NapoleonTriumphTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C18DB0A1B5B342900FF30DF /* Debug */,
+				8C18DB0B1B5B342900FF30DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8C18DB0C1B5B342900FF30DF /* Build configuration list for PBXNativeTarget "NapoleonTriumphUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C18DB0D1B5B342900FF30DF /* Debug */,
+				8C18DB0E1B5B342900FF30DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8C18DAD21B5B342900FF30DF /* Project object */;
+}

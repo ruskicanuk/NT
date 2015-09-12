@@ -1,0 +1,2 @@
+ToDo:
+-USE XML to store the scaling data for the map (the original map pixels for instance and the sizes for various devices)

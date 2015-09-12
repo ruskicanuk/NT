@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="300" height="300" tilewidth="10" tileheight="10" nextobjectid="181">
+ <objectgroup name="Approach Group">
+  <object id="1" type="Approach" x="483" y="422" z="200" zRot="164" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="15" ownReserve="1" adjacentReserve="7"/>
+  <object id="2" type="Approach" x="463" y="411" z="200" zRot="53" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="3" ownReserve="1" adjacentReserve="2"/>
+  <object id="3" type="Approach" x="452" y="395" z="200" zRot="-131" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="2" ownReserve="2" adjacentReserve="1"/>
+  <object id="4" type="Approach" x="451" y="369" z="200" zRot="133" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="5" ownReserve="2" adjacentReserve="3"/>
+  <object id="5" type="Approach" x="464" y="356" z="200" zRot="316" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="4" ownReserve="3" adjacentReserve="2"/>
+  <object id="7" type="Approach" x="495" y="321" z="200" zRot="133" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="9" ownReserve="3" adjacentReserve="4"/>
+  <object id="8" type="Approach" x="494" y="356" z="200" zRot="220" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="16" ownReserve="3" adjacentReserve="7"/>
+  <object id="9" type="Approach" x="507" y="310" z="200" zRot="-46" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="7" ownReserve="4" adjacentReserve="3"/>
+  <object id="10" type="Approach" x="557" y="344" z="200" zRot="-55" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="17" ownReserve="4" adjacentReserve="7"/>
+  <object id="11" type="Approach" x="578" y="401" z="200" zRot="21" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="18" ownReserve="5" adjacentReserve="3"/>
+  <object id="12" type="Approach" x="561" y="463" z="200" zRot="21" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="13" ownReserve="5" adjacentReserve="6"/>
+  <object id="13" type="Approach" x="546" y="460" z="200" zRot="-171" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="12" ownReserve="6" adjacentReserve="5"/>
+  <object id="14" type="Approach" x="532" y="444" z="200" zRot="65" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="19" ownReserve="6" adjacentReserve="7"/>
+  <object id="15" type="Approach" x="499" y="416" z="200" zRot="346" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="1" ownReserve="7" adjacentReserve="1"/>
+  <object id="16" type="Approach" x="507" y="365" z="200" zRot="37" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="8" ownReserve="7" adjacentReserve="3"/>
+  <object id="17" type="Approach" x="548" y="357" z="200" zRot="123" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="10" ownReserve="7" adjacentReserve="4"/>
+  <object id="18" type="Approach" x="560" y="396" z="200" zRot="196" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="11" ownReserve="7" adjacentReserve="5"/>
+  <object id="19" type="Approach" x="528" y="429" z="200" zRot="244" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="14" ownReserve="7" adjacentReserve="6"/>
+  <object id="20" type="Approach" x="615" y="320" z="200" zRot="-136" inf="false" cav="false" art="false" obs="false" hill="false" wide="true" oppositeApproach="21" ownReserve="4" adjacentReserve="8"/>
+  <object id="21" type="Approach" x="627" y="337" z="200" zRot="45" inf="false" cav="false" art="false" obs="false" hill="true" wide="true" oppositeApproach="20" ownReserve="8" adjacentReserve="4"/>
+  <object id="22" type="Approach" x="623" y="409" z="200" zRot="-34" inf="false" cav="false" art="false" obs="false" hill="true" wide="true" oppositeApproach="23" ownReserve="8" adjacentReserve="5"/>
+  <object id="23" type="Approach" x="604" y="420" z="200" zRot="146" inf="false" cav="false" art="false" obs="false" hill="false" wide="true" oppositeApproach="22" ownReserve="5" adjacentReserve="8"/>
+ </objectgroup>
+ <objectgroup name="Reserve Group">
+     <object id="1" type="Reserve" x="439" y="451" z="200" zRot="0" approaches="1 2" adjReserves="2 7" rdReserves="1 2 1|1 7 6|1 7 4|1 7 3" size="12"/>
+     <object id="2" type="Reserve" x="433" y="382" z="200" zRot="0" approaches="3 4" adjReserves="1 3" rdReserves="2 1 7|2 3 7" size="6"/>
+     <object id="3" type="Reserve" x="478" y="340" z="200" zRot="0" approaches="5 7 8" adjReserves="2 7 4" rdReserves="3 2 3|3 7 4|3 7 1|3 7 6" size="6"/>
+     <object id="4" type="Reserve" x="575" y="298" z="200" zRot="0" approaches="9 10 20" adjReserves="3 7 8" rdReserves="4 7 3|4 7 1|4 7 6|4 8 5" size="20"/>
+     <object id="5" type="Reserve" x="589" y="439" z="200" zRot="0" approaches="11 12 23" adjReserves="6 7 8" rdReserves="5 6 7|5 8 4" size="16"/>
+     <object id="6" type="Reserve" x="535" y="458" z="200" zRot="0" approaches="13 14" adjReserves="5 7" rdReserves="6 7 3|6 7 1|6 7 4|6 5 8" size="4"/>
+     <object id="7" type="Reserve" x="527" y="395" z="200" zRot="0" approaches="15 16 17 18 19" adjReserves="1 3 4 5 6" rdReserves="7 1 2|7 3 2|7 6 5|7 4 8" size="9"/>
+     <object id="8" type="Reserve" x="652" y="391" z="200" zRot="0" approaches="21 22" adjReserves="5 4" rdReserves="8 4 7||8 5 6" size="20"/>
+ </objectgroup>
+ <objectgroup name="Command Group">
+     <object id="1" type="Command" units="111.0 121.0 133.0 150.1" corps="true" x="200" y="200" z="0" zRot="0" loc="Approach" locID="2"/>
+     <object id="2" type="Command" units="121.0" corps="false" x="260" y="200" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="3" type="Command" units="122.0" corps="false" x="320" y="200" z="0" zRot="0" loc="Reserve" locID="1"/>
+     <object id="4" type="Command" units="123.0" corps="false" x="200" y="250" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="5" type="Command" units="133.0" corps="false" x="260" y="250" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="6" type="Command" units="143.0" corps="false" x="320" y="250" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="7" type="Command" units="123.0" corps="false" x="200" y="300" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="8" type="Command" units="133.0" corps="false" x="260" y="300" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="9" type="Command" units="143.0" corps="false" x="320" y="300" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="10" type="Command" units="211.0 221.0 233.0 250.1" corps="true" x="400" y="200" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="11" type="Command" units="211.0 221.0 233.0 250.2" corps="true" x="460" y="200" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="12" type="Command" units="221.0" corps="false" x="520" y="200" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="13" type="Command" units="222.0" corps="false" x="400" y="250" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="14" type="Command" units="223.0" corps="false" x="460" y="250" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="15" type="Command" units="233.0" corps="false" x="520" y="250" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="16" type="Command" units="243.0" corps="false" x="400" y="300" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="17" type="Command" units="223.0" corps="false" x="460" y="300" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="18" type="Command" units="233.0" corps="false" x="520" y="300" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="19" type="Command" units="223.0 222.0 221.0 250.1" corps="true" x="580" y="200" z="0" zRot="0" loc="none" locID="none"/>
+ </objectgroup>
+ </map>
+
