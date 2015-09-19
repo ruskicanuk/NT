@@ -276,14 +276,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     QueueSwipe(swipeUp)
                     swipeStart = false
                     swipeStartPoint = nil
-                    print("Registered swipeUp", appendNewline: true)
+                    print("Registered swipeUp", terminator: "\n")
                     
                 } else if (swipeStartPoint!.y - mapLocation.y) > yRequiredForSwipe || (swipeStartPoint!.x - mapLocation.x) > yRequiredForSwipe {
                 
                     QueueSwipe(swipeDown)
                     swipeStart = false
                     swipeStartPoint = nil
-                    print("Registered swipeDown", appendNewline: true)
+                    print("Registered swipeDown", terminator: "\n")
                 }
                 
             }
@@ -334,44 +334,44 @@ class GameScene: SKScene, NSXMLParserDelegate {
         if statePoint != .Front && touchedNodeScene != fastfwdButton && touchedNodeScene != rewindButton {return Void()}
         
         //What was touched
-        if touchedNodeScene == undoButton {selectionCase = undoName; print("UndoTouch", appendNewline: false)}
-        else if touchedNodeScene == endTurnButton {if undoOrAct {return Void()}; selectionCase = endTurnName; print("EndTurnTouch", appendNewline: false)}
-        else if touchedNodeScene == terrainButton {selectionCase = terrainName; print("HideCommandsTouch", appendNewline: false)}
-        else if touchedNodeScene == fastfwdButton {if undoOrAct {return Void()}; selectionCase = fastfwdName; print("FastFwdTouch", appendNewline: false)}
-        else if touchedNodeScene == rewindButton {if undoOrAct {return Void()}; selectionCase = rewindName; print("RewindTouch", appendNewline: false)}
-        else if touchedNodeScene == corpsMoveButton {selectionCase = corpsMoveName; print("CorpsMoveTouch", appendNewline: false)}
-        else if touchedNodeScene == corpsDetachButton {selectionCase = corpsDetachName; print("CorpsDetachTouch", appendNewline: false)}
-        else if touchedNodeScene == corpsAttachButton {selectionCase = corpsAttachName; print("CorpsAttachTouch", appendNewline: false)}
-        else if touchedNodeScene == independentButton {selectionCase = independentName; print("IndependentTouch", appendNewline: false)}
-        else if touchedNodeScene == retreatButton {selectionCase = retreatName; print("RetreatTouch", appendNewline: false)}
-        else if touchedNodeScene == commitButton {selectionCase = commitName; print("CommitTouch", appendNewline: false)}
+        if touchedNodeScene == undoButton {selectionCase = undoName; print("UndoTouch", terminator: "")}
+        else if touchedNodeScene == endTurnButton {if undoOrAct {return Void()}; selectionCase = endTurnName; print("EndTurnTouch", terminator: "")}
+        else if touchedNodeScene == terrainButton {selectionCase = terrainName; print("HideCommandsTouch", terminator: "")}
+        else if touchedNodeScene == fastfwdButton {if undoOrAct {return Void()}; selectionCase = fastfwdName; print("FastFwdTouch", terminator: "")}
+        else if touchedNodeScene == rewindButton {if undoOrAct {return Void()}; selectionCase = rewindName; print("RewindTouch", terminator: "")}
+        else if touchedNodeScene == corpsMoveButton {selectionCase = corpsMoveName; print("CorpsMoveTouch", terminator: "")}
+        else if touchedNodeScene == corpsDetachButton {selectionCase = corpsDetachName; print("CorpsDetachTouch", terminator: "")}
+        else if touchedNodeScene == corpsAttachButton {selectionCase = corpsAttachName; print("CorpsAttachTouch", terminator: "")}
+        else if touchedNodeScene == independentButton {selectionCase = independentName; print("IndependentTouch", terminator: "")}
+        else if touchedNodeScene == retreatButton {selectionCase = retreatName; print("RetreatTouch", terminator: "")}
+        else if touchedNodeScene == commitButton {selectionCase = commitName; print("CommitTouch", terminator: "")}
         else {
             
             if touchedNode == NTMap {
-                print("MapTouch", appendNewline: true)
+                print("MapTouch", terminator: "\n")
                 if undoOrAct {return Void()}
                 selectionCase = mapName
             } else if touchedNode is Approach {
-                print("ApproachTouch", appendNewline: true)
+                print("ApproachTouch", terminator: "\n")
                 selectionCase = approachName
             } else if touchedNode is Reserve {
-                print("ReserveTouch", appendNewline: true)
+                print("ReserveTouch", terminator: "\n")
                 selectionCase = reserveName
             } else if touchedNode is Command {
-                print("CommandTouch Units: \((touchedNode as! Command).units.count) Active Units: \((touchedNode as! Command).activeUnits.count)", appendNewline: true)
+                print("CommandTouch Units: \((touchedNode as! Command).units.count) Active Units: \((touchedNode as! Command).activeUnits.count)", terminator: "\n")
                 //print("CommandChildren: \((touchedNode as! Command).children.count)")
                 //print("CommandFrame: \((touchedNode)?.frame)")
                 if undoOrAct {return Void()}
                 selectionCase = mapName // This triggers map-events for command selections
             } else if touchedNode is Unit {
-                print("UnitTouch", appendNewline: true)
+                print("UnitTouch", terminator: "\n")
                 //print("UnitFrame: \((touchedNode)?.frame)")
                 if undoOrAct {return Void()}
                 selectionCase = unitName
             } else {
                 if undoOrAct {return Void()}
                 DeselectEverything()
-                print("NothingTouch", appendNewline: true)
+                print("NothingTouch", terminator: "\n")
             }
         }
         

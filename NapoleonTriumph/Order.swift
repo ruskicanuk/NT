@@ -283,16 +283,16 @@ class Order {
                 
             }
             
-            print(endLocation.locationType, appendNewline: true)
-            print("Two Plus Corps?: \(endLocaleReserve!.has2PlusCorps)", appendNewline: true)
-            print("Current Fill: \(endLocaleReserve!.currentFill)", appendNewline: true)
-            print("Allegience: \(endLocaleReserve!.localeControl)", appendNewline: true)
-            print("Rd has 2+ Corps Pass: \(endLocaleReserve!.has2PlusCorpsPassed)", appendNewline: true)
-            print("Commands Entered Array: \(endLocaleReserve!.commandsEntered)", appendNewline: true)
-            print("Reserve had units go in: \(endLocaleReserve!.numberCommandsEntered)", appendNewline: true)
-            print("Adj has 2PLus Corps: \(endLocaleReserve!.containsAdjacent2PlusCorps)", appendNewline: true)
-            print("Unit Capacity: \(endLocaleReserve!.capacity)", appendNewline: true)
-            print("Unit Count: \(endLocaleReserve!.occupantCount)", appendNewline: true)
+            print(endLocation.locationType, terminator: "\n")
+            print("Two Plus Corps?: \(endLocaleReserve!.has2PlusCorps)", terminator: "\n")
+            print("Current Fill: \(endLocaleReserve!.currentFill)", terminator: "\n")
+            print("Allegience: \(endLocaleReserve!.localeControl)", terminator: "\n")
+            print("Rd has 2+ Corps Pass: \(endLocaleReserve!.has2PlusCorpsPassed)", terminator: "\n")
+            print("Commands Entered Array: \(endLocaleReserve!.commandsEntered)", terminator: "\n")
+            print("Reserve had units go in: \(endLocaleReserve!.numberCommandsEntered)", terminator: "\n")
+            print("Adj has 2PLus Corps: \(endLocaleReserve!.containsAdjacent2PlusCorps)", terminator: "\n")
+            print("Unit Capacity: \(endLocaleReserve!.capacity)", terminator: "\n")
+            print("Unit Count: \(endLocaleReserve!.occupantCount)", terminator: "\n")
             
         case (true, .Move):
         
@@ -531,14 +531,14 @@ class Order {
                 theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: true)
             }
             
-            print("Must Feint order", appendNewline: false)
+            print("Must Feint order", terminator: "")
         
         case (true, .FeintThreat):
             
             if playback {break}
             //manager!.NewPhase(2, reverse: true, playback: playback)
 
-            print("Must Feint order rescinded", appendNewline: false)
+            print("Must Feint order rescinded", terminator: "")
             
         // MARK: Attack
             
@@ -560,7 +560,7 @@ class Order {
             if playback {break}
             //manager!.NewPhase(1, reverse: true, playback: playback)
             
-            print("Attack order rescinded", appendNewline: false)
+            print("Attack order rescinded", terminator: "")
             
         // MARK: Defend
         
@@ -644,7 +644,7 @@ class Order {
             startLocaleReserve!.UpdateReserveState()
             
         default:
-        print("Do Nothing", appendNewline: false)
+        print("Do Nothing", terminator: "")
             
         }
         

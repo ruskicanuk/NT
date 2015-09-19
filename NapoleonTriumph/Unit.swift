@@ -57,7 +57,7 @@ class Unit: SKSpriteNode {
     }
     
     deinit {
-        print("Unit Deinitialized", appendNewline: false)
+        print("Unit Deinitialized", terminator: "")
     }
     
     // MARK: Update Unit Properties
