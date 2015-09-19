@@ -13,11 +13,11 @@ import SpriteKit
 
 var mapScaleFactor:CGFloat = 1.0
 
-let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 150.1:"Bagration", 150.2:"Dokhturov", 150.3:"Constantine", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 250.1:"St Hilaire", 250.2:"Vandamme"]
+let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 142.0:"AUINF2", 141.0:"AUINF1", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 242.0:"FRINF2", 241.0:"FRINF1", 251.1:"St Hilaire", 251.2:"Vandamme"]
 
-let imageNamesSelected = [133.0:"AUCAV3H", 132.0:"AUCAV3H", 131.0:"AUCAV3H", 123.0:"AUCAV3H", 122.0:"AUCAV3H", 121.0:"AUCAV3H", 111.0:"AUCAV3H", 143.0:"AUCAV3H", 150.1:"BagrationH", 150.2:"Dokhturov", 150.3:"Constantine", 233.0:"FRINF2H", 232.0:"FRINF2H", 231.0:"FRINF2H", 223.0:"FRINF2H", 222.0:"FRINF2H", 221.0:"FRINF2H", 211.0:"FRINF2H", 243.0:"FRINF2H", 250.1:"DavoutH", 250.2:"DavoutH"]
+let imageNamesSelected = [133.0:"AUCAV3H", 132.0:"AUCAV3H", 131.0:"AUCAV3H", 123.0:"AUCAV3H", 122.0:"AUCAV3H", 121.0:"AUCAV3H", 111.0:"AUCAV3H", 142.0:"AUCAV3H", 141.0:"AUCAV3H", 143.0:"AUCAV3H", 151.1:"BagrationH", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF2H", 232.0:"FRINF2H", 231.0:"FRINF2H", 223.0:"FRINF2H", 222.0:"FRINF2H", 221.0:"FRINF2H", 211.0:"FRINF2H", 243.0:"FRINF2H", 242.0:"FRINF2H", 241.0:"FRINF2H", 251.1:"DavoutH", 251.2:"DavoutH"]
 
-let imageNamesNotSelectable = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 150.1:"Bagration", 150.2:"Dokhturov", 150.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 250.1:"St Hilaire", 250.2:"Vandamme"]
+let imageNamesNotSelectable = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
 
 let imageNamesBlank:[Allegience:String] = [.Austrian:"AUback", .French:"FRback"]
 
@@ -356,6 +356,8 @@ class GameManager {
         drawOnNode = theMenu
     }
     
+    // MARK: New Phase
+    
     // Triggered by conflict commands (eg. moving into an enemy locale)
     func NewPhase(fight:Int, reverse:Bool = false, playback:Bool = false) -> String {
         
@@ -364,45 +366,28 @@ class GameManager {
         
         let phaseChange:Bool = phaseOld.NextPhase(fight, reverse: reverse) // Moves us to the next phase, returns true if need to swith acting player
         if phaseChange {SideSwith(); actingPlayer.Switch()}
+        if orders.last != nil {orders.last?.unDoable = false}
         
-        switch (phaseOld) {
+        // Set the phase-class (enums giving me hell on multi case selections)
+        let thePhaseClass:String!
+        if phaseOld == .PreGame || phaseOld == .Move {thePhaseClass = "Move"}
+        else if phaseOld == .FeintThreat || phaseOld == .NormalThreat {thePhaseClass = "Threat"}
+        else if phaseOld == .NTDefend || phaseOld == .FTDefend || phaseOld == .PreRetreat {thePhaseClass = "Commit"}
+        else {thePhaseClass = "Move"}
         
-        case .Move:
+        switch (thePhaseClass) {
+        
+        case "Move":
             
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:true)
         
-        case (.FeintThreat):
+        case ("Threat"):
             
-            // Makes all commands unselectable
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:false)
+            // Setup the threat-groups and setup the retreat and defense selection groups @ Will need to go through all orders in "new version"
             SetupThreats()
             
-            for eachGroup in reserveThreats {
-                
-                // Can spice this up later
-                for eachThreat in eachGroup.conflicts {eachThreat.defenseApproach.hidden = false}
-                
-                // Determine selectable defend groups (those which can defend)
-                selectableDefenseGroups = SelectableGroupsFromConflict(eachGroup.conflicts[0])
-                
-                // Determine selectable retreat groups (everything in the locale)
-                selectableRetreatGroups = SelectableGroupsForRetreat(eachGroup.conflicts[0]) // Get this to return available reserves
-                
-                // After we finish all threats for a reserve, set the available move-to locations and toggle selectable groups on
-                if !eachGroup.retreatMode { // All threats for a given reserve must be in the same initial threat-mode
-                    
-                    // Turns on the selectable units
-                    ToggleGroups(selectableDefenseGroups, makeSelection: .Normal)
-                    return "TurnOnFeint"
-                    
-                } else {
-                    
-                    // Turns on the selectable units
-                    ToggleGroups(selectableRetreatGroups, makeSelection: .Normal)
-                    return "TurnOnRetreat"
-                    
-                }
-            }
+            // Return the code (whether forced retreat / defend)
+            return ResetRetreatDefenseSelection()
             
         default:
             break
@@ -411,7 +396,8 @@ class GameManager {
         return "Nothing"
     }
     
-    // Triggered by clicking "End Turn"
+    // MARK: New Turn
+    
     func NewTurn() {
         
         // Save the previous phasing player's orders
@@ -463,10 +449,35 @@ class GameManager {
         
         // Always switch side, phasing and acting player
         SideSwith()
+        if orders.last != nil {orders.last?.unDoable = false}
         phasingPlayer.Switch()
         actingPlayer.Switch()
         
     }
+
+    // MARK: Property Observer functions
+    
+    func updateCommandLabel() {
+        commandLabel.text = "Corps Commands: \(self.corpsCommandsAvail)"
+    }
+    
+    func updateIndLabel() {
+        indLabel.text = "Ind. Commands: \(self.indCommandsAvail)"
+    }
+    
+    func updatePhasingLabel() {
+        phasingLabel.text = "Phasing Player: \(self.phasingPlayer.ID)"
+    }
+    
+    func updateActingLabel() {
+        actingLabel.text = "Acting Player: \(self.actingPlayer.ID)"
+    }
+    
+    func updateTurnLabel() {
+        turnLabel.text = "Turn: \(self.turn) Phase: \(self.phaseOld.ID)"
+    }
+    
+    // MARK: Manager Support Functions
     
     func turnID() -> Int {
         
@@ -521,27 +532,6 @@ class GameManager {
         
     }
     
-    // Property Observer functions
-    func updateCommandLabel() {
-        commandLabel.text = "Corps Commands: \(self.corpsCommandsAvail)"
-    }
-    
-    func updateIndLabel() {
-        indLabel.text = "Ind. Commands: \(self.indCommandsAvail)"
-    }
-    
-    func updatePhasingLabel() {
-        phasingLabel.text = "Phasing Player: \(self.phasingPlayer.ID)"
-    }
-    
-    func updateActingLabel() {
-        actingLabel.text = "Acting Player: \(self.actingPlayer.ID)"
-    }
-    
-    func updateTurnLabel() {
-        turnLabel.text = "Turn: \(self.turn) Phase: \(self.phaseOld.ID)"
-    }
-    
     func SideSwith() {
         
         for eachCommand in gameCommands[manager!.actingPlayer]! {
@@ -589,6 +579,51 @@ class GameManager {
             self.reserveThreats += [GroupConflict(passReserve: reserve, passConflicts: theConflicts)]
         }
     
+    }
+    
+    // Returns retreat mode (for the retreat selector)
+    func ResetRetreatDefenseSelection () -> String {
+        
+        for eachGroup in reserveThreats {
+            
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:false)
+            
+            // Determine selectable defend groups (those which can defend)
+            selectableDefenseGroups = SelectableGroupsFromConflict(eachGroup.conflicts[0])
+            
+            // Determine selectable retreat groups (everything in the locale)
+            selectableRetreatGroups = SelectableGroupsForRetreat(eachGroup.conflicts[0]) // Get this to return available reserves
+            
+            // Determines whether there is a forced retreat condition
+            (eachGroup.mustRetreat, eachGroup.mustDefend) = CheckForcedRetreatOrDefend(eachGroup)
+            //print(eachGroup.mustRetreat)
+            // Surrender Case
+            if eachGroup.mustRetreat == true && eachGroup.mustDefend == true {eachGroup.retreatMode = true; return "TurnOnSurrender"}
+            
+            // If not surrender case and must retreat is on
+            if eachGroup.mustRetreat {eachGroup.retreatMode = true}
+            
+            // After we finish all threats for a reserve, set the available move-to locations and toggle selectable groups on
+            if !eachGroup.retreatMode { // All threats for a given reserve must be in the same initial threat-mode
+                
+                // Turns on the selectable units
+                ToggleGroups(selectableDefenseGroups, makeSelection: .Normal)
+                
+                // Ensure each attack threat is visible (normally this is set automatically when defense mode is set)
+                for eachThreat in eachGroup.conflicts {eachThreat.defenseApproach.hidden = false}
+                
+                return "TurnOnFeint"
+                
+            } else {
+                
+                // Turns on the selectable units
+                ToggleGroups(selectableRetreatGroups, makeSelection: .Normal)
+                
+                return "TurnOnRetreat"
+                
+            }
+        }
+        return "TurnOnNothing"
     }
     
 }

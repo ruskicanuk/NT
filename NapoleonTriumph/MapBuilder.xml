@@ -35,7 +35,8 @@
      <object id="8" type="Reserve" x="652" y="391" z="200" zRot="0" approaches="21 22" adjReserves="5 4" rdReserves="8 4 7||8 5 6" size="20"/>
  </objectgroup>
  <objectgroup name="Command Group">
-     <object id="1" type="Command" units="111.0 121.0 133.0 150.1" corps="true" x="200" y="200" z="0" zRot="0" loc="Approach" locID="2"/>
+     <object id="1" type="Command" units="111.0 121.0 133.0 151.1" corps="true" x="200" y="200" z="0" zRot="0" loc="Approach" locID="2"/>
+     <object id="20" type="Command" units="121.0 123.0 133.0 151.2" corps="true" x="200" y="200" z="0" zRot="0" loc="Reserve" locID="6"/>
      <object id="2" type="Command" units="121.0" corps="false" x="260" y="200" z="0" zRot="0" loc="none" locID="none"/>
      <object id="3" type="Command" units="122.0" corps="false" x="320" y="200" z="0" zRot="0" loc="Reserve" locID="1"/>
      <object id="4" type="Command" units="123.0" corps="false" x="200" y="250" z="0" zRot="0" loc="none" locID="none"/>
@@ -44,8 +45,8 @@
      <object id="7" type="Command" units="123.0" corps="false" x="200" y="300" z="0" zRot="0" loc="none" locID="none"/>
      <object id="8" type="Command" units="133.0" corps="false" x="260" y="300" z="0" zRot="0" loc="none" locID="none"/>
      <object id="9" type="Command" units="143.0" corps="false" x="320" y="300" z="0" zRot="0" loc="none" locID="none"/>
-     <object id="10" type="Command" units="211.0 221.0 233.0 250.1" corps="true" x="400" y="200" z="0" zRot="0" loc="none" locID="none"/>
-     <object id="11" type="Command" units="211.0 221.0 233.0 250.2" corps="true" x="460" y="200" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="10" type="Command" units="211.0 221.0 233.0 251.1" corps="true" x="400" y="200" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="11" type="Command" units="211.0 221.0 233.0 251.2" corps="true" x="460" y="200" z="0" zRot="0" loc="none" locID="none"/>
      <object id="12" type="Command" units="221.0" corps="false" x="520" y="200" z="0" zRot="0" loc="none" locID="none"/>
      <object id="13" type="Command" units="222.0" corps="false" x="400" y="250" z="0" zRot="0" loc="none" locID="none"/>
      <object id="14" type="Command" units="223.0" corps="false" x="460" y="250" z="0" zRot="0" loc="none" locID="none"/>
@@ -53,7 +54,7 @@
      <object id="16" type="Command" units="243.0" corps="false" x="400" y="300" z="0" zRot="0" loc="none" locID="none"/>
      <object id="17" type="Command" units="223.0" corps="false" x="460" y="300" z="0" zRot="0" loc="none" locID="none"/>
      <object id="18" type="Command" units="233.0" corps="false" x="520" y="300" z="0" zRot="0" loc="none" locID="none"/>
-     <object id="19" type="Command" units="223.0 222.0 221.0 250.1" corps="true" x="580" y="200" z="0" zRot="0" loc="none" locID="none"/>
+     <object id="19" type="Command" units="223.0 222.0 221.0 251.1" corps="true" x="580" y="200" z="0" zRot="0" loc="none" locID="none"/>
  </objectgroup>
  </map>
 

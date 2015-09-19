@@ -14,35 +14,118 @@ class Conflict {
     let defenseApproach:Approach!
     let attackApproach:Approach!
     
-    var defenseGroup:[Group]?
-    var attackGroups:[Group]?
+    var defenseGroup:GroupSelection?
+    var attackGroups:GroupSelection?
+    var defenseSide:Allegience!
     
     var defenseLeadingUnits:Group?
     var attackLeadingUnits:Group?
+    
+    var potentialRdAttackers:[Command:[[Reserve]]] = [:] // Stores the reserve pathways possible
+    //var potentialAdjAttackers:[Command:[Location]] = [:]
     
     var defenseOrRetreatDeclared:Bool = false
     var defenseLeadingDeclared:Bool = false
     var attackOrFeintDeclared:Bool = false
     var attackLeadingDeclared:Bool = false
     
-    var mustFeint:Bool = false  // Remove?
+    var mustFeint:Bool = false
     
     var approachConflict:Bool = false
     var battleOccured:Bool = false
     
-    init(aReserve:Reserve, dReserve:Reserve, aApproach:Approach, dApproach:Approach, mFeint:Bool = false, mRetreat:Bool = false) {
+    weak var parentGroupConflict:GroupConflict?
+    
+    init(aReserve:Reserve, dReserve:Reserve, aApproach:Approach, dApproach:Approach, mFeint:Bool = false) {
         defenseReserve = dReserve
         attackReserve = aReserve
         defenseApproach = dApproach
         attackApproach = aApproach
         mustFeint = mFeint
+        defenseSide = manager!.phasingPlayer.Other()
+        for eachCommand in manager!.gameCommands[defenseSide.Other()!]! {
+            
+            let theRdPaths = RdCommandPathToConflict(eachCommand)
+            if !theRdPaths.isEmpty {potentialRdAttackers[eachCommand] = theRdPaths}
+        }
     }
-}
+    
+    // Returns the road paths for a command to the conflict area (nil if no such road)
+    func RdCommandPathToConflict (pCommand:Command) -> [[Reserve]] {
+        guard let commandReserve = pCommand.currentLocation as? Reserve else {return []}
+        var thePaths:[[Reserve]] = []
 
+        for eachPath in commandReserve.rdReserves {
+            let pathLength = eachPath.count
+            if pathLength == 3 {
+                if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                if eachPath[2] == defenseReserve {thePaths += [eachPath]}
+            } else if pathLength == 4 {
+                
+                if eachPath[2] == defenseReserve {
+                    if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                    var adjustedPath = eachPath
+                    adjustedPath.removeLast()
+                    thePaths += [adjustedPath]
+                }
+                else if eachPath[3] == defenseReserve {
+                    if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                    if eachPath[2].localeControl == pCommand.commandSide.Other() || eachPath[2].has2PlusCorpsPassed {continue}
+                    thePaths += [eachPath]
+                }
+            }
+        }
+        
+        if thePaths == [] {return []} else {return thePaths}
+    }
+
+    /*
+    // Nil if command is not adjacent, the location if it is
+    func AdjCommandPathToConflict (pCommand:Command) -> [Location]? {
+        
+        if pCommand.currentLocation is Approach {
+            let commandApproachLocation = pCommand.currentLocation as! Approach
+            if commandApproachLocation == attackApproach {return [attackApproach]} else {return nil}
+        }
+        else if pCommand.currentLocation is Reserve {
+            let commandReserveLocation = pCommand.currentLocation as! Reserve
+            if commandReserveLocation == attackReserve {return [attackReserve, attackApproach]} else {return nil}
+        }
+        else {return nil}
+    }
+
+    */
+}
 class GroupConflict {
     
     var mustRetreat:Bool = false
-    var retreatMode:Bool = false
+    var mustDefend:Bool = false
+    var retreatMode:Bool = false {
+        didSet {
+            if retreatMode {
+                for eachConflict in conflicts {eachConflict.defenseApproach.hidden = true}
+            } else {
+                for eachConflict in conflicts {eachConflict.defenseApproach.hidden = false}
+            }
+        }
+    }
+    // Used to store number of orders for the purposes of releasing the mustRetreat / mustDefend condition when un-doing
+    var retreatOrders:Int = 0
+    var defenseOrders:Int = 0
+    
+    var twoPlusCorps:Bool = false
+    
+    // Returns if any reductions have been made
+    var madeReductions:Bool {
+        //var requiredReductions:Int = 0
+        var actualReductions:Int = 0
+        //for (_, required) in damageRequired {requiredReductions += required}
+        //for (_, required) in destroyRequired {requiredReductions += required}
+        for (_, required) in damageDelivered {actualReductions += required}
+        for (_, required) in destroyDelivered {actualReductions += required}
+        
+        return actualReductions > 0
+    }
     
     let defenseReserve:Reserve!
     let conflicts:[Conflict]!
@@ -51,6 +134,12 @@ class GroupConflict {
     var unresolvedApproaches:[Approach] {
         return Array(Set(threatenedApproaches).subtract(Set(defendedApproaches)))
     }
+    var initialReductionsRequired:Int {
+        var totalRequired:Int = 0
+        for (_, reduction) in destroyRequired {totalRequired += reduction}
+        for (_, reduction) in damageRequired {totalRequired += reduction}
+        return totalRequired
+    }
     var damageRequired:[Location:Int] = [:]
     var destroyRequired:[Location:Int] = [:]
     var damageDelivered:[Location:Int] = [:]
@@ -58,16 +147,18 @@ class GroupConflict {
     //var battledLocations:[Location] = []
     
     init(passReserve:Reserve, passConflicts:[Conflict]) {
+
         defenseReserve = passReserve
         conflicts = passConflicts
+        if defenseReserve.has2PlusCorps == .Neutral {twoPlusCorps = false} else {twoPlusCorps = true} // Saves whether the reserve has a two-plus Corps
         
         for eachConflict in conflicts {
             threatenedApproaches += [eachConflict.defenseApproach]
-            
+            eachConflict.parentGroupConflict = self
             // These are occupied approaches being threatened (all defenders on the approach are added automatically to the defense group)
             if eachConflict.defenseApproach.occupantCount > 0 {
                 defendedApproaches += [eachConflict.defenseApproach]
-                eachConflict.defenseGroup = GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false)
+                eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false))
                 eachConflict.approachConflict = true
             }
         }
@@ -108,8 +199,8 @@ class GroupConflict {
         damageDelivered[defenseReserve] = 0
         destroyDelivered[defenseReserve] = 0
         
-        // If there is an undefended threat with no available defenders
-        if unresolvedApproaches.count > 0 && !defenseReserve.defendersAvailable {mustRetreat = true; retreatMode = true}
+        // If there is an undefended threat with not enough available defenders
+        //if unresolvedApproaches.count > defenseReserve.defendersAvailable {mustRetreat = true; retreatMode = true}
     }
     
 }
@@ -118,6 +209,12 @@ class Group {
     
     let command:Command!
     let units:[Unit]!
+    var nonLdrUnits:[Unit] {
+        var theUnits:[Unit] = []
+        for each in units {if each.unitType != .Ldr {theUnits += [each]}}
+        return theUnits
+    }
+    var leaderUnit:Unit?
     var fullCommand:Bool = false
     var leaderInGroup:Bool = false
     var allCav:Bool = true
@@ -129,7 +226,7 @@ class Group {
         command = theCommand
         units = theUnits
         for eachUnit in theUnits {
-            if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++} else {nonLdrUnitCount++}
+            if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++; leaderUnit = eachUnit} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++} else {nonLdrUnitCount++}
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
         }
         
@@ -145,7 +242,7 @@ class Group {
 class GroupSelection {
     
     var groups:[Group] = []
-    var groupSelectionSize:Int = 0
+    var groupSelectionSize:Int = 0 // Number of blocks in the group
     
     var sameTypeSameCorps:Bool = false
     var sameType:Bool = false
@@ -165,7 +262,7 @@ class GroupSelection {
                     theUnits += [eachUnit] // Add to units
                     if eachUnit.unitType != .Ldr {groupSelectionSize++} // Increment group selection size
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
-                    if eachUnit.unitStrength == 1 {anyOneStrengthUnits = true}
+                    if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
 
                 }
                 
@@ -181,6 +278,14 @@ class GroupSelection {
         if unitsTypes.count == 1 && numberCorps == 1 && numberDetached == 0 {sameTypeSameCorps = true}
         if unitsTypes.count == 1 && numberCorps <= 2 && numberDetached == 0 {sameType = true}
         
+    }
+    
+    func SetGroupSelectionPropertyUnitsHaveDefended(onOff:Bool) {
+        for eachGroup in self.groups {
+            for eachUnit in eachGroup.units {
+                eachUnit.alreadyDefended = onOff
+            }
+        }
     }
     
 }

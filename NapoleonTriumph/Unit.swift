@@ -30,6 +30,7 @@ class Unit: SKSpriteNode {
     
     var alreadyDefended:Bool = false
     var wasInBattle:Bool = false
+    var parentCommand:Command?
     
     //Add a converter from the current properties to unitCode and from unitCode to set the properties
     
@@ -39,7 +40,7 @@ class Unit: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
 
-    init (unitCodePassedFromCommand: Double) {
+    init (unitCodePassedFromCommand: Double, pCommand:Command) {
         
         unitCode = unitCodePassedFromCommand
         let baseTexture = SKTexture(imageNamed: imageNamesNormal[unitCode]!)
@@ -48,6 +49,7 @@ class Unit: SKSpriteNode {
         
         super.init(texture: baseTexture, color: baseColor, size: baseSize)
         
+        parentCommand = pCommand
         setPropertiesWithUnitCode()
         if unitType == .Ldr {alreadyDefended = true}
         //self.userInteractionEnabled = false
@@ -62,7 +64,7 @@ class Unit: SKSpriteNode {
     
     func updateUnitTexture() {
         
-        if unitStrength == 0 && unitType != .Ldr {self.texture = nil; return Void()}
+        if unitStrength == 0 {self.texture = nil; return Void()}
         
         if selected == .Selected {
             
@@ -150,15 +152,15 @@ class Unit: SKSpriteNode {
         if reduce {
             unitCode--
             unitStrength--
-            if unitStrength == 0 {self.selected = .NotSelectable; self.zPosition = -1}
+            if unitStrength == 0 {self.selected = .NotSelectable; self.removeFromParent()}
         } else {
-            if unitStrength == 0 {self.selected = .Normal; self.zPosition = 60}
+            if unitStrength == 0 {parentCommand!.addChild(self); self.selected = .Normal; self.zPosition = 100}
             unitCode++
             unitStrength++
         }
         
         self.updateUnitTexture()
-        (self.parent as! Command).unitsUpkeep(false)
+        parentCommand!.unitsUpkeep(false)
         //if unitType == .Art {return true} else {return false}
     }
 }

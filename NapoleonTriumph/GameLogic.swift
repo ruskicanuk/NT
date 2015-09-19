@@ -315,7 +315,7 @@ func EnemyRdTargets(commandSelected:Command, TwoPlusCorps:Bool = false) -> [Appr
                     //print(eachPath[i-1].capacity)
                     //print(eachPath[i].defendersAvailable)
                     //print(eachPath[i])
-                    if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable) {break}
+                    if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
                     if attackToApproach.occupantCount > 0 {break}
 
                     targetApproaches += [attackToApproach]
@@ -340,7 +340,7 @@ func EnemyRdTargets(commandSelected:Command, TwoPlusCorps:Bool = false) -> [Appr
                         (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
                         
                         // Double checks that there is capacity if the enemy blocks the feint AND that the approach attacked is is clear
-                        if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable) {break}
+                        if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
                         if attackToApproach.occupantCount > 0 {break}
 
                         targetApproaches += [attackToApproach]; break
@@ -494,7 +494,7 @@ func SelectableGroupsFromConflict (theConflict:Conflict) -> [Group] {
     
     var theCommandGroups:[Group] = []
 
-    if (theConflict.defenseApproach.occupantCount > 0) || !(theConflict.defenseReserve.defendersAvailable) {return theCommandGroups}
+    if (theConflict.defenseApproach.occupantCount > 0) || !(theConflict.defenseReserve.defendersAvailable > 0) {return theCommandGroups}
     
     for eachReserveOccupant in theConflict.defenseReserve.occupants {
         
@@ -608,11 +608,50 @@ func RetreatOptions(theThreat:GroupConflict, retreatGroup:[Group]) -> SelState {
     if returnOn {return .On} else {return .NotAvail}
 }
 
-// MARK: Leading Units
-
-func SelectableLeadingUnits () {
+// Returns (true, true) if can't retreat or defend, (true, false) if can only retreat, (false, true) if can only defend and (false, false) if can do either
+func CheckForcedRetreatOrDefend(theThreat:GroupConflict) -> (Bool, Bool) {
     
+    // Must defend? (already gave a defense order)
+    if theThreat.mustDefend {return (false, true)}
+    
+    // Space available? (retreat or no order) - this will return the destroy case (true, true)
+    var spaceAvailable:Bool = false
+    for eachReserve in theThreat.defenseReserve.adjReserves {
+        if eachReserve.availableSpace > 0 && eachReserve.localeControl != manager!.phasingPlayer {spaceAvailable = true; break}
+    }
+    if !spaceAvailable {
+        if theThreat.mustRetreat {return (true, true)}
+        else if theThreat.unresolvedApproaches.count > theThreat.defenseReserve.defendersAvailable {return (true, true)}
+        else {return (false, true)} // Enough to defend with
+    }
+    
+    // No command was given, check if there is any unresolved approaches
+    if theThreat.unresolvedApproaches.count == 0 {return (false, true)}
+    
+    // Retreat command was given and space exists
+    if theThreat.mustRetreat {return (true, false)}
+    
+    // No command was given, check if there is enough defenders available
+    if theThreat.unresolvedApproaches.count > theThreat.defenseReserve.defendersAvailable {return (true, false)}
+    //print(theThreat.madeReductions)
+    
+    // If you make it through, neither is forced (no command given)
+    return (false, false)
 }
+
+// Returns true if endTurn is viable
+func CheckTurnEndViableRetreatOrDefend(theThreat:GroupConflict) -> Bool {
+    if theThreat.retreatMode {
+        if theThreat.defenseReserve.currentFill == 0 {return true}
+    } else {
+        if theThreat.unresolvedApproaches.count == 0 {return true}
+    }
+    return false
+}
+
+// MARK: Commit Functions
+
+
 
 // MARK: Toggle Selections
 
@@ -637,5 +676,6 @@ func ActivateDetached(theReserve:Reserve, theGroups:[Group], makeSelection:Selec
         if !eachGroup.command.hasLeader && eachGroup.command.currentLocation == theReserve {ToggleGroups([eachGroup], makeSelection: makeSelection)}
     }
 }
+
 
 

@@ -25,13 +25,14 @@ class Reserve:Location {
 
     var commandsEntered:[Command] = []
     
-    var defendersAvailable:Bool {
+    var defendersAvailable:Int {
+        var defenderBlockCount:Int = 0
         for eachCommand in occupants {
             for eachUnit in eachCommand.units {
-                if eachUnit.alreadyDefended == false && eachUnit.unitType != .Ldr {return true}
+                if eachUnit.alreadyDefended == false && eachUnit.unitType != .Ldr {defenderBlockCount++}
             }
         }
-        return false
+        return defenderBlockCount
     }
     
     // Reserve state variables

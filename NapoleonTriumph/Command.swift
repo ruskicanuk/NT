@@ -221,7 +221,7 @@ class Command:SKNode {
         self.parent?.addChild(currentLocation!)
         //currentLocation?.occupants += [self]
         
-        selector = SpriteSelector(parentNode: self as SKNode, initialSelection: .Off, theCoordinateSystem: self as SKNode, passDrawType: "Command")
+        //selector = SpriteSelector(parentNode: self as SKNode, initialSelection: .Off, theCoordinateSystem: self as SKNode, passDrawType: "Command")
         
     }
     
@@ -248,6 +248,7 @@ class Command:SKNode {
 
             each.removeFromParent()
             self.addChild(each)
+            each.parentCommand = self
             each.zPosition = 100
             self.units += [each]
             self.unitsUpkeep() // Doesn't seem to call it in an init...
@@ -255,18 +256,18 @@ class Command:SKNode {
         }
        
         //currentLocation?.occupants += [self]
-        selector = SpriteSelector(parentNode: self as SKNode, initialSelection: .Off, theCoordinateSystem: self as SKNode, passDrawType: "Command")
+        //selector = SpriteSelector(parentNode: self as SKNode, initialSelection: .Off, theCoordinateSystem: self as SKNode, passDrawType: "Command")
 
     }
     
     deinit {
-        print("Deinitializing Command")
+        print("DEINIT Command")
     }
     
     // MARK: Unit related functions
     func createUnit(unitCode:Double) {
         
-        let unitToCreate = Unit(unitCodePassedFromCommand: unitCode)
+        let unitToCreate = Unit(unitCodePassedFromCommand: unitCode, pCommand: self)
         var indexToPlace:Int = 0
         
         for each in units {
@@ -292,7 +293,7 @@ class Command:SKNode {
         activeUnits = []
 
         for each in units {
-            if each.unitType != .Ldr && each.unitStrength == 0 {continue} // Skip "dead" units
+            if each.unitStrength == 0 {continue} // Skip "dead" units
             each.position.y = -CGFloat(count)*unitHeight*mapScaleFactor
             
             activeUnits += [each]
