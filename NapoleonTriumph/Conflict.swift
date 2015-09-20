@@ -58,19 +58,19 @@ class Conflict {
         for eachPath in commandReserve.rdReserves {
             let pathLength = eachPath.count
             if pathLength == 3 {
-                if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                //if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
                 if eachPath[2] == defenseReserve {thePaths += [eachPath]}
             } else if pathLength == 4 {
                 
                 if eachPath[2] == defenseReserve {
-                    if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                    //if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
                     var adjustedPath = eachPath
                     adjustedPath.removeLast()
                     thePaths += [adjustedPath]
                 }
                 else if eachPath[3] == defenseReserve {
-                    if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
-                    if eachPath[2].localeControl == pCommand.commandSide.Other() || eachPath[2].has2PlusCorpsPassed {continue}
+                    //if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                    //if eachPath[2].localeControl == pCommand.commandSide.Other() || eachPath[2].has2PlusCorpsPassed {continue}
                     thePaths += [eachPath]
                 }
             }
@@ -214,6 +214,7 @@ class Group {
         for each in units {if each.unitType != .Ldr {theUnits += [each]}}
         return theUnits
     }
+    var artOnly:Bool = true
     var leaderUnit:Unit?
     var fullCommand:Bool = false
     var leaderInGroup:Bool = false
@@ -226,7 +227,7 @@ class Group {
         command = theCommand
         units = theUnits
         for eachUnit in theUnits {
-            if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++; leaderUnit = eachUnit} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++} else {nonLdrUnitCount++}
+            if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++; leaderUnit = eachUnit} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false} else if eachUnit.unitType == .Art {nonLdrUnitCount++} else {nonLdrUnitCount++; artOnly = false}
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
         }
         

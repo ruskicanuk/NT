@@ -435,8 +435,8 @@ class Order {
                 
         case (true, .Retreat):
             
-            print(newCommands[0])
-            print(moveCommands[0])
+            //print(newCommands[0])
+            //print(moveCommands[0])
             
             var i = -1
             for eachGroup in groupSelection!.groups {
@@ -708,12 +708,12 @@ class Order {
             var zPosition:CGFloat = 1.0
             
             // Draw the path
-            if order == .Move || order == .Attach || order == .NormalThreat || order == .Move {
+            if order == .Move || order == .Attach || order == .Move {
                 CGPathMoveToPoint(orderPath, nil, baseGroup!.command.currentLocation!.position.x, baseGroup!.command.currentLocation!.position.y)
                 CGPathAddLineToPoint(orderPath, nil, endLocation.position.x, endLocation.position.y)
                 orderArrow = SKShapeNode(path: orderPath)
             
-            } else if order == .FeintThreat {
+            } else if order == .FeintThreat || order == .NormalThreat {
                 
                 if let endApproach = endLocation as? Approach {
                     if let startReserve = endApproach.oppApproach?.ownReserve {

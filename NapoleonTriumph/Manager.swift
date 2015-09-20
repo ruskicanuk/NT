@@ -261,6 +261,10 @@ class GameManager {
     var gameCommands:[Allegience:[Command]] = [.Austrian:[], .French:[]]
     var selectableDefenseGroups:[Group] = []
     var selectableRetreatGroups:[Group] = []
+    var selectableAttackGroups:[Group] = []
+    var selectableAttackByRoadGroups:[Group] = []
+    var selectableAttackAdjacentGroups:[Group] = []
+    
     var currentGroupsSelected:[Group] = []
     var selectionRetreatReserves:[Reserve] = [] // Stores viable retreat reserves for the current selection
     //var defendingGroups:[Approach:[Group]]? // Used to store defenders for a current attack
@@ -360,7 +364,7 @@ class GameManager {
     
     // Triggered by conflict commands (eg. moving into an enemy locale)
     func NewPhase(fight:Int, reverse:Bool = false, playback:Bool = false) -> String {
-        
+        print("new Phase triggered")
         // Increments phase if we aren't in play-back mode
         if playback {return "Playback"}
         
@@ -388,6 +392,10 @@ class GameManager {
             
             // Return the code (whether forced retreat / defend)
             return ResetRetreatDefenseSelection()
+        
+        case ("Commit"):
+            
+            break
             
         default:
             break
