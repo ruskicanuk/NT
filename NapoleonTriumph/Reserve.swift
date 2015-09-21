@@ -90,7 +90,7 @@ class Reserve:Location {
         has2PlusCorpsPassed = false
         haveCommandsEntered = false
         numberCommandsEntered = 0
-        
+
         // Step through the reserve's approaches
         for each in ownApproaches {
             

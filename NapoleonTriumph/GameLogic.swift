@@ -12,65 +12,6 @@ import SpriteKit
 
 // MARK: Move Logic
 
-func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState, SelState, SelState), feint:Bool, theConflict:Conflict, undoOrAct:Bool = false) -> [SKNode] {
-    
-    // Safety drill
-    let (moveOnS, detachOnS, _, indOnS) = selectors
-    if moveOnS != .On && detachOnS != .On && indOnS != .On {return []}
-    
-    // Establish whether the group is adjacent
-    let theLocation = theGroup.command.currentLocation
-    var adjacentLocation = false
-    var onApproach = false
-    if theLocation is Approach {
-        adjacentLocation = true
-        onApproach = true
-    } else {
-        if (theLocation as! Reserve) == theConflict.attackReserve {adjacentLocation = true}
-    }
-    
-    let theReserveAsSKNode = theConflict.attackReserve as SKNode
-    let theApproachAsSKNode = theConflict.attackApproach as SKNode
-    
-    switch (adjacentLocation, feint) {
-        
-    case (true, true):
-        
-        return [theReserveAsSKNode, theApproachAsSKNode]
-        
-    case (true, false):
-        
-        // Allows artillery to stay still
-        if (detachOnS == .On || indOnS == .On) && theGroup.artOnly && onApproach {return [theConflict.defenseReserve, theApproachAsSKNode]}
-        else {return [theConflict.defenseReserve as SKNode]} // the normal case
-        
-    case (false, _):
-        
-        let moveNumber = theGroup.command.moveNumber
-        let thePaths = theConflict.potentialRdAttackers[theGroup.command]!
-        let theEnd = thePaths[0].count - 1
-        var theMoveOptions:[SKNode] = []
-        
-        if feint && (theEnd - moveNumber <= 1) { // Final step in feint-mode
-            return [theApproachAsSKNode as SKNode]
-        } else if !feint && (theEnd - moveNumber <= 0) { // Final step in feint-mode
-            return []
-        } else {
-        
-            for eachPath in thePaths {
-                if eachPath[moveNumber] != theGroup.command.currentLocation {break}
-                theMoveOptions += [eachPath[moveNumber+1] as SKNode]
-            }
-            return theMoveOptions // Add something to show it isn't at the end yet?
-        }
-        
-    default: return []
-        
-    }
-    
-    
-}
-
 // Returns true (if road move), first array are viable "peaceful" moves, second array are viable "attack" moves
 func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([SKNode], [SKNode], [SKNode]) {
     
@@ -687,7 +628,7 @@ func SelectableGroupsForAttackByRoad (theConflict:Conflict) -> [Group]  {
     let corpsMovesAvailable = manager!.indCommandsAvail > 0
     let independentMovesAvailable = manager!.corpsCommandsAvail > 0
 
-    for (eachCommand, thePaths) in theConflict.potentialRdAttackers {
+    for (eachCommand, _) in theConflict.potentialRdAttackers {
         //print("CavCount: \(eachCommand.cavUnits.count) Leader: \(eachCommand.hasLeader) CorpsMovesAvailable: \(corpsMovesAvailable) IndMovesAvailable: \(independentMovesAvailable)")
         
         // Leader case
@@ -736,13 +677,13 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
     
     // Safety drill
     if groupsSelected.isEmpty {return (.Off, .Off, .Off, .Off)}
-    
-    //print(groupsSelected.count)
+    if groupsSelected[0].command.finishedMove {return (.Off, .Off, .Off, .Off)}
     //print(groupsSelected[0].units.count)
     
     var corpsMove:SelState = .On
     var detachMove:SelState = .On
     var independent:SelState = .On
+    if groupsSelected[0].command.moveNumber > 0 {detachMove = .Off}
     
     let (corpsOrders, indOrders) = ordersLeft
     
@@ -771,9 +712,11 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
         // Check selected group for > 1 Corps selected condition
         var multiCorpsAttackViable = true
         var multiUnitCorpsCount = 0
+        var numberOfUnits = 0
         
         for eachGroup in groupsSelected {
             
+            numberOfUnits += eachGroup.nonLdrUnitCount
             if eachGroup.leaderInGroup {
                 multiUnitCorpsCount++
             } else {multiCorpsAttackViable = false}
@@ -781,6 +724,7 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
         }
         if multiCorpsAttackViable {
             if multiUnitCorpsCount > corpsOrders {corpsMove = .NotAvail}
+            if numberOfUnits > theConflict.defenseReserve.capacity {corpsMove = .Off} // Too-many, won't fit in defense locale
             return (corpsMove, .Off, .Off, .Off)
         }
         
@@ -794,6 +738,7 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
         
     } else if groupsSelected.count == 1 {
         
+        // Order constraints
         if corpsOrders < 1 {corpsMove = .NotAvail; detachMove = .NotAvail}
         if indOrders < 1 {independent = .NotAvail}
         let theGroup = groupsSelected[0]
@@ -804,6 +749,17 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
             adjacentLocation = true
         } else {
             if (theLocation as! Reserve) == theConflict.attackReserve {adjacentLocation = true}
+        }
+        
+        // Capacity constraints
+        if (manager!.phaseOld == .FTDefend || manager!.phaseOld == .NTDefend) && !adjacentLocation {
+            
+            if theGroup.nonLdrUnits.count > theConflict.attackReserve.availableSpace {return (.Off, .Off, .Off, .Off)}
+            
+        } else if manager!.phaseOld == .PreRetreat {
+            
+            if theGroup.nonLdrUnits.count > theConflict.defenseReserve.capacity {return (.Off, .Off, .Off, .Off)}
+            
         }
         
         if theGroup.nonLdrUnits.count > 1 {
@@ -847,7 +803,7 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
                 
             case (false, true):
                 
-                if indOrders > 0 && corpsOrders > 0 {detachMove = .Option}
+                if indOrders > 0 && corpsOrders > 0 && detachMove != .Off {detachMove = .Option}
                 return (.Off, detachMove, .Off, independent)
                 
             }
@@ -857,34 +813,102 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
 }
 
 // Pass it a 2D array of reserve pathways, returns true if 2Plus Corps can rd move with it (checks the three rd conditions plus whether enemy occupied)
-func AttackByRdPossible(thePaths:[[Reserve]], twoPlusCorps:Bool) -> Bool {
+func AttackByRdPossible(thePath:[Reserve], twoPlusCorps:Bool) -> Bool {
 
-    if thePaths.isEmpty {return false}
+    if thePath.isEmpty {return false}
     var rdBlocked = false
     
-    for eachPath in thePaths {
-        for var i = 1; i < eachPath.count-1; i++ {
-            
-            if twoPlusCorps {
-                if eachPath[i].commandsEntered.count > 0 || eachPath[i].containsAdjacent2PlusCorps == .Both || eachPath[i].containsAdjacent2PlusCorps == eachPath.last?.localeControl || eachPath[i].has2PlusCorpsPassed || eachPath[i].localeControl == eachPath.last?.localeControl {
-                    rdBlocked = true
-                    break
-                }
-            } else {
-                if eachPath[i].has2PlusCorpsPassed || eachPath[i].localeControl == eachPath.last?.localeControl {
-                    rdBlocked = true
-                    break
-                }
-            }
-
-        }
+    for var i = 1; i < thePath.count-1; i++ {
         
+        if twoPlusCorps {
+            if thePath[i].commandsEntered.count > 0 || thePath[i].containsAdjacent2PlusCorps == .Both || thePath[i].containsAdjacent2PlusCorps == thePath.last?.localeControl || thePath[i].has2PlusCorpsPassed || thePath[i].localeControl == thePath.last?.localeControl {
+                rdBlocked = true
+                break
+            }
+        } else {
+            if thePath[i].has2PlusCorpsPassed || thePath[i].localeControl == thePath.last?.localeControl {
+                rdBlocked = true
+                break
+            }
+        }
+
     }
+    
     return rdBlocked
 }
 
-// Checks whether end turn conditions are met for commit phase
-func CheckTurnEndViableCommit() {
+func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState, SelState, SelState), feint:Bool, theConflict:Conflict, undoOrAct:Bool = false) -> [SKNode] {
+    
+    // Safety drill
+    let (moveOnS, detachOnS, _, indOnS) = selectors
+    if moveOnS != .On && detachOnS != .On && indOnS != .On {return []}
+    
+    // Establish whether the group is adjacent
+    let moveNumber = theGroup.command.moveNumber
+    let theLocation = theGroup.command.currentLocation
+    var adjacentLocation = false
+    var onApproach = false
+    if theLocation is Approach {
+        adjacentLocation = true
+        onApproach = true
+    } else {
+        let theReserve = (theLocation as! Reserve)
+        if theReserve == theConflict.attackReserve {adjacentLocation = true}
+        if moveNumber == 0 {theConflict.rdAttackerMultiPaths = theReserve.rdReserves} // Sets the pathways
+        if theReserve == theConflict.defenseReserve {theConflict.postRetreatMode = true} // Sets post-retreat
+        if theReserve == theConflict.attackReserve {theConflict.postRetreatMode = false} // Negates post-retreat
+    }
+    
+    let theReserveAsSKNode = theConflict.attackReserve as SKNode
+    let theApproachAsSKNode = theConflict.attackApproach as SKNode
+    
+    //print(moveNumber)
+    //print(theGroup.command.finishedMove)
+    switch (adjacentLocation, feint) {
+        
+    case (true, true):
+        
+        //print(theGroup.command.finishedMove)
+        //print(theGroup.command.moveNumber)
+        if theGroup.command.finishedMove && moveNumber == 0 {return []} // Made an in-place move
+        else if moveNumber == 0 {return [theReserveAsSKNode, theApproachAsSKNode]} // Hasn't moved
+        else if !theGroup.command.finishedMove {return [theApproachAsSKNode]} // Moved in from outside
+        else {return []} // Should never get here...
+        
+    case (true, false):
+        
+        // Allows artillery to stay still
+        if (detachOnS == .On || indOnS == .On) && theGroup.artOnly && onApproach {return [theConflict.defenseReserve, theApproachAsSKNode]}
+        else {return [theConflict.defenseReserve as SKNode]} // the normal case
+        
+    case (false, _):
+        
+        let thePath:[Reserve]!
+        if theGroup.command.moveNumber == 0 {
+            thePath = theConflict.potentialRdAttackers[theGroup.command]!
+            theConflict.rdAttackerPath = thePath
+        }
+        else {thePath = theConflict.rdAttackerPath}
+        
+        let theEnd = thePath.count - 1
+        var theMoveOptions:[SKNode] = []
+        
+        if feint && (theEnd - moveNumber <= 1) { // Final step in feint-mode
+            return [theApproachAsSKNode as SKNode]
+        } else if !feint && (theEnd - moveNumber <= 0) { // Final step in feint-mode
+            return []
+        } else {
+            
+            if thePath[moveNumber] != theGroup.command.currentLocation {break}
+            theMoveOptions += [thePath[moveNumber+1] as SKNode]
+            
+            return theMoveOptions // Add something to show it isn't at the end yet?
+        }
+        
+    default: break
+        
+    }
+    return []
     
 }
 

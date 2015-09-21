@@ -21,7 +21,10 @@ class Conflict {
     var defenseLeadingUnits:Group?
     var attackLeadingUnits:Group?
     
-    var potentialRdAttackers:[Command:[[Reserve]]] = [:] // Stores the reserve pathways possible
+    var potentialRdAttackers:[Command:[Reserve]] = [:] // Stores the reserve pathways possible
+    var rdAttackerPath:[Reserve] = []
+    var rdAttackerMultiPaths:[[Reserve]] = []
+    var postRetreatMode:Bool = false
     //var potentialAdjAttackers:[Command:[Location]] = [:]
     
     var defenseOrRetreatDeclared:Bool = false
@@ -43,6 +46,7 @@ class Conflict {
         attackApproach = aApproach
         mustFeint = mFeint
         defenseSide = manager!.phasingPlayer.Other()
+        
         for eachCommand in manager!.gameCommands[defenseSide.Other()!]! {
             
             let theRdPaths = RdCommandPathToConflict(eachCommand)
@@ -51,32 +55,27 @@ class Conflict {
     }
     
     // Returns the road paths for a command to the conflict area (nil if no such road)
-    func RdCommandPathToConflict (pCommand:Command) -> [[Reserve]] {
+    func RdCommandPathToConflict (pCommand:Command) -> [Reserve] {
         guard let commandReserve = pCommand.currentLocation as? Reserve else {return []}
-        var thePaths:[[Reserve]] = []
+        var thePath:[Reserve] = []
 
         for eachPath in commandReserve.rdReserves {
             let pathLength = eachPath.count
             if pathLength == 3 {
-                //if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
-                if eachPath[2] == defenseReserve {thePaths += [eachPath]}
+                if eachPath[2] == defenseReserve && eachPath[1] == attackReserve {thePath += eachPath}
             } else if pathLength == 4 {
-                
-                if eachPath[2] == defenseReserve {
-                    //if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                if eachPath[2] == defenseReserve && eachPath[1] == attackReserve {
                     var adjustedPath = eachPath
                     adjustedPath.removeLast()
-                    thePaths += [adjustedPath]
+                    thePath += adjustedPath
                 }
-                else if eachPath[3] == defenseReserve {
-                    //if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
-                    //if eachPath[2].localeControl == pCommand.commandSide.Other() || eachPath[2].has2PlusCorpsPassed {continue}
-                    thePaths += [eachPath]
+                else if eachPath[3] == defenseReserve && eachPath[2] == attackReserve {
+                    thePath += eachPath
                 }
             }
         }
         
-        if thePaths == [] {return []} else {return thePaths}
+        if thePath == [] {return []} else {return thePath}
     }
 
     /*

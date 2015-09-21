@@ -8,6 +8,13 @@
 
 import SpriteKit
 
+// Stores the kind of order
+enum OrderType {
+    
+    case Move, Attach, FeintThreat, NormalThreat, Defend, Reduce, Surrender, Retreat, Commit, Feint, ApproachMove, PostRetreat
+    
+}
+
 class Order {
 
     // MARK: Properties
@@ -40,13 +47,6 @@ class Order {
     var endLocation:Location
     
     var corpsCommand:Bool?
-    
-    // Stores the kind of order
-    enum OrderType {
-        
-        case Move, Attach, FeintThreat, NormalThreat, Defend, Reduce, Surrender, Retreat, Commit, Feint, ApproachMove, PostRetreat
-    
-    }
     
     let order:OrderType!
     var moveType:MoveType?
@@ -131,12 +131,12 @@ class Order {
         orderGroup = theGroup
     }
     
-    // Reduce order (Surrender)
+    // Reduce order (Surrender, Commit)
     init(passedGroupConflict: GroupConflict, orderFromView: OrderType) {
         order = orderFromView
         theGroupConflict = passedGroupConflict
-        startLocation = [theGroupConflict!.defenseReserve!]
-        endLocation = theGroupConflict!.defenseReserve!
+        startLocation = [theGroupConflict!.conflicts[0].attackReserve!]
+        endLocation = theGroupConflict!.conflicts[0].defenseApproach!
     }
     
     // MARK: Order Functions
@@ -239,14 +239,13 @@ class Order {
                     each.currentLocation = moveToLocation
                     
                     // Update occupants of new location
-                    moveToLocation.occupants += [each]
                     startLocation[0].occupants.removeObject(each)
-
-                    //if playback {continue}
+                    moveToLocation.occupants += [each]
                     
                     // Update command movement trackers
-                    if startLocation[0].locationType != .Start {each.moveNumber++} else {each.moveNumber = 0} // # of steps moved
+                    if startLocation[0].locationType != .Start && startLocation[0] != endLocation {each.moveNumber++} else {each.moveNumber = 0} // # of steps moved
                     if manager!.actingPlayer.ContainsEnemy(endLocaleReserve!.containsAdjacent2PlusCorps) && each.isTwoPlusCorps {each.finishedMove = true}
+                    if startLocation[0] == endLocation {each.finishedMove = true} // Rare case for attack moves when declaring a move "in place"
                     if !moveBase[0] {each.movedVia = moveType!} else {baseGroup!.command.movedVia = moveType!} // Detached move ends move (no road movement)
                     
                     // Movement from or to an approach
@@ -274,8 +273,8 @@ class Order {
                     each.currentLocation = moveToLocation
                     
                     // Update occupants of new location
-                    moveToLocation.occupants += [each]
                     startLocation[0].occupants.removeObject(each)
+                    moveToLocation.occupants += [each]
                     
                 }
                 
@@ -292,7 +291,7 @@ class Order {
             print("Reserve had units go in: \(endLocaleReserve!.numberCommandsEntered)", terminator: "\n")
             print("Adj has 2PLus Corps: \(endLocaleReserve!.containsAdjacent2PlusCorps)", terminator: "\n")
             print("Unit Capacity: \(endLocaleReserve!.capacity)", terminator: "\n")
-            print("Unit Count: \(endLocaleReserve!.occupantCount)", terminator: "\n")
+            print("Block Count: \(endLocaleReserve!.occupantCount)", terminator: "\n")
             
         case (true, .Move):
         
@@ -614,6 +613,12 @@ class Order {
                 orderGroup!.units[0].decrementStrength(false)
             }
             
+        // MARK: Commit
+            
+        //case (_, .Commit): break
+            
+            // Commit
+            
         // MARK: Surrender
         
         case (false, .Surrender):
@@ -722,10 +727,10 @@ class Order {
                         orderArrow = SKShapeNode(path: orderPath)
                     }
                 }
-            } else if order == .Defend {
+            } else if order == .Defend || order == .Commit {
                 
                 if let endApproach = endLocation as? Approach {
-                    if let startReserve = endApproach.ownReserve {
+                    if let startReserve = startLocation[0] as? Reserve {
                         CGPathMoveToPoint(orderPath, nil, startReserve.position.x, startReserve.position.y)
                         CGPathAddLineToPoint(orderPath, nil, endApproach.position.x, endApproach.position.y)
                         orderArrow = SKShapeNode(path: orderPath)
@@ -763,6 +768,13 @@ class Order {
             } else if order == .Defend {
                 
                 strokeColor = SKColor.brownColor()
+                lineWidth = 4.0
+                glowHeight = 2.0
+                zPosition = 1
+                
+            } else if order == .Commit {
+                
+                strokeColor = SKColor.greenColor()
                 lineWidth = 4.0
                 glowHeight = 2.0
                 zPosition = 1
