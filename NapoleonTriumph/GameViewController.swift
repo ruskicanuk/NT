@@ -15,7 +15,8 @@ extension Int {
     }
 }
 
-var scene:GameScene!
+//var scene:GameScene!
+var scene:MenuView!
 
 class GameViewController: UIViewController, UIGestureRecognizerDelegate {
 
@@ -40,7 +41,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         self.draggedView.addGestureRecognizer(dragGesture)
         
         let skView = view as! SKView
-        scene = GameScene(size: skView.bounds.size)
+//        scene = GameScene(size: skView.bounds.size)
+        scene = MenuView(size: skView.bounds.size)
         skView.ignoresSiblingOrder = true
         skView.presentScene(scene)
         
