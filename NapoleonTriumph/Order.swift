@@ -121,6 +121,20 @@ class Order {
         endLocation = touchedReserveFromView
     }
     
+    // Initiate order (Feint)
+    init(retreatSelection:GroupSelection, passedGroupConflict:GroupConflict, touchedApproachFromView:Approach, orderFromView: OrderType, mapFromView:SKSpriteNode) {
+        order = orderFromView
+        mainMap = mapFromView
+        groupSelection = retreatSelection
+        theGroupConflict = passedGroupConflict
+        
+        var theLocations:[Location] = []
+        if groupSelection != nil {for eachGroup in groupSelection!.groups {theLocations += [eachGroup.command.currentLocation!]}}
+        
+        startLocation = theLocations
+        endLocation = touchedApproachFromView
+    }
+    
     // Reduce order (Reduce)
     init(theGroup:Group, passedGroupConflict: GroupConflict, orderFromView: OrderType) {
         order = orderFromView
@@ -353,7 +367,6 @@ class Order {
         
         case (false, .Retreat):
             
-            // Desintation
             let moveToLocation = endLocation
             var i = -1
             for eachGroup in groupSelection!.groups {
@@ -393,10 +406,6 @@ class Order {
                         moveCommandArray += [nCommand]
                         manager!.gameCommands[manager!.actingPlayer]! += [nCommand]
                         
-                        // Sets the new location
-                        //nCommand.currentLocation = moveToLocation
-                        //moveToLocation.occupants += [nCommand]
-                        //startLocation[i].occupants.removeObject(nCommand)
                     }
                 } else { // no leader and full command means must be size = 1 which requires no new creating
                     moveCommandArray += [eachGroup.command]
@@ -414,8 +423,6 @@ class Order {
                     moveToLocation.occupants += [eachCommand]
                     startLocation[i].occupants.removeObject(eachCommand)
                     
-                    //theConflict
-                    //manager!.selectableRetreatGroups.removeObject(Group)
                 }
             }
             
@@ -428,14 +435,8 @@ class Order {
                 endLocaleReserve!.UpdateReserveState()
                 startLocaleReserve!.UpdateReserveState()
             }
-            
-            //print("StartLocOccupants: \(startLocation[0].occupants.count)")
-            //print("EndLocOccupants: \(endLocation.occupants.count)")
                 
         case (true, .Retreat):
-            
-            //print(newCommands[0])
-            //print(moveCommands[0])
             
             var i = -1
             for eachGroup in groupSelection!.groups {
@@ -476,8 +477,119 @@ class Order {
                 startLocaleReserve!.UpdateReserveState()
             }
             
-            //print("StartLocOccupants: \(startLocation[0].occupants.count)")
-            //print("EndLocOccupants: \(endLocation.occupants.count)")
+        // MARK: Feint
+            
+        case (false, .Feint):
+            
+            let moveToLocation = endLocation
+            var i = -1
+            for eachGroup in groupSelection!.groups {
+                var newCommandArray:[Command] = []
+                var moveCommandArray:[Command] = []
+                
+                i++
+                oldCommands += [eachGroup.command!]
+                if eachGroup.leaderInGroup { // Remove other units and create commands from them (they remain)
+                    moveBase[i] = true
+                    
+                    let baseUnits:[Unit] = eachGroup.units
+                    let newUnits = Array(Set(eachGroup.command.activeUnits).subtract(Set(baseUnits)))
+                    
+                    for eachUnit in newUnits {
+                        let nCommand = Command(creatingCommand: eachGroup.command, creatingUnits: [])
+                        mainMap!.addChild(nCommand) // Add new command to map
+                        eachGroup.command.passUnitTo(eachUnit, recievingCommand: nCommand)
+                        newCommandArray += [nCommand]
+                        //if eachGroup.units.contains(eachUnit) {moveCommandArray += [nCommand]}
+                        manager!.gameCommands[manager!.actingPlayer]! += [nCommand]
+                    }
+                    
+                    moveCommandArray += [eachGroup.command]
+                    
+                } else if !eachGroup.fullCommand { // Means other units remain in the command so these must be broken off
+                    
+                    moveBase[i] = false
+                    let newUnits = eachGroup.units
+                    
+                    for eachUnit in newUnits {
+                        let nCommand = Command(creatingCommand: eachGroup.command, creatingUnits: [])
+                        mainMap!.addChild(nCommand) // Add new command to map
+                        eachGroup.command.passUnitTo(eachUnit, recievingCommand: nCommand)
+                        newCommandArray += [nCommand]
+                        moveCommandArray += [nCommand]
+                        manager!.gameCommands[manager!.actingPlayer]! += [nCommand]
+                        
+                    }
+                } else { // no leader and full command means must be size = 1 which requires no new creating
+                    moveCommandArray += [eachGroup.command]
+                }
+                
+                newCommands[i] = newCommandArray
+                moveCommands[i] = moveCommandArray
+                
+                // Add the new commands to the occupant list of their current location
+                for each in newCommands[i]! {each.currentLocation?.occupants += [each]}
+                
+                for eachCommand in moveCommands[i]! {
+                    
+                    // Sets the new location
+                    eachCommand.currentLocation = moveToLocation
+                    moveToLocation.occupants += [eachCommand]
+                    startLocation[i].occupants.removeObject(eachCommand)
+                    
+                }
+            }
+            
+            if !playback {
+                theGroupConflict?.retreatOrders++
+                theGroupConflict?.mustRetreat = true
+                manager!.ResetRetreatDefenseSelection()
+                
+                // Update reserves
+                endLocaleReserve!.UpdateReserveState()
+                startLocaleReserve!.UpdateReserveState()
+            }
+            
+        case (true, .Feint):
+            
+            var i = -1
+            for eachGroup in groupSelection!.groups {
+                i++
+                let moveToLocation = startLocation[i]
+                
+                // Move the commands to their original locations
+                for eachCommand in moveCommands[i]! {
+                    eachCommand.currentLocation = moveToLocation
+                    moveToLocation.occupants += [eachCommand]
+                    endLocation.occupants.removeObject(eachCommand)
+                }
+                
+                // Eliminate the new commands
+                if newCommands[i] != nil {
+                    
+                    for eachCommand in newCommands[i]! {
+                        
+                        eachCommand.passUnitTo(eachCommand.activeUnits[0], recievingCommand: eachGroup.command) // Sends the unit to their original owner
+                        manager!.gameCommands[manager!.actingPlayer]!.removeObject(eachCommand)
+                        eachCommand.currentLocation!.occupants.removeObject(eachCommand) // Removes the detached commands from their current location
+                        eachCommand.removeFromParent() // Removes the command from the map
+                        eachCommand.selector = nil
+                    }
+                }
+                
+            }
+            
+            // May need to release the must-retreat condition
+            if !playback {
+                
+                theGroupConflict?.retreatOrders--
+                if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
+                manager!.ResetRetreatDefenseSelection()
+                
+                // Update reserves
+                endLocaleReserve!.UpdateReserveState()
+                startLocaleReserve!.UpdateReserveState()
+            }
             
         // MARK: Attach
             
@@ -526,6 +638,7 @@ class Order {
                 let defenseReserve = defenseApproach.ownReserve!
                 let attackReserve = attackApproach.ownReserve!
                 
+                //print(defenseReserve)
                 // Change this architecture later to add individual conflict
                 theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: true)
             }
@@ -727,7 +840,7 @@ class Order {
                         orderArrow = SKShapeNode(path: orderPath)
                     }
                 }
-            } else if order == .Defend || order == .Commit {
+            } else if order == .Defend || order == .Commit || order == .Feint {
                 
                 if let endApproach = endLocation as? Approach {
                     if let startReserve = startLocation[0] as? Reserve {
@@ -775,6 +888,13 @@ class Order {
             } else if order == .Commit {
                 
                 strokeColor = SKColor.greenColor()
+                lineWidth = 4.0
+                glowHeight = 2.0
+                zPosition = 1
+                
+            } else if order == .Feint {
+                
+                strokeColor = SKColor.blueColor()
                 lineWidth = 4.0
                 glowHeight = 2.0
                 zPosition = 1

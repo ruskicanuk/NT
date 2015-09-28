@@ -15,7 +15,7 @@ var mapScaleFactor:CGFloat = 1.0
 
 let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 142.0:"AUINF2", 141.0:"AUINF1", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 242.0:"FRINF2", 241.0:"FRINF1", 251.1:"St Hilaire", 251.2:"Vandamme"]
 
-let imageNamesSelected = [133.0:"AUCAV3H", 132.0:"AUCAV3H", 131.0:"AUCAV3H", 123.0:"AUCAV3H", 122.0:"AUCAV3H", 121.0:"AUCAV3H", 111.0:"AUCAV3H", 142.0:"AUCAV3H", 141.0:"AUCAV3H", 143.0:"AUCAV3H", 151.1:"BagrationH", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF2H", 232.0:"FRINF2H", 231.0:"FRINF2H", 223.0:"FRINF2H", 222.0:"FRINF2H", 221.0:"FRINF2H", 211.0:"FRINF2H", 243.0:"FRINF2H", 242.0:"FRINF2H", 241.0:"FRINF2H", 251.1:"DavoutH", 251.2:"DavoutH"]
+let imageNamesSelected = [133.0:"AUCAV3H", 132.0:"AUCAV3H", 131.0:"AUCAV3H", 123.0:"AUCAV3H", 122.0:"AUCAV3H", 121.0:"AUCAV3H", 111.0:"AUCAV3H", 142.0:"AUCAV3H", 141.0:"AUCAV3H", 143.0:"AUCAV3H", 151.1:"AUCAV3H", 151.2:"AUCAV3H", 151.3:"AUCAV3H", 233.0:"FRINF2H", 232.0:"FRINF2H", 231.0:"FRINF2H", 223.0:"FRINF2H", 222.0:"FRINF2H", 221.0:"FRINF2H", 211.0:"FRINF2H", 243.0:"FRINF2H", 242.0:"FRINF2H", 241.0:"FRINF2H", 251.1:"FRINF2H", 251.2:"FRINF2H"]
 
 let imageNamesNotSelectable = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
 
@@ -127,7 +127,7 @@ enum newGamePhase {
 
 enum oldGamePhase {
     
-    case PreGame, Move, FeintThreat, NormalThreat, FTDefend, NTDefend, PreRetreat, FeintMove, FeintRespond, RealAttack, LeadingDefense, Commit, PostRetreat, ApproachResponse
+    case PreGame, Move, FeintThreat, NormalThreat, FTDefend, NTDefend, PreRetreat, FeintMove, FeintRespond, RealAttack, AttackDeclare, Commit, Counter, PostRetreat, ApproachResponse
     
     var ID:String {
         switch self {
@@ -137,10 +137,11 @@ enum oldGamePhase {
             case .FTDefend: return "FTDefend"
             case .NTDefend: return "NTDefend"
             case .PreRetreat: return "PreRetreat"
-            case .FeintMove: return "FeintMove"
+            //case .FeintMove: return "FeintMove"
             case .FeintRespond: return "FeintRespond"
             case .RealAttack: return "RealAttack"
-            case .LeadingDefense: return "LeadingDefense"
+            case .AttackDeclare: return "AttackDeclare"
+            case .Counter: return "Counter"
             case .Commit: return "Commit"
             case .PostRetreat: return "PostRetreat"
             case .ApproachResponse: return "ApproachResponse"
@@ -177,26 +178,32 @@ enum oldGamePhase {
             
             // Attacker move
             case (.NTDefend, 1): self = .RealAttack
-            case (.NTDefend, 2): self = .FeintMove
-            case (.FTDefend, _): self = .FeintMove
-            case (.PreRetreat, _): self = .Move; switchActing = false
+            case (.NTDefend, 2): self = .FeintRespond
+            case (.FTDefend, _): self = .FeintRespond
+            case (.PreRetreat, 1): self = .Move; switchActing = false
+            case (.PreRetreat, 2): self = .FeintThreat // Unusual case of continued attack by rd
                 
             // Defender move
-            case (.RealAttack, _): self = .LeadingDefense
-            case (.FeintMove, _): self = .FeintRespond
+            case (.RealAttack, _): self = .AttackDeclare
+            case (.FeintRespond, _): self = .Move
 
-            // Attacker move
-            case (.LeadingDefense, _): self = .Commit
-            case (.FeintRespond, _): self = .Move; switchActing = false
+            // Attacker move (declare move and leading units)
+            case (.AttackDeclare, _): self = .Commit
+            //case (.FeintRespond, _): self = .Move; switchActing = false
 
-            // ATTACK PROCESSING
+            // INITIAL RESULT PROCESSING
                 
-            // Defender move (true = attacker won)
-            case (.Commit, 1): self = .PostRetreat
-            case (.Commit, 2): self = .ApproachResponse
+            case (.Commit, _): self = .Counter; switchActing = false
                 
-            // Attacker move
-            case (.PostRetreat, _): self = .Move; switchActing = false
+            // FINAL RESULT PROCESSING
+                
+            // Defender Move (1 = attacker won, 2 = defender won)
+            case (.Counter, 1): self = .PostRetreat
+            case (.Counter, 2): self = .ApproachResponse
+                
+            // Defender move
+            case (.PostRetreat, _): self = .Move
+            case (.ApproachResponse, _): self = .Move
                 
             default:
                 break
@@ -213,12 +220,13 @@ enum oldGamePhase {
                 
             // Attacker move
             case (.NormalThreat, _): self = .Move
-            case (.FeintThreat, _): self = .Move
+            case (.FeintThreat, 1): self = .Move
                 
             // Defender move
             case (.NTDefend, _): self = .NormalThreat
             case (.PreRetreat, 1): self = .NormalThreat
             case (.FTDefend, _): self = .FeintThreat
+            case (.FeintThreat, 2): self = .PreRetreat // Unusual case of continued attack by rd
             case (.PreRetreat, 2): self = .FeintThreat
                 
             // Attacker move
@@ -228,18 +236,20 @@ enum oldGamePhase {
             case (.Move, 2): self = .PreRetreat; switchActing = false
                 
             // Defender move
-            case (.LeadingDefense, _): self = .RealAttack
+            case (.AttackDeclare, _): self = .RealAttack
             case (.FeintRespond, _): self = .FeintMove
                 
             // Attacker move
-            case (.Commit, _): self = .LeadingDefense
+            case (.Commit, _): self = .AttackDeclare
             case (.Move, 1): self = .FeintRespond; switchActing = false
                 
             // ATTACK PROCESSING
                 
+            case (.Counter, _): self = .Commit
+                
             // Defender move (true = attacker won)
-            case (.PostRetreat, 1): self = .Commit
-            case (.ApproachResponse, 2): self = .Commit
+            case (.PostRetreat, _): self = .Counter
+            case (.ApproachResponse, _): self = .Counter
                 
             // Attacker move
             case (.Move, 3): self = .PostRetreat; switchActing = false
@@ -266,10 +276,15 @@ class GameManager {
     var selectableAttackAdjacentGroups:[Group] = []
     
     var currentGroupsSelected:[Group] = []
+    
+    var repeatAttackGroup:Group? // Used to store the group for rare cases of repeat attacks along the rd
+    var repeatAttackMoveNumber:Int?
+    
     var selectionRetreatReserves:[Reserve] = [] // Stores viable retreat reserves for the current selection
     //var defendingGroups:[Approach:[Group]]? // Used to store defenders for a current attack
     //var attackingGroups:[Approach:[Group]]?
     var reserveThreats:[GroupConflict] = []
+    var activeThreat:GroupConflict?
     var approachThreats:[Approach:Conflict] = [:]
     //var theThreatsRetreatStatus:[Reserve:Bool] = [:] // Stores which mode (retreat or defend) each threat is in
     //var defendingLeading
@@ -377,12 +392,23 @@ class GameManager {
         if phaseOld == .PreGame || phaseOld == .Move {thePhaseClass = "Move"}
         else if phaseOld == .FeintThreat || phaseOld == .NormalThreat {thePhaseClass = "Threat"}
         else if phaseOld == .NTDefend || phaseOld == .FTDefend || phaseOld == .PreRetreat {thePhaseClass = "Commit"}
-        else {thePhaseClass = "Move"}
+        else if phaseOld == .FeintRespond || phaseOld == .RealAttack {thePhaseClass = "Nothing"}
+        else {thePhaseClass = "Nothing"}
         
         switch (thePhaseClass) {
         
         case "Move":
             
+            for each in orders {
+                if each.order != .Move && each.order != .Retreat && each.order != .Feint {each.orderArrow?.removeFromParent()}
+            }
+            self.repeatAttackGroup = nil
+            self.repeatAttackMoveNumber = nil
+            activeThreat = nil
+            currentGroupsSelected = []
+            selectionRetreatReserves = []
+            reserveThreats = []
+            approachThreats = [:]
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:true)
         
         case ("Threat"):
@@ -393,9 +419,11 @@ class GameManager {
             // Return the code (whether forced retreat / defend)
             return ResetRetreatDefenseSelection()
         
-        case ("Commit"):
+        case ("Commit"): break
             
-            break
+        case ("DefendResponse"): break
+            
+        case ("Northing"): break
             
         default:
             break
@@ -562,13 +590,14 @@ class GameManager {
         
         var index = self.orders.endIndex-1
         var theGroupConflicts:[Reserve:[Conflict]] = [:]
-
+        self.reserveThreats = []
+        
         repeat {
             
             // Break conditions
             if index < 0 {break}
             guard let theConflict = self.orders[index].theConflict else {break}
-            
+
             //if !(self.orders[index].order == .FeintThreat || self.orders[index].order == .NormalThreat) {break}
         
             self.approachThreats[theConflict.defenseApproach] = theConflict
@@ -597,7 +626,7 @@ class GameManager {
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:false)
             
             // Determine selectable defend groups (those which can defend)
-            selectableDefenseGroups = SelectableGroupsFromConflict(eachGroup.conflicts[0])
+            selectableDefenseGroups = SelectableGroupsForDefense(eachGroup.conflicts[0])
             
             // Determine selectable retreat groups (everything in the locale)
             selectableRetreatGroups = SelectableGroupsForRetreat(eachGroup.conflicts[0]) // Get this to return available reserves

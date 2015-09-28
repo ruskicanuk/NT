@@ -35,7 +35,7 @@
      <object id="8" type="Reserve" x="652" y="391" z="200" zRot="0" approaches="21 22" adjReserves="5 4" rdReserves="8 4 7||8 5 6" size="20"/>
  </objectgroup>
  <objectgroup name="Command Group">
-     <object id="1" type="Command" units="111.0 121.0 133.0 151.1" corps="true" x="200" y="200" z="0" zRot="0" loc="Approach" locID="2"/>
+     <object id="1" type="Command" units="111.0 121.0 133.0 151.1" corps="true" x="200" y="200" z="0" zRot="0" loc="Approach" locID="4"/>
      <object id="20" type="Command" units="121.0 123.0 133.0 151.2" corps="true" x="200" y="200" z="0" zRot="0" loc="Reserve" locID="6"/>
      <object id="2" type="Command" units="121.0" corps="false" x="260" y="200" z="0" zRot="0" loc="none" locID="none"/>
      <object id="3" type="Command" units="122.0" corps="false" x="320" y="200" z="0" zRot="0" loc="Reserve" locID="1"/>

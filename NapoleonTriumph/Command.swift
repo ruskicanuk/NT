@@ -329,18 +329,18 @@ class Command:SKNode {
         // Verify that unit is part of the group:
         if units.contains(unitToPass) {
             
-        unitToPass.removeFromParent() // Remove from calling command
-        recievingCommand.addChild(unitToPass) // Add to new parent
-        unitToPass.zPosition = 100
-        recievingCommand.units += [unitToPass]
-        units.removeObject(unitToPass) // Remove from calling command's unit list
-        
-        unitsUpkeep()
-        recievingCommand.unitsUpkeep()
-        
-        //if recievingCommand.activeUnits.isEmpty == false {recie}
-        //if self.currentLocation != nil {self.currentLocation!.reShuffleLocation()}
-        
+            let selectionStatus = unitToPass.selected
+            unitToPass.removeFromParent() // Remove from calling command
+            recievingCommand.addChild(unitToPass) // Add to new parent
+            unitToPass.parentCommand = recievingCommand
+            unitToPass.zPosition = 100
+            recievingCommand.units += [unitToPass]
+            units.removeObject(unitToPass) // Remove from calling command's unit list
+            
+            unitsUpkeep()
+            recievingCommand.unitsUpkeep()
+            unitToPass.selected = selectionStatus
+            
         }
     }
     

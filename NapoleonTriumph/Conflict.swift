@@ -18,13 +18,38 @@ class Conflict {
     var attackGroups:GroupSelection?
     var defenseSide:Allegience!
     
-    var defenseLeadingUnits:Group?
-    var attackLeadingUnits:Group?
+    var defenseLeadingUnits:GroupSelection?
+    var availableCounterAttackers:GroupSelection? {
+        // Safety check
+        if defenseGroup == nil {return nil}
+        if defenseLeadingUnits == nil {return defenseGroup}
+        
+        var theGroups:[Group] = []
+        
+        for eachGroup in defenseGroup!.groups {
+            var theUnits:[Unit] = []
+            for eachUnit in eachGroup.units {
+                let groupInLeadingUnits = defenseLeadingUnits!.groups.filter{$0.command == eachUnit.parentCommand}
+                
+                if groupInLeadingUnits.count == 1 && groupInLeadingUnits[0].units.contains(eachUnit) {
+                    
+                } else {
+                    theUnits += [eachUnit]
+                }
+            }
+            if !theUnits.isEmpty {
+                theGroups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]
+            }
+        }
+        return GroupSelection(theGroups: theGroups)
+    }
+    
+    var attackLeadingUnits:GroupSelection?
     
     var potentialRdAttackers:[Command:[Reserve]] = [:] // Stores the reserve pathways possible
     var rdAttackerPath:[Reserve] = []
     var rdAttackerMultiPaths:[[Reserve]] = []
-    var postRetreatMode:Bool = false
+    //var postRetreatMode:Bool = false
     //var potentialAdjAttackers:[Command:[Location]] = [:]
     
     var defenseOrRetreatDeclared:Bool = false
@@ -155,9 +180,10 @@ class GroupConflict {
             threatenedApproaches += [eachConflict.defenseApproach]
             eachConflict.parentGroupConflict = self
             // These are occupied approaches being threatened (all defenders on the approach are added automatically to the defense group)
+
             if eachConflict.defenseApproach.occupantCount > 0 {
                 defendedApproaches += [eachConflict.defenseApproach]
-                eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false))
+                eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false), selectedOnly: false)
                 eachConflict.approachConflict = true
             }
         }
@@ -247,8 +273,9 @@ class GroupSelection {
     var sameTypeSameCorps:Bool = false
     var sameType:Bool = false
     var anyOneStrengthUnits = false
+    var blocksSelected = 0
         
-    init(theGroups:[Group]) {
+    init(theGroups:[Group], selectedOnly:Bool = true) {
         
         var unitsTypes:[Type] = []
         var numberCorps:Int = 0
@@ -258,8 +285,9 @@ class GroupSelection {
             var theUnits:[Unit] = []
             for eachUnit in eachGroup.units {
                 
-                if eachUnit.selected == .Selected {
+                if eachUnit.selected == .Selected || !selectedOnly {
                     theUnits += [eachUnit] // Add to units
+                    blocksSelected++
                     if eachUnit.unitType != .Ldr {groupSelectionSize++} // Increment group selection size
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
@@ -287,5 +315,4 @@ class GroupSelection {
             }
         }
     }
-    
 }
