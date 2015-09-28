@@ -23,6 +23,8 @@ class MenuView: SKScene {
     let facebookButton = SKSpriteNode(imageNamed: "facebook")
     
     let twitterButton = SKSpriteNode(imageNamed: "twitter")
+    
+    let webButton = SKSpriteNode(imageNamed: "web")
 
     var buttonSpacing: CGFloat = 100
     //buttonSpacing must be <150 so that it will show properly in iPhone 4s also
@@ -53,9 +55,13 @@ class MenuView: SKScene {
         facebookButton.position = CGPointMake(CGRectGetMinX(self.frame) + 40, CGRectGetMinY(self.frame) + 30)
         self.addChild(facebookButton)
 
-        //Facebook button
+        //Twitter button
         twitterButton.position = CGPointMake(CGRectGetMinX(self.frame) + 80, CGRectGetMinY(self.frame) + 30)
         self.addChild(twitterButton)
+        
+        //Web button
+        webButton.position = CGPointMake(CGRectGetMinX(self.frame) + 120, CGRectGetMinY(self.frame) + 30)
+        self.addChild(webButton)
 
     }
     
@@ -80,6 +86,11 @@ class MenuView: SKScene {
             {
                 //Twitter button pressed. Open twitter now
                 UIApplication.sharedApplication().openURL(NSURL(string: "https://twitter.com")!)
+            }
+            else if webButton.containsPoint(location)
+            {
+                //Web button pressed. Open twitter now
+                UIApplication.sharedApplication().openURL(NSURL(string: "http://www.strategyleague.com")!)
             }
         }
     }
