@@ -67,13 +67,19 @@ class MenuView: SKScene {
                 //Start button pressed. Start game play
                 startGame()
             }
+            else if leftButton.containsPoint(location)
+            {
+                //Left button pressed
+            }
             else if facebookButton.containsPoint(location)
             {
                 //Facebook button pressed. Open facebook screen
+                UIApplication.sharedApplication().openURL(NSURL(string: "https://facebook.com")!)
             }
             else if twitterButton.containsPoint(location)
             {
                 //Twitter button pressed. Open twitter now
+                UIApplication.sharedApplication().openURL(NSURL(string: "https://twitter.com")!)
             }
         }
     }
