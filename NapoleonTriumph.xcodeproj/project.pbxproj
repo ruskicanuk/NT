@@ -12,7 +12,6 @@
 		8C18DAE21B5B342900FF30DF /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAE11B5B342900FF30DF /* GameScene.swift */; };
 		8C18DAE41B5B342900FF30DF /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAE31B5B342900FF30DF /* GameViewController.swift */; };
 		8C18DAE71B5B342900FF30DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAE51B5B342900FF30DF /* Main.storyboard */; };
-		8C18DAE91B5B342900FF30DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAE81B5B342900FF30DF /* Assets.xcassets */; };
 		8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */; };
 		8C18DAF71B5B342900FF30DF /* NapoleonTriumphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAF61B5B342900FF30DF /* NapoleonTriumphTests.swift */; };
 		8C18DB021B5B342900FF30DF /* NapoleonTriumphUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DB011B5B342900FF30DF /* NapoleonTriumphUITests.swift */; };
@@ -28,6 +27,8 @@
 		8CCAB4891B5B722100324D99 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4881B5B722100324D99 /* Command.swift */; };
 		8CF85B021B76D066008D7723 /* MenuView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8CF85B011B76D066008D7723 /* MenuView.xib */; };
 		8CF85B041B76F0E7008D7723 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF85B031B76F0E7008D7723 /* Support.swift */; };
+		8E9736651BB909CB008FB496 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9736641BB909CB008FB496 /* MenuView.swift */; settings = {ASSET_TAGS = (); }; };
+		8E97366D1BB912E8008FB496 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E97366C1BB912E8008FB496 /* Assets.xcassets */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,7 +55,6 @@
 		8C18DAE11B5B342900FF30DF /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		8C18DAE31B5B342900FF30DF /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		8C18DAE61B5B342900FF30DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		8C18DAE81B5B342900FF30DF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8C18DAEB1B5B342900FF30DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C18DAED1B5B342900FF30DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C18DAF21B5B342900FF30DF /* NapoleonTriumphTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NapoleonTriumphTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +75,8 @@
 		8CCAB4881B5B722100324D99 /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		8CF85B011B76D066008D7723 /* MenuView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MenuView.xib; sourceTree = "<group>"; };
 		8CF85B031B76F0E7008D7723 /* Support.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
+		8E9736641BB909CB008FB496 /* MenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
+		8E97366C1BB912E8008FB496 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +128,8 @@
 		8C18DADC1B5B342900FF30DF /* NapoleonTriumph */ = {
 			isa = PBXGroup;
 			children = (
+				8E97366C1BB912E8008FB496 /* Assets.xcassets */,
+				8E9736641BB909CB008FB496 /* MenuView.swift */,
 				8C18DADD1B5B342900FF30DF /* AppDelegate.swift */,
 				8C208D971B5C82A400FAE45A /* Unit.swift */,
 				8C208DA11B637D9900FAE45A /* Manager.swift */,
@@ -140,7 +144,6 @@
 				8C18DAE31B5B342900FF30DF /* GameViewController.swift */,
 				8CF85B011B76D066008D7723 /* MenuView.xib */,
 				8C18DAE51B5B342900FF30DF /* Main.storyboard */,
-				8C18DAE81B5B342900FF30DF /* Assets.xcassets */,
 				8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */,
 				8CCAB4861B5B6C3A00324D99 /* Reserve.swift */,
 				8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */,
@@ -276,8 +279,8 @@
 				8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */,
 				8CF85B021B76D066008D7723 /* MenuView.xib in Resources */,
 				8C208D9A1B5C8BE600FAE45A /* Notes in Resources */,
-				8C18DAE91B5B342900FF30DF /* Assets.xcassets in Resources */,
 				8C18DAE71B5B342900FF30DF /* Main.storyboard in Resources */,
+				8E97366D1BB912E8008FB496 /* Assets.xcassets in Resources */,
 				8CCAB4831B5B4A8100324D99 /* MapBuilder.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -310,6 +313,7 @@
 				8C18DAE41B5B342900FF30DF /* GameViewController.swift in Sources */,
 				8CF85B041B76F0E7008D7723 /* Support.swift in Sources */,
 				8C208D9E1B61DA0600FAE45A /* Location.swift in Sources */,
+				8E9736651BB909CB008FB496 /* MenuView.swift in Sources */,
 				8C208D981B5C82A400FAE45A /* Unit.swift in Sources */,
 				8C18DADE1B5B342900FF30DF /* AppDelegate.swift in Sources */,
 				8C18A3221B916B22008C9C9A /* Conflict.swift in Sources */,
