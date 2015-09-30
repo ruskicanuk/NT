@@ -26,6 +26,9 @@ class MenuView: SKScene {
     
     let webButton = SKSpriteNode(imageNamed: "web")
     
+    let settingButton = SKSpriteNode(imageNamed: "gear")
+
+    
     var buttonSpacing: CGFloat = 100
     
     var viewController: GameViewController!
@@ -42,7 +45,7 @@ class MenuView: SKScene {
     {
         
         //Start Button
-        self.backgroundColor = SKColor(red: 0.15, green:0.15, blue:0.3, alpha: 1.0)
+        self.backgroundColor = SKColor(CGColor: UIColor.whiteColor().CGColor)
         startButton.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame))
         self.addChild(startButton)
         
@@ -66,6 +69,9 @@ class MenuView: SKScene {
         webButton.position = CGPointMake(CGRectGetMinX(self.frame) + 120, CGRectGetMinY(self.frame) + 30)
         self.addChild(webButton)
         
+        //Web button
+        settingButton.position = CGPointMake(CGRectGetMinX(self.frame) + 160, CGRectGetMinY(self.frame) + 30)
+        self.addChild(settingButton)
     }
     
     

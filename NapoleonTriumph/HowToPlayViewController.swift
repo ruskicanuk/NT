@@ -16,7 +16,7 @@ class HowToPlayViewController: UITableViewController {
     
     override func viewDidLoad() {
 
-        let backButton: UIBarButtonItem = UIBarButtonItem(title: "close", style: UIBarButtonItemStyle.Plain, target: self, action: "closeMenu") as UIBarButtonItem
+        let backButton: UIBarButtonItem = UIBarButtonItem(title: "Close", style: UIBarButtonItemStyle.Plain, target: self, action: "closeMenu") as UIBarButtonItem
         self.navigationItem.leftBarButtonItem=backButton
         self.navigationItem.title="How to play"
     
@@ -42,5 +42,11 @@ class HowToPlayViewController: UITableViewController {
         
         return cell
     }
+
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
+    {
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    }
+
     
 }
