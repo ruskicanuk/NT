@@ -242,7 +242,7 @@
 				TargetAttributes = {
 					8C18DAD91B5B342900FF30DF = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = 9Y4Q9J54AM;
+						DevelopmentTeam = F9G3337LFE;
 					};
 					8C18DAF11B5B342900FF30DF = {
 						CreatedOnToolsVersion = 7.0;
@@ -469,7 +469,7 @@
 				INFOPLIST_FILE = NapoleonTriumph/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumph;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StrategyLeague.NapoleonTriumph;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -482,7 +482,7 @@
 				INFOPLIST_FILE = NapoleonTriumph/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumph;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StrategyLeague.NapoleonTriumph;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

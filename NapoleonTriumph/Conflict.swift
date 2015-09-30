@@ -18,10 +18,38 @@ class Conflict {
     var attackGroups:GroupSelection?
     var defenseSide:Allegience!
     
-    var defenseLeadingUnits:Group?
-    var attackLeadingUnits:Group?
+    var defenseLeadingUnits:GroupSelection?
+    var availableCounterAttackers:GroupSelection? {
+        // Safety check
+        if defenseGroup == nil {return nil}
+        if defenseLeadingUnits == nil {return defenseGroup}
+        
+        var theGroups:[Group] = []
+        
+        for eachGroup in defenseGroup!.groups {
+            var theUnits:[Unit] = []
+            for eachUnit in eachGroup.units {
+                let groupInLeadingUnits = defenseLeadingUnits!.groups.filter{$0.command == eachUnit.parentCommand}
+                
+                if groupInLeadingUnits.count == 1 && groupInLeadingUnits[0].units.contains(eachUnit) {
+                    
+                } else {
+                    theUnits += [eachUnit]
+                }
+            }
+            if !theUnits.isEmpty {
+                theGroups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]
+            }
+        }
+        return GroupSelection(theGroups: theGroups)
+    }
     
-    var potentialRdAttackers:[Command:[[Reserve]]] = [:] // Stores the reserve pathways possible
+    var attackLeadingUnits:GroupSelection?
+    
+    var potentialRdAttackers:[Command:[Reserve]] = [:] // Stores the reserve pathways possible
+    var rdAttackerPath:[Reserve] = []
+    var rdAttackerMultiPaths:[[Reserve]] = []
+    //var postRetreatMode:Bool = false
     //var potentialAdjAttackers:[Command:[Location]] = [:]
     
     var defenseOrRetreatDeclared:Bool = false
@@ -43,6 +71,7 @@ class Conflict {
         attackApproach = aApproach
         mustFeint = mFeint
         defenseSide = manager!.phasingPlayer.Other()
+        
         for eachCommand in manager!.gameCommands[defenseSide.Other()!]! {
             
             let theRdPaths = RdCommandPathToConflict(eachCommand)
@@ -51,32 +80,27 @@ class Conflict {
     }
     
     // Returns the road paths for a command to the conflict area (nil if no such road)
-    func RdCommandPathToConflict (pCommand:Command) -> [[Reserve]] {
+    func RdCommandPathToConflict (pCommand:Command) -> [Reserve] {
         guard let commandReserve = pCommand.currentLocation as? Reserve else {return []}
-        var thePaths:[[Reserve]] = []
+        var thePath:[Reserve] = []
 
         for eachPath in commandReserve.rdReserves {
             let pathLength = eachPath.count
             if pathLength == 3 {
-                if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
-                if eachPath[2] == defenseReserve {thePaths += [eachPath]}
+                if eachPath[2] == defenseReserve && eachPath[1] == attackReserve {thePath += eachPath}
             } else if pathLength == 4 {
-                
-                if eachPath[2] == defenseReserve {
-                    if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
+                if eachPath[2] == defenseReserve && eachPath[1] == attackReserve {
                     var adjustedPath = eachPath
                     adjustedPath.removeLast()
-                    thePaths += [adjustedPath]
+                    thePath += adjustedPath
                 }
-                else if eachPath[3] == defenseReserve {
-                    if eachPath[1].localeControl == pCommand.commandSide.Other() || eachPath[1].has2PlusCorpsPassed {continue}
-                    if eachPath[2].localeControl == pCommand.commandSide.Other() || eachPath[2].has2PlusCorpsPassed {continue}
-                    thePaths += [eachPath]
+                else if eachPath[3] == defenseReserve && eachPath[2] == attackReserve {
+                    thePath += eachPath
                 }
             }
         }
         
-        if thePaths == [] {return []} else {return thePaths}
+        if thePath == [] {return []} else {return thePath}
     }
 
     /*
@@ -156,9 +180,10 @@ class GroupConflict {
             threatenedApproaches += [eachConflict.defenseApproach]
             eachConflict.parentGroupConflict = self
             // These are occupied approaches being threatened (all defenders on the approach are added automatically to the defense group)
+
             if eachConflict.defenseApproach.occupantCount > 0 {
                 defendedApproaches += [eachConflict.defenseApproach]
-                eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false))
+                eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false), selectedOnly: false)
                 eachConflict.approachConflict = true
             }
         }
@@ -214,6 +239,7 @@ class Group {
         for each in units {if each.unitType != .Ldr {theUnits += [each]}}
         return theUnits
     }
+    var artOnly:Bool = true
     var leaderUnit:Unit?
     var fullCommand:Bool = false
     var leaderInGroup:Bool = false
@@ -226,7 +252,7 @@ class Group {
         command = theCommand
         units = theUnits
         for eachUnit in theUnits {
-            if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++; leaderUnit = eachUnit} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++} else {nonLdrUnitCount++}
+            if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++; leaderUnit = eachUnit} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false} else if eachUnit.unitType == .Art {nonLdrUnitCount++} else {nonLdrUnitCount++; artOnly = false}
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
         }
         
@@ -247,8 +273,9 @@ class GroupSelection {
     var sameTypeSameCorps:Bool = false
     var sameType:Bool = false
     var anyOneStrengthUnits = false
+    var blocksSelected = 0
         
-    init(theGroups:[Group]) {
+    init(theGroups:[Group], selectedOnly:Bool = true) {
         
         var unitsTypes:[Type] = []
         var numberCorps:Int = 0
@@ -258,8 +285,9 @@ class GroupSelection {
             var theUnits:[Unit] = []
             for eachUnit in eachGroup.units {
                 
-                if eachUnit.selected == .Selected {
+                if eachUnit.selected == .Selected || !selectedOnly {
                     theUnits += [eachUnit] // Add to units
+                    blocksSelected++
                     if eachUnit.unitType != .Ldr {groupSelectionSize++} // Increment group selection size
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
@@ -287,5 +315,4 @@ class GroupSelection {
             }
         }
     }
-    
 }
