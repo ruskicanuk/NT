@@ -10,7 +10,7 @@
 
 import SpriteKit
 import Foundation
-
+import UIKit
 class MenuView: SKScene {
     
     //This is a start game button.
@@ -27,6 +27,9 @@ class MenuView: SKScene {
     let webButton = SKSpriteNode(imageNamed: "web")
 
     var buttonSpacing: CGFloat = 100
+    
+    var viewController: GameViewController!
+    
     //buttonSpacing must be <150 so that it will show properly in iPhone 4s also
     
     override func didMoveToView(view: SKView) {
@@ -76,6 +79,7 @@ class MenuView: SKScene {
             else if leftButton.containsPoint(location)
             {
                 //Left button pressed
+                openHowToPlay()
             }
             else if facebookButton.containsPoint(location)
             {
@@ -93,6 +97,14 @@ class MenuView: SKScene {
                 UIApplication.sharedApplication().openURL(NSURL(string: "http://www.strategyleague.com")!)
             }
         }
+    }
+    
+    private func openHowToPlay()
+    {
+        
+        let controller:HowToPlayViewController = viewController.storyboard?.instantiateViewControllerWithIdentifier("howtoplay") as! HowToPlayViewController
+        let navigationController:UINavigationController = UINavigationController.init(rootViewController: controller)
+        viewController.presentViewController(navigationController, animated: true, completion: nil)
     }
     
     private func startGame() {

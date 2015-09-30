@@ -27,6 +27,7 @@
 		8CCAB4891B5B722100324D99 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4881B5B722100324D99 /* Command.swift */; };
 		8CF85B021B76D066008D7723 /* MenuView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8CF85B011B76D066008D7723 /* MenuView.xib */; };
 		8CF85B041B76F0E7008D7723 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF85B031B76F0E7008D7723 /* Support.swift */; };
+		8E65EB381BBBE3D1001BE1E9 /* HowToPlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E65EB371BBBE3D1001BE1E9 /* HowToPlayViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		8E9736651BB909CB008FB496 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9736641BB909CB008FB496 /* MenuView.swift */; settings = {ASSET_TAGS = (); }; };
 		8E97366D1BB912E8008FB496 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E97366C1BB912E8008FB496 /* Assets.xcassets */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
@@ -75,6 +76,7 @@
 		8CCAB4881B5B722100324D99 /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		8CF85B011B76D066008D7723 /* MenuView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MenuView.xib; sourceTree = "<group>"; };
 		8CF85B031B76F0E7008D7723 /* Support.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
+		8E65EB371BBBE3D1001BE1E9 /* HowToPlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HowToPlayViewController.swift; sourceTree = "<group>"; };
 		8E9736641BB909CB008FB496 /* MenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		8E97366C1BB912E8008FB496 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -148,6 +150,7 @@
 				8CCAB4861B5B6C3A00324D99 /* Reserve.swift */,
 				8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */,
 				8C18DAED1B5B342900FF30DF /* Info.plist */,
+				8E65EB371BBBE3D1001BE1E9 /* HowToPlayViewController.swift */,
 			);
 			path = NapoleonTriumph;
 			sourceTree = "<group>";
@@ -320,6 +323,7 @@
 				8CCAB4811B5B480C00324D99 /* Approach.swift in Sources */,
 				8C208DA21B637D9900FAE45A /* Manager.swift in Sources */,
 				8CCAB4891B5B722100324D99 /* Command.swift in Sources */,
+				8E65EB381BBBE3D1001BE1E9 /* HowToPlayViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -18,17 +18,16 @@ extension Int {
 //var scene:GameScene!
 var scene:MenuView!
 
+
 class GameViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var scalingView: UIView!
     @IBOutlet weak var draggedView: UIView!
     
     var scale:Float = 1.0
-    
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        
         // Set pinch gesture
         let pinchGesture = UIPinchGestureRecognizer(target: self, action: "pinched:")
         self.scalingView.userInteractionEnabled = true
@@ -43,6 +42,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         let skView = view as! SKView
 //        scene = GameScene(size: skView.bounds.size)
         scene = MenuView(size: skView.bounds.size)
+        scene.viewController=self
         skView.ignoresSiblingOrder = true
         skView.presentScene(scene)
         
