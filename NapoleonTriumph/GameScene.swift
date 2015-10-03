@@ -497,10 +497,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 else {MustFeintThreatUI(touchedNode!, forceFeint:true)} // This must be a continuation threat
             }
             
-        case (mapName,1,"Commit"):
+        case (mapName,1,"Commit"), (mapName,1,"AttackDeclare"):
             
             DeselectEverything()
             if manager!.phaseOld == .NTDefend {commitSelector!.selected = .Option}
+            if manager!.phaseOld == .AttackDeclare {endTurnSelector!.selected = .Off}
         
         // MARK: DefendResponse Touch
             
@@ -1678,7 +1679,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Hide locations, check that we have a selection group then update based on what was touched
         HideAllLocations(true)
         if manager!.currentGroupsSelected.isEmpty {return Void()}
-        //print(selectedGroup!.units.count)
+
         // Set the commands available
         (corpsMoveSelector!.selected, corpsDetachSelector!.selected, corpsAttachSelector!.selected, independentSelector!.selected) = OrdersAvailableOnMove(manager!.currentGroupsSelected[0], ordersLeft: ((manager?.corpsCommandsAvail)!, (manager?.indCommandsAvail)!))
         
