@@ -470,7 +470,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // MARK: Commit Touch
         
-        case (unitName,1,"Commit"):
+        case (unitName,1,"Commit"), (unitName,1,"AttackDeclare"):
             
             // Safety checks
             guard let touchedUnit = touchedNode as? Unit else {break}
@@ -775,6 +775,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     else {endTurnSelector?.selected = .Off}
                 }
                 
+            // Defender just chose defenders or retreated, passing to attacker
             case .NormalThreat, .FeintThreat:
                 
                 if let theThreat = manager!.activeThreat {
@@ -804,7 +805,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
                         undoOrAct = true
                     }
                 }
-                
+            
+            // Attacker just finished feint move, passing to defender
             case .FTDefend:
             
                 manager!.NewPhase(1, reverse: false, playback: false)
@@ -815,6 +817,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 undoOrAct = false
                 manager!.activeThreat!.conflicts[0].defenseApproach.hidden = false
                
+            // Attacker just finished feint move or commited to attack, passing to defender
             case .NTDefend:
             
                 if commitSelector?.selected == .On {
@@ -836,6 +839,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 undoOrAct = false
                 
+            // Attacker just finished post pre-retreat move, either makes a new feint threat or ends combat sequence
             case .PreRetreat:
                 
                 if manager!.orders.last?.order == .FeintThreat {
@@ -867,10 +871,19 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 }
                 
+            // Defender just named leading units, passing to attacker
             case .RealAttack:
                 
+                // Safety check
+                guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
+                
                 manager!.NewPhase(1, reverse: false, playback: false)
+                
                 endTurnSelector?.selected = .Off
+                manager!.selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(theConflict)
+                ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
+                ToggleGroups(manager!.selectableAttackAdjacentGroups, makeSelection: .Normal)
+                ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Normal)
                 
             case .FeintRespond:
                 
@@ -1545,68 +1558,117 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let leaderTouched = touchedUnit.unitType == .Ldr
         let unitAlreadySelected = touchedUnit.selected == .Selected
         
-        var groupTouched:Group?
+        var groupTouched:Group!
+        var newGroupTouched:Bool = true
+        
+        for eachGroup in manager!.currentGroupsSelected {
+            if eachGroup.command == touchedUnit.parentCommand! {newGroupTouched = false; break}
+        }
         
         // The selected group
         let commandtouched = touchedUnit.parentCommand!
-        if !manager!.currentGroupsSelected.isEmpty {
-            for eachGroup in manager!.currentGroupsSelected {
-                if eachGroup.command == commandtouched {
-                    groupTouched = eachGroup; break
-                }
-            }
-        }
         
-        // Real attack (only the adjacent groups)
+        var maySelectAnotherCorps = false
+        var maySelectASecondIndArt = false
+        //var guardInGroup = false
+        var requiredLocation:Location?
+        var selectableGroups:[Group] = []
+        
+        // Real attack, setup detection of the corner cases (art, guard and multi corps)
         if realAttack {
             
-            // Ensure there is a location check (all groups must be in same location)
+            selectableGroups = manager!.selectableAttackAdjacentGroups
+            groupTouched = selectableGroups.filter{$0.command == touchedUnit.parentCommand!}[0]
             
-            // Feint or advance after retreat (adjacent groups + rd groups)
+            var fullCorpsSelected = 0
+            var indArtSelected = 0
+            for eachGroup in manager!.currentGroupsSelected {
+                
+                if eachGroup.fullCommand && eachGroup.leaderInGroup {fullCorpsSelected++}
+                if eachGroup.fullCommand && eachGroup.units.count == 1 && eachGroup.units[0].unitType == .Art && eachGroup.command.currentLocation!.locationType == .Approach {indArtSelected++}
+            }
+            if fullCorpsSelected > 0 && fullCorpsSelected <= manager!.corpsCommandsAvail {maySelectAnotherCorps = true}
+            if indArtSelected == 1 {maySelectASecondIndArt = true}
+            if maySelectAnotherCorps || maySelectASecondIndArt {requiredLocation = manager!.currentGroupsSelected[0].command.currentLocation!}
         } else {
+            selectableGroups = manager!.selectableAttackByRoadGroups + manager!.selectableAttackAdjacentGroups
+            groupTouched = selectableGroups.filter{$0.command == touchedUnit.parentCommand!}[0]
+        }
+        
+        // Feint or advance after retreat (adjacent groups + rd groups)
+        switch (unitAlreadySelected, leaderTouched) {
             
-            switch (unitAlreadySelected, leaderTouched) {
-                
-            case (_, true):
-                
-                ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
-                manager!.currentGroupsSelected = (manager!.selectableAttackByRoadGroups+manager!.selectableAttackAdjacentGroups).filter{$0.command == touchedUnit.parentCommand!}
-                ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
-                
-            case (true, false):
-                
-                if manager!.currentGroupsSelected[0].units.count == 2 && manager!.currentGroupsSelected[0].leaderInGroup {
-                    ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
-                    manager!.currentGroupsSelected = []
-                } else if manager!.currentGroupsSelected[0].units.count == 1 {
-                    ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
-                    manager!.currentGroupsSelected = []
-                } else {
-                    var theUnits = manager!.currentGroupsSelected[0].units; theUnits.removeObject(touchedUnit)
-                    manager!.currentGroupsSelected = [Group(theCommand: commandtouched, theUnits: theUnits)]
-                    touchedUnit.selected = .Normal
+        case (_, true):
+            
+            var newGroups:[Group] = []
+            if manager!.currentGroupsSelected.isEmpty {
+                newGroups = [groupTouched!]
+            } else {
+            
+                for eachGroup in manager!.currentGroupsSelected {
+                    if eachGroup.command == touchedUnit.parentCommand! {
+                        newGroups += [groupTouched!]
+                    } else {
+                        if eachGroup.leaderInGroup && maySelectAnotherCorps && touchedUnit.parentCommand!.currentLocation! == requiredLocation! {newGroups += [eachGroup]}
+                        else {ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)}
+                    }
                 }
                 
-            case (false, false):
-                
-                // Touched an unselected unit outside the selected group
-                var theUnits:[Unit] = []
-                
-                if groupTouched == nil {
-                    ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
-                    
-                    if touchedUnit.parentCommand!.activeUnits.count == 2 {theUnits += touchedUnit.parentCommand!.activeUnits}
-                    else {theUnits = [touchedUnit]}
-                    
-                    manager!.currentGroupsSelected = [Group(theCommand: commandtouched, theUnits: theUnits)]
-                    
-                // Touched an unselected unit within the selected group (can't be a two-unit corps else it would be the leader)
-                } else {theUnits = manager!.currentGroupsSelected[0].units; theUnits.append(touchedUnit)}
-                
-                manager!.currentGroupsSelected = [Group(theCommand: commandtouched, theUnits: theUnits)]
-                ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
-                
             }
+            
+            manager!.currentGroupsSelected = newGroups
+            ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
+            
+        case (true, false):
+            
+            if groupTouched.units.count == 2 && groupTouched.leaderInGroup {
+                ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
+                manager!.currentGroupsSelected = []
+            } else if groupTouched.units.count == 1 {
+                ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
+                manager!.currentGroupsSelected = []
+            } else {
+                var theUnits = groupTouched.units; theUnits.removeObject(touchedUnit)
+                manager!.currentGroupsSelected = [Group(theCommand: commandtouched, theUnits: theUnits)]
+                touchedUnit.selected = .Normal
+            }
+            
+        case (false, false):
+            
+            // Touched an unselected unit outside the selected group
+            var theUnits:[Unit] = []
+            
+            if newGroupTouched {
+                
+                // 2nd Corps selection...
+                if touchedUnit.parentCommand!.activeUnits.count == 2 {
+                    if !maySelectAnotherCorps || touchedUnit.parentCommand!.currentLocation! == requiredLocation! {
+                        ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
+                        manager!.currentGroupsSelected = []
+                    }
+                    theUnits += touchedUnit.parentCommand!.activeUnits
+                }
+                else {
+                    if !maySelectASecondIndArt || touchedUnit.unitType != .Art || touchedUnit.parentCommand!.currentLocation! != requiredLocation! {
+                        ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
+                        manager!.currentGroupsSelected = []
+                    }
+                    theUnits = [touchedUnit]
+                }
+                
+                manager!.currentGroupsSelected += [Group(theCommand: commandtouched, theUnits: theUnits)]
+                
+            // Touched an unselected unit within the selected group (can't be a two-unit corps else it would be the leader)
+            } else {
+                let theIndex = manager!.currentGroupsSelected.indexOf{$0.command == touchedUnit.parentCommand!}
+                theUnits = manager!.currentGroupsSelected[theIndex!].units
+                theUnits.append(touchedUnit)
+                manager!.currentGroupsSelected.removeAtIndex(theIndex!)
+            }
+            
+            manager!.currentGroupsSelected += [Group(theCommand: commandtouched, theUnits: theUnits)]
+            ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
+            
         }
     }
     
@@ -1630,27 +1692,24 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func AttackOrdersAvailable() {
         
-        // Hide locations, check that we have a selection group then update based on what was touched
-        
         //if manager!.currentGroupsSelected.isEmpty {return Void()}
-        guard let theConflict = manager!.activeThreat?.conflicts[0] else {return Void()}
+        guard let theConflict = manager!.activeThreat?.conflicts[0] else {return}
 
         // Set the commands available
         (corpsMoveSelector!.selected, corpsDetachSelector!.selected, corpsAttachSelector!.selected, independentSelector!.selected) = OrdersAvailableOnAttack(manager!.currentGroupsSelected, ordersLeft: (manager!.corpsCommandsAvail, manager!.indCommandsAvail), theConflict: theConflict)
         
-        var attackNodes:[SKNode] = []
-        
-        if manager!.currentGroupsSelected.count == 1 {
+        if manager!.phaseOld != .AttackDeclare { //manager!.currentGroupsSelected.count == 1 && (should be unnecessary)
             
+            var attackNodes:[SKNode] = []
             let theGroup = manager!.currentGroupsSelected[0]
             
             attackNodes = AttackMoveLocationsAvailable(theGroup, selectors: (corpsMoveSelector!.selected, corpsDetachSelector!.selected, corpsAttachSelector!.selected, independentSelector!.selected), feint: manager!.phaseOld != .PreRetreat, theConflict:theConflict, undoOrAct:undoOrAct)
+         
+            // Setup the swipe queue for the selected command
+            HideAllLocations(true)
+            for eachNode in attackNodes {eachNode.hidden = false}
             
         }
-        
-        // Setup the swipe queue for the selected command
-        HideAllLocations(true)
-        for eachNode in attackNodes {eachNode.hidden = false}
         
     }
     

@@ -594,6 +594,13 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
     
     if groupsSelected.count > 1 { // Attack mode, multi selections
         
+        if groupsSelected[0].fullCommand && groupsSelected[0].units[0].unitType == .Art {
+            return (.Off, .Off, .Off, independent)
+        } else {
+            return (corpsMove, .Off, .Off, .Off)
+        }
+        
+        /*
         // Check selected group for two artillery condition
         var twoArtAttackViable = true
         var artUnitCount = 0
@@ -640,6 +647,8 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
         }
         
         return (.Off, .Off, .Off, .Off)
+
+        */
         
     } else if groupsSelected.count == 1 {
         
@@ -879,6 +888,7 @@ func SelectableGroupsForLeadingDefense (theThreat:Conflict) -> GroupSelection? {
     if theThreat.defenseGroup!.groups.isEmpty {return nil}
     
     let selectedLeadingDefense = GroupSelection(theGroups: theThreat.defenseGroup!.groups)
+    theThreat.defenseLeadingUnits = selectedLeadingDefense
     ToggleGroups(theThreat.defenseGroup!.groups, makeSelection: .Normal)
     print(theThreat.defenseGroup!.groups.count)
     switch (theThreat.approachConflict, selectedLeadingDefense.blocksSelected) {

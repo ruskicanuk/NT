@@ -57,6 +57,8 @@ class Conflict {
     var attackOrFeintDeclared:Bool = false
     var attackLeadingDeclared:Bool = false
     
+    var guardAttack:Bool = false
+    
     var mustFeint:Bool = false
     
     var approachConflict:Bool = false
@@ -245,6 +247,7 @@ class Group {
     var leaderInGroup:Bool = false
     var allCav:Bool = true
     var someUnitsHaveMoved:Bool = false
+    var guardInGroup:Bool = false
     var cavCount:Int = 0
     var nonLdrUnitCount:Int = 0
 
@@ -254,6 +257,7 @@ class Group {
         for eachUnit in theUnits {
             if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++; leaderUnit = eachUnit} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false} else if eachUnit.unitType == .Art {nonLdrUnitCount++} else {nonLdrUnitCount++; artOnly = false}
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
+            if eachUnit.unitType == .Grd {guardInGroup = true}
         }
         
         if leaderInGroup && (nonLdrUnitCount+1) == command.unitCount {
