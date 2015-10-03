@@ -43,6 +43,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         let skView = view as! SKView
 //        scene = GameScene(size: skView.bounds.size)
         scene = MenuView(size: skView.bounds.size)
+        scene.viewController=self
         skView.ignoresSiblingOrder = true
         skView.presentScene(scene)
         
