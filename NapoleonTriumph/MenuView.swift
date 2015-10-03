@@ -114,7 +114,7 @@ class MenuView: SKScene {
     }
     
     private func startGame() {
-        let gameScene = GameScene(size: view!.bounds.size)
+        let gameScene = GameSetup(size: view!.bounds.size)
         let transition = SKTransition.fadeWithDuration(0.15)
         view!.presentScene(gameScene, transition: transition)
         gameScene.scaleMode = .AspectFill
