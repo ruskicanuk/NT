@@ -16,6 +16,7 @@ class Conflict {
     
     var defenseGroup:GroupSelection?
     var attackGroups:GroupSelection?
+    var attackMoveType:MoveType?
     var defenseSide:Allegience!
     
     var defenseLeadingUnits:GroupSelection?
@@ -246,6 +247,7 @@ class Group {
     var fullCommand:Bool = false
     var leaderInGroup:Bool = false
     var allCav:Bool = true
+    var allGuard:Bool = true
     var someUnitsHaveMoved:Bool = false
     var guardInGroup:Bool = false
     var cavCount:Int = 0
@@ -255,7 +257,11 @@ class Group {
         command = theCommand
         units = theUnits
         for eachUnit in theUnits {
-            if eachUnit.unitType == .Ldr {leaderInGroup = true; cavCount++; leaderUnit = eachUnit} else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false} else if eachUnit.unitType == .Art {nonLdrUnitCount++} else {nonLdrUnitCount++; artOnly = false}
+            if eachUnit.unitType == .Ldr {leaderInGroup = true; leaderUnit = eachUnit}
+            else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false; allGuard = false}
+            else if eachUnit.unitType == .Art {nonLdrUnitCount++; allCav = false; allGuard = false}
+            else if eachUnit.unitType == .Grd {nonLdrUnitCount++; artOnly = false; allCav = false}
+            else {nonLdrUnitCount++; artOnly = false; allCav = false; allGuard = false}
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
             if eachUnit.unitType == .Grd {guardInGroup = true}
         }

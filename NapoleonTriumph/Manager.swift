@@ -78,12 +78,13 @@ enum Allegience {
     }
 }
 
+/*
 enum newGamePhase {
     
-    case PreGame, Move, Defend, Commit, Feint
+    case Setup, Move, Defend, Commit, Feint
     
     init (initPhase:String = "Move") {
-        switch initPhase {case "PreGame": self = .PreGame default: self = .Move}
+        switch initPhase {case "Setup": self = .Setup default: self = .Move}
     }
     
     // Changes the phase returns (whether to switch the acting player, whether to advance the turn)
@@ -95,8 +96,8 @@ enum newGamePhase {
         switch (self, secondImpulse, fight) {
         
             // Pre-game setup
-            case (.PreGame, false, _): secondImpulse = true
-            case (.PreGame, true, _): self = .Move; secondImpulse = false; switchActing = (true, true)
+            case (.Setup, false, _): secondImpulse = true
+            case (.Setup, true, _): self = .Move; secondImpulse = false; switchActing = (true, true)
             
             // No attacks or feints - switches player, keeps same phase
             case (.Move, false, false): secondImpulse = true
@@ -106,10 +107,10 @@ enum newGamePhase {
             case (.Move, _, true): self = .Defend
                 
             // Defender punts it back to the attacker (always attacker choice available during commit)
-            case (.Defend, _, _): self = .Commit
+            case (.Defend, _, _): self = .DeclaredLeadingA
 
             // Attacker executes feints, commits on attacks
-            case (.Commit, _, _): self = .Feint // Valid defense choices
+            case (.DeclaredLeadingA, _, _): self = .Feint // Valid defense choices
             
             // ATTACK PROCESSING
                 
@@ -124,33 +125,34 @@ enum newGamePhase {
         return switchActing
     }
 }
+*/
 
 enum oldGamePhase {
     
-    case PreGame, Move, FeintThreat, NormalThreat, FTDefend, NTDefend, PreRetreat, FeintMove, FeintRespond, RealAttack, AttackDeclare, Commit, Counter, PostRetreat, ApproachResponse
+    case Setup, Move, FeintThreat, NormalThreat, StoodAgainstFeintThreat, StoodAgainstNormalThreat, RetreatedBeforeCombat, FeintMove, RealAttack, DeclaredLeadingD, DeclaredAttackers, DeclaredLeadingA, RetreatAfterCombat, PostVictoryFeintMove
     
     var ID:String {
         switch self {
-            case .PreGame: return "PreGame"
-            case .FeintThreat: return "FeintThreat"
-            case .NormalThreat: return "NormalThreat"
-            case .FTDefend: return "FTDefend"
-            case .NTDefend: return "NTDefend"
-            case .PreRetreat: return "PreRetreat"
-            //case .FeintMove: return "FeintMove"
-            case .FeintRespond: return "FeintRespond"
-            case .RealAttack: return "RealAttack"
-            case .AttackDeclare: return "AttackDeclare"
-            case .Counter: return "Counter"
-            case .Commit: return "Commit"
-            case .PostRetreat: return "PostRetreat"
-            case .ApproachResponse: return "ApproachResponse"
-            default: return "Move"
+        case .Setup: return "PreGame"
+        case .Move: return "Move"
+        case .FeintThreat: return "FeintThreat"
+        case .NormalThreat: return "NormalThreat"
+        case .StoodAgainstFeintThreat: return "StoodAgainstFT"
+        case .StoodAgainstNormalThreat: return "StoodAgainstNT"
+        case .RetreatedBeforeCombat: return "RetreatedB4"
+        case .FeintMove: return "FeintMove"
+        case .RealAttack: return "RealAttack"
+        case .DeclaredLeadingD: return "DeclaredLeadingD"
+        case .DeclaredAttackers: return "DeclaredAttackers"
+        case .DeclaredLeadingA: return "DeclaredLeadingA"
+        case .RetreatAfterCombat: return "RetreatAfterCombat"
+        case .PostVictoryFeintMove: return "PostVictoryFeintMove"
+        //default: return "Move"
         }
     }
     
     init (initPhase:String = "Move") {
-        switch initPhase {case "PreGame": self = .PreGame default: self = .Move}
+        switch initPhase {case "PreGame": self = .Setup default: self = .Move}
     }
     
     // Changes the phase based on fight/flight stance and returns whether to switch the acting player
@@ -163,50 +165,49 @@ enum oldGamePhase {
             switch (self, fight) {
             
             // Pre-game move (T/F on whether to advance to move)
-            //case (.PreGame, false):
-            //case (.PreGame, true): self = .Move
+            //case (.Setup, false):
+            //case (.Setup, true): self = .Move
                 
             // Attacker move
             case (.Move, 1): self = .NormalThreat
             case (.Move, 2): self = .FeintThreat
             
-            // Defender move
-            case (.NormalThreat, 1): self = .NTDefend
-            case (.NormalThreat, 2): self = .PreRetreat
-            case (.FeintThreat, 1): self = .FTDefend
-            case (.FeintThreat, 2): self = .PreRetreat
+            // Defender move since "Attacker made a..."
+            case (.NormalThreat, 1): self = .StoodAgainstNormalThreat
+            case (.NormalThreat, 2): self = .RetreatedBeforeCombat
+            case (.FeintThreat, 1): self = .StoodAgainstFeintThreat
+            case (.FeintThreat, 2): self = .RetreatedBeforeCombat
             
-            // Attacker move
-            case (.NTDefend, 1): self = .RealAttack
-            case (.NTDefend, 2): self = .FeintRespond
-            case (.FTDefend, _): self = .FeintRespond
-            case (.PreRetreat, 1): self = .Move; switchActing = false
-            case (.PreRetreat, 2): self = .FeintThreat // Unusual case of continued attack by rd
+            // Attacker move since "Defender..."
+            case (.StoodAgainstNormalThreat, 1): self = .RealAttack
+            case (.StoodAgainstNormalThreat, 2): self = .FeintMove
+            case (.StoodAgainstFeintThreat, _): self = .FeintMove
+            case (.RetreatedBeforeCombat, 1): self = .Move; switchActing = false
+            case (.RetreatedBeforeCombat, 2): self = .FeintThreat // Unusual case of continued attack by rd
                 
-            // Defender move
-            case (.RealAttack, _): self = .AttackDeclare
-            case (.FeintRespond, _): self = .Move
+            // Defender move since "Attacker made a..."
+            case (.RealAttack, _): self = .DeclaredLeadingD
+            case (.FeintMove, _): self = .Move
 
-            // Attacker move (declare move and leading units)
-            case (.AttackDeclare, _): self = .Commit
-            //case (.FeintRespond, _): self = .Move; switchActing = false
+            // Attacker move since "Defender..."
+            case (.DeclaredLeadingD, _): self = .DeclaredAttackers; switchActing = false
+            
+            // Attacker move since "Attacker..."
+            case (.DeclaredAttackers, _): self = .DeclaredLeadingA
 
-            // INITIAL RESULT PROCESSING
+            // <<<INITIAL RESULT PROCESSING>>>
+            
+            // Defender move since "Attacker..."
+            case (.DeclaredLeadingA, 1): self = .RetreatAfterCombat; switchActing = false
+            case (.DeclaredLeadingA, 2): self = .PostVictoryFeintMove; switchActing = false
                 
-            case (.Commit, _): self = .Counter; switchActing = false
+            // <<<FINAL RESULT PROCESSING>>>
+            
+            // Defender move since "Battle resolved, defender lost"
+            case (.RetreatAfterCombat, 1): self = .Move
+            case (.PostVictoryFeintMove, 2): self = .Move
                 
-            // FINAL RESULT PROCESSING
-                
-            // Defender Move (1 = attacker won, 2 = defender won)
-            case (.Counter, 1): self = .PostRetreat
-            case (.Counter, 2): self = .ApproachResponse
-                
-            // Defender move
-            case (.PostRetreat, _): self = .Move
-            case (.ApproachResponse, _): self = .Move
-                
-            default:
-                break
+            default: break
                 
             }
         
@@ -215,44 +216,35 @@ enum oldGamePhase {
             switch (self, fight) {
                 
             // Pre-game move (T/F on whether to advance to move)
-            //case (.PreGame, false):
-            //case (.PreGame, true): self = .Move
+            //case (.Setup, false):
+            //case (.Setup, true): self = .Move
                 
-            // Attacker move
             case (.NormalThreat, _): self = .Move
             case (.FeintThreat, 1): self = .Move
                 
-            // Defender move
-            case (.NTDefend, _): self = .NormalThreat
-            case (.PreRetreat, 1): self = .NormalThreat
-            case (.FTDefend, _): self = .FeintThreat
-            case (.FeintThreat, 2): self = .PreRetreat // Unusual case of continued attack by rd
-            case (.PreRetreat, 2): self = .FeintThreat
+            case (.StoodAgainstNormalThreat, _): self = .NormalThreat
+            case (.RetreatedBeforeCombat, 1): self = .NormalThreat
+            case (.StoodAgainstFeintThreat, _): self = .FeintThreat
+            case (.FeintThreat, 2): self = .RetreatedBeforeCombat // Unusual case of continued attack by rd
+            case (.RetreatedBeforeCombat, 2): self = .FeintThreat
                 
-            // Attacker move
-            case (.RealAttack, _): self = .NTDefend
-            case (.FeintMove, 1): self = .NTDefend
-            case (.FeintMove, 2): self = .FTDefend
-            case (.Move, 2): self = .PreRetreat; switchActing = false
+            case (.RealAttack, _): self = .StoodAgainstNormalThreat
+            
+            case (.FeintMove, 1): self = .StoodAgainstNormalThreat
+            case (.FeintMove, 2): self = .StoodAgainstFeintThreat
+            
+            case (.DeclaredLeadingD, _): self = .RealAttack
                 
-            // Defender move
-            case (.AttackDeclare, _): self = .RealAttack
-            case (.FeintRespond, _): self = .FeintMove
+            case (.DeclaredAttackers, _): self = .DeclaredLeadingD; switchActing = false
+            case (.DeclaredLeadingA, _): self = .DeclaredAttackers
                 
-            // Attacker move
-            case (.Commit, _): self = .AttackDeclare
-            case (.Move, 1): self = .FeintRespond; switchActing = false
+            case (.RetreatAfterCombat, _): self = .DeclaredLeadingA; switchActing = false
+            case (.PostVictoryFeintMove, _): self = .DeclaredLeadingA; switchActing = false
                 
-            // ATTACK PROCESSING
-                
-            case (.Counter, _): self = .Commit
-                
-            // Defender move (true = attacker won)
-            case (.PostRetreat, _): self = .Counter
-            case (.ApproachResponse, _): self = .Counter
-                
-            // Attacker move
-            case (.Move, 3): self = .PostRetreat; switchActing = false
+            case (.Move, 1): self = .FeintMove
+            case (.Move, 2): self = .RetreatedBeforeCombat; switchActing = false
+            case (.Move, 3): self = .RetreatAfterCombat
+            case (.Move, 4): self = .PostVictoryFeintMove
                 
             default:
                 break
@@ -328,7 +320,7 @@ class GameManager {
     }
     
     // Current phase
-    var phaseNew:newGamePhase = newGamePhase()
+    //var phaseNew:newGamePhase = newGamePhase()
     
     var phaseOld:oldGamePhase = oldGamePhase() {
         didSet {
@@ -389,10 +381,10 @@ class GameManager {
         
         // Set the phase-class (enums giving me hell on multi case selections)
         let thePhaseClass:String!
-        if phaseOld == .PreGame || phaseOld == .Move {thePhaseClass = "Move"}
+        if phaseOld == .Setup || phaseOld == .Move {thePhaseClass = "Move"}
         else if phaseOld == .FeintThreat || phaseOld == .NormalThreat {thePhaseClass = "Threat"}
-        else if phaseOld == .NTDefend || phaseOld == .FTDefend || phaseOld == .PreRetreat {thePhaseClass = "Commit"}
-        else if phaseOld == .FeintRespond || phaseOld == .RealAttack {thePhaseClass = "Nothing"}
+        else if phaseOld == .StoodAgainstNormalThreat || phaseOld == .StoodAgainstFeintThreat || phaseOld == .RetreatedBeforeCombat {thePhaseClass = "Commit"}
+        else if phaseOld == .FeintMove || phaseOld == .RealAttack {thePhaseClass = "Nothing"}
         else {thePhaseClass = "Nothing"}
         
         switch (thePhaseClass) {
@@ -447,13 +439,13 @@ class GameManager {
             corpsCommandsAvail = player1CorpsCommands
             indCommandsAvail = player1IndCommands
         
-        } else if phaseOld != .PreGame {
+        } else if phaseOld != .Setup {
             corpsCommandsAvail = player2CorpsCommands
             indCommandsAvail = player2IndCommands
         }
         
         // Finished pre-game
-        if phaseOld == .PreGame && phasingPlayer != player1 {phaseOld = .Move}
+        if phaseOld == .Setup && phasingPlayer != player1 {phaseOld = .Move}
         
         // Any Move turn, set units available to defend
         if phaseOld == .Move {
@@ -562,7 +554,7 @@ class GameManager {
         // Initializes the labels
         phasingPlayer = player1
         actingPlayer = player1
-        phaseOld = .PreGame
+        phaseOld = .Setup
         corpsCommandsAvail = 0
         indCommandsAvail = 0
         

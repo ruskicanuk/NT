@@ -666,11 +666,11 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
         }
         
         // Capacity constraints
-        if (manager!.phaseOld == .FTDefend || manager!.phaseOld == .NTDefend) && !adjacentLocation {
+        if (manager!.phaseOld == .StoodAgainstFeintThreat || manager!.phaseOld == .StoodAgainstNormalThreat) && !adjacentLocation {
             
             if theGroup.nonLdrUnits.count > theConflict.attackReserve.availableSpace {return (.Off, .Off, .Off, .Off)}
             
-        } else if manager!.phaseOld == .PreRetreat {
+        } else if manager!.phaseOld == .RetreatedBeforeCombat {
             
             if theGroup.nonLdrUnits.count > theConflict.defenseReserve.capacity {return (.Off, .Off, .Off, .Off)}
             
@@ -700,6 +700,8 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
             
             var rdBlocked = true
             if !adjacentLocation {rdBlocked = AttackByRdPossible(theConflict.RdCommandPathToConflict(theGroup.command), twoPlusCorps: false)}
+            
+            if theGroup.fullCommand {return (.Off, .Off, .Off, independent)}
             
             switch (theGroup.leaderInGroup, adjacentLocation) {
                 
@@ -760,7 +762,8 @@ func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState,
     case (true, true, false):
         
         if theGroup.command.finishedMove && moveNumber == 0 {return []} // Made an in-place move
-        else if moveNumber == 0 {return [theReserveAsSKNode, theApproachAsSKNode]} // Hasn't moved
+        else if moveNumber == 0 && !onApproach {return [theReserveAsSKNode, theApproachAsSKNode]}
+        else if moveNumber == 0 && onApproach {return [theApproachAsSKNode]} // Hasn't moved
         else if !theGroup.command.finishedMove {return [theApproachAsSKNode]} // Moved in from outside
         else {return []} // Should never get here...
         
@@ -857,7 +860,7 @@ func CheckTurnEndViableInCommitMode(theThreat:Conflict, endLocation:Location) ->
     let targetReserve:Reserve!
     let targetApproach:Approach!
     
-    switch (manager!.phaseOld == .PreRetreat, manager!.repeatAttackGroup == nil) {
+    switch (manager!.phaseOld == .RetreatedBeforeCombat, manager!.repeatAttackGroup == nil) {
         
     case (true, true):
         
@@ -960,6 +963,11 @@ func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
     
     return theThreat.defenseApproach.occupantCount > 0
 }
+
+// MARK: Attack Declaration and Leading
+
+
+
 
 // MARK: Toggle Selections
 
@@ -1238,6 +1246,8 @@ func GroupsIncludeLeaders(originalGroups:[Group]) -> [Group] {
     }
     return theGroups
 }
+
+
 
 /*
 func UnitsHaveLeader(units:[Unit]) -> Bool {
