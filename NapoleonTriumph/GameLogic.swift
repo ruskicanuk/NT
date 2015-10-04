@@ -883,7 +883,7 @@ func CheckTurnEndViableInCommitMode(theThreat:Conflict, endLocation:Location) ->
     return false
 }
 
-// MARK: Defense Response Logic
+// MARK: Leading Units Logic
 
 func SelectableGroupsForLeadingDefense (theThreat:Conflict) -> GroupSelection? {
     
@@ -893,7 +893,7 @@ func SelectableGroupsForLeadingDefense (theThreat:Conflict) -> GroupSelection? {
     let selectedLeadingDefense = GroupSelection(theGroups: theThreat.defenseGroup!.groups)
     theThreat.defenseLeadingUnits = selectedLeadingDefense
     ToggleGroups(theThreat.defenseGroup!.groups, makeSelection: .Normal)
-    print(theThreat.defenseGroup!.groups.count)
+
     switch (theThreat.approachConflict, selectedLeadingDefense.blocksSelected) {
         
     case (true, 0): break
@@ -949,6 +949,8 @@ func SelectableGroupsForLeadingDefense (theThreat:Conflict) -> GroupSelection? {
     }
     return selectedLeadingDefense
 }
+
+// MARK: Defense Logic
 
 func SelectableGroupsForFeintDefense (theThreat:Conflict) {
     
