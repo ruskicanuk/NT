@@ -639,7 +639,7 @@ class GameManager {
                 ToggleGroups(selectableDefenseGroups, makeSelection: .Normal)
                 
                 // Ensure each attack threat is visible (normally this is set automatically when defense mode is set)
-                for eachThreat in eachGroup.conflicts {eachThreat.defenseApproach.hidden = false}
+                //for eachThreat in eachGroup.conflicts {eachThreat.defenseApproach.hidden = false}
                 
                 return "TurnOnFeint"
                 

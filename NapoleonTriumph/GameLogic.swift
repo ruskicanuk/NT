@@ -490,7 +490,8 @@ func CheckTurnEndViableInRetreatOrDefendMode(theThreat:GroupConflict) -> Bool {
     if theThreat.retreatMode {
         if theThreat.defenseReserve.currentFill == 0 {return true}
     } else {
-        if theThreat.unresolvedApproaches.count == 0 {return true}
+        let theGroupSelectionCheck = GroupSelection(theGroups: manager!.selectableDefenseGroups)
+        if theGroupSelectionCheck.groups.isEmpty {return false} else {return true}
     }
     return false
 }
@@ -883,80 +884,12 @@ func CheckTurnEndViableInCommitMode(theThreat:Conflict, endLocation:Location) ->
     return false
 }
 
-// MARK: Leading Units Logic
-
-func SelectableGroupsForLeadingDefense (theThreat:Conflict) -> GroupSelection? {
-    
-    // Safety drill
-    if theThreat.defenseGroup!.groups.isEmpty {return nil}
-    
-    let selectedLeadingDefense = GroupSelection(theGroups: theThreat.defenseGroup!.groups)
-    theThreat.defenseLeadingUnits = selectedLeadingDefense
-    ToggleGroups(theThreat.defenseGroup!.groups, makeSelection: .Normal)
-
-    switch (theThreat.approachConflict, selectedLeadingDefense.blocksSelected) {
-        
-    case (true, 0): break
-        
-    case (true, 1):
-        if theThreat.defenseApproach.wideApproach {
-            // do nothing
-        } else {
-            ToggleGroups(theThreat.defenseGroup!.groups, makeSelection: .NotSelectable)
-            ToggleGroups(selectedLeadingDefense.groups, makeSelection: .Selected)
-        }
-        
-    case (true, 2):
-        ToggleGroups(theThreat.defenseGroup!.groups, makeSelection: .NotSelectable)
-        ToggleGroups(selectedLeadingDefense.groups, makeSelection: .Selected)
-        
-    case (false, 0):
-        
-        for eachGroup in theThreat.defenseGroup!.groups {
-            for eachUnit in eachGroup.units {
-                if eachUnit.unitStrength == 1 {
-                    eachUnit.selected = .NotSelectable
-                }
-            }
-        }
-        
-    case (false, 1):
-        
-        if theThreat.defenseApproach.wideApproach {
-            
-            for eachGroup in theThreat.defenseGroup!.groups {
-                for eachUnit in eachGroup.units {
-                    if eachUnit.unitStrength == 1 || eachUnit != selectedLeadingDefense.groups[0].command {
-                        eachUnit.selected = .NotSelectable
-                    }
-                }
-            }
-            
-        } else {
-            
-            ToggleGroups(theThreat.defenseGroup!.groups, makeSelection: .NotSelectable)
-            ToggleGroups(selectedLeadingDefense.groups, makeSelection: .Selected)
-            
-        }
-        
-    case (false, 2):
-        
-        ToggleGroups(theThreat.defenseGroup!.groups, makeSelection: .NotSelectable)
-        ToggleGroups(selectedLeadingDefense.groups, makeSelection: .Selected)
-        
-    default: break
-        
-    }
-    return selectedLeadingDefense
-}
-
 // MARK: Defense Logic
 
 func SelectableGroupsForFeintDefense (theThreat:Conflict) {
     
     // Safety drill
     if theThreat.defenseGroup!.groups.isEmpty {return}
-    //print(GroupsIncludeLeaders(theThreat.defenseGroup!.groups)[0].units.count)
     ToggleGroups(GroupsIncludeLeaders(theThreat.defenseGroup!.groups), makeSelection: .Normal)
 }
 
@@ -966,10 +899,119 @@ func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
     return theThreat.defenseApproach.occupantCount > 0
 }
 
-// MARK: Attack Declaration and Leading
+// MARK: Leading Units Logic
 
+func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, resetState:Bool = false) {
+    
+    var theGroups:[Group] = []
+    switch thePhase {
+    case .RealAttack: theGroups = theConflict.defenseGroup!.groups
+    case .DeclaredAttackers: theGroups = theConflict.attackGroup!.groups
+    case .DeclaredLeadingA: theGroups = theConflict.counterAttackGroup!.groups
+    default: break
+    }
+    
+    // Sequence removes the cav in the case of an obstructed defense approach
+    if theConflict.defenseApproach.obstructedApproach {
+        var newGroups:[Group] = []
+        for eachGroup in theGroups {
+            var theUnits:[Unit] = []
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitType != .Cav {
+                    theUnits += [eachUnit]
+                }
+            }
+            if !theUnits.isEmpty {newGroups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]}
+        }
+        theGroups = newGroups
+    }
+    
+    // Safety drill
+    if theGroups.isEmpty {return}
+    
+    let selectedLeadingGroups:GroupSelection!
+    if resetState {
+        selectedLeadingGroups = GroupSelection(theGroups: [])
+    } else {
+        selectedLeadingGroups = GroupSelection(theGroups: theGroups)
+    }
+    
+    ToggleGroups(theGroups, makeSelection: .Normal)
+    
+    switch thePhase {
+    case .RealAttack: theConflict.defenseLeadingUnits = selectedLeadingGroups
+    case .DeclaredAttackers: theConflict.attackLeadingUnits = selectedLeadingGroups
+    case .DeclaredLeadingA: theConflict.counterAttackLeadingUnits = selectedLeadingGroups
+    default: break
+    }
 
-
+    // Three scenarios: Defense Leading, Attack Leading and Counter Attacking
+    // APPROACH?, # BLOCKS SELECTED, WIDE?, LEADING D - LEADING A OR COUNTERATTACK?
+    // .RealAttack, .DeclaredAttackers, .DeclaredLeadingA
+    switch (theConflict.approachConflict, selectedLeadingGroups.blocksSelected, theConflict.wideBattle, manager!.phaseOld) {
+        
+    case (true, 0, _, .RealAttack): break
+        
+    case (_, 1, false, .RealAttack), (_, 1, false, .DeclaredAttackers):
+        
+        ToggleGroups(theGroups, makeSelection: .NotSelectable)
+        
+    case (true, 1, true, .RealAttack): break
+        
+    case (_, 2, _, _):
+        
+        ToggleGroups(theGroups, makeSelection: .NotSelectable)
+        
+    case (false, 0, _, .RealAttack),(_, 0, _, .DeclaredAttackers),(_, 0, _, .DeclaredLeadingA):
+        
+        for eachGroup in theGroups {
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitStrength == 1 {
+                    eachUnit.selected = .NotSelectable
+                }
+            }
+        }
+        
+    case (false, 1, true, .RealAttack):
+            
+        let selectedGroup = selectedLeadingGroups.groups[0]
+        
+        for eachGroup in theGroups {
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitStrength == 1 || eachUnit.parentCommand! != selectedGroup.command {
+                    eachUnit.selected = .NotSelectable
+                } else if selectedGroup.units[0].unitType == .Inf || selectedGroup.units[0].unitType == .Grd {
+                    if !(eachUnit.unitType == .Inf || eachUnit.unitType == .Grd) {eachUnit.selected = .NotSelectable}
+                } else if eachUnit.unitType != selectedGroup.units[0].unitType {
+                    eachUnit.selected = .NotSelectable
+                }
+            }
+        }
+            
+    case (false, 1, false, .RealAttack):
+            
+        ToggleGroups(theGroups, makeSelection: .NotSelectable)
+        
+    case (_, 1, true, .DeclaredAttackers), (_, 1, _, .DeclaredLeadingA):
+        
+        let selectedGroup = selectedLeadingGroups.groups[0]
+        
+        for eachGroup in theGroups {
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitStrength == 1 || eachUnit.parentCommand! != selectedGroup.command {
+                    eachUnit.selected = .NotSelectable
+                } else if eachUnit.unitType != selectedGroup.units[0].unitType {
+                    eachUnit.selected = .NotSelectable
+                }
+            }
+        }
+        
+    default: break
+        
+    }
+    
+    ToggleGroups(selectedLeadingGroups.groups, makeSelection: .Selected)
+}
 
 // MARK: Toggle Selections
 

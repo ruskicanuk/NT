@@ -15,11 +15,16 @@ class Conflict {
     let attackApproach:Approach!
     
     var defenseGroup:GroupSelection?
-    var attackGroups:GroupSelection?
+    var attackGroup:GroupSelection?
+    var counterAttackGroup:GroupSelection?
+    
     var attackMoveType:MoveType?
     var defenseSide:Allegience!
     
     var defenseLeadingUnits:GroupSelection?
+    var attackLeadingUnits:GroupSelection?
+    var counterAttackLeadingUnits:GroupSelection?
+    
     var availableCounterAttackers:GroupSelection? {
         // Safety check
         if defenseGroup == nil {return nil}
@@ -30,22 +35,21 @@ class Conflict {
         for eachGroup in defenseGroup!.groups {
             var theUnits:[Unit] = []
             for eachUnit in eachGroup.units {
-                let groupInLeadingUnits = defenseLeadingUnits!.groups.filter{$0.command == eachUnit.parentCommand}
-                
-                if groupInLeadingUnits.count == 1 && groupInLeadingUnits[0].units.contains(eachUnit) {
-                    
-                } else {
-                    theUnits += [eachUnit]
+
+                var unitFound = false
+                for eachLeadingGroup in defenseLeadingUnits!.groups {
+                    if eachLeadingGroup.units.contains(eachUnit) {unitFound = true; break}
                 }
+                
+                if !unitFound {theUnits += [eachUnit]}
+
             }
             if !theUnits.isEmpty {
                 theGroups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]
             }
         }
-        return GroupSelection(theGroups: theGroups)
+        return GroupSelection(theGroups: theGroups, selectedOnly: false)
     }
-    
-    var attackLeadingUnits:GroupSelection?
     
     var potentialRdAttackers:[Command:[Reserve]] = [:] // Stores the reserve pathways possible
     var rdAttackerPath:[Reserve] = []
@@ -53,17 +57,18 @@ class Conflict {
     //var postRetreatMode:Bool = false
     //var potentialAdjAttackers:[Command:[Location]] = [:]
     
-    var defenseOrRetreatDeclared:Bool = false
-    var defenseLeadingDeclared:Bool = false
-    var attackOrFeintDeclared:Bool = false
-    var attackLeadingDeclared:Bool = false
+    //var defenseOrRetreatDeclared:Bool = false
+    //var defenseLeadingDeclared:Bool = false
+    //var attackOrFeintDeclared:Bool = false
+    //var attackLeadingDeclared:Bool = false
     
     var guardAttack:Bool = false
     
     var mustFeint:Bool = false
     
     var approachConflict:Bool = false
-    var battleOccured:Bool = false
+    var wideBattle:Bool = false
+    //var battleOccured:Bool = false
     
     weak var parentGroupConflict:GroupConflict?
     
@@ -74,6 +79,7 @@ class Conflict {
         attackApproach = aApproach
         mustFeint = mFeint
         defenseSide = manager!.phasingPlayer.Other()
+        if defenseApproach.wideApproach {wideBattle = true}
         
         for eachCommand in manager!.gameCommands[defenseSide.Other()!]! {
             
@@ -127,7 +133,8 @@ class GroupConflict {
     
     var mustRetreat:Bool = false
     var mustDefend:Bool = false
-    var retreatMode:Bool = false {
+    var retreatMode:Bool = false /*{
+        
         didSet {
             if retreatMode {
                 for eachConflict in conflicts {eachConflict.defenseApproach.hidden = true}
@@ -135,7 +142,8 @@ class GroupConflict {
                 for eachConflict in conflicts {eachConflict.defenseApproach.hidden = false}
             }
         }
-    }
+
+    } */
     // Used to store number of orders for the purposes of releasing the mustRetreat / mustDefend condition when un-doing
     var retreatOrders:Int = 0
     var defenseOrders:Int = 0
@@ -144,10 +152,7 @@ class GroupConflict {
     
     // Returns if any reductions have been made
     var madeReductions:Bool {
-        //var requiredReductions:Int = 0
         var actualReductions:Int = 0
-        //for (_, required) in damageRequired {requiredReductions += required}
-        //for (_, required) in destroyRequired {requiredReductions += required}
         for (_, required) in damageDelivered {actualReductions += required}
         for (_, required) in destroyDelivered {actualReductions += required}
         
