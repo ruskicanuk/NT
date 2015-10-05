@@ -110,6 +110,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func QueueSwipe (swipeUp:Bool) {
         
+
+        
         let endOfSwipeQueue = swipeQueue.endIndex - 1
         var nextIndex:Int = 1
         
@@ -153,7 +155,17 @@ class GameScene: SKScene, NSXMLParserDelegate {
         linkApproaches()
         linkReserves()
         
+        let skScene:SKScene = SKScene.init(size: CGSizeMake(100, 100))
+        skScene.scaleMode = SKSceneScaleMode.ResizeFill
+
+        let help:SKSpriteNode = SKSpriteNode(imageNamed:"start")
+        help.position=CGPointMake(10, 10);
+        skScene.addChild(help)
+        
+        
         // Hide the locations
+        
+        
         HideAllLocations(true)
     }
     
@@ -161,6 +173,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func theTouchedNode(theSelectedNodes:[SKNode], mapLocation:CGPoint, touchedCount:Int = 1) -> SKNode? {
         
+        
+
         //var highestSceneZ = CGFloat(-1)
         var highestMapZ = CGFloat(-1)
         

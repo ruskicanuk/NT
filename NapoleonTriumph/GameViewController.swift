@@ -17,35 +17,58 @@ extension Int {
 
 //var scene:GameScene!
 var scene:MenuView!
+var delegate:AppDelegate!
 
-class GameViewController: UIViewController, UIGestureRecognizerDelegate {
+class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate {
 
     @IBOutlet weak var scalingView: UIView!
     @IBOutlet weak var draggedView: UIView!
+    @IBOutlet weak var scrollview: UIScrollView!
     
     var scale:Float = 1.0
-    
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
+        
+
         // Set pinch gesture
-        let pinchGesture = UIPinchGestureRecognizer(target: self, action: "pinched:")
-        self.scalingView.userInteractionEnabled = true
-        self.scalingView.addGestureRecognizer(pinchGesture)
+//        let pinchGesture = UIPinchGestureRecognizer(target: self, action: "pinched:")
+//        self.scalingView.userInteractionEnabled = true
+//        self.scalingView.addGestureRecognizer(pinchGesture)
         //self.scalingStatusLabel.text = "\(self.scale)x"
         
         // Set drag gesture
-        let dragGesture = UIPanGestureRecognizer(target: self, action: "dragged:")
-        self.draggedView.userInteractionEnabled = true
-        self.draggedView.addGestureRecognizer(dragGesture)
+//        let dragGesture = UIPanGestureRecognizer(target: self, action: "dragged:")
+//        self.draggedView.userInteractionEnabled = true
+//        self.draggedView.addGestureRecognizer(dragGesture)
         
-        let skView = view as! SKView
+        let skView = scalingView as! SKView
 //        scene = GameScene(size: skView.bounds.size)
         scene = MenuView(size: skView.bounds.size)
         scene.viewController=self
         skView.ignoresSiblingOrder = true
         skView.presentScene(scene)
+        
+        
+        self.scrollview.maximumZoomScale=4.0
+        self.scrollview.minimumZoomScale=1.0
+        self.scrollview.delegate=self
+        
+        
+        delegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        
+        
+        let viewMenu=UIView.init(frame:CGRectMake(00, 0, 200, self.view.frame.size.height))
+//        viewMenu.backgroundColor=UIColor.darkGrayColor()
+        self.view.addSubview(viewMenu)
+        
+        let button:UIButton = UIButton.init(frame: CGRectMake(0, 0, 100 , 45))
+        button.setTitle("Menu button", forState: UIControlState.Normal)
+        viewMenu.addSubview(button)
+        
+        button.backgroundColor=UIColor.redColor()
+        
         
         /*
         let testFrame:CGRect = CGRectMake(0,200,320,200)
@@ -57,6 +80,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         //skView.presentScene(scene)
     }
     
+    internal func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+        return self.draggedView
+    }
+    
     func pinched(pinchGesture : UIPinchGestureRecognizer) {
         
         switch pinchGesture.state {
@@ -64,14 +91,23 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         case .Changed:
             
             var baseScale = self.scale * Float(pinchGesture.scale)
+            print("basescale ",baseScale);
+            
             if baseScale < 1.0 {baseScale = 1.0} else {baseScale = min(4.0,baseScale)}
             self.scale = baseScale
             
             pinchGesture.scale = 1.0
             
-            self.scalingView.transform =
-                CGAffineTransformMakeScale(CGFloat(self.scale),
-                    CGFloat(self.scale))
+            if baseScale >= 0
+            {
+                self.scalingView.transform =
+                    CGAffineTransformMakeScale(CGFloat(self.scale),
+                        CGFloat(self.scale))
+            }
+            else
+            {
+                print("Not scalling")
+            }
             
         default: () // do nothing
             
