@@ -19,11 +19,17 @@ class Conflict {
     var counterAttackGroup:GroupSelection?
     
     var attackMoveType:MoveType?
-    var defenseSide:Allegience!
+    let defenseSide:Allegience!
     
     var defenseLeadingUnits:GroupSelection?
     var attackLeadingUnits:GroupSelection?
     var counterAttackLeadingUnits:GroupSelection?
+    
+    var mayCounterAttack:Bool = true
+    var conflictInitialWinner:Allegience
+    var conflictFinalWinner:Allegience
+    var initialResult = 0
+    var finalResult = 0
     
     var availableCounterAttackers:GroupSelection? {
         // Safety check
@@ -79,6 +85,8 @@ class Conflict {
         attackApproach = aApproach
         mustFeint = mFeint
         defenseSide = manager!.phasingPlayer.Other()
+        conflictInitialWinner = .Neutral
+        conflictFinalWinner = .Neutral
         if defenseApproach.wideApproach {wideBattle = true}
         
         for eachCommand in manager!.gameCommands[defenseSide.Other()!]! {
@@ -110,6 +118,54 @@ class Conflict {
         }
         
         if thePath == [] {return []} else {return thePath}
+    }
+    
+    func InitialResult() {
+        
+        let attackLead = attackLeadingUnits!
+        let defenseLead = defenseLeadingUnits!
+        let counterLead = counterAttackLeadingUnits!
+        var cavLead:Bool = false; var infLead:Bool = false; var artLead:Bool = false; //var grdLead:Bool = false
+        
+        if !attackLead.groups.isEmpty {
+            if attackLead.groups[0].allCav {cavLead = true}
+            else if attackLead.groups[0].artOnly {artLead = true}
+            else if attackLead.containsInfOrGuard  {infLead = true}
+        }
+        var attackStrength:Int = 0
+        var defenseStrength:Int = 0
+        
+        attackStrength += attackLead.groupSelectionStrength
+        
+        if approachConflict {
+            if infLead {attackStrength--}
+            if infLead {if defenseApproach.infApproach {attackStrength--}}
+            else if cavLead {if defenseApproach.cavApproach {attackStrength--}}
+            else if artLead {if defenseApproach.artApproach {attackStrength--}}
+        }
+        
+        if !artLead {defenseStrength = defenseLead.groupSelectionStrength} else {defenseStrength = 0}
+        
+        // Store whether counter-attack is possible
+        if counterLead.groups.isEmpty || attackLead.groups[0].artOnly {mayCounterAttack = false}
+
+        initialResult = attackStrength - defenseStrength
+        
+        if artLead {conflictInitialWinner = .Neutral}
+        else if initialResult > 0 {conflictInitialWinner = defenseSide.Other()!}
+        else if initialResult < 0 {conflictInitialWinner = defenseSide}
+        else if approachConflict {conflictInitialWinner = defenseSide}
+        else if defenseGroup!.blocksSelected > attackGroup!.blocksSelected {conflictInitialWinner = defenseSide}
+        else if defenseGroup!.blocksSelected < attackGroup!.blocksSelected {conflictInitialWinner = defenseSide.Other()!}
+        else {conflictInitialWinner = .French}
+    }
+    
+    func FinalResult() {
+        
+    }
+    
+    func ApplyLosses(reverse:Bool) {
+        
     }
 
     /*
@@ -192,6 +248,7 @@ class GroupConflict {
             if eachConflict.defenseApproach.occupantCount > 0 {
                 defendedApproaches += [eachConflict.defenseApproach]
                 eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false), selectedOnly: false)
+                eachConflict.defenseGroup!.SetGroupSelectionPropertyUnitsHaveDefended(true)
                 eachConflict.approachConflict = true
             }
         }
@@ -262,6 +319,7 @@ class Group {
         command = theCommand
         units = theUnits
         for eachUnit in theUnits {
+            
             if eachUnit.unitType == .Ldr {leaderInGroup = true; leaderUnit = eachUnit}
             else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false; allGuard = false}
             else if eachUnit.unitType == .Art {nonLdrUnitCount++; allCav = false; allGuard = false}
@@ -288,8 +346,12 @@ class GroupSelection {
     var sameTypeSameCorps:Bool = false
     var sameType:Bool = false
     var anyOneStrengthUnits = false
+    
     var blocksSelected = 0
-        
+    
+    var containsInfOrGuard = false
+    var groupSelectionStrength = 0
+    
     init(theGroups:[Group], selectedOnly:Bool = true) {
         
         var unitsTypes:[Type] = []
@@ -301,6 +363,10 @@ class GroupSelection {
             for eachUnit in eachGroup.units {
                 
                 if eachUnit.selected == .Selected || !selectedOnly {
+                    
+                    if eachUnit.unitType == .Inf || eachUnit.unitType == .Grd {containsInfOrGuard = true}
+                    if eachUnit.unitType != .Ldr {groupSelectionStrength += eachUnit.unitStrength}
+                    
                     theUnits += [eachUnit] // Add to units
                     blocksSelected++
                     if eachUnit.unitType != .Ldr {groupSelectionSize++} // Increment group selection size

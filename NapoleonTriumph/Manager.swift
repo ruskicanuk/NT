@@ -277,6 +277,7 @@ class GameManager {
     //var attackingGroups:[Approach:[Group]]?
     var reserveThreats:[GroupConflict] = []
     var activeThreat:GroupConflict?
+    
     var approachThreats:[Approach:Conflict] = [:]
     //var theThreatsRetreatStatus:[Reserve:Bool] = [:] // Stores which mode (retreat or defend) each threat is in
     //var defendingLeading

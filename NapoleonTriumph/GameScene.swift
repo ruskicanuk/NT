@@ -811,20 +811,21 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
             case .NormalThreat, .FeintThreat:
                 
-                if let theThreat = manager!.activeThreat {
+                if let theGroupThreat = manager!.activeThreat {
                     
                     endTurnSelector?.selected = .Off
-                    if theThreat.retreatMode {
+                    if theGroupThreat.retreatMode {
                         retreatSelector?.selected = .Off
                         manager!.NewPhase(2, reverse: false, playback: false)
                     } else {
-                        DefendThreatUI()
+                        SaveDefenseGroup(theGroupThreat)
                         if manager!.phaseOld == .NormalThreat {commitSelector?.selected = .Option} // Makes it option if attacker can click it
                         manager!.NewPhase(1, reverse: false, playback: false)
                     }
+                    
                     ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
                     
-                    // Set Selectable Groups
+                    // Set Selectable Groups for the attacker
                     manager!.selectableAttackByRoadGroups = SelectableGroupsForAttackByRoad(manager!.activeThreat!.conflicts[0])
                     manager!.selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(manager!.activeThreat!.conflicts[0])
                     ToggleGroups(manager!.selectableAttackByRoadGroups, makeSelection: .Normal)
@@ -832,7 +833,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     
                     // Captures case where we are in continue attack mode
                     if manager!.repeatAttackGroup != nil {
-                        if CheckTurnEndViableInCommitMode(theThreat.conflicts[0], endLocation:manager!.repeatAttackGroup!.command.currentLocation!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+                        if CheckTurnEndViableInCommitMode(theGroupThreat.conflicts[0], endLocation:manager!.repeatAttackGroup!.command.currentLocation!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
                         manager!.currentGroupsSelected = [manager!.repeatAttackGroup!]
                         ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
                         AttackOrdersAvailable()
@@ -964,14 +965,19 @@ class GameScene: SKScene, NSXMLParserDelegate {
 
                 SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
                 
-                // RUN INITIAL RESULT
+                // INITIAL RESULT
+                let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .InitialBattle)
+                newOrder.ExecuteOrder()
+                newOrder.unDoable = false // Can't undo initial result
+                manager!.orders += [newOrder]
                 
             case .DeclaredLeadingA:
                 
-                // Safety check
-                //guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
-                
-                // RUN FINAL RESULT
+                // FINAL RESULT
+                let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .FinalBattle)
+                newOrder.ExecuteOrder()
+                newOrder.unDoable = false // Can't undo final result
+                manager!.orders += [newOrder]
                 
                 // Initial selection
                 //ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal) //CheckCheck
@@ -1100,29 +1106,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
         DeselectEverything()
-        
-    }
-    
-    // Order to defend
-    func DefendThreatUI() {
-
-        // Safety drill
-        if manager!.activeThreat == nil {return}
-        guard let theThreat = manager!.activeThreat?.conflicts[0] else {return}
-        if theThreat.approachConflict {return} // Approach conflicts do not get extra defenders
-        //if theThreat.parentGroupConflict!.defendedApproaches.contains(touchedNodeFromView) {return} // If defenders have already been sent
-        
-        let defenseSelection = GroupSelection(theGroups: manager!.selectableDefenseGroups)
-
-        let newOrder = Order(defenseSelection: defenseSelection, passedConflict: theThreat, orderFromView: .Defend, mapFromView:NTMap! )
-        newOrder.ExecuteOrder()
-        manager!.orders += [newOrder]
-        
-        manager!.ResetRetreatDefenseSelection()
-        //if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
-        //let theCode = manager!.NewPhase(1, reverse: false, playback: false)
-        //if theCode == "TurnOnRetreat" {retreatSelector?.selected = .On}
-        //else {}
         
     }
     

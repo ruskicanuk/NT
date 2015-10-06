@@ -893,6 +893,36 @@ func SelectableGroupsForFeintDefense (theThreat:Conflict) {
     ToggleGroups(GroupsIncludeLeaders(theThreat.defenseGroup!.groups), makeSelection: .Normal)
 }
 
+// Order to defend
+func SaveDefenseGroup(theGroupThreat:GroupConflict) {
+    
+    // Safety drill
+    let theThreat = theGroupThreat.conflicts[0]
+    if theThreat.approachConflict {return} // Approach conflicts do not get extra defenders
+    
+    let defenseSelection = GroupSelection(theGroups: manager!.selectableDefenseGroups)
+    
+    /*
+    let newOrder = Order(defenseSelection: defenseSelection, passedConflict: theThreat, orderFromView: .Defend, mapFromView:NTMap! )
+    newOrder.ExecuteOrder()
+    manager!.orders += [newOrder]
+    */
+    
+    theThreat.defenseGroup = defenseSelection
+    theThreat.parentGroupConflict!.defendedApproaches += [theThreat.defenseApproach]
+    defenseSelection.SetGroupSelectionPropertyUnitsHaveDefended(true)
+    
+    theThreat.parentGroupConflict!.defenseOrders++
+    theThreat.parentGroupConflict!.mustDefend = true
+    
+    manager!.ResetRetreatDefenseSelection()
+    //if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+    //let theCode = manager!.NewPhase(1, reverse: false, playback: false)
+    //if theCode == "TurnOnRetreat" {retreatSelector?.selected = .On}
+    //else {}
+    
+}
+
 // Returns true if endTurn is viable
 func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
     

@@ -11,7 +11,7 @@ import SpriteKit
 // Stores the kind of order
 enum OrderType {
     
-    case Move, Attach, FeintThreat, NormalThreat, Defend, Reduce, Surrender, Retreat, Commit, Feint, ApproachMove, PostRetreat
+    case Move, Attach, FeintThreat, NormalThreat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle
     
 }
 
@@ -98,6 +98,7 @@ class Order {
     }
     
     // Initiate order (Defend)
+    /*
     init(defenseSelection:GroupSelection, passedConflict: Conflict, orderFromView: OrderType, mapFromView:SKSpriteNode) {
         order = orderFromView
         mainMap = mapFromView
@@ -106,6 +107,7 @@ class Order {
         startLocation = [theConflict!.defenseReserve]
         endLocation = theConflict!.defenseApproach
     }
+    */
     
     // Initiate order (Retreat)
     init(retreatSelection:GroupSelection, passedGroupConflict:GroupConflict, touchedReserveFromView:Reserve, orderFromView: OrderType, mapFromView:SKSpriteNode) {
@@ -145,7 +147,7 @@ class Order {
         orderGroup = theGroup
     }
     
-    // Reduce order (Surrender, Commit)
+    // Reduce order (Surrender, initial battle, final battle)
     init(passedGroupConflict: GroupConflict, orderFromView: OrderType) {
         order = orderFromView
         theGroupConflict = passedGroupConflict
@@ -674,7 +676,7 @@ class Order {
             
             print("Attack order rescinded", terminator: "")
             
-        // MARK: Defend
+        /*
         
         case (false, .Defend):
             
@@ -687,6 +689,8 @@ class Order {
             theConflict!.parentGroupConflict!.defenseOrders++
             theConflict!.parentGroupConflict!.mustDefend = true
             
+        
+        
         case (true, .Defend):
             
             if playback {break}
@@ -698,6 +702,8 @@ class Order {
             theConflict!.parentGroupConflict!.defenseOrders--
             if theConflict!.parentGroupConflict!.defenseOrders == 0 {theConflict!.parentGroupConflict!.mustDefend = false}
             
+        */
+
         // MARK: Reduce
         
         case (false, .Reduce):
@@ -725,12 +731,6 @@ class Order {
                 }
                 orderGroup!.units[0].decrementStrength(false)
             }
-            
-        // MARK: Commit
-            
-        //case (_, .Commit): break
-            
-            // Commit
             
         // MARK: Surrender
         
@@ -761,13 +761,29 @@ class Order {
             SurrenderUnits(surrenderDict, reduce: false)
             startLocaleReserve!.UpdateReserveState()
             
-        default:
-        print("Do Nothing", terminator: "")
+        // MARK: Battle
+            
+        case (false, .InitialBattle):
+            theGroupConflict!.conflicts[0].InitialResult()
+            
+        case (true, .InitialBattle):
+            break
+            
+        case (false, .FinalBattle):
+            theGroupConflict!.conflicts[0].FinalResult()
+            theGroupConflict!.conflicts[0].ApplyLosses(false)
+            
+        case (true, .FinalBattle):
+            theGroupConflict!.conflicts[0].ApplyLosses(true)
+            
+        // default:
             
         }
         
         return false
     }
+    
+
     
     // MARK: Support Functions
     
@@ -840,7 +856,7 @@ class Order {
                         orderArrow = SKShapeNode(path: orderPath)
                     }
                 }
-            } else if order == .Defend || order == .Commit || order == .Feint {
+            } else if order == .Feint {
                 
                 if let endApproach = endLocation as? Approach {
                     if let startReserve = startLocation[0] as? Reserve {
@@ -874,20 +890,6 @@ class Order {
             } else if order == .FeintThreat {
                 
                 strokeColor = SKColor.purpleColor()
-                lineWidth = 4.0
-                glowHeight = 2.0
-                zPosition = 1
-                
-            } else if order == .Defend {
-                
-                strokeColor = SKColor.brownColor()
-                lineWidth = 4.0
-                glowHeight = 2.0
-                zPosition = 1
-                
-            } else if order == .Commit {
-                
-                strokeColor = SKColor.greenColor()
                 lineWidth = 4.0
                 glowHeight = 2.0
                 zPosition = 1

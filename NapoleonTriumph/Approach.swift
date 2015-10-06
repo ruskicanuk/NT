@@ -22,6 +22,7 @@ class Approach:Location {
     var adjReserve:Reserve?
     var ownReserve:Reserve?
     var defenseRequired:Bool = false // Used to store whether the approach's defense has been resolved (either via retreat with emptied locale or defend order and defense sent
+    var turnOfLastArtVolley:Int = 0
     
     let oppApproachName:String
     let adjReserveName:String
