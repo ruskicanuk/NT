@@ -124,7 +124,6 @@ class Conflict {
         
         let attackLead = attackLeadingUnits!
         let defenseLead = defenseLeadingUnits!
-        let counterLead = counterAttackLeadingUnits!
         var cavLead:Bool = false; var infLead:Bool = false; var artLead:Bool = false; //var grdLead:Bool = false
         
         if !attackLead.groups.isEmpty {
@@ -145,9 +144,6 @@ class Conflict {
         }
         
         if !artLead {defenseStrength = defenseLead.groupSelectionStrength} else {defenseStrength = 0}
-        
-        // Store whether counter-attack is possible
-        if counterLead.groups.isEmpty || attackLead.groups[0].artOnly {mayCounterAttack = false}
 
         initialResult = attackStrength - defenseStrength
         
@@ -158,13 +154,48 @@ class Conflict {
         else if defenseGroup!.blocksSelected > attackGroup!.blocksSelected {conflictInitialWinner = defenseSide}
         else if defenseGroup!.blocksSelected < attackGroup!.blocksSelected {conflictInitialWinner = defenseSide.Other()!}
         else {conflictInitialWinner = .French}
+        
+        // Store whether counter-attack is possible and the turn of any artillery shooting
+        if attackLead.groups[0].artOnly {mayCounterAttack = false; counterAttackLeadingUnits = GroupSelection(theGroups: [])}
+        if artLead {attackApproach.turnOfLastArtVolley = manager!.turn}
+    }
+    
+    func ApplyCounterLosses(reverse:Bool) {
+        
+        let counterLead = counterAttackLeadingUnits!
+        
+        for eachGroup in counterLead.groups {
+            for eachUnit in eachGroup.units {
+                eachUnit.decrementStrength(reverse)
+            }
+        }
     }
     
     func FinalResult() {
         
+        let counterLead = counterAttackLeadingUnits!
+        finalResult = initialResult - counterLead.groupSelectionStrength
+
+        if conflictInitialWinner == .Neutral {conflictFinalWinner = .Neutral}
+        else if finalResult > 0 {conflictFinalWinner = defenseSide.Other()!}
+        else if finalResult < 0 {conflictFinalWinner = defenseSide}
+        else if approachConflict {conflictFinalWinner = defenseSide}
+        else if defenseGroup!.blocksSelected > attackGroup!.blocksSelected {conflictFinalWinner = defenseSide}
+        else if defenseGroup!.blocksSelected < attackGroup!.blocksSelected {conflictFinalWinner = defenseSide.Other()!}
+        else {conflictFinalWinner = .French}
+        
     }
     
-    func ApplyLosses(reverse:Bool) {
+    func ApplyAttackerLosses(reverse:Bool) {
+        
+        if conflictFinalWinner == .Neutral {return} // Artillery shot
+        
+        var lossTarget = defenseLeadingUnits!.blocksSelected
+        if finalResult < 0 {lossTarget += ((-1)*finalResult)}
+        
+    }
+    
+    func ApplyDefenderLosses(reverse:Bool) {
         
     }
 

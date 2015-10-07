@@ -974,30 +974,41 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
     case .DeclaredLeadingA: theConflict.counterAttackLeadingUnits = selectedLeadingGroups
     default: break
     }
+    
+    var attackLeadingArtPossible = false
+    if theConflict.approachConflict && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) {attackLeadingArtPossible = true}
 
     // Three scenarios: Defense Leading, Attack Leading and Counter Attacking
     // APPROACH?, # BLOCKS SELECTED, WIDE?, LEADING D - LEADING A OR COUNTERATTACK?
     // .RealAttack, .DeclaredAttackers, .DeclaredLeadingA
     switch (theConflict.approachConflict, selectedLeadingGroups.blocksSelected, theConflict.wideBattle, manager!.phaseOld) {
         
-    case (true, 0, _, .RealAttack): break
-        
     case (_, 1, false, .RealAttack), (_, 1, false, .DeclaredAttackers):
         
         ToggleGroups(theGroups, makeSelection: .NotSelectable)
-        
-    case (true, 1, true, .RealAttack): break
         
     case (_, 2, _, _):
         
         ToggleGroups(theGroups, makeSelection: .NotSelectable)
         
-    case (false, 0, _, .RealAttack),(_, 0, _, .DeclaredAttackers),(_, 0, _, .DeclaredLeadingA):
+    case (true, 0...1, true, .RealAttack): break
+        
+    case (false, 0, _, .RealAttack),(_, 0, _, .DeclaredLeadingA):
         
         for eachGroup in theGroups {
             for eachUnit in eachGroup.units {
                 if eachUnit.unitStrength == 1 {
                     eachUnit.selected = .NotSelectable
+                }
+            }
+        }
+        
+    case (_, 0, _, .DeclaredAttackers):
+        
+        for eachGroup in theGroups {
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitStrength == 1 {
+                    if !(eachUnit.unitType == .Art && attackLeadingArtPossible) {eachUnit.selected = .NotSelectable}
                 }
             }
         }
@@ -1017,12 +1028,24 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
                 }
             }
         }
-            
-    case (false, 1, false, .RealAttack):
-            
-        ToggleGroups(theGroups, makeSelection: .NotSelectable)
         
-    case (_, 1, true, .DeclaredAttackers), (_, 1, _, .DeclaredLeadingA):
+    case (_, 1, true, .DeclaredAttackers):
+        
+        let selectedGroup = selectedLeadingGroups.groups[0]
+        
+        for eachGroup in theGroups {
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitType == .Art && attackLeadingArtPossible {
+                    // Remains selectable
+                } else if eachUnit.unitStrength == 1 {
+                    eachUnit.selected = .NotSelectable
+                } else if eachUnit.unitType != selectedGroup.units[0].unitType {
+                    eachUnit.selected = .NotSelectable
+                }
+            }
+        }
+        
+    case (_, 1, _, .DeclaredLeadingA):
         
         let selectedGroup = selectedLeadingGroups.groups[0]
         
