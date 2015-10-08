@@ -11,7 +11,6 @@
 		8C18DADE1B5B342900FF30DF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DADD1B5B342900FF30DF /* AppDelegate.swift */; };
 		8C18DAE21B5B342900FF30DF /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAE11B5B342900FF30DF /* GameScene.swift */; };
 		8C18DAE41B5B342900FF30DF /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAE31B5B342900FF30DF /* GameViewController.swift */; };
-		8C18DAE71B5B342900FF30DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAE51B5B342900FF30DF /* Main.storyboard */; };
 		8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */; };
 		8C18DAF71B5B342900FF30DF /* NapoleonTriumphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAF61B5B342900FF30DF /* NapoleonTriumphTests.swift */; };
 		8C18DB021B5B342900FF30DF /* NapoleonTriumphUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DB011B5B342900FF30DF /* NapoleonTriumphUITests.swift */; };
@@ -25,8 +24,8 @@
 		8CCAB4831B5B4A8100324D99 /* MapBuilder.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */; };
 		8CCAB4871B5B6C3A00324D99 /* Reserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4861B5B6C3A00324D99 /* Reserve.swift */; };
 		8CCAB4891B5B722100324D99 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4881B5B722100324D99 /* Command.swift */; };
-		8CF85B021B76D066008D7723 /* MenuView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8CF85B011B76D066008D7723 /* MenuView.xib */; };
 		8CF85B041B76F0E7008D7723 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF85B031B76F0E7008D7723 /* Support.swift */; };
+		8E09881F1BC69EA5003E16B9 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9736641BB909CB008FB496 /* MenuView.swift */; settings = {ASSET_TAGS = (); }; };
 		8E65EB3A1BBBF499001BE1E9 /* HowToPlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E65EB391BBBF499001BE1E9 /* HowToPlayViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		8E8DF43F1BBBF79000CE8E28 /* GameSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8DF43E1BBBF79000CE8E28 /* GameSetup.swift */; settings = {ASSET_TAGS = (); }; };
 		8E9736651BB909CB008FB496 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9736641BB909CB008FB496 /* MenuView.swift */; settings = {ASSET_TAGS = (); }; };
@@ -56,7 +55,6 @@
 		8C18DADD1B5B342900FF30DF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8C18DAE11B5B342900FF30DF /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		8C18DAE31B5B342900FF30DF /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
-		8C18DAE61B5B342900FF30DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8C18DAEB1B5B342900FF30DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C18DAED1B5B342900FF30DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C18DAF21B5B342900FF30DF /* NapoleonTriumphTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NapoleonTriumphTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,9 +73,8 @@
 		8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MapBuilder.xml; sourceTree = "<group>"; };
 		8CCAB4861B5B6C3A00324D99 /* Reserve.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reserve.swift; sourceTree = "<group>"; };
 		8CCAB4881B5B722100324D99 /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
-		8CF85B011B76D066008D7723 /* MenuView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MenuView.xib; sourceTree = "<group>"; };
 		8CF85B031B76F0E7008D7723 /* Support.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
-		8E65EB391BBBF499001BE1E9 /* HowToPlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HowToPlayViewController.swift; sourceTree = "<group>"; };
+		8E65EB391BBBF499001BE1E9 /* HowToPlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HowToPlayViewController.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		8E8DF43E1BBBF79000CE8E28 /* GameSetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameSetup.swift; sourceTree = "<group>"; };
 		8E9736641BB909CB008FB496 /* MenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		8E97366C1BB912E8008FB496 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -148,8 +145,6 @@
 				8C208D9B1B60940300FAE45A /* Order.swift */,
 				8CCAB4801B5B480C00324D99 /* Approach.swift */,
 				8C18DAE31B5B342900FF30DF /* GameViewController.swift */,
-				8CF85B011B76D066008D7723 /* MenuView.xib */,
-				8C18DAE51B5B342900FF30DF /* Main.storyboard */,
 				8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */,
 				8CCAB4861B5B6C3A00324D99 /* Reserve.swift */,
 				8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */,
@@ -283,9 +278,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */,
-				8CF85B021B76D066008D7723 /* MenuView.xib in Resources */,
 				8C208D9A1B5C8BE600FAE45A /* Notes in Resources */,
-				8C18DAE71B5B342900FF30DF /* Main.storyboard in Resources */,
 				8E97366D1BB912E8008FB496 /* Assets.xcassets in Resources */,
 				8CCAB4831B5B4A8100324D99 /* MapBuilder.xml in Resources */,
 			);
@@ -344,6 +337,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C18DB021B5B342900FF30DF /* NapoleonTriumphUITests.swift in Sources */,
+				8E09881F1BC69EA5003E16B9 /* MenuView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,14 +357,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		8C18DAE51B5B342900FF30DF /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C18DAE61B5B342900FF30DF /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -475,6 +461,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.StrategyLeague.NapoleonTriumph;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -488,6 +475,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.StrategyLeague.NapoleonTriumph;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

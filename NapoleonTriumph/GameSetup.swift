@@ -27,6 +27,7 @@ class GameSetup: SKScene {
     }
     
     //this will load  buttons
+    //MARK: Load Buttons
     func loadButtons()
     {
         singlePlayer.position = CGPointMake(CGRectGetMidX(self.frame) - buttonSpacing, CGRectGetMidY(self.frame) + 40)
@@ -46,6 +47,7 @@ class GameSetup: SKScene {
         
     }
     
+    //MARK: Touch
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         for touch: AnyObject in touches {
             let location = touch.locationInNode(self)
@@ -61,6 +63,8 @@ class GameSetup: SKScene {
             
         }
     }
+    
+    //MARK: Action Start Game
     private func startGame() {
         let gameScene = GameScene(size: view!.bounds.size)
         let transition = SKTransition.fadeWithDuration(0.15)

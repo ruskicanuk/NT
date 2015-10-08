@@ -1,2 +1,19 @@
 ToDo:
 -USE XML to store the scaling data for the map (the original map pixels for instance and the sizes for various devices)
+
+
+
+
+
+
+Thanks Dipen, that sounds like a good way to proceed. When you get a chance, can you see if its possible to do these things:
+
+(1) Make sure spacing on your menuView file is not fixed (eg. currently = 100) and instead is calculated and positioned based on the screen size.
+
+(2) Pls make How to play a split view controller with table on the left and content on the right just like in DF
+
+(3) Are you able to remove the menuView.xib file? I noticed it references cocoa - I'd like to do everything in this app internal to swift without using html or cocoa if possible.
+
+(4) In a similar way, is it possible to remove the storyboard file? Again, hoping to do everything programatically.
+
+Note that if you think any of these are bad ideas, please tell me and don't do them :-) Thanks
