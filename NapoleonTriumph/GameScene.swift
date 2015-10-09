@@ -1154,15 +1154,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func ReduceUnitUI(passedGroup:Group, theGroupConflict:GroupConflict) {
         
         // Create an order
-        let newOrder = Order(theGroup: passedGroup, passedGroupConflict:theGroupConflict, orderFromView: .Reduce)
+        let newOrder = Order(theUnit: passedGroup.units[0], passedGroupConflict:theGroupConflict, orderFromView: .Reduce)
         
         // Execute the order and add to order array
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
-        
-        // Toggles to normal
-        //ToggleGroups([passedGroup], makeSelection: .Normal)
-        //retreatSelector!.selected = RetreatOptions(theGroupConflict, retreatGroup: manager!.selectableRetreatGroups)
         
         manager!.ResetRetreatDefenseSelection()
         if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}

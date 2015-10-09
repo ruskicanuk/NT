@@ -51,6 +51,7 @@ class Order {
     let order:OrderType!
     var moveType:MoveType?
     var unDoable:Bool = true // Can the order be undone?
+    var battleReduction:Bool?
     var moveBase:[Bool] = [true] // Is the base group the moving group?
     var reverseCode:Int = 1 // Used to store various scenarios that you might want to unwind in reverse (attach only)
 
@@ -137,14 +138,14 @@ class Order {
         endLocation = touchedApproachFromView
     }
     
-    // Reduce order (Reduce)
-    init(theGroup:Group, passedGroupConflict: GroupConflict, orderFromView: OrderType) {
+    // Reduce order (Reduce, BattleReduce)
+    init(theUnit:Unit, passedGroupConflict: GroupConflict, orderFromView: OrderType, battleReduce:Bool = false) {
         order = orderFromView
         theGroupConflict = passedGroupConflict
-        startLocation = [theGroup.command.currentLocation!]
-        endLocation = theGroup.command.currentLocation!
-
-        orderGroup = theGroup
+        //startLocation = []
+        //endLocation = theUnit.parentCommand
+        battleReduction = battleReduce
+        swappedUnit = theUnit
     }
     
     // Reduce order (Surrender, initial battle, final battle)
@@ -708,28 +709,28 @@ class Order {
         
         case (false, .Reduce):
             
-            if orderGroup != nil {
-                if !playback {
+            if swappedUnit != nil {
+                if !playback && !battleReduction! {
                     if orderGroup!.units[0].unitType != .Art {
                         theGroupConflict!.damageDelivered[startLocation[0]] = theGroupConflict!.damageDelivered[startLocation[0]]! + 1
                     } else {
                         theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! + 1
                     }
                 }
-                orderGroup!.units[0].decrementStrength()
+                swappedUnit!.decrementStrength()
             }
             
         case (true, .Reduce):
             
             if orderGroup != nil {
-                if !playback {
+                if !playback && !battleReduction! {
                     if orderGroup!.units[0].unitType != .Art {
                         theGroupConflict!.damageDelivered[startLocation[0]] = theGroupConflict!.damageDelivered[startLocation[0]]! - 1
                     } else {
                         theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! - 1
                     }
                 }
-                orderGroup!.units[0].decrementStrength(false)
+                swappedUnit!.decrementStrength(false)
             }
             
         // MARK: Surrender

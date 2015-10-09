@@ -173,6 +173,9 @@ class Conflict {
     
     func FinalResult() {
         
+        var attackingUnitLosses:[Unit] = []
+        var defendingUnitLosses:[Unit] = []
+        
         let counterLead = counterAttackLeadingUnits!
         finalResult = initialResult - counterLead.groupSelectionStrength
 
@@ -184,19 +187,83 @@ class Conflict {
         else if defenseGroup!.blocksSelected < attackGroup!.blocksSelected {conflictFinalWinner = defenseSide.Other()!}
         else {conflictFinalWinner = .French}
         
+        attackingUnitLosses = DetermineAttackerLosses()
+        defendingUnitLosses = DetermineDefenderLosses()
     }
     
-    func ApplyAttackerLosses(reverse:Bool) {
+    func DetermineAttackerLosses() -> [Unit] {
         
-        if conflictFinalWinner == .Neutral {return} // Artillery shot
+        if conflictFinalWinner == .Neutral {return []} // Artillery shot
         
         var lossTarget = defenseLeadingUnits!.blocksSelected
         if finalResult < 0 {lossTarget += ((-1)*finalResult)}
         
+        var reductionUnits:[Unit] = []
+        
+        while lossTarget > 0 {
+            
+            var lossCategory = 1
+            // 1st, leading units
+            var threatenedUnits:[Unit] = []
+            for eachGroup in defenseLeadingUnits!.groups {
+                for eachUnit in eachGroup.units {
+                    if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
+                }
+            }
+            
+            // 2nd, attacking group
+            if threatenedUnits.isEmpty {
+                lossCategory = 2
+                for eachGroup in defenseGroup!.groups {
+                    for eachUnit in eachGroup.units {
+                        if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
+                    }
+                }
+            }
+                
+            // 3rd, exit
+            if threatenedUnits.isEmpty {return []}
+        
+            if lossTarget < threatenedUnits.count { // Evenly distribute losses
+                
+                var unitLossPriority:[Int]!
+                if lossCategory == 1 {unitLossPriority = manager!.priorityLosses[defenseSide!]}
+                else {unitLossPriority = manager!.priorityLosses[defenseSide!.Other()!]!.reverse()}
+                
+                var thePrioritizedCasualties:[Unit] = []
+                while thePrioritizedCasualties.count < lossTarget {
+                    
+                    var theLowestIndex = 7
+                    var indexOfTheLowestIndex = 0
+                    for (i, eachUnit) in threatenedUnits.enumerate() {
+                        let theCode = eachUnit.backCodeFromStrengthAndType()
+                        guard let theIndex = unitLossPriority.indexOf(theCode) else {continue}
+                        if theIndex < theLowestIndex {theLowestIndex = theIndex; indexOfTheLowestIndex = i}
+                    }
+                    thePrioritizedCasualties += [threatenedUnits[indexOfTheLowestIndex]]
+                }
+                reductionUnits += thePrioritizedCasualties
+                lossTarget -= thePrioritizedCasualties.count
+                
+            } else {
+                reductionUnits += threatenedUnits
+                lossTarget -= threatenedUnits.count
+            }
+        }
+        
+        return reductionUnits
     }
     
-    func ApplyDefenderLosses(reverse:Bool) {
-        
+    func DetermineDefenderLosses() -> [Unit] {
+        return []
+    }
+    
+    func BattleReductions(unitsToReduce:[Unit]) {
+        for eachUnit in unitsToReduce {
+        let newOrder = Order(theUnit: eachUnit, passedGroupConflict: self.parentGroupConflict!, orderFromView: .Reduce, battleReduce: true)
+        newOrder.ExecuteOrder()
+        manager!.orders += [newOrder]
+        }
     }
 
     /*

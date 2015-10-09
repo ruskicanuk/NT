@@ -27,6 +27,7 @@ class Unit: SKSpriteNode {
     var unitType:Type = .Inf
     var fixed:Bool = false
     var hasMoved:Bool = false
+    var startedAsGrd:Bool = false
     
     var alreadyDefended:Bool = false
     var wasInBattle:Bool = false
@@ -52,7 +53,6 @@ class Unit: SKSpriteNode {
         parentCommand = pCommand
         setPropertiesWithUnitCode()
         if unitType == .Ldr {alreadyDefended = true}
-        //self.userInteractionEnabled = false
         
     }
     
@@ -85,10 +85,30 @@ class Unit: SKSpriteNode {
         }
     }
     
+    func backCodeFromStrengthAndType() -> Int {
+        
+        var theCode:Int = 0
+        
+        switch(unitType) {
+            
+        case .Grd: theCode = 40
+            
+        case .Inf: theCode = 30
+            
+        case .Cav: theCode = 20
+            
+        default: theCode = 10
+            
+        }
+        
+        theCode += unitStrength
+            
+        return theCode
+    }
+    
     func setPropertiesWithUnitCode () {
         
         let theCode:String = String(unitCode)
-        //let unitsAsArray:Array = split(theUnits.characters){$0 == " "}.map(String.init)
         var theCodeArray:[Int?] = []
         
         for char in theCode.characters {
@@ -108,7 +128,7 @@ class Unit: SKSpriteNode {
         case 1: unitType = .Art
         case 2: unitType = .Cav
         case 3: unitType = .Inf
-        case 4: unitType = .Grd
+        case 4: unitType = .Grd; startedAsGrd = true
         case 5: unitType = .Ldr
         default: unitType = .Inf
             
@@ -153,10 +173,12 @@ class Unit: SKSpriteNode {
             unitCode--
             unitStrength--
             if unitStrength == 0 {self.selected = .NotSelectable; self.removeFromParent()}
+            if unitType == .Grd {unitType = .Inf; unitCode -= 10}
         } else {
             if unitStrength == 0 {parentCommand!.addChild(self); self.selected = .Normal; self.zPosition = 100}
             unitCode++
             unitStrength++
+            if startedAsGrd && unitStrength == 3 {unitType = .Grd; unitCode += 10}
         }
         
         self.updateUnitTexture()

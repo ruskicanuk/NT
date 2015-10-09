@@ -261,6 +261,8 @@ enum oldGamePhase {
 class GameManager {
 
     var gameCommands:[Allegience:[Command]] = [.Austrian:[], .French:[]]
+    var priorityLosses:[Allegience:[Int]] = [.Austrian:[33, 32, 31, 23, 22, 21, 43], .French:[33, 32, 31, 23, 22, 21, 43]]
+    
     var selectableDefenseGroups:[Group] = []
     var selectableRetreatGroups:[Group] = []
     var selectableAttackGroups:[Group] = []
