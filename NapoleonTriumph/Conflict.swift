@@ -156,29 +156,36 @@ class Conflict {
         else {conflictInitialWinner = .French}
         
         // Store whether counter-attack is possible and the turn of any artillery shooting
-        if attackLead.groups[0].artOnly {mayCounterAttack = false; counterAttackLeadingUnits = GroupSelection(theGroups: [])}
-        if artLead {attackApproach.turnOfLastArtVolley = manager!.turn}
+        if artLead {mayCounterAttack = false; attackApproach.turnOfLastArtVolley = manager!.turn}
+        if counterAttackGroup!.groups.isEmpty {mayCounterAttack = false}
+        else if conflictFinalWinner == defenseSide && counterAttackGroup!.containsTwoOrThreeStrCav {mayCounterAttack = false}
+        
     }
     
-    func ApplyCounterLosses(reverse:Bool) {
+    func ApplyCounterLosses() {
         
         let counterLead = counterAttackLeadingUnits!
         
         for eachGroup in counterLead.groups {
             for eachUnit in eachGroup.units {
-                eachUnit.decrementStrength(reverse)
+                let newOrder = Order(theUnit: eachUnit, passedGroupConflict: self.parentGroupConflict!, orderFromView: .Reduce, battleReduce: true)
+                newOrder.ExecuteOrder()
+                manager!.orders += [newOrder]
             }
         }
     }
     
     func FinalResult() {
         
-        var attackingUnitLosses:[Unit] = []
-        var defendingUnitLosses:[Unit] = []
+        var attackerLossTarget = 0
+        var defenderLossTarget = 0
         
         let counterLead = counterAttackLeadingUnits!
         finalResult = initialResult - counterLead.groupSelectionStrength
 
+        print("Initial Result: \(initialResult)")
+        print("Final Result: \(finalResult)")
+        
         if conflictInitialWinner == .Neutral {conflictFinalWinner = .Neutral}
         else if finalResult > 0 {conflictFinalWinner = defenseSide.Other()!}
         else if finalResult < 0 {conflictFinalWinner = defenseSide}
@@ -187,48 +194,112 @@ class Conflict {
         else if defenseGroup!.blocksSelected < attackGroup!.blocksSelected {conflictFinalWinner = defenseSide.Other()!}
         else {conflictFinalWinner = .French}
         
-        attackingUnitLosses = DetermineAttackerLosses()
-        defendingUnitLosses = DetermineDefenderLosses()
+        attackerLossTarget = DetermineLossTargets(true)
+        defenderLossTarget = DetermineLossTargets(false)
+        ApplyBattleLosses(true, overallLossTarget: attackerLossTarget)
+        ApplyBattleLosses(false, overallLossTarget: defenderLossTarget)
     }
     
-    func DetermineAttackerLosses() -> [Unit] {
+    func DetermineLossTargets(attacker:Bool) -> Int {
         
-        if conflictFinalWinner == .Neutral {return []} // Artillery shot
+        var lossTarget = 0
         
-        var lossTarget = defenseLeadingUnits!.blocksSelected
-        if finalResult < 0 {lossTarget += ((-1)*finalResult)}
+        if attacker {
+            
+            if conflictFinalWinner == .Neutral {return 0} // Artillery shot
+            lossTarget = defenseLeadingUnits!.blocksSelected
+            if finalResult < 0 {lossTarget += ((-1)*finalResult)}
+            
+        } else {
+            
+            if conflictFinalWinner != .Neutral {
+                lossTarget += attackLeadingUnits!.blocksSelected
+            }
+            if finalResult > 0 {lossTarget += finalResult}
+            if conflictFinalWinner != .Neutral {
+                lossTarget -= defenseLeadingUnits!.artilleryInGroup
+            }
+        }
         
-        var reductionUnits:[Unit] = []
+        return lossTarget
+    }
+    
+    func ApplyBattleLosses(attacker:Bool, overallLossTarget:Int) {
+        
+        var lossTarget = overallLossTarget
         
         while lossTarget > 0 {
             
             var lossCategory = 1
-            // 1st, leading units
             var threatenedUnits:[Unit] = []
-            for eachGroup in defenseLeadingUnits!.groups {
-                for eachUnit in eachGroup.units {
-                    if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
-                }
-            }
+            var reductionUnits:[Unit] = []
             
-            // 2nd, attacking group
-            if threatenedUnits.isEmpty {
-                lossCategory = 2
-                for eachGroup in defenseGroup!.groups {
+            if attacker {
+            
+                // 1st, leading units
+                for eachGroup in attackLeadingUnits!.groups {
                     for eachUnit in eachGroup.units {
                         if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
                     }
                 }
-            }
                 
-            // 3rd, exit
-            if threatenedUnits.isEmpty {return []}
+                // 2nd, attacking group
+                if threatenedUnits.isEmpty {
+                    lossCategory = 2
+                    for eachGroup in attackGroup!.groups {
+                        for eachUnit in eachGroup.units {
+                            if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
+                        }
+                    }
+                }
+                
+            } else {
+                
+                // 1st, leading units
+                for eachGroup in defenseLeadingUnits!.groups {
+                    for eachUnit in eachGroup.units {
+                        if eachUnit.unitStrength > 0 && eachUnit.unitType != .Art {threatenedUnits += [eachUnit]}
+                    }
+                }
+                
+                // 2nd, counter-attacking units
+                if threatenedUnits.isEmpty {
+                    var threatenedUnits:[Unit] = []
+                    for eachGroup in counterAttackLeadingUnits!.groups {
+                        for eachUnit in eachGroup.units {
+                            if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
+                        }
+                    }
+                }
+                
+                // 3rd, attacking group
+                if threatenedUnits.isEmpty {
+                    lossCategory = 2
+                    for eachGroup in defenseGroup!.groups {
+                        for eachUnit in eachGroup.units {
+                            if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
+                        }
+                    }
+                }
+                
+            }
+            
+            // Exit if still empty
+            if threatenedUnits.isEmpty {return}
         
             if lossTarget < threatenedUnits.count { // Evenly distribute losses
                 
                 var unitLossPriority:[Int]!
-                if lossCategory == 1 {unitLossPriority = manager!.priorityLosses[defenseSide!]}
-                else {unitLossPriority = manager!.priorityLosses[defenseSide!.Other()!]!.reverse()}
+                
+                if attacker {
+                    if lossCategory == 1 {unitLossPriority = manager!.priorityLosses[defenseSide!]}
+                    else {unitLossPriority = manager!.priorityLosses[defenseSide!.Other()!]!.reverse()}
+                }
+
+                else {
+                    if lossCategory == 1 {unitLossPriority = manager!.priorityLosses[defenseSide!.Other()!]}
+                    else {unitLossPriority = manager!.priorityLosses[defenseSide!]!.reverse()}
+                }
                 
                 var thePrioritizedCasualties:[Unit] = []
                 while thePrioritizedCasualties.count < lossTarget {
@@ -249,13 +320,10 @@ class Conflict {
                 reductionUnits += threatenedUnits
                 lossTarget -= threatenedUnits.count
             }
+            
+            BattleReductions(reductionUnits)
         }
-        
-        return reductionUnits
-    }
-    
-    func DetermineDefenderLosses() -> [Unit] {
-        return []
+
     }
     
     func BattleReductions(unitsToReduce:[Unit]) {
@@ -263,6 +331,14 @@ class Conflict {
         let newOrder = Order(theUnit: eachUnit, passedGroupConflict: self.parentGroupConflict!, orderFromView: .Reduce, battleReduce: true)
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
+        
+            // Destroy leader case
+            if eachUnit.parentCommand!.activeUnits.count == 1 && eachUnit.parentCommand!.hasLeader {
+                let newOrder = Order(theUnit: eachUnit.parentCommand!.theLeader!, passedGroupConflict: self.parentGroupConflict!, orderFromView: .Reduce, battleReduce: true)
+                newOrder.ExecuteOrder()
+                manager!.orders += [newOrder]
+            }
+        
         }
     }
 
@@ -448,6 +524,8 @@ class GroupSelection {
     var blocksSelected = 0
     
     var containsInfOrGuard = false
+    var containsTwoOrThreeStrCav = false
+    var artilleryInGroup = 0
     var groupSelectionStrength = 0
     
     init(theGroups:[Group], selectedOnly:Bool = true) {
@@ -464,7 +542,8 @@ class GroupSelection {
                     
                     if eachUnit.unitType == .Inf || eachUnit.unitType == .Grd {containsInfOrGuard = true}
                     if eachUnit.unitType != .Ldr {groupSelectionStrength += eachUnit.unitStrength}
-                    
+                    if eachUnit.unitType == .Art {artilleryInGroup++}
+                    if eachUnit.unitType == .Cav && eachUnit.unitStrength > 1 {containsTwoOrThreeStrCav = true}
                     theUnits += [eachUnit] // Add to units
                     blocksSelected++
                     if eachUnit.unitType != .Ldr {groupSelectionSize++} // Increment group selection size

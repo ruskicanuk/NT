@@ -933,6 +933,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 // Safety check
                 guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
+                manager!.NewPhase(1, reverse: false, playback: false)
                 
                 // Sets the attack group, updates defense leading units, whether its a wide attack, available counter-attackers and attack move type
                 theConflict.attackGroup = GroupSelection(theGroups: manager!.currentGroupsSelected)
@@ -943,13 +944,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 theConflict.counterAttackGroup = GroupSelection(theGroups: theConflict.availableCounterAttackers!.groups, selectedOnly:false)
                 
-                DeselectEverything()
-                ToggleGroups(manager!.selectableAttackAdjacentGroups, makeSelection: .NotSelectable)
-                ToggleGroups(theConflict.attackGroup!.groups, makeSelection: .Normal)
+                // Initial selection
+                ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
+                
                 ToggleGroups(theConflict.defenseGroup!.groups, makeSelection: .NotSelectable)
                 ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
-                
-                manager!.NewPhase(1, reverse: false, playback: false)
+
+                SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
                 
                 // Defender just named leading units, passing to attacker
             case .DeclaredAttackers:
@@ -960,10 +961,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 // Initial selection
                 ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-                ToggleGroups(theConflict.counterAttackGroup!.groups, makeSelection: .Normal)
                 ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Selected) //CheckCheck
-
-                SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
                 
                 // INITIAL RESULT
                 let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .InitialBattle)
@@ -971,18 +969,42 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 newOrder.unDoable = false // Can't undo initial result
                 manager!.orders += [newOrder]
                 
+                if theConflict.mayCounterAttack {
+                    ToggleGroups(theConflict.counterAttackGroup!.groups, makeSelection: .Normal)
+                    SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
+                } else { // Same code as below (case where there is a counterattack)
+                    
+                    theConflict.counterAttackLeadingUnits = GroupSelection(theGroups: [])
+
+                    ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal)
+                    ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Normal)
+                    
+                    // FINAL RESULT
+                    let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .FinalBattle)
+                    newOrder.ExecuteOrder()
+                    newOrder.unDoable = false // Can't undo final result
+                    manager!.orders += [newOrder]
+                    
+                    if true {
+                        manager!.NewPhase(1, reverse: false, playback: false)
+                    } else {
+                        //manager!.NewPhase(2, reverse: false, playback: false)
+                    }
+                }
+                
             case .DeclaredLeadingA:
+                
+                // Safety check
+                guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
+                ToggleGroups(theConflict.counterAttackGroup!.groups, makeSelection: .Normal)
+                ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal)
+                ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Normal)
                 
                 // FINAL RESULT
                 let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .FinalBattle)
                 newOrder.ExecuteOrder()
                 newOrder.unDoable = false // Can't undo final result
                 manager!.orders += [newOrder]
-                
-                // Initial selection
-                //ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal) //CheckCheck
-                //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-                //SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
                 
                 if true {
                     manager!.NewPhase(1, reverse: false, playback: false)

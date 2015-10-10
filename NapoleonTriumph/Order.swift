@@ -142,8 +142,8 @@ class Order {
     init(theUnit:Unit, passedGroupConflict: GroupConflict, orderFromView: OrderType, battleReduce:Bool = false) {
         order = orderFromView
         theGroupConflict = passedGroupConflict
-        //startLocation = []
-        //endLocation = theUnit.parentCommand
+        startLocation = [theUnit.parentCommand!.currentLocation!]
+        endLocation = theUnit.parentCommand!.currentLocation!
         battleReduction = battleReduce
         swappedUnit = theUnit
     }
@@ -766,16 +766,18 @@ class Order {
             
         case (false, .InitialBattle):
             theGroupConflict!.conflicts[0].InitialResult()
+            // Animate
             
         case (true, .InitialBattle):
             break
             
         case (false, .FinalBattle):
+            theGroupConflict!.conflicts[0].ApplyCounterLosses()
             theGroupConflict!.conflicts[0].FinalResult()
-            theGroupConflict!.conflicts[0].ApplyLosses(false)
+            // Animate
             
         case (true, .FinalBattle):
-            theGroupConflict!.conflicts[0].ApplyLosses(true)
+            break
             
         // default:
             

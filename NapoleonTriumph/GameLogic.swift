@@ -997,7 +997,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
         
         for eachGroup in theGroups {
             for eachUnit in eachGroup.units {
-                if eachUnit.unitStrength == 1 {
+                if eachUnit.unitStrength == 1 || (manager!.phaseOld == .DeclaredLeadingA && theConflict.conflictInitialWinner == theConflict.defenseSide && eachUnit.unitType != .Cav) {
                     eachUnit.selected = .NotSelectable
                 }
             }
@@ -1051,7 +1051,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
         
         for eachGroup in theGroups {
             for eachUnit in eachGroup.units {
-                if eachUnit.unitStrength == 1 || eachUnit.parentCommand! != selectedGroup.command {
+                if eachUnit.unitStrength == 1 || eachUnit.parentCommand! != selectedGroup.command || (manager!.phaseOld == .DeclaredLeadingA && theConflict.conflictInitialWinner == theConflict.defenseSide && eachUnit.unitType != .Cav) {
                     eachUnit.selected = .NotSelectable
                 } else if eachUnit.unitType != selectedGroup.units[0].unitType {
                     eachUnit.selected = .NotSelectable
