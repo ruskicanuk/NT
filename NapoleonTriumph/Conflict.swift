@@ -47,7 +47,7 @@ class Conflict {
                     if eachLeadingGroup.units.contains(eachUnit) {unitFound = true; break}
                 }
                 
-                if !unitFound {theUnits += [eachUnit]}
+                if !unitFound && eachUnit.unitStrength > 1 {theUnits += [eachUnit]}
 
             }
             if !theUnits.isEmpty {
@@ -126,6 +126,10 @@ class Conflict {
         let defenseLead = defenseLeadingUnits!
         var cavLead:Bool = false; var infLead:Bool = false; var artLead:Bool = false; //var grdLead:Bool = false
         
+        for eachGroup in attackGroup!.groups + defenseGroup!.groups {
+            for eachUnit in eachGroup.units {eachUnit.wasInBattle = true}
+        }
+        
         if !attackLead.groups.isEmpty {
             if attackLead.groups[0].allCav {cavLead = true}
             else if attackLead.groups[0].artOnly {artLead = true}
@@ -158,8 +162,7 @@ class Conflict {
         // Store whether counter-attack is possible and the turn of any artillery shooting
         if artLead {mayCounterAttack = false; attackApproach.turnOfLastArtVolley = manager!.turn}
         if counterAttackGroup!.groups.isEmpty {mayCounterAttack = false}
-        else if conflictFinalWinner == defenseSide && counterAttackGroup!.containsTwoOrThreeStrCav {mayCounterAttack = false}
-        
+        else if conflictFinalWinner == defenseSide && !counterAttackGroup!.containsTwoOrThreeStrCav {mayCounterAttack = false}
     }
     
     func ApplyCounterLosses() {
@@ -304,6 +307,7 @@ class Conflict {
                 var thePrioritizedCasualties:[Unit] = []
                 while thePrioritizedCasualties.count < lossTarget {
                     
+                    /*
                     var theLowestIndex = 7
                     var indexOfTheLowestIndex = 0
                     for (i, eachUnit) in threatenedUnits.enumerate() {
@@ -311,7 +315,8 @@ class Conflict {
                         guard let theIndex = unitLossPriority.indexOf(theCode) else {continue}
                         if theIndex < theLowestIndex {theLowestIndex = theIndex; indexOfTheLowestIndex = i}
                     }
-                    thePrioritizedCasualties += [threatenedUnits[indexOfTheLowestIndex]]
+                    */
+                    thePrioritizedCasualties += [PriorityLoss(threatenedUnits, unitLossPriority: unitLossPriority)!]
                 }
                 reductionUnits += thePrioritizedCasualties
                 lossTarget -= thePrioritizedCasualties.count
@@ -323,7 +328,6 @@ class Conflict {
             
             BattleReductions(reductionUnits)
         }
-
     }
     
     func BattleReductions(unitsToReduce:[Unit]) {
@@ -427,6 +431,14 @@ class GroupConflict {
             }
         }
         
+        SetupRetreatRequirements()
+        
+        // If there is an undefended threat with not enough available defenders
+        //if unresolvedApproaches.count > defenseReserve.defendersAvailable {mustRetreat = true; retreatMode = true}
+    }
+    
+    func SetupRetreatRequirements() {
+        
         // Populate the requirements for retreating
         for eachApproach in defenseReserve.ownApproaches {
             var potentialLosses:Int = 0
@@ -435,7 +447,7 @@ class GroupConflict {
                 for eachUnit in eachCommand.nonLeaderNonArtUnits {
                     if !eachUnit.wasInBattle {potentialLosses += eachUnit.unitStrength}
                 }
-            potentialDestroyed += eachCommand.artUnits.count
+                potentialDestroyed += eachCommand.artUnits.count
             }
             
             damageRequired[eachApproach] = min(potentialLosses,eachApproach.approachLength)
@@ -444,9 +456,16 @@ class GroupConflict {
             destroyDelivered[eachApproach] = 0
         }
         
+        /*
         var maxWidth:Int = 0
         for eachVacantApproach in unresolvedApproaches {
             maxWidth = max(maxWidth, eachVacantApproach.approachLength)
+        }
+        */
+        let maxWidth:Int!
+        switch (conflicts[0].defenseApproach.wideApproach) {
+        case true: maxWidth = 2
+        case false: maxWidth = 1
         }
         
         var potentialLosses:Int = 0
@@ -462,9 +481,6 @@ class GroupConflict {
         destroyRequired[defenseReserve] = potentialDestroyed
         damageDelivered[defenseReserve] = 0
         destroyDelivered[defenseReserve] = 0
-        
-        // If there is an undefended threat with not enough available defenders
-        //if unresolvedApproaches.count > defenseReserve.defendersAvailable {mustRetreat = true; retreatMode = true}
     }
     
 }
@@ -515,7 +531,7 @@ class Group {
 class GroupSelection {
     
     var groups:[Group] = []
-    var groupSelectionSize:Int = 0 // Number of blocks in the group
+    //var groupSelectionSize:Int = 0 // Number of blocks in the group
     
     var sameTypeSameCorps:Bool = false
     var sameType:Bool = false
@@ -525,8 +541,17 @@ class GroupSelection {
     
     var containsInfOrGuard = false
     var containsTwoOrThreeStrCav = false
+    var containsLeader = false
     var artilleryInGroup = 0
-    var groupSelectionStrength = 0
+    var groupSelectionStrength:Int {
+        var theTotal = 0
+        for eachGroup in groups {
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitType != .Ldr {theTotal += eachUnit.unitStrength}
+            }
+        }
+        return theTotal
+    }
     
     init(theGroups:[Group], selectedOnly:Bool = true) {
         
@@ -541,12 +566,11 @@ class GroupSelection {
                 if eachUnit.selected == .Selected || !selectedOnly {
                     
                     if eachUnit.unitType == .Inf || eachUnit.unitType == .Grd {containsInfOrGuard = true}
-                    if eachUnit.unitType != .Ldr {groupSelectionStrength += eachUnit.unitStrength}
                     if eachUnit.unitType == .Art {artilleryInGroup++}
                     if eachUnit.unitType == .Cav && eachUnit.unitStrength > 1 {containsTwoOrThreeStrCav = true}
                     theUnits += [eachUnit] // Add to units
                     blocksSelected++
-                    if eachUnit.unitType != .Ldr {groupSelectionSize++} // Increment group selection size
+                    if eachUnit.unitType == .Ldr {containsLeader = true} // Increment group selection size
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
 

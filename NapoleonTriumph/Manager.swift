@@ -205,7 +205,7 @@ enum oldGamePhase {
             
             // Defender move since "Battle resolved, defender lost"
             case (.RetreatAfterCombat, 1): self = .Move
-            case (.PostVictoryFeintMove, 2): self = .Move
+            case (.PostVictoryFeintMove, 1): self = .Move
                 
             default: break
                 
@@ -262,6 +262,7 @@ class GameManager {
 
     var gameCommands:[Allegience:[Command]] = [.Austrian:[], .French:[]]
     var priorityLosses:[Allegience:[Int]] = [.Austrian:[33, 32, 31, 23, 22, 21, 43], .French:[33, 32, 31, 23, 22, 21, 43]]
+    var priorityLeaderParter:[Allegience:[Int]] = [.Austrian:[33, 32, 31, 23, 22, 21, 43], .French:[33, 32, 31, 23, 22, 21, 43]]
     
     var selectableDefenseGroups:[Group] = []
     var selectableRetreatGroups:[Group] = []
@@ -418,7 +419,7 @@ class GameManager {
             
         case ("DefendResponse"): break
             
-        case ("Northing"): break
+        case ("Nothing"): break
             
         default:
             break
@@ -628,7 +629,7 @@ class GameManager {
             
             // Determines whether there is a forced retreat condition
             (eachGroup.mustRetreat, eachGroup.mustDefend) = CheckForcedRetreatOrDefend(eachGroup)
-            //print(eachGroup.mustRetreat)
+
             // Surrender Case
             if eachGroup.mustRetreat == true && eachGroup.mustDefend == true {eachGroup.retreatMode = true; return "TurnOnSurrender"}
             
@@ -656,6 +657,26 @@ class GameManager {
             }
         }
         return "TurnOnNothing"
+    }
+    
+    func PostBattleRetreatOrSurrender() -> String {
+        
+        for eachGroup in reserveThreats {
+            
+            // Determine selectable retreat groups (everything in the locale)
+            selectableRetreatGroups = SelectableGroupsForRetreat(eachGroup.conflicts[0])
+            
+            // Determines whether there is a forced retreat condition
+            let (_, mustDefend) = CheckForcedRetreatOrDefend(eachGroup)
+            
+            // Surrender Case
+            if mustDefend == true {return "TurnOnSurrender"}
+            else if selectableRetreatGroups.isEmpty {return "TurnOnSkip"}
+            else {eachGroup.retreatMode = true; ToggleGroups(selectableRetreatGroups, makeSelection: .Normal); return "TurnOnRetreat"}
+     
+        }
+        return "TurnOnNothing"
+        
     }
     
 }

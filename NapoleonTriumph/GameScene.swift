@@ -209,13 +209,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func HoldTouch() {
         
         // Sets up touchedUnit, touchedParent and theGroupConflict
-        guard let touchedUnit = holdNode as? Unit else {holdNode = nil; return Void()}
-        guard let touchedParent = touchedUnit.parent as? Command else {holdNode = nil; return Void()}
-        if manager!.reserveThreats.isEmpty {holdNode = nil; return Void()}
+        guard let touchedUnit = holdNode as? Unit else {holdNode = nil; return}
+        guard let touchedParent = touchedUnit.parent as? Command else {holdNode = nil; return}
+        //if manager!.reserveThreats.isEmpty {holdNode = nil; return}
+        guard let theGroupConflict = manager!.activeThreat else {holdNode = nil; return}
         
-        var theReserve:Reserve!
-        if touchedParent.currentLocationType == .Reserve {theReserve = touchedParent.currentLocation as! Reserve} else if touchedParent.currentLocationType == .Approach {theReserve = (touchedParent.currentLocation as! Approach).ownReserve}
-        guard let theGroupConflict:GroupConflict = manager!.reserveThreats.filter({$0.defenseReserve == theReserve})[0] else {return Void()}
+        //var theReserve:Reserve!
+        //if touchedParent.currentLocationType == .Reserve {theReserve = touchedParent.currentLocation as! Reserve} else if touchedParent.currentLocationType == .Approach {theReserve = (touchedParent.currentLocation as! Approach).ownReserve}
+        //guard let theGroupConflict:GroupConflict = manager!.reserveThreats.filter({$0.defenseReserve == theReserve})[0] else {return Void()}
         
         if ReduceStrengthIfRetreat(touchedUnit, theLocation:touchedParent.currentLocation!, theGroupConflict:theGroupConflict, retreatMode:(retreatSelector?.selected == .Option)) {
             ReduceUnitUI(Group(theCommand: touchedParent, theUnits: [touchedUnit]), theGroupConflict:theGroupConflict)
@@ -296,8 +297,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
         touchStartTime = nil
-        if holdNode == nil {return Void()} else {holdNode = nil}
-        if disableTouches {return Void()}
+        if holdNode == nil {return} else {holdNode = nil}
+        if disableTouches {return}
 
         let touch = touches.first as UITouch!
         
@@ -378,12 +379,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Selection Scenario
         var phaseGroup:String = "Move"
-        if manager!.phaseOld == .FeintThreat || manager!.phaseOld == .NormalThreat {phaseGroup = "Threat"}
+        if manager!.phaseOld == .FeintThreat || manager!.phaseOld == .NormalThreat || manager!.phaseOld == .RetreatAfterCombat {phaseGroup = "Threat"}
         else if manager!.phaseOld == .StoodAgainstNormalThreat || manager!.phaseOld == .StoodAgainstFeintThreat || manager!.phaseOld == .RetreatedBeforeCombat {phaseGroup = "Commit"}
-        else if manager!.phaseOld == .FeintMove {phaseGroup = "DefendResponse"}
+        else if manager!.phaseOld == .FeintMove || manager!.phaseOld == .PostVictoryFeintMove {phaseGroup = "DefendResponse"}
         else if manager!.phaseOld == .RealAttack || manager!.phaseOld == .DeclaredAttackers || manager!.phaseOld == .DeclaredLeadingA {phaseGroup = "LeadingUnits"}
         else if manager!.phaseOld == .DeclaredLeadingD {phaseGroup = "AttackDeclare"}
-        else if manager!.phaseOld == .RetreatAfterCombat || manager!.phaseOld == .PostVictoryFeintMove {phaseGroup = "DefenderFinalMove"}
         else {phaseGroup = "Move"}
         
         // Touch Processing
@@ -432,14 +432,16 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case (unitName,1,"Threat"):
             
-            // Gets us the parent command, reserve location and group conflict
+            // Safety Drill
             guard let touchedUnit = touchedNode as? Unit else {break}
             if touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off {break}
+            guard let theGroupConflict = manager!.activeThreat else {break}
+            if touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off {break}
+            //guard let touchedParent = touchedUnit.parent as? Command else {break}
+            //var theReserve:Reserve!
+            //if touchedParent.currentLocationType == .Reserve {theReserve = touchedParent.currentLocation as! Reserve} else if touchedParent.currentLocationType == .Approach {theReserve = (touchedParent.currentLocation as! Approach).ownReserve}
             
-            guard let touchedParent = touchedUnit.parent as? Command else {break}
-            var theReserve:Reserve!
-            if touchedParent.currentLocationType == .Reserve {theReserve = touchedParent.currentLocation as! Reserve} else if touchedParent.currentLocationType == .Approach {theReserve = (touchedParent.currentLocation as! Approach).ownReserve}
-            guard let theGroupConflict:GroupConflict = manager!.reserveThreats.filter({$0.defenseReserve == theReserve})[0] else {break}
+            //guard let theGroupConflict:GroupConflict = manager!.reserveThreats.filter({$0.defenseReserve == theReserve})[0] else {break}
             
             DefenseGroupUnitSelection(touchedUnit, retreatMode:(retreatSelector?.selected == .On || retreatSelector?.selected == .Option), theTouchedThreat:theGroupConflict)
             if retreatSelector!.selected == .On || retreatSelector!.selected == .Option {retreatSelector!.selected = CheckRetreatViable(theGroupConflict, retreatGroup: manager!.selectableRetreatGroups)}
@@ -450,15 +452,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             guard let touchedReserve = touchedNode as? Reserve else {break}
             RetreatUI(touchedReserve)
-            print("Reserve Retreat Selected")
             
-        /*
-        case (approachName,1,"Threat"):
-            
-            guard let touchedApproach = touchedNode as? Approach else {break}
-            DefendThreatUI()
-            print("Approach Defend Selected")
-        */
         case (mapName,1,"Threat"):
             
             if retreatSelector!.selected == .On || retreatSelector!.selected == .Option {
@@ -527,7 +521,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             // Safety check
             guard let touchedApproach = touchedNode as? Approach else {break}
             let selectedGroups = GroupSelection(theGroups: GroupsIncludeLeaders(manager!.activeThreat!.conflicts[0].defenseGroup!.groups))
-            if selectedGroups.groupSelectionSize == 0 {break} // Do nothing
+            if selectedGroups.blocksSelected == 0 {break} // Do nothing
             
             DefendAgainstFeintUI(touchedApproach, theGroupSelection: selectedGroups)
             
@@ -556,18 +550,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             // Safety check
             guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
-            
-            /*
-            var theGroups:[Group] = []
-            switch manager!.phaseOld {
-            case .RealAttack: theGroups = theConflict.defenseGroup!.groups
-            case .DeclaredAttackers: theGroups = theConflict.attackGroup!.groups
-            case .DeclaredLeadingA: theGroups = theConflict.counterAttackGroup!.groups
-            default: break
-            }
-            
-            ToggleGroups(theGroups, makeSelection: .Normal)
-            */
+    
             SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld, resetState: true)
         
         // MARK: Undo
@@ -595,13 +578,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
                         DeselectEverything()
                     }
                     
-                case .NormalThreat, .FeintThreat:
+                case .NormalThreat, .FeintThreat, .RetreatAfterCombat:
                     
                     manager!.orders.last!.ExecuteOrder(true)
                     
                     if manager!.activeThreat != nil {
                         
-                        manager!.ResetRetreatDefenseSelection()
+                        if manager!.phaseOld == .RetreatAfterCombat {manager!.PostBattleRetreatOrSurrender()}
+                        else {manager!.ResetRetreatDefenseSelection()}
                         if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
                     }
                     
@@ -634,7 +618,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     }
                     AttackOrdersAvailable()
                     
-                case .FeintMove:
+                case .FeintMove, .PostVictoryFeintMove:
                     
                     manager!.orders.last!.ExecuteOrder(true)
                     
@@ -729,6 +713,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case (retreatName,1,"Threat"):
             
+            if manager!.phaseOld == .RetreatAfterCombat {break}
             // In retreat mode, not flagged as must retreat, no reductions made
             if manager!.activeThreat!.retreatMode && !manager!.activeThreat!.mustRetreat && !manager!.activeThreat!.madeReductions {
                 retreatSelector?.selected = .Off; manager!.activeThreat!.retreatMode = false
@@ -773,8 +758,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 if endTurnSelector?.selected == .Option {
                     manager!.NewTurn()
-                
-                // Later swap this out for something that detects if there are ANY threats out there
                 } else if endTurnSelector?.selected == .On && manager!.orders.last?.order == .NormalThreat {
                     threatRespondMode = true
                     theCode = manager!.NewPhase(1, reverse: false, playback: false)
@@ -783,31 +766,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     theCode = manager!.NewPhase(2, reverse: false, playback: false)
                 }
                 
-                if threatRespondMode {
-                    manager!.activeThreat = manager!.reserveThreats[0]
-                    guard let theThreat = manager!.activeThreat?.conflicts[0] else {break}
-                    
-                    if theCode == "TurnOnSurrender" {
-                        let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .Surrender)
-                        newOrder.ExecuteOrder()
-                        newOrder.unDoable = false // Can't undo surrender
-                        manager!.orders += [newOrder]
-                        retreatSelector?.selected = .Option
-                    } else if theThreat.approachConflict {
-                        manager!.NewPhase(1, reverse: false, playback: false)
-                        manager!.NewPhase(1, reverse: false, playback: false)
-
-                        ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-                        SelectableLeadingGroups(theThreat, thePhase: manager!.phaseOld)
-                        endTurnSelector?.selected = .On // Always can end turn when selecting leading units
-                        break
-                    }
-                    else if theCode == "TurnOnRetreat" {retreatSelector?.selected = .Option}
-                    else {retreatSelector?.selected = .Off}
-                    
-                    if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On}
-                    else {endTurnSelector?.selected = .Off}
-                }
+                if threatRespondMode {RetreatPreparation(theCode)}
                 
             case .NormalThreat, .FeintThreat:
                 
@@ -868,7 +827,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     endTurnSelector?.selected = .On // Always can end turn when selecting leading units
                 
                 } else { // Feint case
+                    
                     manager!.NewPhase(2, reverse: false, playback: false)
+
                     ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
                     SelectableGroupsForFeintDefense(manager!.activeThreat!.conflicts[0])
                     if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflicts[0]) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
@@ -939,8 +900,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 theConflict.attackGroup = GroupSelection(theGroups: manager!.currentGroupsSelected)
                 theConflict.attackMoveType = ReturnMoveType()
                 
+                // Determine battle width
+                let initialDefenseSelection = theConflict.defenseLeadingUnits!.blocksSelected
                 theConflict.defenseLeadingUnits = GroupSelection(theGroups: theConflict.defenseLeadingUnits!.groups)
-                if theConflict.defenseLeadingUnits?.blocksSelected == 2 {theConflict.wideBattle = true} else {theConflict.wideBattle = false}
+                if theConflict.defenseLeadingUnits?.blocksSelected == 2 {theConflict.wideBattle = true}
+                else if initialDefenseSelection == 2 {theConflict.wideBattle = false}
+                else if theConflict.defenseApproach.wideApproach {theConflict.wideBattle = true}
+                else {theConflict.wideBattle = false}
                 
                 theConflict.counterAttackGroup = GroupSelection(theGroups: theConflict.availableCounterAttackers!.groups, selectedOnly:false)
                 
@@ -970,67 +936,118 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 manager!.orders += [newOrder]
                 
                 if theConflict.mayCounterAttack {
+                    
                     ToggleGroups(theConflict.counterAttackGroup!.groups, makeSelection: .Normal)
                     SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
+                
                 } else { // Same code as below (case where there is a counterattack)
                     
                     theConflict.counterAttackLeadingUnits = GroupSelection(theGroups: [])
-
-                    ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal)
-                    ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Normal)
-                    
-                    // FINAL RESULT
-                    let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .FinalBattle)
-                    newOrder.ExecuteOrder()
-                    newOrder.unDoable = false // Can't undo final result
-                    manager!.orders += [newOrder]
-                    
-                    if true {
-                        manager!.NewPhase(1, reverse: false, playback: false)
-                    } else {
-                        //manager!.NewPhase(2, reverse: false, playback: false)
-                    }
+                    ProcessBattle()
                 }
                 
             case .DeclaredLeadingA:
                 
-                // Safety check
-                guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
-                ToggleGroups(theConflict.counterAttackGroup!.groups, makeSelection: .Normal)
-                ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal)
-                ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Normal)
-                
-                // FINAL RESULT
-                let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .FinalBattle)
-                newOrder.ExecuteOrder()
-                newOrder.unDoable = false // Can't undo final result
-                manager!.orders += [newOrder]
-                
-                if true {
-                    manager!.NewPhase(1, reverse: false, playback: false)
-                } else {
-                    //manager!.NewPhase(2, reverse: false, playback: false)
-                }
+                ProcessBattle()
                 
             case .RetreatAfterCombat:
             
-                // Safety check
-                //guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
-                manager!.NewPhase(1, reverse: false, playback: false)
+                PostBattleMove()
                 
             case .PostVictoryFeintMove:
                 
-                // Safety check
-                //guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
                 manager!.NewPhase(1, reverse: false, playback: false)
-                
-            //default: break
-                
+                endTurnSelector?.selected = .Option
+
             }
             
         default: break
             
         }
+    }
+    
+    func ProcessBattle() {
+        
+        // Safety check
+        guard let theConflict = manager!.activeThreat?.conflicts![0] else {return}
+        ToggleGroups(theConflict.counterAttackGroup!.groups, makeSelection: .Normal)
+        ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal)
+        ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Normal)
+        
+        // Reset conflict state
+        manager!.activeThreat!.mustDefend = false; manager!.activeThreat!.mustRetreat == false
+        
+        // FINAL RESULT
+        let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .FinalBattle)
+        newOrder.ExecuteOrder()
+        newOrder.unDoable = false // Can't undo final result
+        manager!.orders += [newOrder]
+        
+        if theConflict.conflictFinalWinner == .Neutral { // Artillery shot, skip to move phase
+            manager!.NewPhase(1, reverse: false, playback: false)
+            manager!.NewPhase(1, reverse: false, playback: false)
+        }
+        else if theConflict.conflictFinalWinner != theConflict.defenseSide { // Attacker wins
+            
+            manager!.NewPhase(1, reverse: false, playback: false)
+            
+            // Reveal all retreaters
+            var normalCommands:[Command] = []
+            normalCommands = theConflict.defenseReserve.occupants
+            for eachApproach in theConflict.defenseReserve.ownApproaches {normalCommands += eachApproach.occupants}
+            ToggleCommands(normalCommands, makeSelectable: true)
+            ToggleGroups(theConflict.defenseGroup!.groups, makeSelection: .NotSelectable)
+            
+            manager!.activeThreat!.SetupRetreatRequirements() // Re-seeds the reduce requirements for retreating
+            let theCode = manager!.PostBattleRetreatOrSurrender() // Checks if surrender case exists
+            RetreatPreparation(theCode) // Sets up turn-end status (requires empty locale)
+        
+        } else { // Defender wins
+            
+            manager!.NewPhase(2, reverse: false, playback: false)
+            
+            ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
+            ToggleGroups(theConflict.attackGroup!.groups, makeSelection: .Off)
+            endTurnSelector?.selected = .Off
+
+            // Attacker Retreat (if there is a leader, then the whole command effectively retreats - otherwise just the sent unit(s))
+            for eachGroup in theConflict.attackGroup!.groups {
+                var retreatGroup:GroupSelection!
+                if eachGroup.leaderInGroup {
+                    let theGroup = Group(theCommand: eachGroup.command, theUnits: eachGroup.command.activeUnits)
+                    retreatGroup = GroupSelection(theGroups: [theGroup], selectedOnly: false)
+                } else {
+                    retreatGroup = GroupSelection(theGroups: [eachGroup], selectedOnly: false)
+                }
+                
+                let newOrder = Order(retreatSelection: retreatGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: theConflict.attackReserve, orderFromView: .Retreat, mapFromView:NTMap!)
+                newOrder.ExecuteOrder()
+                manager!.orders += [newOrder]
+            }
+
+            SelectableGroupsForFeintDefense(theConflict)
+            theConflict.defenseApproach.hidden = false
+        }
+    }
+    
+    func PostBattleMove() {
+        
+        // Safety check
+        guard let theConflict = manager!.activeThreat?.conflicts![0] else {return}
+        
+        // Attack moves
+        for eachGroup in theConflict.attackGroup!.groups {
+            
+            let newOrder = Order(groupFromView: eachGroup, touchedNodeFromView: theConflict.defenseReserve, orderFromView: .Move, corpsOrder: theConflict.attackMoveType! != .IndMove, moveTypePassed: theConflict.attackMoveType!, mapFromView:NTMap!)
+            newOrder.ExecuteOrder()
+            newOrder.unDoable = false
+            manager!.orders += [newOrder]
+            
+            // Sets the moved commands to "finished moved"
+            for (_, eachCommandArray) in newOrder.moveCommands {for eachCommand in eachCommandArray {eachCommand.finishedMove = true}}
+        }
+        
+        manager!.NewPhase(1, reverse: false, playback: false)
     }
     
     // MARK: UI Orders
@@ -1134,7 +1151,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     // Order to retreat
     func RetreatUI(touchedNodeFromView:Reserve) {
         
-        if manager!.activeThreat == nil {return Void()}
+        if manager!.activeThreat == nil {return}
         
         let retreatSelection = GroupSelection(theGroups: manager!.selectableRetreatGroups)
         
@@ -1145,19 +1162,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Hide the selected reserve
         touchedNodeFromView.hidden = true
         
-        // Resets selectable defense group - only way that this is false is if we are in a surrender
-        let theCode = manager!.ResetRetreatDefenseSelection()
-        if theCode == "TurnOnRetreat" {
-            retreatSelector?.selected = .Option
-        } else if theCode == "TurnOnSurrender" {
-            let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .Surrender)
-            newOrder.ExecuteOrder()
-            newOrder.unDoable = false
-            manager!.orders += [newOrder]
-            retreatSelector?.selected = .Option
-        }
+        // Resets selectable defense group
+        var theCode = ""
+        if manager!.phaseOld == .RetreatAfterCombat {theCode = manager!.PostBattleRetreatOrSurrender()}
+        else {theCode = manager!.ResetRetreatDefenseSelection()}
         
-        if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+        RetreatPreparation(theCode, initialRun:false)
         
     }
     
@@ -1182,9 +1192,41 @@ class GameScene: SKScene, NSXMLParserDelegate {
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
         
-        manager!.ResetRetreatDefenseSelection()
+        if manager!.phaseOld == .RetreatAfterCombat {manager!.PostBattleRetreatOrSurrender()}
+        else {manager!.ResetRetreatDefenseSelection()}
         if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
     }
+    
+    func RetreatPreparation(theCode:String, initialRun:Bool = true) {
+        
+        if manager!.activeThreat == nil {manager!.activeThreat = manager!.reserveThreats[0]}
+        guard let theThreat = manager!.activeThreat?.conflicts[0] else {return}
+        
+        if initialRun && theThreat.approachConflict && manager!.phaseOld != .RetreatAfterCombat { // Threatened occupied approach case
+            manager!.NewPhase(1, reverse: false, playback: false)
+            
+            ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
+            SelectableLeadingGroups(theThreat, thePhase: manager!.phaseOld)
+            endTurnSelector?.selected = .On // Always can end turn when selecting leading units
+            return
+        }
+        else if theCode == "TurnOnRetreat" {retreatSelector?.selected = .Option} // Retreat mode
+        else if theCode == "TurnOnSurrender" { // Surrender case
+            let newOrder = Order(passedGroupConflict: manager!.activeThreat!, orderFromView: .Surrender)
+            newOrder.ExecuteOrder()
+            newOrder.unDoable = false
+            manager!.orders += [newOrder]
+            retreatSelector?.selected = .Option
+            if manager!.phaseOld == .RetreatAfterCombat {PostBattleMove(); return}
+        }
+        //else if theCode == "TurnOnSkip" {}
+        else {retreatSelector?.selected = .Off} // Defense mode
+        
+        if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On}
+        else {endTurnSelector?.selected = .Off}
+   
+    }
+    
     
     // Fast-fwd cycle
     func CycleOrdersFwd(direction:Bool = true) {
@@ -1522,17 +1564,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
             theUnits = theCommand.units
             for eachUnit in theUnits {eachUnit.selected = .Selected}
-        /*
-        case (true, _, false, _):
-            // Leader in a new group (deselect everything except new leader's group)
-            ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
-            theUnits = theCommand.units
-            for eachUnit in theUnits {eachUnit.selected = .Selected}
-        case (true, true, true, _):
-            // Leader with units selected in the leader group (toggle leader)
-            ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Normal)
-            //if selectedUnit {touchedUnit.selected = .Normal; theUnits.removeObject(touchedUnit)} else {touchedUnit.selected = .Selected; theUnits += [touchedUnit]
-        */
         case (false, true, _, _):
             // Selected unit (toggle)
             if selectedUnit {touchedUnit.selected = .Normal; theUnits.removeObject(touchedUnit)} else {touchedUnit.selected = .Selected; theUnits += [touchedUnit]}
@@ -1593,6 +1624,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             if let indexOfCommand = selectableGroups.indexOf({$0.command == parentCommand}) {
                 let leaderUnits:[Unit] = selectableGroups[indexOfCommand].nonLdrUnits
                 for eachUnit in leaderUnits {eachUnit.selected = .Selected} // eachUnit.zPosition = 100
+                if retreatMode {touchedUnit.selected = .Selected}
             }
         }
             
@@ -1602,12 +1634,17 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 touchedUnit.selected = .Normal
                 if !retreatMode && !parentCommand.hasLeader {ActivateDetached(theReserve, theGroups: selectableGroups, makeSelection: .Normal)}
+                if retreatMode {
+                    let theTestGroup = GroupSelection(theGroups: [Group(theCommand: touchedUnit.parentCommand!, theUnits: touchedUnit.parentCommand!.activeUnits)])
+                    if theTestGroup.blocksSelected == 1 && theTestGroup.containsLeader {touchedUnit.parentCommand!.theLeader!.selected = .Normal}
+                }
                 
             } else {
                 
                 if !retreatMode && !parentCommand.hasLeader {
                     ActivateDetached(theReserve, theGroups: selectableGroups, makeSelection: .NotSelectable)}
                 touchedUnit.selected = .Selected
+                if retreatMode && touchedUnit.parentCommand!.activeUnits.count == 2 {touchedUnit.parentCommand!.theLeader!.selected = .Selected}
             }
             
         }

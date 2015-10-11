@@ -316,7 +316,7 @@ class Command:SKNode {
         //Set command properties
         if nonLeaderCount == cavCount {isAllCav = true}
         if (hasLeader && nonLeaderCount > 1) {isTwoPlusCorps = true}
-        unitCount = count
+        unitCount = nonLeaderCount
         
         // Reshuffle current location (if units were added/subtracted)
         if reshuffle {self.currentLocation?.reShuffleLocation()}

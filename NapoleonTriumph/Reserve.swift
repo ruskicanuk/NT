@@ -94,7 +94,7 @@ class Reserve:Location {
         // Step through the reserve's approaches
         for each in ownApproaches {
             
-            countApproachUnits = countApproachUnits + each.occupantCount
+            countApproachUnits += each.occupantCount
             
             // Deals with the adjacent reserves
             for eachCommandInAdjReserve in each.oppApproach!.ownReserve!.occupants {

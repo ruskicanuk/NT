@@ -29,6 +29,17 @@ class NapoleonTriumphUITests: XCTestCase {
     func testExample() {
         // Use recording to get started writing UI tests.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+        
+        //let element = XCUIApplication().childrenMatchingType(.Window).elementBoundByIndex(0).childrenMatchingType(.Other).element
+        
+        let element = XCUIApplication().childrenMatchingType(.Window).elementBoundByIndex(0).childrenMatchingType(.Other).element
+        element.tap()
+        element.tap()
+        element.tap()
+        element.tap()
+        element.tap()
+        
+        
     }
     
 }

@@ -17,9 +17,6 @@ enum LocationType {
 
 class Location:SKSpriteNode {
     
-    //let isReserve:Bool
-    //let isApproach:Bool
-    //let isStartLocation:Bool
     let locationType:LocationType
     let locationImage:String
     
@@ -35,17 +32,11 @@ class Location:SKSpriteNode {
         }
     }
     
-    //var animations:([Command],[SKAction]) = ([],[])
-    
     var occupantCount:Int {
         
         var count:Int = 0
         
-        for each in occupants {
-            count += each.unitCount
-            if each.hasLeader {count--}
-        }
-        
+        for each in occupants {count += each.unitCount}
         return count
     }
     
@@ -58,10 +49,6 @@ class Location:SKSpriteNode {
     init(nodePosition:CGPoint, nodeRotation:CGFloat) {
         
         // Use this function to create false locations
-        
-        //isStartLocation = true
-        //isReserve = false
-        //isApproach = false
         locationType = .Start
         locationImage = ""
 
@@ -76,15 +63,9 @@ class Location:SKSpriteNode {
         
         if reserveLocation {
             locationImage = "green_target"
-            //isReserve = reserveLocation
-            //isApproach = !reserveLocation
-            //isStartLocation = false
             locationType = .Reserve
         } else {
             locationImage = "green_arrow"
-            //isReserve = reserveLocation
-            //isApproach = !reserveLocation
-            //isStartLocation = false
             locationType = .Approach
             extraRotation = CGFloat(M_PI/2)
         }
@@ -134,7 +115,10 @@ class Location:SKSpriteNode {
         var sideLeft:Bool = true // Which side to draw on
         
         // Eliminate zero-unit commands from the occupants
-        for each in self.occupants {if each.unitCount == 0 {self.occupants.removeObject(each)}}
+        for each in self.occupants {
+            if each.unitCount == 0 {self.occupants.removeObject(each)}
+            else {each.activeUnits.sortInPlace({$0.unitCode > $1.unitCode})}
+        }
         
         if self.locationType == .Approach {
             

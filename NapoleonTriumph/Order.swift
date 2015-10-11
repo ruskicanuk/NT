@@ -98,18 +98,6 @@ class Order {
         corpsCommand = corpsOrder
     }
     
-    // Initiate order (Defend)
-    /*
-    init(defenseSelection:GroupSelection, passedConflict: Conflict, orderFromView: OrderType, mapFromView:SKSpriteNode) {
-        order = orderFromView
-        mainMap = mapFromView
-        groupSelection = defenseSelection
-        theConflict = passedConflict
-        startLocation = [theConflict!.defenseReserve]
-        endLocation = theConflict!.defenseApproach
-    }
-    */
-    
     // Initiate order (Retreat)
     init(retreatSelection:GroupSelection, passedGroupConflict:GroupConflict, touchedReserveFromView:Reserve, orderFromView: OrderType, mapFromView:SKSpriteNode) {
         order = orderFromView
@@ -209,7 +197,7 @@ class Order {
                         mainMap!.addChild(nCommand) // Add new command to map
                         baseGroup!.command.passUnitTo(eachUnit, recievingCommand: nCommand)
                         
-                        newCommandArray += [nCommand]; manager!.gameCommands[manager!.actingPlayer]! += [nCommand] // Add new command to orders and game commands
+                        newCommandArray += [nCommand]; manager!.gameCommands[nCommand.commandSide]! += [nCommand] // Add new command to orders and game commands
                     }
                     moveCommandArray += [baseGroup!.command]
                 }
@@ -220,7 +208,7 @@ class Order {
                     mainMap!.addChild(nCommand) // Add new command to map
                     baseGroup!.command.passUnitTo(eachUnit, recievingCommand: nCommand)
                     
-                    newCommandArray += [nCommand]; manager!.gameCommands[manager!.actingPlayer]! += [nCommand] // Add new command to orders and game commands
+                    newCommandArray += [nCommand]; manager!.gameCommands[nCommand.commandSide]! += [nCommand] // Add new command to orders and game commands
                     
                     moveCommandArray += [nCommand]
                     baseGroup!.command.movedVia = .CorpsActed
@@ -236,7 +224,7 @@ class Order {
                     mainMap!.addChild(nCommand) // Add new command to map
                     baseGroup!.command.passUnitTo(baseGroup!.units[0], recievingCommand: nCommand)
                     
-                    newCommandArray += [nCommand]; manager!.gameCommands[manager!.actingPlayer]! += [nCommand] // Add new command to orders and game commands
+                    newCommandArray += [nCommand]; manager!.gameCommands[nCommand.commandSide]! += [nCommand] // Add new command to orders and game commands
 
                     moveCommandArray += [nCommand]
                 }
@@ -325,7 +313,7 @@ class Order {
                     // Remove the now command (stays in memory due to orders)
                     each.removeFromParent() // Removes from the map
                     moveToLocation.occupants.removeObject(each) // Removes from the occupants of current location
-                    manager!.gameCommands[manager!.actingPlayer]!.removeObject(each) // Removes from the game list
+                    manager!.gameCommands[each.commandSide]!.removeObject(each) // Removes from the game list
                     each.selector = nil // Removes the selector (which has a strong reference with the command)
                     
                     // Resets movement of command and child units (note that new commands HAD to have moved 1-step only if they moved at all)
@@ -380,8 +368,9 @@ class Order {
                 oldCommands += [eachGroup.command!]
                 if eachGroup.leaderInGroup { // Remove other units and create commands from them (they remain)
                     moveBase[i] = true
-                    var leaderRightHand:Unit?
-                    for eachUnit in eachGroup.units {if eachUnit.unitType != .Ldr {leaderRightHand = eachUnit; break}}
+                    let rightHandPriority = manager!.priorityLosses[manager!.actingPlayer]!
+                    let leaderRightHand:Unit? = PriorityLoss(eachGroup.nonLdrUnits, unitLossPriority: rightHandPriority)
+                    
                     let baseUnits:[Unit] = [eachGroup.leaderUnit!] + [leaderRightHand!]
                     let newUnits = Array(Set(eachGroup.command.activeUnits).subtract(Set(baseUnits)))
                     
@@ -391,7 +380,7 @@ class Order {
                         eachGroup.command.passUnitTo(eachUnit, recievingCommand: nCommand)
                         newCommandArray += [nCommand]
                         if eachGroup.units.contains(eachUnit) {moveCommandArray += [nCommand]}
-                        manager!.gameCommands[manager!.actingPlayer]! += [nCommand]
+                        manager!.gameCommands[nCommand.commandSide]! += [nCommand]
                     }
                     
                     moveCommandArray += [eachGroup.command]
@@ -407,7 +396,7 @@ class Order {
                         eachGroup.command.passUnitTo(eachUnit, recievingCommand: nCommand)
                         newCommandArray += [nCommand]
                         moveCommandArray += [nCommand]
-                        manager!.gameCommands[manager!.actingPlayer]! += [nCommand]
+                        manager!.gameCommands[nCommand.commandSide]! += [nCommand]
                         
                     }
                 } else { // no leader and full command means must be size = 1 which requires no new creating
@@ -459,7 +448,7 @@ class Order {
                     for eachCommand in newCommands[i]! {
                         
                         eachCommand.passUnitTo(eachCommand.activeUnits[0], recievingCommand: eachGroup.command) // Sends the unit to their original owner
-                        manager!.gameCommands[manager!.actingPlayer]!.removeObject(eachCommand)
+                        manager!.gameCommands[eachCommand.commandSide]!.removeObject(eachCommand)
                         eachCommand.currentLocation!.occupants.removeObject(eachCommand) // Removes the detached commands from their current location
                         eachCommand.removeFromParent() // Removes the command from the map
                         eachCommand.selector = nil
@@ -504,7 +493,7 @@ class Order {
                         eachGroup.command.passUnitTo(eachUnit, recievingCommand: nCommand)
                         newCommandArray += [nCommand]
                         //if eachGroup.units.contains(eachUnit) {moveCommandArray += [nCommand]}
-                        manager!.gameCommands[manager!.actingPlayer]! += [nCommand]
+                        manager!.gameCommands[nCommand.commandSide]! += [nCommand]
                     }
                     
                     moveCommandArray += [eachGroup.command]
@@ -520,7 +509,7 @@ class Order {
                         eachGroup.command.passUnitTo(eachUnit, recievingCommand: nCommand)
                         newCommandArray += [nCommand]
                         moveCommandArray += [nCommand]
-                        manager!.gameCommands[manager!.actingPlayer]! += [nCommand]
+                        manager!.gameCommands[nCommand.commandSide]! += [nCommand]
                         
                     }
                 } else { // no leader and full command means must be size = 1 which requires no new creating
@@ -573,7 +562,7 @@ class Order {
                     for eachCommand in newCommands[i]! {
                         
                         eachCommand.passUnitTo(eachCommand.activeUnits[0], recievingCommand: eachGroup.command) // Sends the unit to their original owner
-                        manager!.gameCommands[manager!.actingPlayer]!.removeObject(eachCommand)
+                        manager!.gameCommands[eachCommand.commandSide]!.removeObject(eachCommand)
                         eachCommand.currentLocation!.occupants.removeObject(eachCommand) // Removes the detached commands from their current location
                         eachCommand.removeFromParent() // Removes the command from the map
                         eachCommand.selector = nil
@@ -711,7 +700,7 @@ class Order {
             
             if swappedUnit != nil {
                 if !playback && !battleReduction! {
-                    if orderGroup!.units[0].unitType != .Art {
+                    if swappedUnit!.unitType != .Art {
                         theGroupConflict!.damageDelivered[startLocation[0]] = theGroupConflict!.damageDelivered[startLocation[0]]! + 1
                     } else {
                         theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! + 1
@@ -724,7 +713,7 @@ class Order {
             
             if orderGroup != nil {
                 if !playback && !battleReduction! {
-                    if orderGroup!.units[0].unitType != .Art {
+                    if swappedUnit!.unitType != .Art {
                         theGroupConflict!.damageDelivered[startLocation[0]] = theGroupConflict!.damageDelivered[startLocation[0]]! - 1
                     } else {
                         theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! - 1
@@ -765,15 +754,18 @@ class Order {
         // MARK: Battle
             
         case (false, .InitialBattle):
-            theGroupConflict!.conflicts[0].InitialResult()
+            if !playback {theGroupConflict!.conflicts[0].InitialResult()}
             // Animate
             
         case (true, .InitialBattle):
             break
             
         case (false, .FinalBattle):
-            theGroupConflict!.conflicts[0].ApplyCounterLosses()
-            theGroupConflict!.conflicts[0].FinalResult()
+            if !playback {
+                theGroupConflict!.SetupRetreatRequirements()
+                theGroupConflict!.conflicts[0].ApplyCounterLosses()
+                theGroupConflict!.conflicts[0].FinalResult()
+            }
             // Animate
             
         case (true, .FinalBattle):

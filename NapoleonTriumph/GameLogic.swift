@@ -419,7 +419,7 @@ func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelSta
     
     for eachReserve in manager!.selectionRetreatReserves {eachReserve.hidden = true}
     let retreatSelection = GroupSelection(theGroups: retreatGroup)
-    if retreatSelection.groupSelectionSize == 0 {return .Option}
+    if retreatSelection.blocksSelected == 0 {return .Option}
     
     
     // Check if reductions are finished for selected units locations
@@ -441,8 +441,10 @@ func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelSta
     
     // Load reserves where available area is sufficient
     var adjReservesWithSpace:[Reserve] = []
+    var spaceRequired = retreatSelection.blocksSelected
+    if retreatSelection.containsLeader {spaceRequired--}
     for eachReserve in theThreat.defenseReserve.adjReserves {
-        if eachReserve.availableSpace >= retreatSelection.groupSelectionSize && eachReserve.localeControl != manager!.actingPlayer.Other() {adjReservesWithSpace += [eachReserve]}
+        if eachReserve.availableSpace >= spaceRequired && eachReserve.localeControl != manager!.actingPlayer.Other() {adjReservesWithSpace += [eachReserve]}
     }
     
     // Reveal available retreat reserves
@@ -472,7 +474,7 @@ func CheckForcedRetreatOrDefend(theThreat:GroupConflict) -> (Bool, Bool) {
     }
     
     // No command was given, check if there is any unresolved approaches
-    if theThreat.unresolvedApproaches.count == 0 {return (false, true)}
+    if theThreat.unresolvedApproaches.count == 0 && manager!.phaseOld != .RetreatAfterCombat {return (false, true)}
     
     // Retreat command was given and space exists
     if theThreat.mustRetreat {return (true, false)}
@@ -916,16 +918,13 @@ func SaveDefenseGroup(theGroupThreat:GroupConflict) {
     theThreat.parentGroupConflict!.mustDefend = true
     
     manager!.ResetRetreatDefenseSelection()
-    //if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
-    //let theCode = manager!.NewPhase(1, reverse: false, playback: false)
-    //if theCode == "TurnOnRetreat" {retreatSelector?.selected = .On}
-    //else {}
     
 }
 
 // Returns true if endTurn is viable
 func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
     
+    //print(theThreat.defenseApproach.occupantCount)
     return theThreat.defenseApproach.occupantCount > 0
 }
 
@@ -1342,6 +1341,20 @@ func GroupsIncludeLeaders(originalGroups:[Group]) -> [Group] {
         theGroups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]
     }
     return theGroups
+}
+
+func PriorityLoss(potentialUnits:[Unit], unitLossPriority:[Int]) -> Unit? {
+    
+    if potentialUnits.isEmpty {return nil}
+    var theLowestIndex = 7
+    var indexOfTheLowestIndex = 0
+    for (i, eachUnit) in potentialUnits.enumerate() {
+        let theCode = eachUnit.backCodeFromStrengthAndType()
+        guard let theIndex = unitLossPriority.indexOf(theCode) else {continue}
+        if theIndex < theLowestIndex {theLowestIndex = theIndex; indexOfTheLowestIndex = i}
+    }
+    
+    return potentialUnits[indexOfTheLowestIndex]
 }
 
 
