@@ -117,26 +117,20 @@ class Location:SKSpriteNode {
         // Eliminate zero-unit commands from the occupants
         for each in self.occupants {
             if each.unitCount == 0 {self.occupants.removeObject(each)}
-            else {each.activeUnits.sortInPlace({$0.unitCode > $1.unitCode})}
+            //else {each.activeUnits.sortInPlace({$0.unitCode > $1.unitCode})}
         }
         
         if self.locationType == .Approach {
             
             let approachSelf = self as! Approach
-            
             if (approachSelf.wideApproach && self.occupants.count > 1) {twoColumns = true}
-            
             extraRotation = CGFloat(M_PI/2)
         }
         
         if self.locationType == .Reserve {
             
             let reserveSelf = self as! Reserve
-            
-            if (reserveSelf.currentFill > Int(0.5*Double(reserveSelf.capacity)) && (reserveSelf.capacity > 5) && self.occupants.count > 1) {
-
-                twoColumns = true
-            }
+            if (self.occupants.count > 1 && reserveSelf.capacity > 6) {twoColumns = true}
         }
         
         let yOffset:CGFloat = -(unitHeight*cos(self.zRotation + extraRotation)*mapScaleFactor)
@@ -191,12 +185,12 @@ class Location:SKSpriteNode {
             if sideLeft {
                 
                 leftSideCommands++
-                leftSideUnits = leftSideUnits + each.unitCount
+                leftSideUnits += each.activeUnits.count
                 
             } else {
             
                 rightSideCommands++
-                rightSideUnits = rightSideUnits + each.unitCount
+                rightSideUnits += each.activeUnits.count
             }
         }
     }

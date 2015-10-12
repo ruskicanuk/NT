@@ -402,18 +402,6 @@ func ReduceStrengthIfRetreat(touchedUnit:Unit, theLocation:Location, theGroupCon
     return false
 }
 
-/*
-// Returns false if all approaches have been resolved
-func SetDefenseApproaches(theThreat:(Reserve,[Approach])) -> Bool {
-    let (_, theApproaches) = theThreat
-    var anyMoreDefenseRequired = false
-
-    for eachApproach in theApproaches {if !eachApproach.defenseRequired {eachApproach.hidden = false; anyMoreDefenseRequired = true} else {eachApproach.hidden = true}}
-
-    return anyMoreDefenseRequired
-}
-*/
-
 // Returns whether retreat state is ready (on) or still requires action (option)
 func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelState {
     
@@ -421,14 +409,8 @@ func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelSta
     let retreatSelection = GroupSelection(theGroups: retreatGroup)
     if retreatSelection.blocksSelected == 0 {return .Option}
     
-    
     // Check if reductions are finished for selected units locations
     for eachGroup in retreatGroup {
-    //print("Damage Delivered:\(theThreat.damageDelivered[eachGroup.command.currentLocation!])")
-    //print("Damage Required:\(theThreat.damageRequired[eachGroup.command.currentLocation!])")
-    //print("Destroy Delivered:\(theThreat.destroyDelivered[eachGroup.command.currentLocation!])")
-    //print("Destroy Required:\(theThreat.destroyRequired[eachGroup.command.currentLocation!])")
-        
         for eachUnit in eachGroup.units {
             if eachUnit.selected == .Selected && theThreat.damageDelivered[eachGroup.command.currentLocation!] < theThreat.damageRequired[eachGroup.command.currentLocation!] {return .Option}
             if eachUnit.selected == .Selected && theThreat.destroyDelivered[eachGroup.command.currentLocation!] < theThreat.destroyRequired[eachGroup.command.currentLocation!] {return .Option}

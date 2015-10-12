@@ -283,7 +283,6 @@ class Command:SKNode {
     
     func unitsUpkeep(reshuffle:Bool = true) {
         
-        var count = 0
         var nonLeaderCount = 0
         var cavCount = 0
         hasLeader = false
@@ -292,12 +291,17 @@ class Command:SKNode {
         unitCount = 0
         activeUnits = []
 
+        var activeUnitOrder:[Int] = []
         for each in units {
             if each.unitStrength == 0 {continue} // Skip "dead" units
-            each.position.y = -CGFloat(count)*unitHeight*mapScaleFactor
+            
+            var position = 0
+            for eachIndex in activeUnitOrder {
+                if units[eachIndex].unitCode >= each.unitCode {position++}
+            }
+            activeUnitOrder.insert(units.indexOf(each)!, atIndex: position)
             
             activeUnits += [each]
-            count++
             
             if each.unitType == .Ldr {
                 hasLeader = true
@@ -311,6 +315,12 @@ class Command:SKNode {
             } else if each.unitType == .Grd {
                 nonLeaderCount++
             }
+        }
+        
+        var count = 0
+        for eachIndex in activeUnitOrder {
+            units[eachIndex].position.y = -CGFloat(count)*unitHeight*mapScaleFactor
+            count++
         }
         
         //Set command properties
