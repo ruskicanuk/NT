@@ -328,9 +328,26 @@ func CheckIfViableAttach(touchedUnit:Unit, groupSelected:Group) -> Bool {
     
 }
 
-
-
-
+func CheckIfViableGuardThreat(theThreat:Conflict) -> Bool {
+    
+    var corpsOnly = false
+    var indOnly = false
+    if theThreat.attackApproach.obstructedApproach {return false}
+    else if manager!.indCommandsAvail <= 0 && manager!.corpsCommandsAvail > 0 {corpsOnly = true}
+    else if manager!.corpsCommandsAvail <= 0 && manager!.indCommandsAvail > 0 {indOnly = true}
+    
+    var viableGuard = false
+    for eachCommand in theThreat.attackApproach.occupants + theThreat.attackReserve.occupants {
+        for eachUnit in eachCommand.activeUnits {
+            if (!corpsOnly && !indOnly) && eachUnit.unitType == .Grd && !eachUnit.hasMoved {viableGuard = true; break}
+            else if corpsOnly && eachUnit.unitType == .Grd && !eachUnit.hasMoved && !eachCommand.hasMoved && eachCommand.activeUnits.count > 1 {viableGuard = true; break}
+            else if indOnly && eachUnit.unitType == .Grd && !eachUnit.hasMoved && eachCommand.activeUnits.count != 2 {viableGuard = true; break}
+        }
+        if viableGuard {break}
+    }
+    
+    return viableGuard
+}
 
 // MARK: Feint & Retreat Logic
 
@@ -917,7 +934,9 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
     var theGroups:[Group] = []
     switch thePhase {
     case .RealAttack: theGroups = theConflict.defenseGroup!.groups
-    case .DeclaredAttackers: theGroups = theConflict.attackGroup!.groups
+    case .DeclaredAttackers:
+        if theConflict.guardAttack {theGroups = theConflict.guardAttackGroup!.groups}
+        else {theGroups = theConflict.attackGroup!.groups}
     case .DeclaredLeadingA: theGroups = theConflict.counterAttackGroup!.groups
     default: break
     }

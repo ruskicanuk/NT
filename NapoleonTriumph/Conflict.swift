@@ -16,6 +16,7 @@ class Conflict {
     
     var defenseGroup:GroupSelection?
     var attackGroup:GroupSelection?
+    var guardAttackGroup:GroupSelection?
     var counterAttackGroup:GroupSelection?
     
     var attackMoveType:MoveType?
@@ -60,15 +61,20 @@ class Conflict {
     var potentialRdAttackers:[Command:[Reserve]] = [:] // Stores the reserve pathways possible
     var rdAttackerPath:[Reserve] = []
     var rdAttackerMultiPaths:[[Reserve]] = []
-    //var postRetreatMode:Bool = false
-    //var potentialAdjAttackers:[Command:[Location]] = [:]
-    
-    //var defenseOrRetreatDeclared:Bool = false
-    //var defenseLeadingDeclared:Bool = false
-    //var attackOrFeintDeclared:Bool = false
-    //var attackLeadingDeclared:Bool = false
     
     var guardAttack:Bool = false
+    
+    func SetGuardAttackGroup() {
+        var theGroups:[Group] = []
+        for eachGroup in attackGroup!.groups {
+            var theUnits:[Unit] = []
+            for eachUnit in eachGroup.units {
+                if eachUnit.unitType == .Grd {theUnits += [eachUnit]}
+            }
+            if !theUnits.isEmpty {theGroups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]}
+        }
+        guardAttackGroup = GroupSelection(theGroups: theGroups, selectedOnly: false)
+    }
     
     var mustFeint:Bool = false
     
@@ -148,7 +154,8 @@ class Conflict {
         }
         
         if !artLead {defenseStrength = defenseLead.groupSelectionStrength} else {defenseStrength = 0}
-
+        if guardAttack {defenseStrength -= defenseLead.blocksSelected}
+        
         initialResult = attackStrength - defenseStrength
         
         if artLead {conflictInitialWinner = .Neutral}
@@ -345,23 +352,6 @@ class Conflict {
         
         }
     }
-
-    /*
-    // Nil if command is not adjacent, the location if it is
-    func AdjCommandPathToConflict (pCommand:Command) -> [Location]? {
-        
-        if pCommand.currentLocation is Approach {
-            let commandApproachLocation = pCommand.currentLocation as! Approach
-            if commandApproachLocation == attackApproach {return [attackApproach]} else {return nil}
-        }
-        else if pCommand.currentLocation is Reserve {
-            let commandReserveLocation = pCommand.currentLocation as! Reserve
-            if commandReserveLocation == attackReserve {return [attackReserve, attackApproach]} else {return nil}
-        }
-        else {return nil}
-    }
-
-    */
 }
 class GroupConflict {
     
