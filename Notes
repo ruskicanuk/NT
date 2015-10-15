@@ -1,2 +1,8 @@
 ToDo:
 -USE XML to store the scaling data for the map (the original map pixels for instance and the sizes for various devices)
+
+
+(1) Please merge your work from the branch into the master so I can work on an update version to test your static menu and review your other work
+(2) Please setup the save-game functionality (manager class). Ideally, the game is saved automatically just like in Desert Fox without the user ever having to actually save the game. <Pls test to make identical to Desert Fox functionality!>
+(3) Game Center. Related to #2 above is to setup the game-center functionality identical to the Desert Fox functionality. There should also be the auto-load feature that desert fox has. For instance, when you open the app, it automatically loads the game so you don't have to click on anything.
+(4) UI testing. I'd like to setup UI testing but I am struggling a bit with it. I'd like to use it as I need to start testing my game logic more rigorously. Please setup a very simple UI test that I can then use as a template for testing.
