@@ -71,12 +71,12 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         delegate = UIApplication.sharedApplication().delegate as! AppDelegate
         
         //Might be our menu button
-        let viewMenu=UIView.init(frame:CGRectMake(00, 0, 200, 100))
+        let viewMenu=UIView.init(frame:CGRectMake(00, 0, 400, 400))
         //        viewMenu.backgroundColor=UIColor.darkGrayColor()
         self.view.addSubview(viewMenu)
         viewMenu.multipleTouchEnabled=true
         viewMenu.exclusiveTouch=true
-        let button:UIButton = UIButton.init(frame: CGRectMake(0, 0, 100 , 45))
+        let button:UIButton = UIButton.init(frame: CGRectMake(0, 0, 220 , 200))
         button.setTitle("Menu button", forState: UIControlState.Normal)
         button.addTarget(self, action:"openMenu" , forControlEvents: UIControlEvents.TouchUpInside)
         viewMenu.addSubview(button)
