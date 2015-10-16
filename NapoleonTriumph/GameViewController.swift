@@ -87,6 +87,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     
     func openMenu()
     {
+        
+         //This is required. When user zoom the map and go back to menu screen at that time we need to reset the scrollview zoomscale to 1
+        scrollview.zoomScale=1.0
+        
         scene = MenuView(size: skView.bounds.size)
         scene.viewController=self
         skView.ignoresSiblingOrder = true
