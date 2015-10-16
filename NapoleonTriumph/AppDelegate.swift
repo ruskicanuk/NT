@@ -8,6 +8,9 @@
 
 import UIKit
 
+let HIDEMENU: String = "hidemenu"
+let SHOWMENU: String = "showmenu"
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     

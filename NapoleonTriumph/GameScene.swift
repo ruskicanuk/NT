@@ -146,6 +146,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Hide the locations
         HideAllLocations(true)
+        
+        NSNotificationCenter.defaultCenter().postNotificationName(SHOWMENU, object: nil)
+
     }
     
     // MARK: TouchedNode and HoldNode

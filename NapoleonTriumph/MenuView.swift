@@ -84,6 +84,8 @@ class MenuView: SKScene {
         //        swipeDown.direction = .Down
         //        view.addGestureRecognizer(swipeDown)
         loadMenu()
+        NSNotificationCenter.defaultCenter().postNotificationName(HIDEMENU, object: nil)
+
     }
     
     //this will load menu buttons

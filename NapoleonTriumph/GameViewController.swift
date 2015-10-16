@@ -24,7 +24,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     var scalingView: UIView!
     var scrollview: UIScrollView!
     var skView:SKView!
-    
+    let viewMenu=CustomMenuView.init(frame:CGRectMake(00, 0, 400, 400))
+
     var scale:Float = 1.0
     
     //MARK: View Hiearchy
@@ -71,7 +72,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         delegate = UIApplication.sharedApplication().delegate as! AppDelegate
         
         //Might be our menu button
-        let viewMenu=UIView.init(frame:CGRectMake(00, 0, 400, 400))
         //        viewMenu.backgroundColor=UIColor.darkGrayColor()
         self.view.addSubview(viewMenu)
         viewMenu.multipleTouchEnabled=true
@@ -80,9 +80,22 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         button.setTitle("Menu button", forState: UIControlState.Normal)
         button.addTarget(self, action:"openMenu" , forControlEvents: UIControlEvents.TouchUpInside)
         viewMenu.addSubview(button)
+        viewMenu.userInteractionEnabled=true
         button.backgroundColor=UIColor.redColor()
-        
-        
+        hideMenu()
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "hideMenu", name: HIDEMENU, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "showMenu", name: SHOWMENU, object: nil)
+
+    }
+    
+    func hideMenu()
+    {
+        viewMenu.hidden=true
+    }
+    
+    func showMenu()
+    {
+        viewMenu.hidden=false
     }
     
     func openMenu()
@@ -101,6 +114,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     internal func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
         return self.scalingView
     }
+    
+
     
     func pinched(pinchGesture : UIPinchGestureRecognizer) {
         
