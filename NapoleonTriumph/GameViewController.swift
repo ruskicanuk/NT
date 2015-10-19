@@ -24,7 +24,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     var scalingView: UIView!
     var scrollview: UIScrollView!
     var skView:SKView!
-    let viewMenu=CustomMenuView.init(frame:CGRectMake(00, 0, 400, 400))
+    let viewMenu=CustomMenuView.init(frame:CGRectMake(00, 0, 200, 200))
 
     var scale:Float = 1.0
     
