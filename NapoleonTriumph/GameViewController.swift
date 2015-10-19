@@ -34,6 +34,18 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         super.viewDidLoad()
         
         
+        let manager: StateManager = StateManager.init()
+        
+        let games: Array<Game> = manager.games
+        
+        if games.count == 0
+        {
+            let game:Game = Game.init(score: 100, gameMode: GameMode.SinglePlayer)
+            manager.addGame(game)
+        }
+        
+        print(games.description)
+        
         /*
         
         OLD map zoom feature
