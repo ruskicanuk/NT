@@ -15,9 +15,6 @@ var mapScaleFactor:CGFloat = 1.0
 
 let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 142.0:"AUINF2", 141.0:"AUINF1", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 242.0:"FRINF2", 241.0:"FRINF1", 251.1:"St Hilaire", 251.2:"Vandamme"]
 
-     
-
-
 let imageNamesSelected = [133.0:"AUCAV3H", 132.0:"AUCAV3H", 131.0:"AUCAV3H", 123.0:"AUCAV3H", 122.0:"AUCAV3H", 121.0:"AUCAV3H", 111.0:"AUCAV3H", 142.0:"AUCAV3H", 141.0:"AUCAV3H", 143.0:"AUCAV3H", 151.1:"AUCAV3H", 151.2:"AUCAV3H", 151.3:"AUCAV3H", 233.0:"FRINF2H", 232.0:"FRINF2H", 231.0:"FRINF2H", 223.0:"FRINF2H", 222.0:"FRINF2H", 221.0:"FRINF2H", 211.0:"FRINF2H", 243.0:"FRINF2H", 242.0:"FRINF2H", 241.0:"FRINF2H", 251.1:"FRINF2H", 251.2:"FRINF2H"]
 
 let imageNamesNotSelectable = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
@@ -274,6 +271,7 @@ class GameManager {
     var selectableAttackAdjacentGroups:[Group] = []
     
     var currentGroupsSelected:[Group] = []
+    //var locationsVisible:[Location] = []
     
     var repeatAttackGroup:Group? // Used to store the group for rare cases of repeat attacks along the rd
     var repeatAttackMoveNumber:Int?
@@ -320,8 +318,18 @@ class GameManager {
     var night:Bool = false
     var turn:Int = 1 {
         didSet {
-            if turn == 12 {night = true} else if night == true {night = false}
-            if turn > 12 {day = 2} else {day = 1}
+            if turn == 11 {
+                
+                night = true
+                
+                // Gain of half morale (rounded down)
+                let frMoraleGain = Int((maxMorale[.French]! - morale[.French]!) / 2)
+                let auMoraleGain = Int((maxMorale[.Austrian]! - morale[.Austrian]!) / 2)
+                morale[.French] = morale[.French]! + frMoraleGain
+                morale[.Austrian] = morale[.Austrian]! + auMoraleGain
+                
+            } else if night == true {night = false}
+            if turn > 11 {day = 2} else {day = 1}
             updateTurnLabel()
         }
     }
@@ -348,23 +356,23 @@ class GameManager {
     var phasingLabel = SKLabelNode()
     var actingLabel = SKLabelNode()
     var turnLabel = SKLabelNode()
+    var alliedMoraleLabel = SKLabelNode()
+    var frenchMoraleLabel = SKLabelNode()
     
     // Morale
-    var auMoraleMax:Int = 27
-    var frMoraleMax:Int = 23
-    var auMorale:Int = 27
-    var frMorale:Int = 23
+    var maxMorale:[Allegience:Int!] = [ .Austrian: 27, .French: 23]
+    var morale:[Allegience:Int!] = [ .Austrian: 27, .French: 23] {
+        didSet{updateMoraleLabel()}
+    }
     
     var frReinforcements:Bool = false
-    var auHeavyCavUsed:Bool = false
-    var frHeavyCavUsed:Bool = false
-    var auGuardFailed:Bool = false
-    var frGuardFailed:Bool = false
-    var auGuardUsed:Bool = false
-    var frGuardUsed:Bool = false
     
-    var heavyCavCommitCost:Int = 2
-    var guardCommitCost:Int = 4
+    var heavyCavCommited:[Allegience:Bool] = [ .Austrian: false, .French: false]
+    var guardCommitted:[Allegience:Bool] = [ .Austrian: false, .French: false]
+    var guardFailed:[Allegience:Bool] = [ .Austrian: false, .French: false]
+    
+    var heavyCavCommittedCost:Int = 2
+    var guardCommittedCost:Int = 4
     var guardFailedCost:Int = 3
     
     // Refers to the menu
@@ -512,6 +520,11 @@ class GameManager {
         turnLabel.text = "Turn: \(self.turn) Phase: \(self.phaseOld.ID)"
     }
     
+    func updateMoraleLabel() {
+        alliedMoraleLabel.text = "Allied Morale: \(self.morale[.Austrian]!)"
+        frenchMoraleLabel.text = "French Morale: \(self.morale[.French]!)"
+    }
+    
     // MARK: Manager Support Functions
     
     func turnID() -> Int {
@@ -525,40 +538,43 @@ class GameManager {
     
     func setupCommandDashboard() {
         
-        //phasingLabel.text = "Phasing Player: \(self.phasingPlayer)"
         phasingLabel.fontSize = 20*mapScaleFactor
         phasingLabel.fontColor = SKColor.blackColor()
         drawOnNode!.addChild(phasingLabel)
-        phasingLabel.position = CGPoint(x: -80.0, y: -220.0)
+        phasingLabel.position = CGPoint(x: -140.0, y: -220.0)
         
-        // Add the commands available dash-board
-        //commandLabel.text = "Corps Commands: \(self.corpsCommandsAvail)"
         commandLabel.fontSize = 20*mapScaleFactor
         commandLabel.fontColor = SKColor.blackColor()
         drawOnNode!.addChild(commandLabel)
-        commandLabel.position = CGPoint(x: -80.0, y: -240.0)
+        commandLabel.position = CGPoint(x: -140.0, y: -240.0)
         
-        //indLabel.text = "Ind. Commands: \(self.indCommandsAvail)"
         indLabel.fontSize = 20*mapScaleFactor
         indLabel.fontColor = SKColor.blackColor()
         drawOnNode!.addChild(indLabel)
-        indLabel.position = CGPoint(x: -80.0, y: -260.0)
+        indLabel.position = CGPoint(x: -140.0, y: -260.0)
         
-        //actingLabel.text = "Acting Player: \(self.actingPlayer)"
         actingLabel.fontSize = 20*mapScaleFactor
         actingLabel.fontColor = SKColor.blackColor()
         drawOnNode!.addChild(actingLabel)
-        actingLabel.position = CGPoint(x: -80.0, y: -280.0)
+        actingLabel.position = CGPoint(x: -140.0, y: -280.0)
         
-        //turnLabel.text = "Turn: \(self.turn) Phase: \(self.phaseOld)"
         turnLabel.fontSize = 20*mapScaleFactor
         turnLabel.fontColor = SKColor.blackColor()
         drawOnNode!.addChild(turnLabel)
-        turnLabel.position = CGPoint(x: -80.0, y: -300.0)
+        turnLabel.position = CGPoint(x: -140.0, y: -300.0)
         
-        //menu = theMenu
-        //print(theMenu)
-        // Initializes the labels
+        alliedMoraleLabel.fontSize = 20*mapScaleFactor
+        alliedMoraleLabel.fontColor = SKColor.blackColor()
+        drawOnNode!.addChild(alliedMoraleLabel)
+        alliedMoraleLabel.position = CGPoint(x: -140.0, y: -320.0)
+        
+        frenchMoraleLabel.fontSize = 20*mapScaleFactor
+        frenchMoraleLabel.fontColor = SKColor.blackColor()
+        drawOnNode!.addChild(frenchMoraleLabel)
+        frenchMoraleLabel.position = CGPoint(x: -140.0, y: -340.0)
+        
+        updateMoraleLabel()
+        
         phasingPlayer = player1
         actingPlayer = player1
         phaseOld = .Setup
@@ -570,14 +586,12 @@ class GameManager {
     func SideSwith() {
         
         for eachCommand in gameCommands[manager!.actingPlayer]! {
-            //eachCommand.userInteractionEnabled = false
             for eachUnit in eachCommand.activeUnits {
                 if eachUnit.unitType != .Ldr {eachUnit.selected = .Off}
             }
         }
         
         for eachCommand in gameCommands[manager!.actingPlayer.Other()!]! {
-            //eachCommand.userInteractionEnabled = true
             for eachUnit in eachCommand.activeUnits {
                 if eachUnit.unitType != .Ldr {eachUnit.selected = .Normal}
             }
@@ -680,6 +694,21 @@ class GameManager {
         }
         return "TurnOnNothing"
         
+    }
+    
+    // Returns true if game-end demoralization victory
+    func ReduceMorale(losses:Int, side:Allegience, mayDemoralize:Bool) -> Bool {
+        
+        let newMorale = morale[side]! - losses
+        
+        if newMorale <= 0 && !mayDemoralize {
+            morale[side] = 1
+        } else if newMorale <= 0 && mayDemoralize {
+            morale[side] = 0
+        } else {
+            morale[side] = newMorale
+        }
+        if morale[side] > 0 {return false} else {return true}
     }
     
 }

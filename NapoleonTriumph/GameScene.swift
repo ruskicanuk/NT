@@ -761,6 +761,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     endTurnSelector?.selected = .Off
                     if theGroupThreat.retreatMode {
                         retreatSelector?.selected = .Off
+                        
+                        // Morale reductions (before combat retreat)
+                        manager!.ReduceMorale(theGroupThreat.moraleLossFromRetreat, side: manager!.phasingPlayer.Other()!, mayDemoralize: true)
+                        
                         manager!.NewPhase(2, reverse: false, playback: false)
                     } else {
                         SaveDefenseGroup(theGroupThreat)
@@ -1001,6 +1005,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
             ToggleGroups(theConflict.defenseGroup!.groups, makeSelection: .NotSelectable)
             
             manager!.activeThreat!.SetupRetreatRequirements() // Re-seeds the reduce requirements for retreating
+            // Morale reductions (after combat retreat)
+            manager!.ReduceMorale(manager!.activeThreat!.moraleLossFromRetreat, side: theConflict.defenseSide, mayDemoralize: true)
+            
             let theCode = manager!.PostBattleRetreatOrSurrender() // Checks if surrender case exists
             RetreatPreparation(theCode) // Sets up turn-end status (requires empty locale)
         
@@ -1025,6 +1032,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 let newOrder = Order(retreatSelection: retreatGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: theConflict.attackReserve, orderFromView: .Retreat, mapFromView:NTMap!)
                 newOrder.ExecuteOrder()
                 manager!.orders += [newOrder]
+            }
+            
+            // Morale reductions (guard-attack failed)
+            if theConflict.guardAttack {
+                manager!.guardFailed[theConflict.defenseSide.Other()!] = true
+                manager!.ReduceMorale(manager!.guardFailedCost, side: theConflict.defenseSide.Other()!, mayDemoralize: false)
             }
 
             SelectableGroupsForFeintDefense(theConflict)

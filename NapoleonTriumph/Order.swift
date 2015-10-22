@@ -24,7 +24,6 @@ class Order {
     var mainMap:SKSpriteNode?
 
     // Commands and groups
-    //let baseCommand:Command?
     var baseGroup:Group?
     var otherGroup:Group?
     var groupSelection:GroupSelection?
@@ -54,6 +53,9 @@ class Order {
     var battleReduction:Bool?
     var moveBase:[Bool] = [true] // Is the base group the moving group?
     var reverseCode:Int = 1 // Used to store various scenarios that you might want to unwind in reverse (attach only)
+    
+    var reverseCavCommit = (false, 0) // Used to store whether the order contained a cav commit and, if so, how much morale it reduced
+    var reverseGrdCommit = (false, 0) // Used to store whether the order contained a grd commit and, if so, how much morale it reduced
 
     // MARK: Initializers
     
@@ -360,6 +362,28 @@ class Order {
             
             let moveToLocation = endLocation
             var i = -1
+            
+            if !playback {
+
+                // Commit morale loss tracker
+                guard let theSide = groupSelection?.groups[0].command.commandSide else {break}
+                if groupSelection!.containsHeavyCav && !manager!.heavyCavCommited[theSide]! {
+                    manager!.heavyCavCommited[theSide] = true
+                    let beforeLoss = manager!.morale[theSide]!
+                    manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: theSide, mayDemoralize: false)
+                    let afterLoss = manager!.morale[theSide]!
+                    reverseCavCommit = (true, beforeLoss - afterLoss)
+                }
+                if groupSelection!.containsGuard && !manager!.guardCommitted[theSide]! {
+                    manager!.guardCommitted[theSide] = true
+                    let beforeLoss = manager!.morale[theSide]!
+                    manager!.ReduceMorale(manager!.guardCommittedCost, side: theSide, mayDemoralize: false)
+                    let afterLoss = manager!.morale[theSide]!
+                    reverseGrdCommit = (true, beforeLoss - afterLoss)
+                }
+                
+            }
+            
             for eachGroup in groupSelection!.groups {
                 var newCommandArray:[Command] = []
                 var moveCommandArray:[Command] = []
@@ -459,6 +483,17 @@ class Order {
             
             // May need to release the must-retreat condition
             if !playback {
+                
+                // Reverse the morale losses
+                guard let theSide = groupSelection?.groups[0].command.commandSide else {break}
+                if reverseCavCommit.0 {
+                    manager!.heavyCavCommited[theSide] = false
+                    manager!.morale[theSide] = manager!.morale[theSide]! + reverseCavCommit.1
+                }
+                if reverseGrdCommit.0 {
+                    manager!.guardCommitted[theSide] = false
+                    manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
+                }
                 
                 theGroupConflict?.retreatOrders--
                 if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
@@ -706,6 +741,28 @@ class Order {
                         theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! + 1
                     }
                 }
+                
+                if !playback {
+                    
+                    // Commit morale loss tracker
+                    guard let theSide = swappedUnit?.unitSide else {break}
+                    if swappedUnit!.unitStrength == 3 && swappedUnit!.unitType == .Cav && !manager!.heavyCavCommited[theSide]! {
+                        manager!.heavyCavCommited[theSide] = true
+                        let beforeLoss = manager!.morale[theSide]!
+                        manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: theSide, mayDemoralize: false)
+                        let afterLoss = manager!.morale[theSide]!
+                        reverseCavCommit = (true, beforeLoss - afterLoss)
+                    }
+                    if swappedUnit!.unitType == .Grd && !manager!.guardCommitted[theSide]! {
+                        manager!.guardCommitted[theSide] = true
+                        let beforeLoss = manager!.morale[theSide]!
+                        manager!.ReduceMorale(manager!.guardCommittedCost, side: theSide, mayDemoralize: false)
+                        let afterLoss = manager!.morale[theSide]!
+                        reverseGrdCommit = (true, beforeLoss - afterLoss)
+                    }
+                    
+                }
+                
                 swappedUnit!.decrementStrength()
             }
             
@@ -720,6 +777,19 @@ class Order {
                     }
                 }
                 swappedUnit!.decrementStrength(false)
+                
+                if !playback {
+                    // Reverse the morale losses
+                    guard let theSide = groupSelection?.groups[0].command.commandSide else {break}
+                    if reverseCavCommit.0 {
+                        manager!.heavyCavCommited[theSide] = false
+                        manager!.morale[theSide] = manager!.morale[theSide]! + reverseCavCommit.1
+                    }
+                    if reverseGrdCommit.0 {
+                        manager!.guardCommitted[theSide] = false
+                        manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
+                    }
+                }
             }
             
         // MARK: Surrender
@@ -728,6 +798,7 @@ class Order {
             
             // Build the surrender dictionary
             if theGroupConflict != nil {
+                
                 for eachCommand in theGroupConflict!.defenseReserve.occupants {
                     for eachUnit in eachCommand.units {
                         surrenderDict[eachUnit] = eachUnit.unitStrength
@@ -741,12 +812,50 @@ class Order {
                     }
                 }
                 
+                // Commit morale loss tracker
+                if !playback {
+                    
+                    guard let theSide = theGroupConflict?.conflicts[0].defenseSide else {break}
+                    
+                    for (eachUnit, _) in surrenderDict {
+                        
+                        if eachUnit.unitStrength == 3 && eachUnit.unitType == .Cav && !manager!.heavyCavCommited[theSide]! {
+                            manager!.heavyCavCommited[theSide] = true
+                            let beforeLoss = manager!.morale[theSide]!
+                            manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: theSide, mayDemoralize: false)
+                            let afterLoss = manager!.morale[theSide]!
+                            reverseCavCommit = (true, beforeLoss - afterLoss)
+                        }
+                        if eachUnit.unitType == .Grd && !manager!.guardCommitted[theSide]! {
+                            manager!.guardCommitted[theSide] = true
+                            let beforeLoss = manager!.morale[theSide]!
+                            manager!.ReduceMorale(manager!.guardCommittedCost, side: theSide, mayDemoralize: false)
+                            let afterLoss = manager!.morale[theSide]!
+                            reverseGrdCommit = (true, beforeLoss - afterLoss)
+                        }
+                    }
+                }
+                
                 // Execute the surrender dictionary
                 SurrenderUnits(surrenderDict, reduce: true)
                 startLocaleReserve!.UpdateReserveState()
             }
             
         case (true, .Surrender):
+            
+            // Reverse the morale losses
+            if !playback {
+                
+                guard let theSide = theGroupConflict?.conflicts[0].defenseSide else {break}
+                if reverseCavCommit.0 {
+                    manager!.heavyCavCommited[theSide] = false
+                    manager!.morale[theSide] = manager!.morale[theSide]! + reverseCavCommit.1
+                }
+                if reverseGrdCommit.0 {
+                    manager!.guardCommitted[theSide] = false
+                    manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
+                }
+            }
             
             SurrenderUnits(surrenderDict, reduce: false)
             startLocaleReserve!.UpdateReserveState()

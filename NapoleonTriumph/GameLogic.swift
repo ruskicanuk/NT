@@ -304,7 +304,11 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         let mustFeintThreats = enemyOccupiedMustFeintApproaches as [SKNode]
         for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         // "NEW" version would separate rd attacks from adj attacks
-        return (adjMoves,  attackThreats, mustFeintThreats)
+        if manager!.night { // Night turn, no attacks allowed
+            return (adjMoves,  [], [])
+        } else {
+            return (adjMoves,  attackThreats, mustFeintThreats)
+        }
         
     }
 }
@@ -333,6 +337,7 @@ func CheckIfViableGuardThreat(theThreat:Conflict) -> Bool {
     var corpsOnly = false
     var indOnly = false
     if theThreat.attackApproach.obstructedApproach {return false}
+    else if manager!.guardFailed[theThreat.defenseSide.Other()!]! {return false}
     else if manager!.indCommandsAvail <= 0 && manager!.corpsCommandsAvail > 0 {corpsOnly = true}
     else if manager!.corpsCommandsAvail <= 0 && manager!.indCommandsAvail > 0 {indOnly = true}
     

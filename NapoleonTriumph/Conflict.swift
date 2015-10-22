@@ -206,6 +206,26 @@ class Conflict {
         
         attackerLossTarget = DetermineLossTargets(true)
         defenderLossTarget = DetermineLossTargets(false)
+        
+        // Check for guard first-time commitments
+        if attackLeadingUnits!.containsGuard && !manager!.guardCommitted[defenseSide.Other()!]! {manager!.ReduceMorale(manager!.guardCommittedCost, side: defenseSide.Other()!, mayDemoralize: false); manager!.guardCommitted[defenseSide.Other()!]! = true}
+        if defenseLeadingUnits!.containsGuard && !manager!.guardCommitted[defenseSide]! {manager!.ReduceMorale(manager!.guardCommittedCost, side: defenseSide, mayDemoralize: false); manager!.guardCommitted[defenseSide]! = true}
+        if counterAttackLeadingUnits!.containsGuard && !manager!.guardCommitted[defenseSide]! {manager!.ReduceMorale(manager!.guardCommittedCost, side: defenseSide, mayDemoralize: false); manager!.guardCommitted[defenseSide]! = true}
+        
+        // Check for heavy cav first-time commitments
+        if attackLeadingUnits!.containsHeavyCav && !manager!.heavyCavCommited[defenseSide.Other()!]! {manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: defenseSide.Other()!, mayDemoralize: false); manager!.heavyCavCommited[defenseSide.Other()!]! = true}
+        if defenseLeadingUnits!.containsHeavyCav && !manager!.heavyCavCommited[defenseSide]! {manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: defenseSide, mayDemoralize: false); manager!.heavyCavCommited[defenseSide]! = true}
+        if counterAttackLeadingUnits!.containsHeavyCav && !manager!.heavyCavCommited[defenseSide]! {manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: defenseSide, mayDemoralize: false); manager!.heavyCavCommited[defenseSide]! = true}
+        
+        // Morale reductions
+        if conflictFinalWinner == defenseSide {
+            manager!.ReduceMorale(attackerLossTarget, side: defenseSide.Other()!, mayDemoralize: true)
+        } else if conflictFinalWinner == defenseSide.Other() {
+            manager!.ReduceMorale(defenderLossTarget, side: defenseSide, mayDemoralize: true)
+        } else {
+            manager!.ReduceMorale(defenderLossTarget, side: defenseSide, mayDemoralize: false)
+        }
+        
         ApplyBattleLosses(true, overallLossTarget: attackerLossTarget)
         ApplyBattleLosses(false, overallLossTarget: defenderLossTarget)
     }
@@ -400,6 +420,7 @@ class GroupConflict {
     var destroyRequired:[Location:Int] = [:]
     var damageDelivered:[Location:Int] = [:]
     var destroyDelivered:[Location:Int] = [:]
+    var moraleLossFromRetreat = 0
     //var battledLocations:[Location] = []
     
     init(passReserve:Reserve, passConflicts:[Conflict]) {
@@ -442,16 +463,12 @@ class GroupConflict {
             
             damageRequired[eachApproach] = min(potentialLosses,eachApproach.approachLength)
             destroyRequired[eachApproach] = potentialDestroyed
+            moraleLossFromRetreat += damageRequired[eachApproach]! + destroyRequired[eachApproach]!
+            
             damageDelivered[eachApproach] = 0
             destroyDelivered[eachApproach] = 0
         }
         
-        /*
-        var maxWidth:Int = 0
-        for eachVacantApproach in unresolvedApproaches {
-            maxWidth = max(maxWidth, eachVacantApproach.approachLength)
-        }
-        */
         let maxWidth:Int!
         switch (conflicts[0].defenseApproach.wideApproach) {
         case true: maxWidth = 2
@@ -467,8 +484,10 @@ class GroupConflict {
             potentialDestroyed += eachCommand.artUnits.count
         }
         
-        damageRequired[defenseReserve] = min(potentialLosses,maxWidth)
+        damageRequired[defenseReserve] = min(potentialLosses, maxWidth)
         destroyRequired[defenseReserve] = potentialDestroyed
+        moraleLossFromRetreat += damageRequired[defenseReserve]! + destroyRequired[defenseReserve]!
+
         damageDelivered[defenseReserve] = 0
         destroyDelivered[defenseReserve] = 0
     }
@@ -532,6 +551,8 @@ class GroupSelection {
     var containsInfOrGuard = false
     var containsTwoOrThreeStrCav = false
     var containsLeader = false
+    var containsGuard = false
+    var containsHeavyCav = false
     var artilleryInGroup = 0
     var groupSelectionStrength:Int {
         var theTotal = 0
@@ -558,6 +579,8 @@ class GroupSelection {
                     if eachUnit.unitType == .Inf || eachUnit.unitType == .Grd {containsInfOrGuard = true}
                     if eachUnit.unitType == .Art {artilleryInGroup++}
                     if eachUnit.unitType == .Cav && eachUnit.unitStrength > 1 {containsTwoOrThreeStrCav = true}
+                    if containsTwoOrThreeStrCav && eachUnit.unitStrength == 3 {containsHeavyCav = true}
+                    if eachUnit.unitType == .Grd {containsGuard = true}
                     theUnits += [eachUnit] // Add to units
                     blocksSelected++
                     if eachUnit.unitType == .Ldr {containsLeader = true} // Increment group selection size

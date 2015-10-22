@@ -24,7 +24,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     var scalingView: UIView!
     var scrollview: UIScrollView!
     var skView:SKView!
-    let viewMenu=CustomMenuView.init(frame:CGRectMake(00, 0, 200, 200))
+    let viewMenu = CustomMenuView.init(frame:CGRectMake(00, 0, 200, 200))
 
     var scale:Float = 1.0
     
@@ -86,13 +86,13 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         //Might be our menu button
         //        viewMenu.backgroundColor=UIColor.darkGrayColor()
         self.view.addSubview(viewMenu)
-        viewMenu.multipleTouchEnabled=true
-        viewMenu.exclusiveTouch=true
+        viewMenu.multipleTouchEnabled = true
+        viewMenu.exclusiveTouch = true
         let button:UIButton = UIButton.init(frame: CGRectMake(0, 0, 220 , 200))
         button.setTitle("Menu button", forState: UIControlState.Normal)
         button.addTarget(self, action:"openMenu" , forControlEvents: UIControlEvents.TouchUpInside)
         viewMenu.addSubview(button)
-        viewMenu.userInteractionEnabled=true
+        viewMenu.userInteractionEnabled = true
         button.backgroundColor=UIColor.redColor()
         hideMenu()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "hideMenu", name: HIDEMENU, object: nil)
@@ -102,12 +102,12 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     
     func hideMenu()
     {
-        viewMenu.hidden=true
+        viewMenu.hidden = true
     }
     
     func showMenu()
     {
-        viewMenu.hidden=false
+        viewMenu.hidden = false
     }
     
     func openMenu()
@@ -117,7 +117,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         scrollview.zoomScale=1.0
         
         scene = MenuView(size: skView.bounds.size)
-        scene.viewController=self
+        scene.viewController = self
         skView.ignoresSiblingOrder = true
         skView.presentScene(scene)
     }
@@ -126,8 +126,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     internal func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
         return self.scalingView
     }
-    
-
     
     func pinched(pinchGesture : UIPinchGestureRecognizer) {
         
@@ -151,7 +149,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
             }
             else
             {
-                print("Not scalling")
+                print("Not scaling")
             }
             
         default: () // do nothing
