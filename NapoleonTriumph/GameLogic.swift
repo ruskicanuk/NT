@@ -167,67 +167,9 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         
     case 5, 6:
         
-        /*
-        let (activePaths, pathIndices) = ActivePaths(commandSelected)
-        
-
-        for eachPath in activePaths {
-    
-            var i:Int = 0; let pathIndex = pathIndices[i]; i++
-    
-            if moveNumber < (eachPath.count-1) { // Still have moves remaining
-                
-                if eachPath[pathIndex].has2PlusCorpsPassed {rdBlock = true; continue}
-                
-                if pathIndex == (eachPath.count-1) {continue} // End of path, no moves left
-                else if pathIndex == 0 {  // Can go right only
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || manager!.actingPlayer.ContainsEnemy(eachPath[pathIndex+1].localeControl)) {rdAvailableReserves += [eachPath[pathIndex+1]]; if (moveNumber == eachPath.count-2) {finalReserveMoves += [eachPath[pathIndex+1]]}}
-                }
-                else { // Normal case
-                    if !(eachPath[pathIndex-1].has2PlusCorpsPassed || manager!.actingPlayer.ContainsEnemy(eachPath[pathIndex-1].localeControl)) {rdAvailableReserves += [eachPath[pathIndex-1]]; if (moveNumber == eachPath.count-2) {finalReserveMoves += [eachPath[pathIndex+1]]}}
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || manager!.actingPlayer.ContainsEnemy(eachPath[pathIndex+1].localeControl)) {rdAvailableReserves += [eachPath[pathIndex+1]]; if (moveNumber == eachPath.count-2) {finalReserveMoves += [eachPath[pathIndex+1]]}}
-                }
-            }
-        }
-        */
         let (theReserves, _, theRdBlock) = GroupMayMoveByRd(groupSelected)
         rdBlock = theRdBlock
-        //finalReserveMoves = Array(Set(finalReserveMoves)) // Ensure the array is unique
         rdAvailableReserves = Array(Set(theReserves)) // Ensure the array is unique
-        
-    //case 6:
-        /*
-        let (activePaths, pathIndices) = ActivePaths(commandSelected)
-        if pathIndices == [] {rdBlock = true; break}
-        
-        for eachPath in activePaths {
-            
-            var i:Int = 0; let pathIndex = pathIndices[i]; i++
-            
-            if moveNumber < (eachPath.count-1) { // Still have moves remaining
-                
-                if (eachPath[pathIndex].has2PlusCorpsPassed || eachPath[pathIndex].numberCommandsEntered > 1 || manager!.actingPlayer.ContainsEnemy(eachPath[pathIndex].containsAdjacent2PlusCorps)) {rdBlock = true; continue}
-                
-                if pathIndex == (eachPath.count-1) {continue} // End of path, no moves left
-                else if pathIndex == 0 { // Can go right only
-
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || eachPath[pathIndex+1].numberCommandsEntered > 0 || manager!.actingPlayer.ContainsEnemy(eachPath[pathIndex+1].localeControl)) {rdAvailableReserves += [eachPath[pathIndex+1]]; if (moveNumber == eachPath.count-2) {finalReserveMoves += [eachPath[pathIndex+1]]}}
-                }
-                else { // Normal case
-
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || eachPath[pathIndex+1].numberCommandsEntered > 0 || manager!.actingPlayer.ContainsEnemy(eachPath[pathIndex+1].localeControl)) {rdAvailableReserves += [eachPath[pathIndex+1]]; if (moveNumber == eachPath.count-2) {finalReserveMoves += [eachPath[pathIndex+1]]}}
-                    if !(eachPath[pathIndex-1].has2PlusCorpsPassed || eachPath[pathIndex-1].numberCommandsEntered > 0 || manager!.actingPlayer.ContainsEnemy(eachPath[pathIndex-1].localeControl)) {rdAvailableReserves += [eachPath[pathIndex-1]]; if (moveNumber == eachPath.count-2) {finalReserveMoves += [eachPath[pathIndex+1]]}}
-                }
-            }
-        }
-        
-        finalReserveMoves = Array(Set(finalReserveMoves)) // Ensure the array is unique
-        rdAvailableReserves = Array(Set(rdAvailableReserves)) // Ensure the array is unique
-        */
-        //let (theReserves, theRdBlock) = GroupMayMoveByRd(groupSelected)
-        //rdBlock = theRdBlock
-        //finalReserveMoves = Array(Set(finalReserveMoves)) // Ensure the array is unique
-        //rdAvailableReserves = Array(Set(theReserves)) // Ensure the array is unique
         
     default: break
         
@@ -290,7 +232,6 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         }
         
         let rdMoves = rdAvailableReserves as [SKNode] + rdAvailableApproaches as [SKNode]
-        //let mustFeintMoves = enemyOccupiedMustFeintApproaches as [SKNode]
         for each in rdMoves {each.hidden = false; each.zPosition = 200}
         
         return (rdMoves, [], [])
@@ -301,6 +242,11 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         for eachReserve in Array(Set(finalReserveMoves).intersect(Set(adjAvailableReserves))) {if (groupSelected.nonLdrUnitCount + eachReserve.currentFill) > eachReserve.capacity {adjAvailableReserves.removeObject(eachReserve)}}
         
         let adjMoves = adjAvailableReserves as [SKNode] + adjAvailableApproaches as [SKNode]
+        
+        // Remove approaches already attacked by normal attack
+        for eachApproach in enemyOccupiedAttackApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedAttackApproaches.removeObject(eachApproach)}}
+        for eachApproach in enemyOccupiedMustFeintApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedMustFeintApproaches.removeObject(eachApproach)}}
+        
         let attackThreats = enemyOccupiedAttackApproaches as [SKNode]
         let mustFeintThreats = enemyOccupiedMustFeintApproaches as [SKNode]
         for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
@@ -982,7 +928,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
     }
     
     var attackLeadingArtPossible = false
-    if (theGroups[0].command.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) {attackLeadingArtPossible = true}
+    if (theGroups[0].command.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) && theConflict.defenseApproach.mayArtAttack {attackLeadingArtPossible = true}
 
     // Three scenarios: Defense Leading, Attack Leading and Counter Attacking
     // APPROACH?, # BLOCKS SELECTED, WIDE?, LEADING D - LEADING A OR COUNTERATTACK?
@@ -1041,7 +987,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
         
         for eachGroup in theGroups {
             for eachUnit in eachGroup.units {
-                if eachUnit.unitType == .Art && attackLeadingArtPossible {
+                if eachUnit.unitType == .Art && attackLeadingArtPossible && (eachUnit.unitType == selectedGroup.units[0].unitType) {
                     // Remains selectable
                 } else if eachUnit.unitStrength == 1 {
                     eachUnit.selected = .NotSelectable
@@ -1339,12 +1285,9 @@ func GroupsIncludeLeaders(originalGroups:[Group]) -> [Group] {
     for eachGroup in originalGroups {
         var theUnits:[Unit] = []
         if eachGroup.command.hasLeader {
-            theUnits += [eachGroup.command.theLeader!]
-        }
-        for eachUnit in eachGroup.units {
-            if eachUnit.unitType != .Ldr {
-                theUnits += [eachUnit]
-            }
+            theUnits += eachGroup.units + [eachGroup.command.theLeader!]
+        } else {
+            theUnits = eachGroup.units
         }
         theGroups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]
     }

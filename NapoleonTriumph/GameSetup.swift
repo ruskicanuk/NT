@@ -23,7 +23,9 @@ class GameSetup: SKScene {
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
+        
         loadButtons()
+        startGame() // #### REMOVE LATER, to speed up testing ####
     }
     
     //this will load  buttons

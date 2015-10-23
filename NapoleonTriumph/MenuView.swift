@@ -85,6 +85,7 @@ class MenuView: SKScene {
         //        view.addGestureRecognizer(swipeDown)
         loadMenu()
         NSNotificationCenter.defaultCenter().postNotificationName(HIDEMENU, object: nil)
+        startGame() // #### REMOVE LATER, to speed up testing ####
 
     }
     

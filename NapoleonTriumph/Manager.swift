@@ -17,9 +17,12 @@ let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"A
 
 let imageNamesSelected = [133.0:"AUCAV3H", 132.0:"AUCAV3H", 131.0:"AUCAV3H", 123.0:"AUCAV3H", 122.0:"AUCAV3H", 121.0:"AUCAV3H", 111.0:"AUCAV3H", 142.0:"AUCAV3H", 141.0:"AUCAV3H", 143.0:"AUCAV3H", 151.1:"AUCAV3H", 151.2:"AUCAV3H", 151.3:"AUCAV3H", 233.0:"FRINF2H", 232.0:"FRINF2H", 231.0:"FRINF2H", 223.0:"FRINF2H", 222.0:"FRINF2H", 221.0:"FRINF2H", 211.0:"FRINF2H", 243.0:"FRINF2H", 242.0:"FRINF2H", 241.0:"FRINF2H", 251.1:"FRINF2H", 251.2:"FRINF2H"]
 
-let imageNamesNotSelectable = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
+let imageNamesGreyedOut = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
 
-let imageNamesBlank:[Allegience:String] = [.Austrian:"AUback", .French:"FRback"]
+// Split this into "Off" and "Greyed out"
+let imageNamesOff = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
+
+//let imageNamesBlank:[Allegience:String] = [.Austrian:"AUback", .French:"FRback"]
 
 let unitHeight:CGFloat = 9.5/1.5
 let unitWidth:CGFloat = 56/1.5
@@ -387,15 +390,15 @@ class GameManager {
     
     // Triggered by conflict commands (eg. moving into an enemy locale)
     func NewPhase(fight:Int, reverse:Bool = false, playback:Bool = false) -> String {
-        print("new Phase triggered")
+
         // Increments phase if we aren't in play-back mode
         if playback {return "Playback"}
         
-        let phaseChange:Bool = phaseOld.NextPhase(fight, reverse: reverse) // Moves us to the next phase, returns true if need to swith acting player
+        let phaseChange = phaseOld.NextPhase(fight, reverse: reverse) // Moves us to the next phase, returns true if need to swith acting player
         if phaseChange {SideSwith(); actingPlayer.Switch()}
         if orders.last != nil {orders.last?.unDoable = false}
         
-        // Set the phase-class (enums giving me hell on multi case selections)
+        /*
         let thePhaseClass:String!
         if phaseOld == .Setup || phaseOld == .Move {thePhaseClass = "Move"}
         else if phaseOld == .FeintThreat || phaseOld == .NormalThreat {thePhaseClass = "Threat"}
@@ -405,18 +408,19 @@ class GameManager {
         //else if phaseOld == .DeclaredLeadingA {thePhaseClass = "DeclareLeading"}
         else if phaseOld == .FeintMove || phaseOld == .RealAttack {thePhaseClass = "Nothing"}
         else {thePhaseClass = "Nothing"}
+        */
         
-        switch (thePhaseClass) {
+        switch (phaseOld) {
         
-        case "Move":
+        case .Setup, .Move:
             
             for each in orders {
                 if each.order != .Move && each.order != .Retreat && each.order != .Feint {each.orderArrow?.removeFromParent()}
             }
             ResetManagerState()
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:true)
+            //ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:true)
         
-        case ("Threat"):
+        case .FeintThreat, .NormalThreat:
             
             // Setup the threat-groups and setup the retreat and defense selection groups @ Will need to go through all orders in "new version"
             SetupThreats()
@@ -424,13 +428,63 @@ class GameManager {
             // Return the code (whether forced retreat / defend)
             return ResetRetreatDefenseSelection()
         
-        case ("DeclareLeading"):
+        case .StoodAgainstNormalThreat, .RetreatedBeforeCombat, .StoodAgainstFeintThreat:
+            
+            // Set selectable commands
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            selectableAttackByRoadGroups = SelectableGroupsForAttackByRoad(activeThreat!.conflicts[0])
+            selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeThreat!.conflicts[0])
+            ToggleGroups(selectableAttackByRoadGroups, makeSelection: .Normal)
+            ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
+        
+        case .FeintMove:
+            
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            SelectableGroupsForFeintDefense(activeThreat!.conflicts[0])
+        
+        case .RealAttack:
+            
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            
+            SelectableLeadingGroups(activeThreat!.conflicts[0], thePhase: phaseOld)
             SelectLeadingUnits(activeThreat!.conflicts[0])
             
-        default:
-            break
-        }
+        case .DeclaredLeadingD:
+            
+            // Defense leading units visible to attacker
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
+            ToggleGroups(activeThreat!.conflicts[0].defenseLeadingUnits!.groups, makeSelection: .Selected)
         
+        case .DeclaredAttackers:
+            
+            // Defense leading units visible to attacker
+            ToggleGroups(activeThreat!.conflicts[0].attackGroup!.groups, makeSelection: .Normal)
+            ToggleGroups(activeThreat!.conflicts[0].defenseGroup!.groups, makeSelection: .NotSelectable)
+            ToggleGroups(activeThreat!.conflicts[0].defenseLeadingUnits!.groups, makeSelection: .Selected)
+            
+            SelectableLeadingGroups(activeThreat!.conflicts[0], thePhase: phaseOld)
+            SelectLeadingUnits(activeThreat!.conflicts[0])
+            
+        case .DeclaredLeadingA:
+            
+            // Attack leading units visible to defender
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleGroups(activeThreat!.conflicts[0].attackLeadingUnits!.groups, makeSelection: .Selected)
+            
+            if activeThreat!.conflicts[0].mayCounterAttack {
+                ToggleGroups(activeThreat!.conflicts[0].counterAttackGroup!.groups, makeSelection: .Normal)
+                SelectLeadingUnits(activeThreat!.conflicts[0])
+            }
+            
+        case .RetreatAfterCombat: break
+            
+        case .PostVictoryFeintMove:
+            
+            //ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleGroups(GroupsIncludeLeaders(activeThreat!.conflicts[0].defenseGroup!.groups), makeSelection: .Normal)
+            
+        }
         return "Nothing"
     }
     
@@ -475,6 +529,8 @@ class GameManager {
             }
         }
         
+        // Reset game-state
+        for eachApproach in approaches {eachApproach.mayArtAttack = true; eachApproach.mayNormalAttack = true}
         ResetManagerState()
         
         // Always switch side, phasing and acting player
@@ -592,13 +648,13 @@ class GameManager {
         
         for eachCommand in gameCommands[manager!.actingPlayer]! {
             for eachUnit in eachCommand.activeUnits {
-                if eachUnit.unitType != .Ldr {eachUnit.selected = .Off}
+                eachUnit.selected = .Off
             }
         }
         
         for eachCommand in gameCommands[manager!.actingPlayer.Other()!]! {
             for eachUnit in eachCommand.activeUnits {
-                if eachUnit.unitType != .Ldr {eachUnit.selected = .Normal}
+                eachUnit.selected = .Normal
             }
         }
     }
@@ -615,8 +671,6 @@ class GameManager {
             // Break conditions
             if index < 0 {break}
             guard let theConflict = self.orders[index].theConflict else {break}
-
-            //if !(self.orders[index].order == .FeintThreat || self.orders[index].order == .NormalThreat) {break}
         
             self.approachThreats[theConflict.defenseApproach] = theConflict
             

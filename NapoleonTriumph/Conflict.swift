@@ -132,10 +132,6 @@ class Conflict {
         let defenseLead = defenseLeadingUnits!
         var cavLead:Bool = false; var infLead:Bool = false; var artLead:Bool = false; //var grdLead:Bool = false
         
-        for eachGroup in attackGroup!.groups + defenseGroup!.groups {
-            for eachUnit in eachGroup.units {eachUnit.wasInBattle = true}
-        }
-        
         if !attackLead.groups.isEmpty {
             if attackLead.groups[0].allCav {cavLead = true}
             else if attackLead.groups[0].artOnly {artLead = true}
@@ -143,6 +139,17 @@ class Conflict {
         }
         var attackStrength:Int = 0
         var defenseStrength:Int = 0
+        
+        // sets all participants to "was in battle" if it isn't an artillery shot
+        if artLead {
+            defenseApproach.mayArtAttack = false
+            } else {
+            defenseApproach.mayArtAttack = false
+            defenseApproach.mayNormalAttack = false
+            for eachGroup in attackGroup!.groups + defenseGroup!.groups {
+                for eachUnit in eachGroup.units {eachUnit.wasInBattle = true}
+            }
+        }
         
         attackStrength += attackLead.groupSelectionStrength
         
@@ -217,17 +224,17 @@ class Conflict {
         if defenseLeadingUnits!.containsHeavyCav && !manager!.heavyCavCommited[defenseSide]! {manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: defenseSide, mayDemoralize: false); manager!.heavyCavCommited[defenseSide]! = true}
         if counterAttackLeadingUnits!.containsHeavyCav && !manager!.heavyCavCommited[defenseSide]! {manager!.ReduceMorale(manager!.heavyCavCommittedCost, side: defenseSide, mayDemoralize: false); manager!.heavyCavCommited[defenseSide]! = true}
         
+        let actualAttackerLosses = ApplyBattleLosses(true, overallLossTarget: attackerLossTarget)
+        let actualDefenderLosses = ApplyBattleLosses(false, overallLossTarget: defenderLossTarget) + counterAttackLeadingUnits!.blocksSelected
+        
         // Morale reductions
         if conflictFinalWinner == defenseSide {
-            manager!.ReduceMorale(attackerLossTarget, side: defenseSide.Other()!, mayDemoralize: true)
+            manager!.ReduceMorale(actualAttackerLosses, side: defenseSide.Other()!, mayDemoralize: true)
         } else if conflictFinalWinner == defenseSide.Other() {
-            manager!.ReduceMorale(defenderLossTarget, side: defenseSide, mayDemoralize: true)
+            manager!.ReduceMorale(actualDefenderLosses, side: defenseSide, mayDemoralize: true)
         } else {
-            manager!.ReduceMorale(defenderLossTarget, side: defenseSide, mayDemoralize: false)
+            manager!.ReduceMorale(actualDefenderLosses, side: defenseSide, mayDemoralize: false)
         }
-        
-        ApplyBattleLosses(true, overallLossTarget: attackerLossTarget)
-        ApplyBattleLosses(false, overallLossTarget: defenderLossTarget)
     }
     
     func DetermineLossTargets(attacker:Bool) -> Int {
@@ -242,21 +249,19 @@ class Conflict {
             
         } else {
             
-            if conflictFinalWinner != .Neutral {
-                lossTarget += attackLeadingUnits!.blocksSelected
-            }
+            if conflictFinalWinner != .Neutral {lossTarget += attackLeadingUnits!.blocksSelected}
             if finalResult > 0 {lossTarget += finalResult}
-            if conflictFinalWinner != .Neutral {
-                lossTarget -= defenseLeadingUnits!.artilleryInGroup
-            }
+            if conflictFinalWinner != .Neutral {lossTarget -= defenseLeadingUnits!.artilleryInGroup}
         }
         
         return lossTarget
     }
     
-    func ApplyBattleLosses(attacker:Bool, overallLossTarget:Int) {
+    // Returns actual losses
+    func ApplyBattleLosses(attacker:Bool, overallLossTarget:Int) -> Int {
         
         var lossTarget = overallLossTarget
+        var actualLosses = 0
         
         while lossTarget > 0 {
             
@@ -315,7 +320,7 @@ class Conflict {
             }
             
             // Exit if still empty
-            if threatenedUnits.isEmpty {return}
+            if threatenedUnits.isEmpty {return actualLosses}
         
             if lossTarget < threatenedUnits.count { // Evenly distribute losses
                 
@@ -334,15 +339,6 @@ class Conflict {
                 var thePrioritizedCasualties:[Unit] = []
                 while thePrioritizedCasualties.count < lossTarget {
                     
-                    /*
-                    var theLowestIndex = 7
-                    var indexOfTheLowestIndex = 0
-                    for (i, eachUnit) in threatenedUnits.enumerate() {
-                        let theCode = eachUnit.backCodeFromStrengthAndType()
-                        guard let theIndex = unitLossPriority.indexOf(theCode) else {continue}
-                        if theIndex < theLowestIndex {theLowestIndex = theIndex; indexOfTheLowestIndex = i}
-                    }
-                    */
                     thePrioritizedCasualties += [PriorityLoss(threatenedUnits, unitLossPriority: unitLossPriority)!]
                 }
                 reductionUnits += thePrioritizedCasualties
@@ -352,9 +348,11 @@ class Conflict {
                 reductionUnits += threatenedUnits
                 lossTarget -= threatenedUnits.count
             }
-            
+            actualLosses += reductionUnits.count
             BattleReductions(reductionUnits)
         }
+        
+        return actualLosses
     }
     
     func BattleReductions(unitsToReduce:[Unit]) {

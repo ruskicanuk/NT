@@ -76,11 +76,11 @@ class Unit: SKSpriteNode {
             
         } else if selected == .Off {
             
-            self.texture = SKTexture(imageNamed: imageNamesBlank[unitSide]!)
+            self.texture = SKTexture(imageNamed: imageNamesOff[unitCode]!)
             
         } else if selected == .NotSelectable {
             
-            self.texture = SKTexture(imageNamed: imageNamesNotSelectable[unitCode]!)
+            self.texture = SKTexture(imageNamed: imageNamesGreyedOut[unitCode]!)
             
         }
     }

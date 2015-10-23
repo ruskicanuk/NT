@@ -11,14 +11,20 @@ import SpriteKit
 func SelectLeadingUnits(theConflict:Conflict) {
     
     var selectionsAvailable = true
-    
+    var attackLeadingArtPossible = false
+
     repeat {
         
         let unitsRemaining = SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
     
         if unitsRemaining.isEmpty {selectionsAvailable = false}
-    
+            
         else {
+            
+            // Check if artillery is possible
+            var count = 0
+            if count == 0 && (manager!.phaseOld == .DeclaredAttackers) && (unitsRemaining[0].parentCommand!.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) && theConflict.defenseApproach.mayArtAttack {attackLeadingArtPossible = true}
+            count++
             
             let unitPriority = manager!.priorityLeaderAndBattle[manager!.actingPlayer]!
             
@@ -80,15 +86,21 @@ func SelectLeadingUnits(theConflict:Conflict) {
             var theFinalInf:[Unit] = []
             var theFinalGrd:[Unit] = []
             var theFinalCav:[Unit] = []
+            var flagArt = false
             
             for eachUnit in unitsRemaining {
                 
                 if (eachUnit.unitType == .Inf && eachUnit.unitStrength > 1) {theFinalInf += [eachUnit]}
                 else if eachUnit.unitType == .Grd {theFinalGrd += [eachUnit]}
                 else if (eachUnit.unitType == .Cav && eachUnit.unitStrength > 1) {theFinalCav += [eachUnit]}
-                else if eachUnit.unitType == .Art && theConflict.defenseApproach.mayArtAttack && !(theConflict.approachConflict && theConflict.defenseApproach.artApproach) && theConflict.attackGroup!.groups[0].command.currentLocation == theConflict.attackApproach {eachUnit.selected = .Selected; break}
+                else if eachUnit.unitType == .Art && attackLeadingArtPossible {
+                    eachUnit.selected = .Selected
+                    flagArt = true
+                    break
+                }
             }
-            
+            if flagArt {break}
+    
             var theLargestPair = 0
             var overideUnitPriority:[Unit] = []
 
@@ -185,13 +197,19 @@ func SelectLeadingUnits(theConflict:Conflict) {
                 
             case (false, false, .RealAttack), (_, true, .RealAttack), (false, _, .DeclaredAttackers): // Defenders in reserve, narrow (simple priority), Defenders in approach, any (simple priority), Attackers, narrow (simple priority)
                 
+                var flagArt = false
+                
                 // Selects artillery if its in the group
-                if manager!.phaseOld == .DeclaredAttackers && theConflict.defenseApproach.mayArtAttack && !(theConflict.approachConflict && theConflict.defenseApproach.artApproach) && theConflict.attackGroup!.groups[0].command.currentLocation == theConflict.attackApproach {
+                if manager!.phaseOld == .DeclaredAttackers && attackLeadingArtPossible {
                     for eachUnit in unitsRemaining {
-                        if eachUnit.unitType == .Art {eachUnit.selected = .Selected; break}
+                        if eachUnit.unitType == .Art {
+                            eachUnit.selected = .Selected
+                            flagArt = true
+                            break
+                        }
                     }
                 }
-                
+                if flagArt {break}
                 let unitToSelect = PriorityLoss(unitsRemaining, unitLossPriority: unitPriority)
                 unitToSelect?.selected = .Selected
              

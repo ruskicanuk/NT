@@ -51,7 +51,7 @@ class Order {
     var moveType:MoveType?
     var unDoable:Bool = true // Can the order be undone?
     var battleReduction:Bool?
-    var moveBase:[Bool] = [true] // Is the base group the moving group?
+    var moveBase:[Bool] = [] // Is the base group the moving group?
     var reverseCode:Int = 1 // Used to store various scenarios that you might want to unwind in reverse (attach only)
     
     var reverseCavCommit = (false, 0) // Used to store whether the order contained a cav commit and, if so, how much morale it reduced
@@ -192,7 +192,7 @@ class Order {
             var moveCommandArray:[Command] = []
             
             if moveType == .CorpsMove {
-                moveBase[0] = true
+                moveBase.append(true)
                 if otherGroup != nil {
                     for eachUnit in otherGroup!.units {
                         let nCommand = Command(creatingCommand: baseGroup!.command, creatingUnits: [])
@@ -204,7 +204,7 @@ class Order {
                     moveCommandArray += [baseGroup!.command]
                 }
             } else if moveType == .CorpsDetach {
-                moveBase[0] = false
+                moveBase.append(false)
                 for eachUnit in baseGroup!.units {
                     let nCommand = Command(creatingCommand: baseGroup!.command, creatingUnits: [])
                     mainMap!.addChild(nCommand) // Add new command to map
@@ -218,10 +218,10 @@ class Order {
                 
             } else if moveType == .IndMove {
                 if baseGroup!.fullCommand {
-                    moveBase[0] = true
+                    moveBase.append(true)
                     moveCommandArray += [baseGroup!.command]
                 } else {
-                    moveBase[0] = false
+                    moveBase.append(false)
                     let nCommand = Command(creatingCommand: baseGroup!.command, creatingUnits: [])
                     mainMap!.addChild(nCommand) // Add new command to map
                     baseGroup!.command.passUnitTo(baseGroup!.units[0], recievingCommand: nCommand)
@@ -391,7 +391,7 @@ class Order {
                 i++
                 oldCommands += [eachGroup.command!]
                 if eachGroup.leaderInGroup { // Remove other units and create commands from them (they remain)
-                    moveBase[i] = true
+                    moveBase.append(true)
                     let rightHandPriority = manager!.priorityLeaderAndBattle[manager!.actingPlayer]!
                     let leaderRightHand:Unit? = PriorityLoss(eachGroup.nonLdrUnits, unitLossPriority: rightHandPriority)
                     
@@ -411,7 +411,7 @@ class Order {
                     
                 } else if !eachGroup.fullCommand { // Means other units remain in the command so these must be broken off
                     
-                    moveBase[i] = false
+                    moveBase.append(false)
                     let newUnits = eachGroup.units
                     
                     for eachUnit in newUnits {
@@ -443,9 +443,13 @@ class Order {
             }
             
             if !playback {
-                theGroupConflict?.retreatOrders++
-                theGroupConflict?.mustRetreat = true
-                manager!.ResetRetreatDefenseSelection()
+                
+                // Catches the mysterious case of attacker retreats
+                if !(theGroupConflict != nil && theGroupConflict!.conflicts[0].attackReserve == endLocation) {
+                    theGroupConflict?.retreatOrders++
+                    theGroupConflict?.mustRetreat = true
+                    manager!.ResetRetreatDefenseSelection()
+                }
                 
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
@@ -495,9 +499,12 @@ class Order {
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
                 }
                 
-                theGroupConflict?.retreatOrders--
-                if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
-                manager!.ResetRetreatDefenseSelection()
+                // All retreat cases other than attacker retreat
+                if !(theGroupConflict != nil && theGroupConflict!.conflicts[0].attackReserve == endLocation) {
+                    theGroupConflict?.retreatOrders--
+                    if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
+                    manager!.ResetRetreatDefenseSelection()
+                }
                 
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
@@ -513,11 +520,11 @@ class Order {
             for eachGroup in groupSelection!.groups {
                 var newCommandArray:[Command] = []
                 var moveCommandArray:[Command] = []
-                
+             
                 i++
                 oldCommands += [eachGroup.command!]
                 if eachGroup.leaderInGroup { // Remove other units and create commands from them (they remain)
-                    moveBase[i] = true
+                    moveBase.append(true)
                     
                     let baseUnits:[Unit] = eachGroup.units
                     let newUnits = Array(Set(eachGroup.command.activeUnits).subtract(Set(baseUnits)))
@@ -535,7 +542,7 @@ class Order {
                     
                 } else if !eachGroup.fullCommand { // Means other units remain in the command so these must be broken off
                     
-                    moveBase[i] = false
+                    moveBase.append(false)
                     let newUnits = eachGroup.units
                     
                     for eachUnit in newUnits {
