@@ -261,8 +261,8 @@ enum oldGamePhase {
 class GameManager {
 
     var gameCommands:[Allegience:[Command]] = [.Austrian:[], .French:[]]
-    var priorityLosses:[Allegience:[Int]] = [.Austrian:[33, 32, 31, 23, 22, 21, 43], .French:[33, 32, 31, 23, 22, 21, 43]]
-    var priorityLeaderParter:[Allegience:[Int]] = [.Austrian:[33, 32, 31, 23, 22, 21, 43], .French:[33, 32, 31, 23, 22, 21, 43]]
+    var priorityLosses:[Allegience:[Int]] = [.Austrian:[43, 23, 22, 21, 33, 32, 31], .French:[43, 23, 22, 21, 33, 32, 31]]
+    var priorityLeaderAndBattle:[Allegience:[Int]] = [.Austrian:[33, 43, 23, 32, 22, 31, 21], .French:[33, 43, 23, 32, 22, 31, 21]]
     
     var selectableDefenseGroups:[Group] = []
     var selectableRetreatGroups:[Group] = []
@@ -314,6 +314,7 @@ class GameManager {
     }
 
     // Current turn
+    var scenario:Int = 1 // This is to set game to scenario 1 or 2
     var day:Int = 1
     var night:Bool = false
     var turn:Int = 1 {
@@ -399,6 +400,9 @@ class GameManager {
         if phaseOld == .Setup || phaseOld == .Move {thePhaseClass = "Move"}
         else if phaseOld == .FeintThreat || phaseOld == .NormalThreat {thePhaseClass = "Threat"}
         else if phaseOld == .StoodAgainstNormalThreat || phaseOld == .StoodAgainstFeintThreat || phaseOld == .RetreatedBeforeCombat {thePhaseClass = "Commit"}
+        else if phaseOld == .RealAttack {thePhaseClass = "DeclareLeading"}
+        else if phaseOld == .DeclaredAttackers {thePhaseClass = "DeclareLeading"}
+        //else if phaseOld == .DeclaredLeadingA {thePhaseClass = "DeclareLeading"}
         else if phaseOld == .FeintMove || phaseOld == .RealAttack {thePhaseClass = "Nothing"}
         else {thePhaseClass = "Nothing"}
         
@@ -409,13 +413,7 @@ class GameManager {
             for each in orders {
                 if each.order != .Move && each.order != .Retreat && each.order != .Feint {each.orderArrow?.removeFromParent()}
             }
-            self.repeatAttackGroup = nil
-            self.repeatAttackMoveNumber = nil
-            activeThreat = nil
-            currentGroupsSelected = []
-            selectionRetreatReserves = []
-            reserveThreats = []
-            approachThreats = [:]
+            ResetManagerState()
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:true)
         
         case ("Threat"):
@@ -426,11 +424,8 @@ class GameManager {
             // Return the code (whether forced retreat / defend)
             return ResetRetreatDefenseSelection()
         
-        case ("Commit"): break
-            
-        case ("DefendResponse"): break
-            
-        case ("Nothing"): break
+        case ("DeclareLeading"):
+            SelectLeadingUnits(activeThreat!.conflicts[0])
             
         default:
             break
@@ -459,8 +454,11 @@ class GameManager {
             indCommandsAvail = player2IndCommands
         }
         
-        // Finished pre-game
-        if phaseOld == .Setup && phasingPlayer != player1 {phaseOld = .Move}
+        // Finished pre-game and set turn based on selected
+        if phaseOld == .Setup && phasingPlayer != player1 {
+            if scenario == 1 {turn = 12}
+            phaseOld = .Move
+        }
         
         // Any Move turn, set units available to defend
         if phaseOld == .Move {
@@ -468,27 +466,16 @@ class GameManager {
             // Reset reserve state
             for eachReserve in reserves {eachReserve.ResetReserveState()}
             
-            for eachCommand in gameCommands[actingPlayer]! {
-                //eachCommand.availableToDefend = eachCommand.units.filter{$0.unitType != .Ldr}
+            for eachCommand in gameCommands[actingPlayer]! + gameCommands[actingPlayer.Other()!]! {
                 eachCommand.moveNumber = 0
                 eachCommand.movedVia = .None
-                for eachUnit in eachCommand.activeUnits {if eachUnit.unitType != .Ldr {eachUnit.alreadyDefended = false}}
-            }
-            for eachCommand in gameCommands[actingPlayer.Other()!]! {
-                //eachCommand.availableToDefend = eachCommand.units
-                eachCommand.moveNumber = 0
-                eachCommand.movedVia = .None
-                for eachUnit in eachCommand.activeUnits {if eachUnit.unitType != .Ldr {eachUnit.alreadyDefended = false}}
+                for eachUnit in eachCommand.activeUnits {
+                    eachUnit.wasInBattle = false; eachUnit.alreadyDefended = false // ; eachUnit.hasMoved = false this is set with observer
+                }
             }
         }
         
-        // Reset conflict arrays
-        selectableDefenseGroups = []
-        selectableRetreatGroups = []
-        currentGroupsSelected = []
-        selectionRetreatReserves = []
-        reserveThreats = []
-        approachThreats = [:]
+        ResetManagerState()
         
         // Always switch side, phasing and acting player
         SideSwith()
@@ -496,6 +483,24 @@ class GameManager {
         phasingPlayer.Switch()
         actingPlayer.Switch()
         
+    }
+    
+    func ResetManagerState() {
+        
+        selectableDefenseGroups = []
+        selectableRetreatGroups = []
+        selectableAttackGroups = []
+        selectableAttackByRoadGroups = []
+        selectableAttackAdjacentGroups = []
+        
+        currentGroupsSelected = []
+        repeatAttackGroup = nil
+        repeatAttackMoveNumber = nil
+        selectionRetreatReserves = []
+        reserveThreats = []
+        approachThreats = [:]
+        activeThreat = nil
+        approachThreats = [:]
     }
 
     // MARK: Property Observer functions

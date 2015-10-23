@@ -63,19 +63,20 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     let unitsHaveLeader:Bool = groupSelected.leaderInGroup
     
     // Case: 1 unit selected (most ambiguity is here)
-    if commandSelected.unitCount == 1 || unitsSelected.count == 1 {
+    if unitsSelected.count == 1 {
         
         if !commandSelected.hasLeader {return (.Off, .Off, attachMove, independent)} // Independent and attach
-        else if commandSelected.hasLeader && unitsHaveLeader && unitsSelected[0].unitType != .Ldr {return (corpsMove, .Off, attachMove, .Off)} // Corps move and attach
-        else if commandSelected.hasLeader && !unitsHaveLeader && commandSelected.unitCount != 2 {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
-        else {return (.Off, .Off, attachMove, .Off)} // Only a leader is selected or 1 non leader selected from a command with a leader and only 1 other unit with it
+        else if commandSelected.unitCount == 1 {return (.Off, detachMove, .Off, independent)} // Can't attach last unit in a corps
+        else {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
+        //else if commandSelected.hasLeader && !unitsHaveLeader && commandSelected.unitCount != 2 {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
+        //else {return (.Off, .Off, attachMove, .Off)} // Only a leader is selected or 1 non leader selected from a command with a leader and only 1 other unit with it
         
-        // Case: 2+ units selected, no leader, can only detach
+    // Case: 2+ units selected, no leader, can only detach
     } else if unitsSelected.count > 1 && !unitsHaveLeader {
         if detachMove == .Option {detachMove = .On}
         if unitsSelected.count < (commandSelected.activeUnits.count-1) {return (.Off, detachMove, .Off, .Off)} else {return (.Off, .Off, .Off, .Off)}
         
-        // Case 3: Corps moves only (2+ units - must have leader)
+    // Case 3: Corps moves only (2+ units - must have leader)
     } else {
         return (corpsMove, .Off, .Off, .Off)
     }
@@ -934,7 +935,7 @@ func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
 
 // MARK: Leading Units Logic
 
-func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, resetState:Bool = false) {
+func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, resetState:Bool = false) -> [Unit] {
     
     var theGroups:[Group] = []
     switch thePhase {
@@ -962,7 +963,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
     }
     
     // Safety drill
-    if theGroups.isEmpty {return}
+    if theGroups.isEmpty {return []}
     
     let selectedLeadingGroups:GroupSelection!
     if resetState {
@@ -981,7 +982,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
     }
     
     var attackLeadingArtPossible = false
-    if theConflict.approachConflict && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) {attackLeadingArtPossible = true}
+    if (theGroups[0].command.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) {attackLeadingArtPossible = true}
 
     // Three scenarios: Defense Leading, Attack Leading and Counter Attacking
     // APPROACH?, # BLOCKS SELECTED, WIDE?, LEADING D - LEADING A OR COUNTERATTACK?
@@ -1069,6 +1070,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
     }
     
     ToggleGroups(selectedLeadingGroups.groups, makeSelection: .Selected)
+    return SelectableUnits(theGroups)
 }
 
 // MARK: Toggle Selections
@@ -1077,7 +1079,7 @@ func ToggleCommands(theCommands:[Command], makeSelectable:Bool = true) {
     
     for eachCommand in theCommands {
         eachCommand.selectable = makeSelectable
-        for eachUnit in eachCommand.activeUnits {if makeSelectable {eachUnit.selected = .Normal; eachUnit.zPosition = 100} else {eachUnit.selected = .NotSelectable; eachUnit.zPosition = 100}}
+        for eachUnit in eachCommand.activeUnits {if makeSelectable {eachUnit.selected = .Normal} else {eachUnit.selected = .NotSelectable}}
     }
 }
 
@@ -1085,7 +1087,7 @@ func ToggleGroups(theGroups:[Group], makeSelection:SelectType = .Normal) {
     
     for eachGroup in theGroups {
         if makeSelection == .Normal || makeSelection == .Selected {eachGroup.command.selectable = true} else {eachGroup.command.selectable = false}
-        for eachUnit in eachGroup.units {if eachGroup.command.selectable {eachUnit.selected = makeSelection; eachUnit.zPosition = 100} else {eachUnit.selected = makeSelection; eachUnit.zPosition = 100}}
+        for eachUnit in eachGroup.units {if eachGroup.command.selectable {eachUnit.selected = makeSelection} else {eachUnit.selected = makeSelection}}
     }
 }
 
@@ -1363,6 +1365,16 @@ func PriorityLoss(potentialUnits:[Unit], unitLossPriority:[Int]) -> Unit? {
     return potentialUnits[indexOfTheLowestIndex]
 }
 
+func SelectableUnits(theGroups:[Group]) -> [Unit] {
+    
+    var theUnits:[Unit] = []
+    for eachGroup in theGroups {
+        for eachUnit in eachGroup.units {
+            if eachUnit.selected == .Normal {theUnits += [eachUnit]}
+        }
+    }
+    return theUnits
+}
 
 
 /*

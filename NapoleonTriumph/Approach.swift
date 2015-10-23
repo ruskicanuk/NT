@@ -18,6 +18,9 @@ class Approach:Location {
     let artApproach:Bool
     let hillApproach:Bool
     
+    var mayArtAttack:Bool = true
+    var mayNormalAttack:Bool = true
+    
     var oppApproach:Approach?
     var adjReserve:Reserve?
     var ownReserve:Reserve?

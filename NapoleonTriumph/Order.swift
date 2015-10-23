@@ -392,7 +392,7 @@ class Order {
                 oldCommands += [eachGroup.command!]
                 if eachGroup.leaderInGroup { // Remove other units and create commands from them (they remain)
                     moveBase[i] = true
-                    let rightHandPriority = manager!.priorityLosses[manager!.actingPlayer]!
+                    let rightHandPriority = manager!.priorityLeaderAndBattle[manager!.actingPlayer]!
                     let leaderRightHand:Unit? = PriorityLoss(eachGroup.nonLdrUnits, unitLossPriority: rightHandPriority)
                     
                     let baseUnits:[Unit] = [eachGroup.leaderUnit!] + [leaderRightHand!]
@@ -570,7 +570,7 @@ class Order {
             if !playback {
                 theGroupConflict?.retreatOrders++
                 theGroupConflict?.mustRetreat = true
-                manager!.ResetRetreatDefenseSelection()
+                //manager!.ResetRetreatDefenseSelection()
                 
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
@@ -611,7 +611,7 @@ class Order {
                 
                 theGroupConflict?.retreatOrders--
                 if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
-                manager!.ResetRetreatDefenseSelection()
+                //manager!.ResetRetreatDefenseSelection()
                 
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
