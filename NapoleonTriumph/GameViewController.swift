@@ -88,12 +88,14 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         self.view.addSubview(viewMenu)
         viewMenu.multipleTouchEnabled = true
         viewMenu.exclusiveTouch = true
-        let button:UIButton = UIButton.init(frame: CGRectMake(0, 0, 220 , 200))
-        button.setTitle("Menu button", forState: UIControlState.Normal)
+        let button:UIButton = UIButton.init(frame: CGRectMake(self.view.frame.size.width-100, 100, 200 , 200))
+        button.backgroundColor = UIColor.redColor()
+//        button.setImage(UIImage.init(named: "Menu.png"), forState: UIControlState.Normal)
         button.addTarget(self, action:"openMenu" , forControlEvents: UIControlEvents.TouchUpInside)
+        button.setTitle("Menu", forState: UIControlState.Normal)
+        button.showsTouchWhenHighlighted = true
         viewMenu.addSubview(button)
         viewMenu.userInteractionEnabled = true
-        button.backgroundColor=UIColor.redColor()
         hideMenu()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "hideMenu", name: HIDEMENU, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "showMenu", name: SHOWMENU, object: nil)
