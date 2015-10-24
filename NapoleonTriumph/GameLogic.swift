@@ -175,14 +175,14 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         
     }
     
-    // Reserve scenarios, all adjacent locations
-    if scenario == 2 || scenario == 3 || scenario == 4 {
+    // All reserve scenarios
+    if scenario > 1 {
      
         for eachAdjReserve in currentReserve!.adjReserves {
             
-            // This checks if it is a road (if
+            // This checks if it is likely and end-rd move
             for eachReservePath in currentReserve!.rdReserves {
-                if eachReservePath[1] == eachAdjReserve {finalReserveMoves += [eachAdjReserve]}
+                if eachReservePath.contains(eachAdjReserve) && moveNumber < eachReservePath.count-2 {finalReserveMoves += [eachAdjReserve]}
             }
             
             if !eachAdjReserve.has2PlusCorpsPassed {adjAvailableReserves += [eachAdjReserve]}
@@ -190,9 +190,11 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         
         // Need to take those without a road as the "final" group
         finalReserveMoves = Array(Set(adjAvailableReserves).subtract(Set(finalReserveMoves))) // Ensure the array is unique
-        
+    }
+    
+    // Set reserve's approaches as adjacent available approaches for those who haven't moved
+    if scenario == 2 || scenario == 3 || scenario == 4 {
         for each in currentReserve!.ownApproaches {adjAvailableApproaches += [each]}
-        
     }
     
     // Move each enemy occupied adj move into the Attack bucket
@@ -724,7 +726,7 @@ func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState,
         
         // Possible move locations after moving into a retreat locale
         var theMoveOptions:[SKNode] = []
-        let (theReserves, theApproaches, rdBlock) = GroupMayMoveByRd(theGroup, twoPlusCorps:(theGroup.nonLdrUnitCount > 1))
+        let (theReserves, theApproaches, rdBlock) = GroupMayMoveByRd(theGroup, twoPlusCorps:(theGroup.nonLdrUnitCount > 1), mustBeCav: true)
         
         if !rdBlock {
             theMoveOptions += EnemyRdTargets(theGroup, twoPlusCorps:(theGroup.nonLdrUnitCount > 1)) as [SKNode]
@@ -1143,10 +1145,10 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
 }
 
 // Returns the viable reserves that the group can move to and the approaches of enemy occupied locations which would otherwise be rd-move worthy
-func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false) -> ([Reserve],[Approach],Bool) {
+func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false, mustBeCav:Bool = false) -> ([Reserve],[Approach],Bool) {
     
     // Safety check
-    if !theGroup.allCav || theGroup.command.finishedMove {return ([],[], true)}
+    if (!theGroup.allCav && mustBeCav) || theGroup.command.finishedMove {return ([],[], true)}
     let (thePaths, pathIndices) = ActivePaths(theGroup.command)
     if thePaths.isEmpty {return([],[], true)}
     let moveNumber = theGroup.command.moveNumber

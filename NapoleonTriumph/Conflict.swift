@@ -512,11 +512,7 @@ class Group {
             if eachUnit.unitType == .Grd {guardInGroup = true}
         }
         
-        if leaderInGroup && (nonLdrUnitCount+1) == command.unitCount {
-            fullCommand = true
-        } else if !leaderInGroup && nonLdrUnitCount == command.unitCount {
-            fullCommand = true
-        }
+        if nonLdrUnitCount == command.unitCount {fullCommand = true}
     }
     
 }
