@@ -37,8 +37,6 @@ class MenuView: SKScene {
     
     //buttonSpacing must be <150 so that it will show properly in iPhone 4s also
     
-    
-    
     func pinched(sender:UIPinchGestureRecognizer){
         print("pinched \(sender)")
         // the line below scales the entire scene

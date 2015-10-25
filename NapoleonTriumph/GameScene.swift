@@ -762,9 +762,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     theCode = manager!.NewPhase(2, reverse: false, playback: false)
                 }
                 undoOrAct = false
+                ResetSelectors()
+                
                 if threatRespondMode {RetreatPreparation(theCode)}
                 
-                ResetSelectors()
+                
                 
             // Defender confirming a retreat or defense
             case .NormalThreat, .FeintThreat:
@@ -1005,9 +1007,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             manager!.activeThreat!.SetupRetreatRequirements() // Re-seeds the reduce requirements for retreating
             // Morale reductions (after combat retreat)
-            manager!.ReduceMorale(manager!.activeThreat!.moraleLossFromRetreat, side: theConflict.defenseSide, mayDemoralize: true)
             
             let theCode = manager!.PostBattleRetreatOrSurrender() // Checks if surrender case exists
+            
+            // Only reduce from retreat if not in surrender or nothing to retreat mode
+            if theCode == "TurnOnRetreat" {manager!.ReduceMorale(manager!.activeThreat!.moraleLossFromRetreat, side: theConflict.defenseSide, mayDemoralize: true)}
+            
             RetreatPreparation(theCode) // Sets up turn-end status (requires empty locale)
         
         } else { // Defender wins
@@ -1052,9 +1057,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 endTurnSelector?.selected = .Option
             } else { // Switch to feint defense
                 SelectableGroupsForFeintDefense(theConflict)
-                endTurnSelector?.selected = .Off
+                
+                // Double check that defenders remain to move into position (otherwise skip to Move)
+                let doubleCheckExistance:GroupSelection = GroupSelection(theGroups: theConflict.defenseGroup!.groups)
+                if doubleCheckExistance.groupSelectionStrength > 0 {endTurnSelector?.selected = .Off}
+                else {manager!.NewPhase(1, reverse: false, playback: false)}
             }
-                //theConflict.defenseApproach.hidden = false
         }
     }
     
@@ -1089,6 +1097,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
             }
         }
         manager!.NewPhase(1, reverse: false, playback: false)
+        endTurnSelector?.selected = .Option
+        retreatSelector?.selected = .Off
     }
     
     func RetreatPreparation(theCode:String, initialRun:Bool = true) {
@@ -1113,11 +1123,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
             newOrder.unDoable = false
             manager!.orders += [newOrder]
             retreatSelector?.selected = .Option
-            if manager!.phaseOld == .RetreatAfterCombat {PostBattleMove(); return}
         }
         else {retreatSelector?.selected = .Off} // Defense mode
         
-        if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On}
+        if manager!.phaseOld == .RetreatAfterCombat {
+            PostBattleMove()
+        }
+        else if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On}
         else {endTurnSelector?.selected = .Off}
         
     }
@@ -2020,6 +2032,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
         independentSelector?.selected = .Off
         corpsDetachSelector?.selected = .Off
         corpsAttachSelector?.selected = .Off
+        //retreatSelector?.selected = .Off
+        //guardSelector?.selected = .Off
     }
     
     func HideAllOrderArrows (hide:Bool) {

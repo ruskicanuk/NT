@@ -71,6 +71,13 @@ class Command:SKNode {
             if unitCount <= 0 {self.zPosition = -1} else {self.zPosition = 0}
         }
     }
+    var unitsTotalStrength:Int {
+        var totalStrength:Int = 0
+        for eachUnit in nonLeaderUnits {
+            totalStrength += eachUnit.unitStrength
+        }
+        return totalStrength
+    }
     var nonLeaderUnits:[Unit] {
         var theUnits:[Unit] = []
         for eachUnit in activeUnits {

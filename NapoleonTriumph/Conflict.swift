@@ -227,6 +227,29 @@ class Conflict {
         let actualAttackerLosses = ApplyBattleLosses(true, overallLossTarget: attackerLossTarget)
         let actualDefenderLosses = ApplyBattleLosses(false, overallLossTarget: defenderLossTarget) + counterAttackLeadingUnits!.blocksSelected
         
+        // Check for leader deaths (can only die in battle, retreat reductions and surrender)
+        for eachGroup in attackGroup!.groups {
+            if !eachGroup.leaderInGroup {continue}
+            var totalUnitStrength = 0
+            for eachUnit in eachGroup.units {totalUnitStrength += eachUnit.unitStrength}
+            
+            // Destroy the leader
+            if totalUnitStrength == 1 { // Leader only
+                eachGroup.leaderUnit!.decrementStrength(true)
+                if eachGroup.leaderUnit!.unitSide == .French {manager!.player2CorpsCommands--}
+            }
+        }
+        for eachGroup in defenseGroup!.groups {
+            if !eachGroup.command.hasLeader {continue}
+            let totalUnitStrength = eachGroup.command.unitsTotalStrength
+            
+            // Destroy the leader
+            if totalUnitStrength == 0 { // Leader only
+                eachGroup.command.theLeader!.decrementStrength(true)
+                if eachGroup.command.theLeader!.unitSide == .French {manager!.player2CorpsCommands--}
+            }
+        }
+        
         // Morale reductions
         if conflictFinalWinner == defenseSide {
             manager!.ReduceMorale(actualAttackerLosses, side: defenseSide.Other()!, mayDemoralize: true)
@@ -283,7 +306,7 @@ class Conflict {
                     lossCategory = 2
                     for eachGroup in attackGroup!.groups {
                         for eachUnit in eachGroup.units {
-                            if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
+                            if eachUnit.unitStrength > 0 && eachUnit.unitType != .Ldr {threatenedUnits += [eachUnit]}
                         }
                     }
                 }

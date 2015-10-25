@@ -51,6 +51,7 @@ class Order {
     var moveType:MoveType?
     var unDoable:Bool = true // Can the order be undone?
     var battleReduction:Bool?
+    var reduceLeaderReduction:Unit?
     var moveBase:[Bool] = [] // Is the base group the moving group?
     var reverseCode:Int = 1 // Used to store various scenarios that you might want to unwind in reverse (attach only)
     
@@ -768,19 +769,32 @@ class Order {
                         reverseGrdCommit = (true, beforeLoss - afterLoss)
                     }
                     
+                    // Capture case of reducing a leader's last unit to zero
+                    if !battleReduction! && swappedUnit!.parentCommand!.unitsTotalStrength == 0 && swappedUnit!.parentCommand!.hasLeader {
+                        swappedUnit!.parentCommand!.theLeader!.decrementStrength(true)
+                        if swappedUnit!.unitSide == .French {manager!.player2CorpsCommands--}
+                        reduceLeaderReduction = swappedUnit!.parentCommand!.theLeader!
+                    }
                 }
                 
-                swappedUnit!.decrementStrength()
+                swappedUnit!.decrementStrength() 
             }
             
         case (true, .Reduce):
             
             if orderGroup != nil {
+                
                 if !playback && !battleReduction! {
                     if swappedUnit!.unitType != .Art {
                         theGroupConflict!.damageDelivered[startLocation[0]] = theGroupConflict!.damageDelivered[startLocation[0]]! - 1
                     } else {
                         theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! - 1
+                    }
+                    
+                    // Reverse a leader-kill
+                    if reduceLeaderReduction != nil {
+                        reduceLeaderReduction!.decrementStrength(false)
+                        if reduceLeaderReduction!.unitSide == .French {manager!.player2CorpsCommands++}
                     }
                 }
                 swappedUnit!.decrementStrength(false)
@@ -823,7 +837,7 @@ class Order {
                 if !playback {
                     
                     guard let theSide = theGroupConflict?.conflict.defenseSide else {break}
-                    
+                    //print("B4 Surrender Commiting: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
                     for (eachUnit, _) in surrenderDict {
                         
                         if eachUnit.unitStrength == 3 && eachUnit.unitType == .Cav && !manager!.heavyCavCommited[theSide]! {
@@ -842,10 +856,12 @@ class Order {
                         }
                     }
                 }
+                //print("After Surrender Commiting: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
                 
                 // Execute the surrender dictionary
                 SurrenderUnits(surrenderDict, reduce: true)
                 startLocaleReserve!.UpdateReserveState()
+                //print("After Surrender Reductions: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
             }
             
         case (true, .Surrender):
@@ -894,8 +910,6 @@ class Order {
         return false
     }
     
-
-    
     // MARK: Support Functions
     
     // Surrenders the units in the surrender Dict
@@ -905,12 +919,22 @@ class Order {
                 var i = unitStrength
                 while i > 0 {
                     theUnit.decrementStrength(true)
+                    if theUnit.unitType != .Ldr {
+                        manager!.ReduceMorale(1, side: manager!.phasingPlayer.Other()!, mayDemoralize: true)
+                    } else {
+                        if theUnit.unitSide == .French {manager!.player2CorpsCommands--}
+                    }
                     i--
                 }
             } else {
                 var i = 0
                 while i < unitStrength {
                     theUnit.decrementStrength(false)
+                    if theUnit.unitType != .Ldr {
+                        manager!.morale[manager!.phasingPlayer.Other()!]! = manager!.morale[manager!.phasingPlayer.Other()!]! + 1
+                    } else {
+                        if theUnit.unitSide == .French {manager!.player2CorpsCommands++}
+                    }
                     i++
                 }
             }
