@@ -510,6 +510,11 @@ class Group {
         for each in units {if each.unitType != .Ldr {theUnits += [each]}}
         return theUnits
     }
+    var unitsStrength:Int {
+        var strength = 0
+        for each in units {if each.unitType != .Ldr {strength += each.unitStrength}}
+        return strength
+    }
     var artOnly:Bool = true
     var leaderUnit:Unit?
     var fullCommand:Bool = false

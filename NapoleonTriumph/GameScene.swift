@@ -1025,25 +1025,57 @@ class GameScene: SKScene, NSXMLParserDelegate {
             // Attacker Retreat (if there is a leader, then the whole command effectively retreats - otherwise just the sent unit(s))
             
             for eachGroup in theConflict.attackGroup!.groups {
+                
                 var retreatGroup:GroupSelection!
+                var remainGroup:GroupSelection!
+                
                 if eachGroup.leaderInGroup {
-                    let theGroup = Group(theCommand: eachGroup.command, theUnits: eachGroup.command.activeUnits)
-                    retreatGroup = GroupSelection(theGroups: [theGroup], selectedOnly: false)
+                    
+                    let theRetreatUnits = eachGroup.units
+                    let theRemainUnits = Array(Set(eachGroup.command.activeUnits).subtract(Set(theRetreatUnits)))
+                    
+                    let theRetreatGroup = Group(theCommand: eachGroup.command, theUnits: theRetreatUnits)
+                    let theRemainGroup = Group(theCommand: eachGroup.command, theUnits: theRemainUnits)
+                    
+                    retreatGroup = GroupSelection(theGroups: [theRetreatGroup], selectedOnly: false)
+                    remainGroup = GroupSelection(theGroups: [theRemainGroup], selectedOnly: false)
+                    
                 } else {
+                
                     retreatGroup = GroupSelection(theGroups: [eachGroup], selectedOnly: false)
+                    remainGroup = GroupSelection(theGroups: [], selectedOnly: false)
                 }
                 
-                let newOrder = Order(retreatSelection: retreatGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: theConflict.attackReserve, orderFromView: .Retreat, mapFromView:NTMap!)
-                newOrder.ExecuteOrder()
-                manager!.orders += [newOrder]
-                
-                // Need to set the units as having moved (no need to store order as not undoable)
-                for (_, commandGroup) in newOrder.moveCommands {
-                    for eachCommand in commandGroup {
-                        eachCommand.movedVia = theConflict.attackMoveType!
-                        eachCommand.finishedMove = true
+                if !retreatGroup.groups.isEmpty && retreatGroup.groups[0].unitsStrength > 0 {
+                    
+                    let newOrder = Order(retreatSelection: retreatGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: theConflict.attackReserve as Location, orderFromView: .Retreat, mapFromView: NTMap!)
+                    newOrder.ExecuteOrder()
+                    manager!.orders += [newOrder]
+                    
+                    // Need to set the units as having moved (no need to store order as not undoable)
+                    for (_, commandGroup) in newOrder.moveCommands {
+                        for eachCommand in commandGroup {
+                            eachCommand.movedVia = theConflict.attackMoveType!
+                            eachCommand.finishedMove = true
+                        }
                     }
                 }
+                
+                if !remainGroup.groups.isEmpty && remainGroup.groups[0].unitsStrength > 0 {
+                    
+                    let newOrder = Order(retreatSelection: remainGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: remainGroup.groups[0].command.currentLocation!, orderFromView: .Retreat, mapFromView: NTMap!)
+                    newOrder.ExecuteOrder()
+                    manager!.orders += [newOrder]
+                    
+                    // Need to set the units as having moved (no need to store order as not undoable)
+                    for (_, commandGroup) in newOrder.moveCommands {
+                        for eachCommand in commandGroup {
+                            eachCommand.movedVia = theConflict.attackMoveType!
+                            eachCommand.finishedMove = true
+                        }
+                    }
+                }
+                
             }
 
             // Morale reductions (guard-attack failed)

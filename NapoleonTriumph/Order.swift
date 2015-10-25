@@ -102,7 +102,7 @@ class Order {
     }
     
     // Initiate order (Retreat)
-    init(retreatSelection:GroupSelection, passedGroupConflict:GroupConflict, touchedReserveFromView:Reserve, orderFromView: OrderType, mapFromView:SKSpriteNode) {
+    init(retreatSelection:GroupSelection, passedGroupConflict:GroupConflict, touchedReserveFromView:Location, orderFromView: OrderType, mapFromView:SKSpriteNode) {
         order = orderFromView
         mainMap = mapFromView
         groupSelection = retreatSelection
