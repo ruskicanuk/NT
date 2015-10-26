@@ -46,8 +46,8 @@
      <object id="7" type="Command" units="123.0" corps="false" x="200" y="300" z="0" zRot="0" loc="none" locID="none"/>
      <object id="8" type="Command" units="133.0" corps="false" x="260" y="300" z="0" zRot="0" loc="none" locID="none"/>
      <object id="9" type="Command" units="143.0" corps="false" x="320" y="300" z="0" zRot="0" loc="none" locID="none"/>
-     <object id="10" type="Command" units="211.0 211.0 221.0 233.0 251.1" corps="true" x="400" y="200" z="0" zRot="0" loc="Reserve" locID="3"/>
-     <object id="11" type="Command" units="211.0 211.0 221.0 233.0 251.2" corps="true" x="460" y="200" z="0" zRot="0" loc="Reserve" locID="7"/>
+     <object id="10" type="Command" units="211.0 221.0 233.0 251.1" corps="true" x="400" y="200" z="0" zRot="0" loc="Reserve" locID="3"/>
+     <object id="11" type="Command" units="211.0 221.0 233.0 251.2" corps="true" x="460" y="200" z="0" zRot="0" loc="Reserve" locID="7"/>
      <object id="12" type="Command" units="221.0" corps="false" x="520" y="200" z="0" zRot="0" loc="none" locID="none"/>
      <object id="13" type="Command" units="222.0" corps="false" x="400" y="250" z="0" zRot="0" loc="none" locID="none"/>
      <object id="14" type="Command" units="223.0" corps="false" x="460" y="250" z="0" zRot="0" loc="none" locID="none"/>

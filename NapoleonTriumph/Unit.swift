@@ -30,7 +30,6 @@ class Unit: SKSpriteNode {
     var startedAsGrd:Bool = false
     
     var alreadyDefended:Bool = false
-    var approachDefended:Approach?
     var wasInBattle:Bool = false
     var parentCommand:Command?
     

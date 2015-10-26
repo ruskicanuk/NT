@@ -146,7 +146,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Hide the locations
         HideAllLocations(true)
+        
         NSNotificationCenter.defaultCenter().postNotificationName(SHOWMENU, object: nil)
+
     }
     
     // MARK: TouchedNode and HoldNode
@@ -445,7 +447,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
 
             // Safety checks
             guard let touchedUnit = touchedNode as? Unit else {break}
-            guard let theConflict = manager!.activeThreat?.conflict! else {break}
+            guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
             if touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off || touchedUnit.fixed || manager!.activeThreat == nil {break}
             
             if touchedUnit.parentCommand!.commandSide.Opposite(manager!.actingPlayer)! {
@@ -485,7 +487,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         case (unitName,1,"DefendResponse"):
             
             guard let touchedUnit = touchedNode as? Unit else {break}
-            guard let theConflict = manager!.activeThreat?.conflict! else {break}
+            guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
             if touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off {break}
             if CheckTurnEndViableInDefenseMode(theConflict) {break}
             
@@ -494,37 +496,37 @@ class GameScene: SKScene, NSXMLParserDelegate {
             let theSelectionGroup:GroupSelection = GroupSelection(theGroups: theConflict.defenseGroup!.groups)
 
             // If end-turn condition yet to be reached (if not, run the selection and show the approach)
-            if !theSelectionGroup.groups.isEmpty {manager!.activeThreat!.conflict.defenseApproach.hidden = false}
-            else {manager!.activeThreat!.conflict.defenseApproach.hidden = true}
+            if !theSelectionGroup.groups.isEmpty {manager!.activeThreat!.conflicts[0].defenseApproach.hidden = false}
+            else {manager!.activeThreat!.conflicts[0].defenseApproach.hidden = true}
 
         case (approachName,1,"DefendResponse"):
             
             // Safety check
             guard let touchedApproach = touchedNode as? Approach else {break}
-            let selectedGroups = GroupSelection(theGroups: GroupsIncludeLeaders(manager!.activeThreat!.conflict.defenseGroup!.groups))
+            let selectedGroups = GroupSelection(theGroups: GroupsIncludeLeaders(manager!.activeThreat!.conflicts[0].defenseGroup!.groups))
             if selectedGroups.blocksSelected == 0 {break} // Do nothing
             
             DefendAgainstFeintUI(touchedApproach, theGroupSelection: selectedGroups)
             
-            if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflict) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+            if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflicts[0]) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
             
-            //manager!.activeThreat!.conflict.defenseApproach.hidden = true
+            //manager!.activeThreat!.conflicts[0].defenseApproach.hidden = true
             
         case (mapName,1,"DefendResponse"):
 
-            ToggleGroups(manager!.activeThreat!.conflict.defenseGroup!.groups, makeSelection: .NotSelectable)
-            SelectableGroupsForFeintDefense(manager!.activeThreat!.conflict)
+            ToggleGroups(manager!.activeThreat!.conflicts[0].defenseGroup!.groups, makeSelection: .NotSelectable)
+            SelectableGroupsForFeintDefense(manager!.activeThreat!.conflicts[0])
             
-            if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflict) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+            if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflicts[0]) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
             
-            manager!.activeThreat!.conflict.defenseApproach.hidden = true
+            manager!.activeThreat!.conflicts[0].defenseApproach.hidden = true
 
         // MARK: Leading-units Touch
             
         case (unitName,1,"LeadingUnits"):
             
             // Safety check
-            guard let theConflict = manager!.activeThreat?.conflict! else {break}
+            guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
             guard let touchedUnit = touchedNode as? Unit else {break}
             if touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off {break}
 
@@ -534,7 +536,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         case (mapName,1,"LeadingUnits"):
             
             // Safety check
-            guard let theConflict = manager!.activeThreat?.conflict! else {break}
+            guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
             SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld, resetState: true)
         
         // MARK: Undo
@@ -578,7 +580,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     
                 case .StoodAgainstFeintThreat, .StoodAgainstNormalThreat, .RetreatedBeforeCombat:
                     
-                    guard let theThreat = manager!.activeThreat?.conflict else {break}
+                    guard let theThreat = manager!.activeThreat?.conflicts[0] else {break}
                     let endLocation = manager!.orders.last!.endLocation
                     let startLocation = manager!.orders.last!.startLocation[0]
                     
@@ -609,18 +611,18 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     
                     if manager!.activeThreat != nil {
 
-                        ToggleCommands(manager!.activeThreat!.conflict.defenseGroup!.groups.map{return $0.command},makeSelectable: false)
+                        ToggleCommands(manager!.activeThreat!.conflicts[0].defenseGroup!.groups.map{return $0.command},makeSelectable: false)
 
-                        SelectableGroupsForFeintDefense(manager!.activeThreat!.conflict)
+                        SelectableGroupsForFeintDefense(manager!.activeThreat!.conflicts[0])
                         
-                        manager!.activeThreat!.conflict.defenseApproach.hidden = true
+                        manager!.activeThreat!.conflicts[0].defenseApproach.hidden = true
                         endTurnSelector?.selected = .Off
                     }
                     
                 case .DeclaredAttackers:
                     
-                    manager!.activeThreat?.conflict.attackGroup = nil
-                    manager!.activeThreat?.conflict.attackMoveType == nil
+                    manager!.activeThreat?.conflicts[0].attackGroup = nil
+                    manager!.activeThreat?.conflicts[0].attackMoveType == nil
                     manager!.NewPhase(1, reverse: true, playback: false)
                     break
 
@@ -787,7 +789,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     
                     // Continue-attack mode
                     if manager!.repeatAttackGroup != nil {
-                        if CheckTurnEndViableInCommitMode(theGroupThreat.conflict, endLocation:manager!.repeatAttackGroup!.command.currentLocation!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+                        if CheckTurnEndViableInCommitMode(theGroupThreat.conflicts[0], endLocation:manager!.repeatAttackGroup!.command.currentLocation!) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
                         manager!.currentGroupsSelected = [manager!.repeatAttackGroup!]
                         ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
                         AttackOrdersAvailable()
@@ -797,13 +799,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     // Guard-threat mode
                     if !theGroupThreat.retreatMode && guardSelector?.selected == .On {
                     
-                        theGroupThreat.conflict.guardAttack = true
+                        theGroupThreat.conflicts[0].guardAttack = true
                         
                         // Captures the guard-threat case (no feint option)
                         manager!.NewPhase(1, reverse: false, playback: false)
                         
                         // Initial selection
-                        // SelectableLeadingGroups(theGroupThreat.conflict, thePhase: manager!.phaseOld)
+                        // SelectableLeadingGroups(theGroupThreat.conflicts[0], thePhase: manager!.phaseOld)
                         endTurnSelector?.selected = .On // Always can end turn when selecting leading units
                     }
                     
@@ -815,9 +817,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
                 manager!.NewPhase(1, reverse: false, playback: false)
                 //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-                //SelectableGroupsForFeintDefense(manager!.activeThreat!.conflict)
+                //SelectableGroupsForFeintDefense(manager!.activeThreat!.conflicts[0])
                 
-                if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflict) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+                if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflicts[0]) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
                 undoOrAct = false
                 ResetSelectors()
                
@@ -834,8 +836,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     manager!.NewPhase(2, reverse: false, playback: false)
 
                     //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-                    //SelectableGroupsForFeintDefense(manager!.activeThreat!.conflict)
-                    if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflict) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
+                    //SelectableGroupsForFeintDefense(manager!.activeThreat!.conflicts[0])
+                    if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflicts[0]) {endTurnSelector?.selected = .On} else {endTurnSelector?.selected = .Off}
                 }
                 
                 undoOrAct = false
@@ -847,7 +849,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 if manager!.orders.last?.order == .FeintThreat {
                     
                     let theCode = manager!.NewPhase(2, reverse: false, playback: false)
-                    //manager!.activeThreat = manager!.reserveThreats[0]
+                    manager!.activeThreat = manager!.reserveThreats[0]
                     
                     if theCode == "TurnOnRetreat" {
                         retreatSelector?.selected = .Option
@@ -878,12 +880,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
             case .RealAttack:
                 
                 // Safety check
-                //guard let theConflict = manager!.activeThreat?.conflict! else {break}
+                guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
                 
                 manager!.NewPhase(1, reverse: false, playback: false)
                 
                 endTurnSelector?.selected = .Off
-                //manager!.selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(theConflict)
+                manager!.selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(theConflict)
                 
                 //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
                 
@@ -900,7 +902,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             case .DeclaredLeadingD:
                 
                 // Safety check
-                guard let theConflict = manager!.activeThreat?.conflict! else {break}
+                guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
                 
                 // Sets the attack group, updates defense leading units, whether its a wide attack, available counter-attackers and attack move type
                 theConflict.attackGroup = GroupSelection(theGroups: manager!.currentGroupsSelected)
@@ -931,7 +933,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
             case .DeclaredAttackers:
                 
                 // Safety check
-                guard let theConflict = manager!.activeThreat?.conflict! else {break}
+                guard let theConflict = manager!.activeThreat?.conflicts![0] else {break}
+                manager!.NewPhase(1, reverse: false, playback: false)
                 
                 // Initial selection
                 //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
@@ -942,8 +945,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 newOrder.ExecuteOrder()
                 newOrder.unDoable = false // Can't undo initial result
                 manager!.orders += [newOrder]
-                
-                manager!.NewPhase(1, reverse: false, playback: false)
                 
                 if !theConflict.mayCounterAttack {
                     theConflict.counterAttackLeadingUnits = GroupSelection(theGroups: [])
@@ -972,7 +973,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func ProcessBattle() {
         
         // Safety check
-        guard let theConflict = manager!.activeThreat?.conflict! else {return}
+        guard let theConflict = manager!.activeThreat?.conflicts![0] else {return}
         
         // Those involved in the battle (animate)
         //ToggleGroups(theConflict.counterAttackLeadingUnits!.groups, makeSelection: .Normal)
@@ -1061,7 +1062,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func PostBattleMove(artAttack:Bool = false) {
         
         // Safety check
-        guard let theConflict = manager!.activeThreat?.conflict! else {return}
+        guard let theConflict = manager!.activeThreat?.conflicts![0] else {return}
         
         let moveToNode:SKNode!
         if artAttack {
@@ -1093,9 +1094,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func RetreatPreparation(theCode:String, initialRun:Bool = true) {
         
-        // Safety drill
-        if manager!.activeThreat == nil {return}
-        guard let theThreat = manager!.activeThreat?.conflict else {return}
+        if manager!.activeThreat == nil {manager!.activeThreat = manager!.reserveThreats[0]}
+        guard let theThreat = manager!.activeThreat?.conflicts[0] else {return}
         
         if initialRun && theThreat.approachConflict && manager!.phaseOld != .RetreatAfterCombat { // Threatened occupied approach case
             manager!.NewPhase(1, reverse: false, playback: false)
@@ -1157,7 +1157,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case .StoodAgainstFeintThreat, .StoodAgainstNormalThreat, .RetreatedBeforeCombat:
         
-            guard let theThreat = manager!.activeThreat?.conflict else {break}
+            guard let theThreat = manager!.activeThreat?.conflicts[0] else {break}
             let endLocation = newOrder.endLocation
             let startLocation = newOrder.startLocation[0]
             
@@ -1676,7 +1676,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         else { // Normal click mode
             
-            /*
             var selectedCount = 0
             var normalCount = 0
             var leaderStillSelected:Unit?
@@ -1686,19 +1685,16 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 if eachUnit.selected == .Selected {selectedCount++}
                 else if eachUnit.selected == .Normal {normalCount++}
             }
-            */
             
             if touchedUnit.selected == .Selected {
                 
                 touchedUnit.selected = .Normal
                 if !retreatMode && !parentCommand.hasLeader {ActivateDetached(theReserve, theGroups: selectableGroups, makeSelection: .Normal)}
                 
-                /*
                 // Hanging leader
                 if retreatMode && selectedCount == 2 && leaderStillSelected != nil {
                     leaderStillSelected!.selected = .Normal
                 }
-                */
                 
             } else {
                 
@@ -1707,12 +1703,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 }
                 touchedUnit.selected = .Selected
                 
-                /*
                 // Hanging units
                 if retreatMode && leaderStillSelected == nil && normalCount == 2 {
                     touchedUnit.parentCommand!.theLeader!.selected = .Selected
                 }
-                */
             }
         }
         
@@ -1749,7 +1743,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             else if eachUnit.selected == .Normal {normalCount++}
         }
         if selectedCount == 1 && leaderStillSelected != nil {leaderStillSelected!.selected = .Normal} // Case of hanging leader
-        else if leaderStillSelected == nil && selectedCount == touchedUnit.parentCommand!.activeUnits.count - 1 { // Case of the hanging units
+        else if leaderStillSelected == nil && normalCount == 1 { // Case of the hanging units
             touchedUnit.parentCommand!.theLeader!.selected = .Selected
         }
     }
@@ -1779,6 +1773,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         var maySelectAnotherCorps = false
         var maySelectASecondIndArt = false
+        //var guardInGroup = false
         var requiredLocation:Location?
         var selectableGroups:[Group] = []
         
@@ -1821,6 +1816,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 }
                 
             }
+            
             manager!.currentGroupsSelected = newGroups
             ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
             
@@ -1934,7 +1930,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func AttackOrdersAvailable(setCommands:Bool = true) {
         
-        guard let theConflict = manager!.activeThreat?.conflict else {return}
+        guard let theConflict = manager!.activeThreat?.conflicts[0] else {return}
 
         if setCommands {
             // Set the commands available

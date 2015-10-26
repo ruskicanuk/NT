@@ -75,7 +75,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
                 
                 if overideUnitPriority == [] {
                     let unitToSelect = PriorityLoss(unitsRemaining, unitLossPriority: unitPriority)
-                    if unitToSelect != nil {unitToSelect?.selected = .Selected} else {selectionsAvailable = false}
+                    unitToSelect?.selected = .Selected
                 } else {
                     overideUnitPriority[0].selected = .Selected
                     overideUnitPriority[1].selected = .Selected
@@ -122,7 +122,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
             
             if overideUnitPriority == [] {
                 let unitToSelect = PriorityLoss(unitsRemaining, unitLossPriority: unitPriority)
-                if unitToSelect != nil {unitToSelect?.selected = .Selected} else {selectionsAvailable = false}
+                unitToSelect?.selected = .Selected
             } else {
                 overideUnitPriority[0].selected = .Selected
                 overideUnitPriority[1].selected = .Selected
@@ -136,7 +136,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
             
             for eachUnit in unitsRemaining {
                 
-                if (eachUnit.unitType == .Inf && eachUnit.unitStrength > 1) && theConflict.conflictInitialWinner == theConflict.defenseSide.Other()! {
+                if (eachUnit.unitType == .Inf && eachUnit.unitStrength > 1) {
                     
                     if theFinalInf[eachUnit.parentCommand!] == nil {
                         theFinalInf[eachUnit.parentCommand!] = [eachUnit]
@@ -144,7 +144,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
                         theFinalInf[eachUnit.parentCommand!] = theFinalInf[eachUnit.parentCommand!]! + [eachUnit]
                     }
                     
-                } else if eachUnit.unitType == .Grd && theConflict.conflictInitialWinner == theConflict.defenseSide.Other()! {
+                } else if eachUnit.unitType == .Grd {
                     
                     if theFinalGrd[eachUnit.parentCommand!] == nil {
                         theFinalGrd[eachUnit.parentCommand!] = [eachUnit]
@@ -152,7 +152,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
                         theFinalGrd[eachUnit.parentCommand!] = theFinalGrd[eachUnit.parentCommand!]! + [eachUnit]
                     }
                     
-                } else if eachUnit.unitType == .Cav && eachUnit.unitStrength > 1 && theConflict.conflictInitialWinner != .Neutral {
+                } else if eachUnit.unitType == .Cav && eachUnit.unitStrength > 1 {
                     
                     if theFinalCav[eachUnit.parentCommand!] == nil {
                         theFinalCav[eachUnit.parentCommand!] = [eachUnit]
@@ -160,6 +160,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
                         theFinalCav[eachUnit.parentCommand!] = theFinalCav[eachUnit.parentCommand!]! + [eachUnit]
                     }
                 }
+                
             }
             
             var theLargestPair = 0
@@ -188,8 +189,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
             
             if overideUnitPriority == [] {
                 let unitToSelect = PriorityLoss(unitsRemaining, unitLossPriority: unitPriority)
-                if unitToSelect != nil {unitToSelect?.selected = .Selected} else {selectionsAvailable = false}
-    
+                unitToSelect?.selected = .Selected
             } else {
                 overideUnitPriority[0].selected = .Selected
                 overideUnitPriority[1].selected = .Selected
@@ -211,7 +211,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
                 }
                 if flagArt {break}
                 let unitToSelect = PriorityLoss(unitsRemaining, unitLossPriority: unitPriority)
-                if unitToSelect != nil {unitToSelect?.selected = .Selected} else {selectionsAvailable = false}
+                unitToSelect?.selected = .Selected
              
             default: break
                 
