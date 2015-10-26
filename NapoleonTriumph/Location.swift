@@ -11,7 +11,7 @@ import SpriteKit
 // Used by reserve, approach and start locations
 enum LocationType {
     
-    case Reserve, Approach, Start
+    case Reserve, Approach, Start, Heaven, AustrianBase, FrenchBase
     
 }
 
@@ -115,10 +115,10 @@ class Location:SKSpriteNode {
         var sideLeft:Bool = true // Which side to draw on
         
         // Eliminate zero-unit commands from the occupants
-        for each in self.occupants {
-            if each.unitCount == 0 {self.occupants.removeObject(each)}
-            //else {each.activeUnits.sortInPlace({$0.unitCode > $1.unitCode})}
-        }
+        //for each in self.occupants {
+        //    if each.unitCount == 0 {self.occupants.removeObject(each)}
+        //    //else {each.activeUnits.sortInPlace({$0.unitCode > $1.unitCode})}
+        //}
         
         if self.locationType == .Approach {
             

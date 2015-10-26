@@ -335,6 +335,15 @@ class Command:SKNode {
         if (hasLeader && nonLeaderCount > 1) {isTwoPlusCorps = true}
         unitCount = nonLeaderCount
         
+        // Case of a dead command (place in heaven or resurrect)
+        if nonLeaderCount <= 0 && self.currentLocationType != .Heaven {
+            self.currentLocationType = .Heaven
+            self.currentLocation!.occupants.removeObject(self)
+        } else if self.currentLocationType == .Heaven {
+            self.currentLocationType = self.currentLocation!.locationType
+            self.currentLocation?.occupants += [self]
+        }
+        
         // Reshuffle current location (if units were added/subtracted)
         if reshuffle {self.currentLocation?.reShuffleLocation()}
     }

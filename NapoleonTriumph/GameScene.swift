@@ -1046,7 +1046,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     remainGroup = GroupSelection(theGroups: [], selectedOnly: false)
                 }
                 
-                if !retreatGroup.groups.isEmpty && retreatGroup.groups[0].unitsStrength > 0 {
+                if !retreatGroup.groups.isEmpty && retreatGroup.groupSelectionStrength > 0 {
                     
                     let newOrder = Order(retreatSelection: retreatGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: theConflict.attackReserve as Location, orderFromView: .Retreat, mapFromView: NTMap!)
                     newOrder.ExecuteOrder()
@@ -1061,7 +1061,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     }
                 }
                 
-                if !remainGroup.groups.isEmpty && remainGroup.groups[0].unitsStrength > 0 {
+                if !remainGroup.groups.isEmpty && remainGroup.groupSelectionStrength > 0 {
                     
                     let newOrder = Order(retreatSelection: remainGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: remainGroup.groups[0].command.currentLocation!, orderFromView: .Retreat, mapFromView: NTMap!)
                     newOrder.ExecuteOrder()
@@ -1077,6 +1077,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 }
                 
             }
+            
+            // Unit upkeep and reserve updates (May not be necessary)
+            //for eachOccupant in theConflict.defenseReserve.occupants + theConflict.defenseApproach.occupants + theConflict.attackReserve.occupants + theConflict.attackApproach.occupants {
+            //    eachOccupant.unitsUpkeep()
+            //}
+            //theConflict.defenseReserve.UpdateReserveState()
+            //theConflict.attackReserve.UpdateReserveState()
 
             // Morale reductions (guard-attack failed)
             if theConflict.guardAttack {
@@ -1158,7 +1165,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         }
         else {retreatSelector?.selected = .Off} // Defense mode
         
-        if manager!.phaseOld == .RetreatAfterCombat {
+        if manager!.phaseOld == .RetreatAfterCombat && theThreat.defenseReserve.localeControl == .Neutral {
             PostBattleMove()
         }
         else if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On}

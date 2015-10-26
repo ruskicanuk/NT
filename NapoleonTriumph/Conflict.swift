@@ -229,6 +229,7 @@ class Conflict {
         
         // Check for leader deaths (can only die in battle, retreat reductions and surrender)
         for eachGroup in attackGroup!.groups {
+            
             if !eachGroup.leaderInGroup {continue}
             var totalUnitStrength = 0
             for eachUnit in eachGroup.units {totalUnitStrength += eachUnit.unitStrength}
