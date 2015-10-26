@@ -547,7 +547,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
-				CODE_SIGN_IDENTITY = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
+				CODE_SIGN_IDENTITY = "";
 				INFOPLIST_FILE = NapoleonTriumphUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumphUITests;
@@ -561,7 +561,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
-				CODE_SIGN_IDENTITY = "iPhone Developer: ruski.canuk@gmail.com (35N2EVW3DD)";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				INFOPLIST_FILE = NapoleonTriumphUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.DeepStrategy.NapoleonTriumphUITests;
