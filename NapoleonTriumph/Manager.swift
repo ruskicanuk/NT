@@ -745,15 +745,10 @@ class GameManager {
             ToggleGroups(selectableRetreatGroups, makeSelection: .Normal)
             
             return "TurnOnRetreat"
-            
         }
-        //}
-        //return "TurnOnNothing"
     }
     
     func PostBattleRetreatOrSurrender() -> String {
-        
-        //for eachGroup in reserveThreats {
             
         // Determine selectable retreat groups (everything in the locale)
         selectableRetreatGroups = SelectableGroupsForRetreat(activeThreat!.conflict)
@@ -765,10 +760,6 @@ class GameManager {
         if mustDefend == true {return "TurnOnSurrender"}
         else if selectableRetreatGroups.isEmpty {return "TurnOnSkip"}
         else {activeThreat!.retreatMode = true; ToggleGroups(selectableRetreatGroups, makeSelection: .Normal); return "TurnOnRetreat"}
-     
-        //}
-        //return "TurnOnNothing"
-        
     }
     
     // Returns true if game-end demoralization victory

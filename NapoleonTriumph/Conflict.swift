@@ -394,7 +394,18 @@ class Conflict {
         
         }
     }
+    
+    func ResetUnitsAndLocationsInConflict() {
+        
+        // Unit upkeep and reserve updates (May not be necessary)
+        for eachOccupant in defenseReserve.occupants + defenseApproach.occupants + attackReserve.occupants + attackApproach.occupants {
+            eachOccupant.unitsUpkeep()
+        }
+        defenseReserve.UpdateReserveState()
+        attackReserve.UpdateReserveState()
+    }
 }
+
 class GroupConflict {
     
     var mustRetreat:Bool = false
@@ -457,6 +468,8 @@ class GroupConflict {
     }
     
     func SetupRetreatRequirements() {
+        
+        moraleLossFromRetreat = 0
         
         // Populate the requirements for retreating
         for eachApproach in defenseReserve.ownApproaches {
@@ -595,8 +608,7 @@ class GroupSelection {
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
 
-                }
-                
+                }  
             }
             
             if theUnits.count > 0 {

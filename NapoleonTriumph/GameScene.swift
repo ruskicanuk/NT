@@ -752,6 +752,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 var theCode:String = ""
                 
                 if endTurnSelector?.selected == .Option {
+                    HideAllLocations(true)
                     manager!.NewTurn()
                 } else if endTurnSelector?.selected == .On && manager!.orders.last?.order == .NormalThreat {
                     threatRespondMode = true
@@ -765,8 +766,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 ResetSelectors()
                 
                 if threatRespondMode {RetreatPreparation(theCode)}
-                
-                
                 
             // Defender confirming a retreat or defense
             case .NormalThreat, .FeintThreat:
@@ -960,8 +959,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
             // Defender confirming their retreat move after a lost battle
             case .RetreatAfterCombat:
             
-                PostBattleMove()
+                // Safety check
+                //guard let theConflict = manager!.activeThreat?.conflict! else {break}
 
+                PostBattleMove()
+                
             }
             
         default: break
@@ -975,11 +977,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Safety check
         guard let theConflict = manager!.activeThreat?.conflict! else {return}
-        
-        // Those involved in the battle (animate)
-        //ToggleGroups(theConflict.counterAttackLeadingUnits!.groups, makeSelection: .Normal)
-        //ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .Normal)
-        //ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Normal)
         
         // Reset conflict state
         manager!.activeThreat!.mustDefend = false; manager!.activeThreat!.mustRetreat == false
@@ -1001,9 +998,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
             manager!.NewPhase(1, reverse: false, playback: false)
             
             // Reveal all retreaters
-            var normalCommands:[Command] = []
-            normalCommands = theConflict.defenseReserve.occupants
-            for eachApproach in theConflict.defenseReserve.ownApproaches {normalCommands += eachApproach.occupants}
+            //var normalCommands:[Command] = []
+            //normalCommands = theConflict.defenseReserve.occupants
+            //for eachApproach in theConflict.defenseReserve.ownApproaches {normalCommands += eachApproach.occupants}
             
             manager!.activeThreat!.SetupRetreatRequirements() // Re-seeds the reduce requirements for retreating
             // Morale reductions (after combat retreat)
@@ -1019,9 +1016,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             manager!.NewPhase(2, reverse: false, playback: false)
             
-            //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-            //ToggleGroups(theConflict.attackGroup!.groups, makeSelection: .Off)
-
             // Attacker Retreat (if there is a leader, then the whole command effectively retreats - otherwise just the sent unit(s))
             
             for eachGroup in theConflict.attackGroup!.groups {
@@ -1077,13 +1071,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 }
                 
             }
-            
-            // Unit upkeep and reserve updates (May not be necessary)
-            //for eachOccupant in theConflict.defenseReserve.occupants + theConflict.defenseApproach.occupants + theConflict.attackReserve.occupants + theConflict.attackApproach.occupants {
-            //    eachOccupant.unitsUpkeep()
-            //}
-            //theConflict.defenseReserve.UpdateReserveState()
-            //theConflict.attackReserve.UpdateReserveState()
 
             // Morale reductions (guard-attack failed)
             if theConflict.guardAttack {
@@ -1165,8 +1152,16 @@ class GameScene: SKScene, NSXMLParserDelegate {
         }
         else {retreatSelector?.selected = .Off} // Defense mode
         
-        if manager!.phaseOld == .RetreatAfterCombat && theThreat.defenseReserve.localeControl == .Neutral {
-            PostBattleMove()
+        if manager!.phaseOld == .RetreatAfterCombat {
+            
+            theThreat.ResetUnitsAndLocationsInConflict()
+            
+            // Auto-move into the zone if nothing exists to retreat
+            if theThreat.defenseReserve.localeControl == .Neutral {
+                PostBattleMove()
+            } else {
+                endTurnSelector?.selected = .Off // Requires some retreating
+            }
         }
         else if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnSelector?.selected = .On}
         else {endTurnSelector?.selected = .Off}

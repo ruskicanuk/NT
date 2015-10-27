@@ -1031,6 +1031,7 @@ func CavApproaches(previousReserve:Reserve, currentReserve:Reserve) -> [Approach
     return Array(Set(targetApproaches))
 }
 
+// Returns the active paths of a command and where it is on those paths
 func ActivePaths(commandSelected:Command) -> ([[Reserve]],[Int]) {
     
     var rdIndices:[Int] = []
@@ -1038,16 +1039,23 @@ func ActivePaths(commandSelected:Command) -> ([[Reserve]],[Int]) {
     var paths:[[Reserve]] = []
     let moveSteps:Int = commandSelected.moveNumber
     
+    // Handles the approach case and hasn't moved yet case
+    if commandSelected.currentLocationType != .Reserve {return ([],[])}
+    else if moveSteps == 0 {
+        let theRdReserves = (commandSelected.currentLocation as! Reserve).rdReserves
+        var theRdReserveIndices:[Int] = []
+        for _ in theRdReserves {theRdReserveIndices += [0]}
+        return (theRdReserves, theRdReserveIndices)
+    }
+    
     // Return empty if any approaches, otherwise turn rdMoves into an array of reserves
     for each in commandSelected.rdMoves {
         //print(each.name!)
-        if each is Reserve {currentPath += [each as! Reserve]} else {return (paths,rdIndices)}
+        if each is Reserve {currentPath += [each as! Reserve]} else {return ([],[])}
     }
     
     let rdAvailableReserves = currentPath[0].rdReserves
-    //print(rdAvailableReserves.count)
     
-    // Remove reserves where other units entered the reserve area this turn
     for eachPath in rdAvailableReserves {
         
         var rdIndex:Int = 0
@@ -1082,62 +1090,32 @@ func ActivePaths(commandSelected:Command) -> ([[Reserve]],[Int]) {
 func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
     
     var targetApproaches:[Approach] = []
-    var theReserve:Reserve
-    if theGroup.command.currentLocation is Reserve {theReserve = theGroup.command.currentLocation as! Reserve} else {return []}
+
+    let (thePaths, thePathPositions) = ActivePaths(theGroup.command)
+    if thePaths.isEmpty {return []}
     
-    switch twoPlusCorps {
-        
-    case false:
-        
-        for eachPath in theReserve.rdReserves {
-            for var i = 1; i < eachPath.count; i++ {
-                if i == 1 && (eachPath[i].has2PlusCorpsPassed || manager!.actingPlayer.ContainsEnemy(eachPath[i].localeControl))  {break}
-                if i > 1 {
-                    
-                    if eachPath[i].localeControl == manager?.actingPlayer.Other() {
-                        
-                        // Found a potential enemy to rd feint
-                        var attackToApproach:Approach
-                        (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
-                        
-                        // Double checks that there is capacity if the enemy blocks the feint AND that the approach attacked is is clear
-                        //print(eachPath[i-1].currentFill)
-                        //print(eachPath[i-1].capacity)
-                        //print(eachPath[i].defendersAvailable)
-                        //print(eachPath[i])
-                        if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
-                        if attackToApproach.occupantCount > 0 {break}
-                        
-                        targetApproaches += [attackToApproach]
-                        break
-                        
-                    } else if eachPath[i].has2PlusCorpsPassed {break}
-                }
-            }
-        }
-        
-    case true:
-        
-        for eachPath in theReserve.rdReserves {
-            for var i = 1; i < eachPath.count; i++ {
-                if i == 1 && (eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || manager!.actingPlayer.ContainsEnemy(eachPath[i].containsAdjacent2PlusCorps) || manager!.actingPlayer.ContainsEnemy(eachPath[i].localeControl))  {break}
-                if i > 1 {
-                    
-                    if eachPath[i].localeControl == manager?.actingPlayer.Other() {
-                        
-                        // Found a potential enemy to rd feint
-                        var attackToApproach:Approach
-                        (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
-                        
-                        // Double checks that there is capacity if the enemy blocks the feint AND that the approach attacked is is clear
-                        if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
-                        if attackToApproach.occupantCount > 0 {break}
-                        
-                        targetApproaches += [attackToApproach]; break
-                        
-                    } else if eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || eachPath[i].containsAdjacent2PlusCorps == manager?.actingPlayer.Other() {break}
-                }
-            }
+    let moveNumber = theGroup.command.moveNumber
+    
+    for (index, eachPath) in thePaths.enumerate() {
+        var count = 0
+        for var i = thePathPositions[index] + 1; i < eachPath.count; i++ {
+            count++
+            if moveNumber + count >= eachPath.count {continue}
+
+            if eachPath[i].localeControl == manager!.actingPlayer.Other() {
+                
+                // Found a potential enemy to rd feint
+                var attackToApproach:Approach
+                (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
+                
+                if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
+                if attackToApproach.occupantCount > 0 {break}
+                
+                targetApproaches += [attackToApproach]
+                break // Must break after finding an enemy (path can't go any further)
+                
+            } else if (!twoPlusCorps && eachPath[i].has2PlusCorpsPassed) || (twoPlusCorps && (eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || eachPath[i].containsAdjacent2PlusCorps == manager?.actingPlayer.Other())) {break}
+            
         }
     }
     

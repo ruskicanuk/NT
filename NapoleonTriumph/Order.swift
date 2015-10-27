@@ -205,6 +205,7 @@ class Order {
                     moveCommandArray += [baseGroup!.command]
                 }
             } else if moveType == .CorpsDetach {
+                
                 moveBase.append(false)
                 for eachUnit in baseGroup!.units {
                     let nCommand = Command(creatingCommand: baseGroup!.command, creatingUnits: [])
@@ -218,6 +219,7 @@ class Order {
                 }
                 
             } else if moveType == .IndMove {
+                
                 if baseGroup!.fullCommand {
                     moveBase.append(true)
                     moveCommandArray += [baseGroup!.command]
@@ -263,8 +265,6 @@ class Order {
                 
                 // Add the new commands to their occupants if the base moved (if something was detached in the original location
                 if moveBase[0] && !newCommands.isEmpty {for each in newCommands[0]! {each.currentLocation?.occupants += [each]}}
-                
-                //if playback {break}
                 
                 // Update reserves
                 if endLocation.locationType != .Start {for each in endLocaleReserve!.adjReserves {each.UpdateReserveState()}; endLocaleReserve!.UpdateReserveState()}
@@ -315,13 +315,12 @@ class Order {
                     
                     // Remove the now command (stays in memory due to orders)
                     each.removeFromParent() // Removes from the map
-                    moveToLocation.occupants.removeObject(each) // Removes from the occupants of current location
+                    endLocation.occupants.removeObject(each) // Removes from the occupants of current location
                     manager!.gameCommands[each.commandSide]!.removeObject(each) // Removes from the game list
                     each.selector = nil // Removes the selector (which has a strong reference with the command)
                     
                     // Resets movement of command and child units (note that new commands HAD to have moved 1-step only if they moved at all)
                     if !playback {each.movedVia = .None}
-                    
                 }
             }
             
@@ -340,7 +339,6 @@ class Order {
                     if endLocation.locationType != .Start {baseGroup!.command.moveNumber--}  else {baseGroup?.command.rdMoves = []}
                     if baseGroup!.command.moveNumber == 0 {baseGroup!.command.movedVia = .None}
                     baseGroup!.command.finishedMove = false
-                    
                 }
                 
             } else {
@@ -382,7 +380,6 @@ class Order {
                     let afterLoss = manager!.morale[theSide]!
                     reverseGrdCommit = (true, beforeLoss - afterLoss)
                 }
-                
             }
             
             for eachGroup in groupSelection!.groups {
@@ -439,7 +436,6 @@ class Order {
                     eachCommand.currentLocation = moveToLocation
                     moveToLocation.occupants += [eachCommand]
                     startLocation[i].occupants.removeObject(eachCommand)
-                    
                 }
             }
             
@@ -483,7 +479,6 @@ class Order {
                         eachCommand.selector = nil
                     }
                 }
-
             }
             
             // May need to release the must-retreat condition
@@ -499,14 +494,12 @@ class Order {
                     manager!.guardCommitted[theSide] = false
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
                 }
-                
                 // All retreat cases other than attacker retreat
                 if !(theGroupConflict != nil && theGroupConflict!.conflict.attackReserve == endLocation) {
                     theGroupConflict?.retreatOrders--
                     if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
                     manager!.ResetRetreatDefenseSelection()
                 }
-                
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
                 startLocaleReserve!.UpdateReserveState()
@@ -894,7 +887,7 @@ class Order {
             
         case (false, .FinalBattle):
             if !playback {
-                theGroupConflict!.SetupRetreatRequirements()
+                //theGroupConflict!.SetupRetreatRequirements() <-- This should be done only in the case of attacker victory
                 theGroupConflict!.conflict.ApplyCounterLosses()
                 theGroupConflict!.conflict.FinalResult()
             }
