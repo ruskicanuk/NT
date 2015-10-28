@@ -709,52 +709,7 @@ class GameManager {
             // Surrender Case
             if eachGroup.mustRetreat == true && eachGroup.mustDefend == true {eachGroup.retreatMode = true; return "TurnOnSurrender"}
             
-<<<<<<< HEAD
-            // If not surrender case and must retreat is on
-            if eachGroup.mustRetreat {eachGroup.retreatMode = true}
-            
-            // After we finish all threats for a reserve, set the available move-to locations and toggle selectable groups on
-            if !eachGroup.retreatMode { // All threats for a given reserve must be in the same initial threat-mode
-                
-                // Turns on the selectable units
-                ToggleGroups(selectableDefenseGroups, makeSelection: .Normal)
-                
-                // Ensure each attack threat is visible (normally this is set automatically when defense mode is set)
-                //for eachThreat in eachGroup.conflicts {eachThreat.defenseApproach.hidden = false}
-                
-                return "TurnOnFeint"
-                
-            } else {
-                
-                // Turns on the selectable units
-                ToggleGroups(selectableRetreatGroups, makeSelection: .Normal)
-                
-                return "TurnOnRetreat"
-                
-            }
-        }
-        return "TurnOnNothing"
-    }
-    
-    func PostBattleRetreatOrSurrender() -> String {
-        
-        for eachGroup in reserveThreats {
-            
-            // Determine selectable retreat groups (everything in the locale)
-            selectableRetreatGroups = SelectableGroupsForRetreat(eachGroup.conflicts[0])
-            
-            // Determines whether there is a forced retreat condition
-            let (_, mustDefend) = CheckForcedRetreatOrDefend(eachGroup)
-            
-            // Surrender Case
-            if mustDefend == true {return "TurnOnSurrender"}
-            else if selectableRetreatGroups.isEmpty {return "TurnOnSkip"}
-            else {eachGroup.retreatMode = true; ToggleGroups(selectableRetreatGroups, makeSelection: .Normal); return "TurnOnRetreat"}
-     
-        }
-        return "TurnOnNothing"
-        
-=======
+
             return "TurnOnRetreat"
         }
     }
@@ -771,7 +726,6 @@ class GameManager {
         if mustDefend == true {return "TurnOnSurrender"}
         else if selectableRetreatGroups.isEmpty {return "TurnOnSkip"}
         else {activeThreat!.retreatMode = true; ToggleGroups(selectableRetreatGroups, makeSelection: .Normal); return "TurnOnRetreat"}
->>>>>>> LatestMaster
     }
     
     // Returns true if game-end demoralization victory

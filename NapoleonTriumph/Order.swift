@@ -829,13 +829,9 @@ class Order {
                 // Commit morale loss tracker
                 if !playback {
                     
-<<<<<<< HEAD
-                    guard let theSide = theGroupConflict?.conflicts[0].defenseSide else {break}
-                    
-=======
+
                     guard let theSide = theGroupConflict?.conflict.defenseSide else {break}
                     //print("B4 Surrender Commiting: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
->>>>>>> LatestMaster
                     for (eachUnit, _) in surrenderDict {
                         
                         if eachUnit.unitStrength == 3 && eachUnit.unitType == .Cav && !manager!.heavyCavCommited[theSide]! {
@@ -892,15 +888,10 @@ class Order {
             
         case (false, .FinalBattle):
             if !playback {
-<<<<<<< HEAD
-                theGroupConflict!.SetupRetreatRequirements()
-                theGroupConflict!.conflicts[0].ApplyCounterLosses()
-                theGroupConflict!.conflicts[0].FinalResult()
-=======
+
                 //theGroupConflict!.SetupRetreatRequirements() <-- This should be done only in the case of attacker victory
                 theGroupConflict!.conflict.ApplyCounterLosses()
                 theGroupConflict!.conflict.FinalResult()
->>>>>>> LatestMaster
             }
             // Animate
             
