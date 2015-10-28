@@ -175,14 +175,14 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         
     }
     
-    // Reserve scenarios, all adjacent locations
-    if scenario == 2 || scenario == 3 || scenario == 4 {
+    // All reserve scenarios
+    if scenario > 1 {
      
         for eachAdjReserve in currentReserve!.adjReserves {
             
-            // This checks if it is a road (if
+            // This checks if it is likely and end-rd move
             for eachReservePath in currentReserve!.rdReserves {
-                if eachReservePath[1] == eachAdjReserve {finalReserveMoves += [eachAdjReserve]}
+                if eachReservePath.contains(eachAdjReserve) && moveNumber < eachReservePath.count-2 {finalReserveMoves += [eachAdjReserve]}
             }
             
             if !eachAdjReserve.has2PlusCorpsPassed {adjAvailableReserves += [eachAdjReserve]}
@@ -190,9 +190,11 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         
         // Need to take those without a road as the "final" group
         finalReserveMoves = Array(Set(adjAvailableReserves).subtract(Set(finalReserveMoves))) // Ensure the array is unique
-        
+    }
+    
+    // Set reserve's approaches as adjacent available approaches for those who haven't moved
+    if scenario == 2 || scenario == 3 || scenario == 4 {
         for each in currentReserve!.ownApproaches {adjAvailableApproaches += [each]}
-        
     }
     
     // Move each enemy occupied adj move into the Attack bucket
@@ -755,7 +757,7 @@ func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState,
         
         // Possible move locations after moving into a retreat locale
         var theMoveOptions:[SKNode] = []
-        let (theReserves, theApproaches, rdBlock) = GroupMayMoveByRd(theGroup, twoPlusCorps:(theGroup.nonLdrUnitCount > 1))
+        let (theReserves, theApproaches, rdBlock) = GroupMayMoveByRd(theGroup, twoPlusCorps:(theGroup.nonLdrUnitCount > 1), mustBeCav: true)
         
         if !rdBlock {
             theMoveOptions += EnemyRdTargets(theGroup, twoPlusCorps:(theGroup.nonLdrUnitCount > 1)) as [SKNode]
@@ -1060,6 +1062,7 @@ func CavApproaches(previousReserve:Reserve, currentReserve:Reserve) -> [Approach
     return Array(Set(targetApproaches))
 }
 
+// Returns the active paths of a command and where it is on those paths
 func ActivePaths(commandSelected:Command) -> ([[Reserve]],[Int]) {
     
     var rdIndices:[Int] = []
@@ -1067,16 +1070,23 @@ func ActivePaths(commandSelected:Command) -> ([[Reserve]],[Int]) {
     var paths:[[Reserve]] = []
     let moveSteps:Int = commandSelected.moveNumber
     
+    // Handles the approach case and hasn't moved yet case
+    if commandSelected.currentLocationType != .Reserve {return ([],[])}
+    else if moveSteps == 0 {
+        let theRdReserves = (commandSelected.currentLocation as! Reserve).rdReserves
+        var theRdReserveIndices:[Int] = []
+        for _ in theRdReserves {theRdReserveIndices += [0]}
+        return (theRdReserves, theRdReserveIndices)
+    }
+    
     // Return empty if any approaches, otherwise turn rdMoves into an array of reserves
     for each in commandSelected.rdMoves {
         //print(each.name!)
-        if each is Reserve {currentPath += [each as! Reserve]} else {return (paths,rdIndices)}
+        if each is Reserve {currentPath += [each as! Reserve]} else {return ([],[])}
     }
     
     let rdAvailableReserves = currentPath[0].rdReserves
-    //print(rdAvailableReserves.count)
     
-    // Remove reserves where other units entered the reserve area this turn
     for eachPath in rdAvailableReserves {
         
         var rdIndex:Int = 0
@@ -1111,62 +1121,32 @@ func ActivePaths(commandSelected:Command) -> ([[Reserve]],[Int]) {
 func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
     
     var targetApproaches:[Approach] = []
-    var theReserve:Reserve
-    if theGroup.command.currentLocation is Reserve {theReserve = theGroup.command.currentLocation as! Reserve} else {return []}
+
+    let (thePaths, thePathPositions) = ActivePaths(theGroup.command)
+    if thePaths.isEmpty {return []}
     
-    switch twoPlusCorps {
-        
-    case false:
-        
-        for eachPath in theReserve.rdReserves {
-            for var i = 1; i < eachPath.count; i++ {
-                if i == 1 && (eachPath[i].has2PlusCorpsPassed || manager!.actingPlayer.ContainsEnemy(eachPath[i].localeControl))  {break}
-                if i > 1 {
-                    
-                    if eachPath[i].localeControl == manager?.actingPlayer.Other() {
-                        
-                        // Found a potential enemy to rd feint
-                        var attackToApproach:Approach
-                        (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
-                        
-                        // Double checks that there is capacity if the enemy blocks the feint AND that the approach attacked is is clear
-                        //print(eachPath[i-1].currentFill)
-                        //print(eachPath[i-1].capacity)
-                        //print(eachPath[i].defendersAvailable)
-                        //print(eachPath[i])
-                        if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
-                        if attackToApproach.occupantCount > 0 {break}
-                        
-                        targetApproaches += [attackToApproach]
-                        break
-                        
-                    } else if eachPath[i].has2PlusCorpsPassed {break}
-                }
-            }
-        }
-        
-    case true:
-        
-        for eachPath in theReserve.rdReserves {
-            for var i = 1; i < eachPath.count; i++ {
-                if i == 1 && (eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || manager!.actingPlayer.ContainsEnemy(eachPath[i].containsAdjacent2PlusCorps) || manager!.actingPlayer.ContainsEnemy(eachPath[i].localeControl))  {break}
-                if i > 1 {
-                    
-                    if eachPath[i].localeControl == manager?.actingPlayer.Other() {
-                        
-                        // Found a potential enemy to rd feint
-                        var attackToApproach:Approach
-                        (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
-                        
-                        // Double checks that there is capacity if the enemy blocks the feint AND that the approach attacked is is clear
-                        if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
-                        if attackToApproach.occupantCount > 0 {break}
-                        
-                        targetApproaches += [attackToApproach]; break
-                        
-                    } else if eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || eachPath[i].containsAdjacent2PlusCorps == manager?.actingPlayer.Other() {break}
-                }
-            }
+    let moveNumber = theGroup.command.moveNumber
+    
+    for (index, eachPath) in thePaths.enumerate() {
+        var count = 0
+        for var i = thePathPositions[index] + 1; i < eachPath.count; i++ {
+            count++
+            if moveNumber + count >= eachPath.count {continue}
+
+            if eachPath[i].localeControl == manager!.actingPlayer.Other() {
+                
+                // Found a potential enemy to rd feint
+                var attackToApproach:Approach
+                (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
+                
+                if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
+                if attackToApproach.occupantCount > 0 {break}
+                
+                targetApproaches += [attackToApproach]
+                break // Must break after finding an enemy (path can't go any further)
+                
+            } else if (!twoPlusCorps && eachPath[i].has2PlusCorpsPassed) || (twoPlusCorps && (eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || eachPath[i].containsAdjacent2PlusCorps == manager?.actingPlayer.Other())) {break}
+            
         }
     }
     
@@ -1174,10 +1154,10 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
 }
 
 // Returns the viable reserves that the group can move to and the approaches of enemy occupied locations which would otherwise be rd-move worthy
-func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false) -> ([Reserve],[Approach],Bool) {
+func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false, mustBeCav:Bool = false) -> ([Reserve],[Approach],Bool) {
     
     // Safety check
-    if !theGroup.allCav || theGroup.command.finishedMove {return ([],[], true)}
+    if (!theGroup.allCav && mustBeCav) || theGroup.command.finishedMove {return ([],[], true)}
     let (thePaths, pathIndices) = ActivePaths(theGroup.command)
     if thePaths.isEmpty {return([],[], true)}
     let moveNumber = theGroup.command.moveNumber

@@ -227,6 +227,30 @@ class Conflict {
         let actualAttackerLosses = ApplyBattleLosses(true, overallLossTarget: attackerLossTarget)
         let actualDefenderLosses = ApplyBattleLosses(false, overallLossTarget: defenderLossTarget) + counterAttackLeadingUnits!.blocksSelected
         
+        // Check for leader deaths (can only die in battle, retreat reductions and surrender)
+        for eachGroup in attackGroup!.groups {
+            
+            if !eachGroup.leaderInGroup {continue}
+            var totalUnitStrength = 0
+            for eachUnit in eachGroup.units {totalUnitStrength += eachUnit.unitStrength}
+            
+            // Destroy the leader
+            if totalUnitStrength == 1 { // Leader only
+                eachGroup.leaderUnit!.decrementStrength(true)
+                if eachGroup.leaderUnit!.unitSide == .French {manager!.player2CorpsCommands--}
+            }
+        }
+        for eachGroup in defenseGroup!.groups {
+            if !eachGroup.command.hasLeader {continue}
+            let totalUnitStrength = eachGroup.command.unitsTotalStrength
+            
+            // Destroy the leader
+            if totalUnitStrength == 0 { // Leader only
+                eachGroup.command.theLeader!.decrementStrength(true)
+                if eachGroup.command.theLeader!.unitSide == .French {manager!.player2CorpsCommands--}
+            }
+        }
+        
         // Morale reductions
         if conflictFinalWinner == defenseSide {
             manager!.ReduceMorale(actualAttackerLosses, side: defenseSide.Other()!, mayDemoralize: true)
@@ -283,7 +307,7 @@ class Conflict {
                     lossCategory = 2
                     for eachGroup in attackGroup!.groups {
                         for eachUnit in eachGroup.units {
-                            if eachUnit.unitStrength > 0 {threatenedUnits += [eachUnit]}
+                            if eachUnit.unitStrength > 0 && eachUnit.unitType != .Ldr {threatenedUnits += [eachUnit]}
                         }
                     }
                 }
@@ -370,7 +394,18 @@ class Conflict {
         
         }
     }
+    
+    func ResetUnitsAndLocationsInConflict() {
+        
+        // Unit upkeep and reserve updates (May not be necessary)
+        for eachOccupant in defenseReserve.occupants + defenseApproach.occupants + attackReserve.occupants + attackApproach.occupants {
+            eachOccupant.unitsUpkeep()
+        }
+        defenseReserve.UpdateReserveState()
+        attackReserve.UpdateReserveState()
+    }
 }
+
 class GroupConflict {
     
     var mustRetreat:Bool = false
@@ -448,6 +483,8 @@ class GroupConflict {
     
     func SetupRetreatRequirements() {
         
+        moraleLossFromRetreat = 0
+        
         // Populate the requirements for retreating
         for eachApproach in defenseReserve.ownApproaches {
             var potentialLosses:Int = 0
@@ -501,6 +538,11 @@ class Group {
         for each in units {if each.unitType != .Ldr {theUnits += [each]}}
         return theUnits
     }
+    var unitsStrength:Int {
+        var strength = 0
+        for each in units {if each.unitType != .Ldr {strength += each.unitStrength}}
+        return strength
+    }
     var artOnly:Bool = true
     var leaderUnit:Unit?
     var fullCommand:Bool = false
@@ -526,11 +568,7 @@ class Group {
             if eachUnit.unitType == .Grd {guardInGroup = true}
         }
         
-        if leaderInGroup && (nonLdrUnitCount+1) == command.unitCount {
-            fullCommand = true
-        } else if !leaderInGroup && nonLdrUnitCount == command.unitCount {
-            fullCommand = true
-        }
+        if nonLdrUnitCount == command.unitCount {fullCommand = true}
     }
     
 }
@@ -585,8 +623,7 @@ class GroupSelection {
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
 
-                }
-                
+                }  
             }
             
             if theUnits.count > 0 {

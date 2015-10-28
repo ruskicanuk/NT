@@ -709,6 +709,7 @@ class GameManager {
             // Surrender Case
             if eachGroup.mustRetreat == true && eachGroup.mustDefend == true {eachGroup.retreatMode = true; return "TurnOnSurrender"}
             
+<<<<<<< HEAD
             // If not surrender case and must retreat is on
             if eachGroup.mustRetreat {eachGroup.retreatMode = true}
             
@@ -753,6 +754,24 @@ class GameManager {
         }
         return "TurnOnNothing"
         
+=======
+            return "TurnOnRetreat"
+        }
+    }
+    
+    func PostBattleRetreatOrSurrender() -> String {
+            
+        // Determine selectable retreat groups (everything in the locale)
+        selectableRetreatGroups = SelectableGroupsForRetreat(activeThreat!.conflict)
+        
+        // Determines whether there is a forced retreat condition
+        let (_, mustDefend) = CheckForcedRetreatOrDefend(activeThreat!)
+        
+        // Surrender Case
+        if mustDefend == true {return "TurnOnSurrender"}
+        else if selectableRetreatGroups.isEmpty {return "TurnOnSkip"}
+        else {activeThreat!.retreatMode = true; ToggleGroups(selectableRetreatGroups, makeSelection: .Normal); return "TurnOnRetreat"}
+>>>>>>> LatestMaster
     }
     
     // Returns true if game-end demoralization victory

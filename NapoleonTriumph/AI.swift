@@ -8,6 +8,8 @@
 
 import SpriteKit
 
+// MARK: Auto AI
+
 func SelectLeadingUnits(theConflict:Conflict) {
     
     var selectionsAvailable = true
@@ -222,3 +224,6 @@ func SelectLeadingUnits(theConflict:Conflict) {
     } while selectionsAvailable
     
 }
+
+// MARK: Variable AI
+
