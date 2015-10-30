@@ -143,7 +143,7 @@ class Conflict {
         // sets all participants to "was in battle" if it isn't an artillery shot
         if artLead {
             defenseApproach.mayArtAttack = false
-            } else {
+        } else {
             defenseApproach.mayArtAttack = false
             defenseApproach.mayNormalAttack = false
             for eachGroup in attackGroup!.groups + defenseGroup!.groups {
@@ -176,7 +176,7 @@ class Conflict {
         // Store whether counter-attack is possible and the turn of any artillery shooting
         if artLead {mayCounterAttack = false; attackApproach.turnOfLastArtVolley = manager!.turn}
         if counterAttackGroup!.groups.isEmpty {mayCounterAttack = false}
-        else if conflictFinalWinner == defenseSide && !counterAttackGroup!.containsTwoOrThreeStrCav {mayCounterAttack = false}
+        else if conflictInitialWinner == defenseSide && !counterAttackGroup!.containsTwoOrThreeStrCav {mayCounterAttack = false}
     }
     
     func ApplyCounterLosses() {
@@ -410,17 +410,8 @@ class GroupConflict {
     
     var mustRetreat:Bool = false
     var mustDefend:Bool = false
-    var retreatMode:Bool = false /*{
-        
-        didSet {
-            if retreatMode {
-                for eachConflict in conflicts {eachConflict.defenseApproach.hidden = true}
-            } else {
-                for eachConflict in conflicts {eachConflict.defenseApproach.hidden = false}
-            }
-        }
+    var retreatMode:Bool = false
 
-    } */
     // Used to store number of orders for the purposes of releasing the mustRetreat / mustDefend condition when un-doing
     var retreatOrders:Int = 0
     var defenseOrders:Int = 0
@@ -437,48 +428,43 @@ class GroupConflict {
     }
     
     let defenseReserve:Reserve!
-    let conflicts:[Conflict]!
+    let conflict:Conflict!
     var threatenedApproaches:[Approach] = []
     var defendedApproaches:[Approach] = []
     var unresolvedApproaches:[Approach] {
         return Array(Set(threatenedApproaches).subtract(Set(defendedApproaches)))
     }
+    
     var initialReductionsRequired:Int {
         var totalRequired:Int = 0
         for (_, reduction) in destroyRequired {totalRequired += reduction}
         for (_, reduction) in damageRequired {totalRequired += reduction}
         return totalRequired
     }
+    
     var damageRequired:[Location:Int] = [:]
     var destroyRequired:[Location:Int] = [:]
     var damageDelivered:[Location:Int] = [:]
     var destroyDelivered:[Location:Int] = [:]
     var moraleLossFromRetreat = 0
-    //var battledLocations:[Location] = []
     
-    init(passReserve:Reserve, passConflicts:[Conflict]) {
+    init(passReserve:Reserve, passConflict:Conflict) {
 
         defenseReserve = passReserve
-        conflicts = passConflicts
+        conflict = passConflict
         if defenseReserve.has2PlusCorps == .Neutral {twoPlusCorps = false} else {twoPlusCorps = true} // Saves whether the reserve has a two-plus Corps
-        
-        for eachConflict in conflicts {
-            threatenedApproaches += [eachConflict.defenseApproach]
-            eachConflict.parentGroupConflict = self
-            // These are occupied approaches being threatened (all defenders on the approach are added automatically to the defense group)
 
-            if eachConflict.defenseApproach.occupantCount > 0 {
-                defendedApproaches += [eachConflict.defenseApproach]
-                eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false), selectedOnly: false)
-                eachConflict.defenseGroup!.SetGroupSelectionPropertyUnitsHaveDefended(true)
-                eachConflict.approachConflict = true
-            }
+        threatenedApproaches += [conflict.defenseApproach]
+        conflict.parentGroupConflict = self
+
+        if conflict.defenseApproach.occupantCount > 0 {
+            defendedApproaches += [conflict.defenseApproach]
+            conflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(conflict.defenseApproach.occupants, includeLeader: false), selectedOnly: false)
+            conflict.defenseGroup!.SetGroupSelectionPropertyUnitsHaveDefended(true, approachDefended: conflict.defenseApproach)
+            conflict.approachConflict = true
         }
         
         SetupRetreatRequirements()
-        
-        // If there is an undefended threat with not enough available defenders
-        //if unresolvedApproaches.count > defenseReserve.defendersAvailable {mustRetreat = true; retreatMode = true}
     }
     
     func SetupRetreatRequirements() {
@@ -505,7 +491,7 @@ class GroupConflict {
         }
         
         let maxWidth:Int!
-        switch (conflicts[0].defenseApproach.wideApproach) {
+        switch (conflict.defenseApproach.wideApproach) {
         case true: maxWidth = 2
         case false: maxWidth = 1
         }
@@ -576,7 +562,6 @@ class Group {
 class GroupSelection {
     
     var groups:[Group] = []
-    //var groupSelectionSize:Int = 0 // Number of blocks in the group
     
     var sameTypeSameCorps:Bool = false
     var sameType:Bool = false
@@ -635,13 +620,13 @@ class GroupSelection {
         unitsTypes = Array(Set(unitsTypes))
         if unitsTypes.count == 1 && numberCorps == 1 && numberDetached == 0 {sameTypeSameCorps = true}
         if unitsTypes.count == 1 && numberCorps <= 2 && numberDetached == 0 {sameType = true}
-        
     }
     
-    func SetGroupSelectionPropertyUnitsHaveDefended(onOff:Bool) {
+    func SetGroupSelectionPropertyUnitsHaveDefended(onOff:Bool, approachDefended: Approach) {
         for eachGroup in self.groups {
             for eachUnit in eachGroup.units {
-                eachUnit.alreadyDefended = onOff
+                if onOff {eachUnit.alreadyDefended = true; eachUnit.approachDefended = approachDefended}
+                else {eachUnit.alreadyDefended = false; eachUnit.approachDefended = nil}
             }
         }
     }

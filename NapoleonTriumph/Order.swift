@@ -143,8 +143,8 @@ class Order {
     init(passedGroupConflict: GroupConflict, orderFromView: OrderType) {
         order = orderFromView
         theGroupConflict = passedGroupConflict
-        startLocation = [theGroupConflict!.conflicts[0].attackReserve!]
-        endLocation = theGroupConflict!.conflicts[0].defenseApproach!
+        startLocation = [theGroupConflict!.conflict.attackReserve!]
+        endLocation = theGroupConflict!.conflict.defenseApproach!
     }
     
     // MARK: Order Functions
@@ -253,7 +253,7 @@ class Order {
                     moveToLocation.occupants += [each]
                     
                     // Update command movement trackers
-                    if startLocation[0].locationType != .Start && startLocation[0] != endLocation {each.moveNumber++} else {each.moveNumber = 0} // # of steps moved
+                    if startLocation[0].locationType != .Start && startLocation[0] != endLocation {each.moveNumber++} else {each.moveNumber = 0; each.hasMoved = true} // # of steps moved (may need to fiddle with hasMoved)
                     if manager!.actingPlayer.ContainsEnemy(endLocaleReserve!.containsAdjacent2PlusCorps) && each.isTwoPlusCorps {each.finishedMove = true}
                     if startLocation[0] == endLocation {each.finishedMove = true} // Rare case for attack moves when declaring a move "in place"
                     if !moveBase[0] {each.movedVia = moveType!} else {baseGroup!.command.movedVia = moveType!} // Detached move ends move (no road movement)
@@ -442,7 +442,7 @@ class Order {
             if !playback {
                 
                 // Catches the mysterious case of attacker retreats
-                if !(theGroupConflict != nil && theGroupConflict!.conflicts[0].attackReserve == endLocation) {
+                if !(theGroupConflict != nil && theGroupConflict!.conflict.attackReserve == endLocation) {
                     theGroupConflict?.retreatOrders++
                     theGroupConflict?.mustRetreat = true
                     manager!.ResetRetreatDefenseSelection()
@@ -495,7 +495,7 @@ class Order {
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
                 }
                 // All retreat cases other than attacker retreat
-                if !(theGroupConflict != nil && theGroupConflict!.conflicts[0].attackReserve == endLocation) {
+                if !(theGroupConflict != nil && theGroupConflict!.conflict.attackReserve == endLocation) {
                     theGroupConflict?.retreatOrders--
                     if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
                     manager!.ResetRetreatDefenseSelection()
@@ -829,7 +829,6 @@ class Order {
                 // Commit morale loss tracker
                 if !playback {
                     
-
                     guard let theSide = theGroupConflict?.conflict.defenseSide else {break}
                     //print("B4 Surrender Commiting: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
                     for (eachUnit, _) in surrenderDict {
@@ -863,7 +862,7 @@ class Order {
             // Reverse the morale losses
             if !playback {
                 
-                guard let theSide = theGroupConflict?.conflicts[0].defenseSide else {break}
+                guard let theSide = theGroupConflict?.conflict.defenseSide else {break}
                 if reverseCavCommit.0 {
                     manager!.heavyCavCommited[theSide] = false
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseCavCommit.1
@@ -880,7 +879,7 @@ class Order {
         // MARK: Battle
             
         case (false, .InitialBattle):
-            if !playback {theGroupConflict!.conflicts[0].InitialResult()}
+            if !playback {theGroupConflict!.conflict.InitialResult()}
             // Animate
             
         case (true, .InitialBattle):
@@ -888,7 +887,6 @@ class Order {
             
         case (false, .FinalBattle):
             if !playback {
-
                 //theGroupConflict!.SetupRetreatRequirements() <-- This should be done only in the case of attacker victory
                 theGroupConflict!.conflict.ApplyCounterLosses()
                 theGroupConflict!.conflict.FinalResult()

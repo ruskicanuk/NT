@@ -261,6 +261,30 @@ enum oldGamePhase {
 
 // MARK: Game Manager
 
+/*
+
+gameCommands
+priorityLosses
+priorityLeaderAndBattle
+
+selectableDefenseGroups
+selectableRetreatGroups
+selectableAttackGroups
+selectableAttackByRoadGroups
+selectableAttackAdjacentGroups
+
+currentGroupsSelected
+
+repeatAttackGroup
+repeatAttackMoveNumber
+
+selectionRetreatReserves
+
+activeThreat
+
+*/
+
+
 class GameManager {
 
     var gameCommands:[Allegience:[Command]] = [.Austrian:[], .French:[]]
@@ -282,10 +306,10 @@ class GameManager {
     var selectionRetreatReserves:[Reserve] = [] // Stores viable retreat reserves for the current selection
     //var defendingGroups:[Approach:[Group]]? // Used to store defenders for a current attack
     //var attackingGroups:[Approach:[Group]]?
-    var reserveThreats:[GroupConflict] = []
+    //var reserveThreats:[GroupConflict] = []
     var activeThreat:GroupConflict?
     
-    var approachThreats:[Approach:Conflict] = [:]
+    //var approachThreats:[Approach:Conflict] = [:]
     //var theThreatsRetreatStatus:[Reserve:Bool] = [:] // Stores which mode (retreat or defend) each threat is in
     //var defendingLeading
     
@@ -423,7 +447,7 @@ class GameManager {
         case .FeintThreat, .NormalThreat:
             
             // Setup the threat-groups and setup the retreat and defense selection groups @ Will need to go through all orders in "new version"
-            SetupThreats()
+            SetupThreat()
             
             // Return the code (whether forced retreat / defend)
             return ResetRetreatDefenseSelection()
@@ -432,49 +456,51 @@ class GameManager {
             
             // Set selectable commands
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
-            selectableAttackByRoadGroups = SelectableGroupsForAttackByRoad(activeThreat!.conflicts[0])
-            selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeThreat!.conflicts[0])
+            selectableAttackByRoadGroups = SelectableGroupsForAttackByRoad(activeThreat!.conflict)
+            selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeThreat!.conflict)
             ToggleGroups(selectableAttackByRoadGroups, makeSelection: .Normal)
             ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
         
         case .FeintMove:
             
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
-            SelectableGroupsForFeintDefense(activeThreat!.conflicts[0])
+            SelectableGroupsForFeintDefense(activeThreat!.conflict)
         
         case .RealAttack:
             
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
             
-            SelectableLeadingGroups(activeThreat!.conflicts[0], thePhase: phaseOld)
-            SelectLeadingUnits(activeThreat!.conflicts[0])
+            SelectableLeadingGroups(activeThreat!.conflict, thePhase: phaseOld)
+            SelectLeadingUnits(activeThreat!.conflict)
             
         case .DeclaredLeadingD:
             
             // Defense leading units visible to attacker
+            selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeThreat!.conflict)
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
             ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
-            ToggleGroups(activeThreat!.conflicts[0].defenseLeadingUnits!.groups, makeSelection: .Selected)
+            ToggleGroups(activeThreat!.conflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
         
         case .DeclaredAttackers:
             
             // Defense leading units visible to attacker
-            ToggleGroups(activeThreat!.conflicts[0].attackGroup!.groups, makeSelection: .Normal)
-            ToggleGroups(activeThreat!.conflicts[0].defenseGroup!.groups, makeSelection: .NotSelectable)
-            ToggleGroups(activeThreat!.conflicts[0].defenseLeadingUnits!.groups, makeSelection: .Selected)
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleGroups(activeThreat!.conflict.attackGroup!.groups, makeSelection: .Normal)
+            ToggleGroups(activeThreat!.conflict.defenseGroup!.groups, makeSelection: .NotSelectable)
+            ToggleGroups(activeThreat!.conflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
             
-            SelectableLeadingGroups(activeThreat!.conflicts[0], thePhase: phaseOld)
-            SelectLeadingUnits(activeThreat!.conflicts[0])
+            SelectableLeadingGroups(activeThreat!.conflict, thePhase: phaseOld)
+            SelectLeadingUnits(activeThreat!.conflict)
             
         case .DeclaredLeadingA:
             
             // Attack leading units visible to defender
             ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
-            ToggleGroups(activeThreat!.conflicts[0].attackLeadingUnits!.groups, makeSelection: .Selected)
+            ToggleGroups(activeThreat!.conflict.attackLeadingUnits!.groups, makeSelection: .Selected)
             
-            if activeThreat!.conflicts[0].mayCounterAttack {
-                ToggleGroups(activeThreat!.conflicts[0].counterAttackGroup!.groups, makeSelection: .Normal)
-                SelectLeadingUnits(activeThreat!.conflicts[0])
+            if activeThreat!.conflict.mayCounterAttack {
+                ToggleGroups(activeThreat!.conflict.counterAttackGroup!.groups, makeSelection: .Normal)
+                SelectLeadingUnits(activeThreat!.conflict)
             }
             
         case .RetreatAfterCombat: break
@@ -482,7 +508,7 @@ class GameManager {
         case .PostVictoryFeintMove:
             
             //ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
-            ToggleGroups(GroupsIncludeLeaders(activeThreat!.conflicts[0].defenseGroup!.groups), makeSelection: .Normal)
+            ToggleGroups(GroupsIncludeLeaders(activeThreat!.conflict.defenseGroup!.groups), makeSelection: .Normal)
             
         }
         return "Nothing"
@@ -524,7 +550,8 @@ class GameManager {
                 eachCommand.moveNumber = 0
                 eachCommand.movedVia = .None
                 for eachUnit in eachCommand.activeUnits {
-                    eachUnit.wasInBattle = false; eachUnit.alreadyDefended = false // ; eachUnit.hasMoved = false this is set with observer
+                    eachUnit.wasInBattle = false
+                    eachUnit.alreadyDefended = false // ; eachUnit.hasMoved = false this is set with observer
                 }
             }
         }
@@ -553,10 +580,10 @@ class GameManager {
         repeatAttackGroup = nil
         repeatAttackMoveNumber = nil
         selectionRetreatReserves = []
-        reserveThreats = []
-        approachThreats = [:]
+        //reserveThreats = []
+        //approachThreats = [:]
         activeThreat = nil
-        approachThreats = [:]
+        //approachThreats = [:]
     }
 
     // MARK: Property Observer functions
@@ -660,20 +687,32 @@ class GameManager {
     }
     
     // Populations the reserve threats
-    func SetupThreats() {
+    func SetupThreat() {
         
-        var index = self.orders.endIndex-1
-        var theGroupConflicts:[Reserve:[Conflict]] = [:]
-        self.reserveThreats = []
+        let index = self.orders.endIndex-1
+        //var theGroupConflicts:[Reserve:[Conflict]] = [:]
+        //self.reserveThreats = []
         
-        repeat {
+        //repeat {
             
             // Break conditions
-            if index < 0 {break}
-            guard let theConflict = self.orders[index].theConflict else {break}
+       //     if index < 0 {break}
+        guard let theConflict = self.orders[index].theConflict else {return}
+        activeThreat = GroupConflict(passReserve: theConflict.defenseReserve, passConflict: theConflict)
         
-            self.approachThreats[theConflict.defenseApproach] = theConflict
-            
+        // Captures second attack over same location (resets those units that were involved in the first conflict)
+        if activeThreat!.conflict.defenseApproach.mayNormalAttack && !activeThreat!.conflict.defenseApproach.mayArtAttack {
+            for eachCommand in theConflict.defenseApproach.occupants + theConflict.defenseReserve.occupants {
+                for eachUnit in eachCommand.activeUnits {
+                    if eachUnit.approachDefended != nil && activeThreat!.conflict.defenseApproach == eachUnit.approachDefended {
+                        eachUnit.alreadyDefended = false
+                        eachUnit.approachDefended = nil
+                    }
+                }
+            }
+        }
+            //self.approachThreats[theConflict.defenseApproach] = theConflict
+       /*
             if theGroupConflicts[theConflict.defenseReserve] == nil {
                 theGroupConflicts[theConflict.defenseReserve] = [theConflict]
             } else {
@@ -687,29 +726,48 @@ class GameManager {
         for (reserve, theConflicts) in theGroupConflicts {
             self.reserveThreats += [GroupConflict(passReserve: reserve, passConflicts: theConflicts)]
         }
+        */
     
     }
     
     // Returns retreat mode (for the retreat selector)
     func ResetRetreatDefenseSelection () -> String {
         
-        for eachGroup in reserveThreats {
+        //for eachGroup in reserveThreats {
             
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:false)
-            
-            // Determine selectable defend groups (those which can defend)
-            selectableDefenseGroups = SelectableGroupsForDefense(eachGroup.conflicts[0])
-            
-            // Determine selectable retreat groups (everything in the locale)
-            selectableRetreatGroups = SelectableGroupsForRetreat(eachGroup.conflicts[0]) // Get this to return available reserves
-            
-            // Determines whether there is a forced retreat condition
-            (eachGroup.mustRetreat, eachGroup.mustDefend) = CheckForcedRetreatOrDefend(eachGroup)
+        ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:false)
+        
+        // Determine selectable defend groups (those which can defend)
+        selectableDefenseGroups = SelectableGroupsForDefense(activeThreat!.conflict)
+        
+        // Determine selectable retreat groups (everything in the locale)
+        selectableRetreatGroups = SelectableGroupsForRetreat(activeThreat!.conflict) // Get this to return available reserves
+        
+        // Determines whether there is a forced retreat condition
+        (activeThreat!.mustRetreat, activeThreat!.mustDefend) = CheckForcedRetreatOrDefend(activeThreat!)
 
-            // Surrender Case
-            if eachGroup.mustRetreat == true && eachGroup.mustDefend == true {eachGroup.retreatMode = true; return "TurnOnSurrender"}
+        // Surrender Case
+        if activeThreat!.mustRetreat == true && activeThreat!.mustDefend == true {activeThreat!.retreatMode = true; return "TurnOnSurrender"}
+        
+        // If not surrender case and must retreat is on
+        if activeThreat!.mustRetreat {activeThreat!.retreatMode = true}
+        
+        // After we finish all threats for a reserve, set the available move-to locations and toggle selectable groups on
+        if !activeThreat!.retreatMode { // All threats for a given reserve must be in the same initial threat-mode
             
-
+            // Turns on the selectable units
+            ToggleGroups(selectableDefenseGroups, makeSelection: .Normal)
+            
+            // Ensure each attack threat is visible (normally this is set automatically when defense mode is set)
+            //for eachThreat in eachGroup.conflicts {eachThreat.defenseApproach.hidden = false}
+            
+            return "TurnOnFeint"
+            
+        } else {
+            
+            // Turns on the selectable units
+            ToggleGroups(selectableRetreatGroups, makeSelection: .Normal)
+            
             return "TurnOnRetreat"
         }
     }
