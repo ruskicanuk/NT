@@ -10,11 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-=======
             timestampString = "467601104.199299"
->>>>>>> LatestMaster
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1400"
@@ -30,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "211"
-            endingLineNumber = "211"
+            startingLineNumber = "212"
+            endingLineNumber = "212"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,12 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Manager.swift"
-            timestampString = "467316704.88391"
+            timestampString = "467344245.076914"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "504"
-            endingLineNumber = "504"
-            landmarkName = "NewTurn()"
+            startingLineNumber = "506"
+            endingLineNumber = "506"
+            landmarkName = "NewPhase(_:reverse:playback:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -62,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "627"
-            endingLineNumber = "627"
+            startingLineNumber = "625"
+            endingLineNumber = "625"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -78,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "658"
-            endingLineNumber = "658"
+            startingLineNumber = "656"
+            endingLineNumber = "656"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -94,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "657"
-            endingLineNumber = "657"
+            startingLineNumber = "655"
+            endingLineNumber = "655"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -110,11 +106,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "315"
-            endingLineNumber = "315"
+            startingLineNumber = "316"
+            endingLineNumber = "316"
             landmarkName = "SelectableGroupsForDefense(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -126,11 +122,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "466392194.392717"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "245"
-            endingLineNumber = "245"
+            startingLineNumber = "243"
+            endingLineNumber = "243"
             landmarkName = "touchesBegan(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -142,11 +138,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-=======
             timestampString = "467601104.199299"
->>>>>>> LatestMaster
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1600"
@@ -162,11 +154,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-=======
             timestampString = "467601104.199299"
->>>>>>> LatestMaster
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1538"
@@ -198,19 +186,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1914"
-            endingLineNumber = "1914"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1964"
             endingLineNumber = "1964"
->>>>>>> LatestMaster
             landmarkName = "MoveOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -237,36 +217,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/Manager.swift"
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "712"
-            endingLineNumber = "712"
-            landmarkName = "ResetRetreatDefenseSelection()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467322729.224171"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "847"
-            endingLineNumber = "847"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "846"
             endingLineNumber = "846"
->>>>>>> LatestMaster
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -278,11 +234,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-=======
             timestampString = "467601104.199299"
->>>>>>> LatestMaster
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1223"
@@ -298,19 +250,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "473"
-            endingLineNumber = "473"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "474"
-            endingLineNumber = "474"
->>>>>>> LatestMaster
+            startingLineNumber = "475"
+            endingLineNumber = "475"
             landmarkName = "SelectableGroupsForAttackByRoad(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -322,19 +266,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1934"
-            endingLineNumber = "1934"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1984"
             endingLineNumber = "1984"
->>>>>>> LatestMaster
             landmarkName = "AttackOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -346,11 +282,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "614"
-            endingLineNumber = "614"
+            startingLineNumber = "612"
+            endingLineNumber = "612"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -362,11 +298,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "611"
-            endingLineNumber = "611"
+            startingLineNumber = "609"
+            endingLineNumber = "609"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -377,36 +313,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/Conflict.swift"
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "435"
-            endingLineNumber = "435"
-            landmarkName = "init(passReserve:passConflicts:)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "607"
-            endingLineNumber = "607"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "578"
-            endingLineNumber = "578"
->>>>>>> LatestMaster
+            startingLineNumber = "579"
+            endingLineNumber = "579"
             landmarkName = "OrdersAvailableOnAttack(_:ordersLeft:theConflict:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -418,19 +330,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1933"
-            endingLineNumber = "1933"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1983"
             endingLineNumber = "1983"
->>>>>>> LatestMaster
             landmarkName = "AttackOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -458,11 +362,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "573"
-            endingLineNumber = "573"
+            startingLineNumber = "571"
+            endingLineNumber = "571"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -474,19 +378,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "443"
-            endingLineNumber = "443"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "444"
-            endingLineNumber = "444"
->>>>>>> LatestMaster
+            startingLineNumber = "445"
+            endingLineNumber = "445"
             landmarkName = "CheckTurnEndViableInRetreatOrDefendMode(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -498,19 +394,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Conflict.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "409"
-            endingLineNumber = "409"
-=======
             timestampString = "467597333.489356"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "435"
             endingLineNumber = "435"
->>>>>>> LatestMaster
             landmarkName = "GroupConflict"
             landmarkType = "3">
          </BreakpointContent>
@@ -522,19 +410,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "449"
-            endingLineNumber = "449"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "450"
-            endingLineNumber = "450"
->>>>>>> LatestMaster
+            startingLineNumber = "451"
+            endingLineNumber = "451"
             landmarkName = "CheckTurnEndViableInRetreatOrDefendMode(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -546,19 +426,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1942"
-            endingLineNumber = "1942"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1992"
             endingLineNumber = "1992"
->>>>>>> LatestMaster
             landmarkName = "AttackOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -570,19 +442,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1935"
-            endingLineNumber = "1935"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1985"
             endingLineNumber = "1985"
->>>>>>> LatestMaster
             landmarkName = "AttackOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -594,19 +458,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1823"
-            endingLineNumber = "1823"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1873"
             endingLineNumber = "1873"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -618,19 +474,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1833"
-            endingLineNumber = "1833"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1883"
             endingLineNumber = "1883"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -642,19 +490,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1837"
-            endingLineNumber = "1837"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1887"
             endingLineNumber = "1887"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -666,19 +506,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1836"
-            endingLineNumber = "1836"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1886"
             endingLineNumber = "1886"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -690,19 +522,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1792"
-            endingLineNumber = "1792"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1843"
             endingLineNumber = "1843"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -714,11 +538,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "217"
-            endingLineNumber = "217"
+            startingLineNumber = "218"
+            endingLineNumber = "218"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -730,11 +554,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "466392194.392717"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "459"
-            endingLineNumber = "459"
+            startingLineNumber = "457"
+            endingLineNumber = "457"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -746,19 +570,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2027"
-            endingLineNumber = "2027"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2079"
             endingLineNumber = "2079"
->>>>>>> LatestMaster
             landmarkName = "ReturnMoveType()"
             landmarkType = "5">
          </BreakpointContent>
@@ -770,19 +586,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2028"
-            endingLineNumber = "2028"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2080"
             endingLineNumber = "2080"
->>>>>>> LatestMaster
             landmarkName = "ReturnMoveType()"
             landmarkType = "5">
          </BreakpointContent>
@@ -794,19 +602,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1810"
-            endingLineNumber = "1810"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1861"
             endingLineNumber = "1861"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -818,19 +618,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1790"
-            endingLineNumber = "1790"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1841"
             endingLineNumber = "1841"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -842,19 +634,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1793"
-            endingLineNumber = "1793"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1844"
             endingLineNumber = "1844"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -866,19 +650,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1817"
-            endingLineNumber = "1817"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1868"
             endingLineNumber = "1868"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -890,19 +666,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1825"
-            endingLineNumber = "1825"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1875"
             endingLineNumber = "1875"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -914,19 +682,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1826"
-            endingLineNumber = "1826"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1876"
             endingLineNumber = "1876"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -938,11 +698,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "621"
-            endingLineNumber = "621"
+            startingLineNumber = "619"
+            endingLineNumber = "619"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -954,11 +714,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "543"
-            endingLineNumber = "543"
+            startingLineNumber = "541"
+            endingLineNumber = "541"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -970,19 +730,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "936"
-            endingLineNumber = "936"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "907"
-            endingLineNumber = "907"
->>>>>>> LatestMaster
+            startingLineNumber = "908"
+            endingLineNumber = "908"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -994,19 +746,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "940"
-            endingLineNumber = "940"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "911"
-            endingLineNumber = "911"
->>>>>>> LatestMaster
+            startingLineNumber = "912"
+            endingLineNumber = "912"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
             <Locations>
@@ -1050,19 +794,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "940"
-            endingLineNumber = "940"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "911"
-            endingLineNumber = "911"
->>>>>>> LatestMaster
+            startingLineNumber = "912"
+            endingLineNumber = "912"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1074,19 +810,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "971"
-            endingLineNumber = "971"
-=======
-            timestampString = "467404497.0931"
+            startingLineNumber = "943"
+            endingLineNumber = "943"
+            landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "942"
             endingLineNumber = "942"
->>>>>>> LatestMaster
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1098,19 +842,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "970"
-            endingLineNumber = "970"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "941"
-            endingLineNumber = "941"
->>>>>>> LatestMaster
+            startingLineNumber = "947"
+            endingLineNumber = "947"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1122,91 +858,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "975"
-            endingLineNumber = "975"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "946"
-            endingLineNumber = "946"
->>>>>>> LatestMaster
-            landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "978"
-            endingLineNumber = "978"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "949"
-            endingLineNumber = "949"
->>>>>>> LatestMaster
-            landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "977"
-            endingLineNumber = "977"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "948"
-            endingLineNumber = "948"
->>>>>>> LatestMaster
-            landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "979"
-            endingLineNumber = "979"
-=======
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "950"
             endingLineNumber = "950"
->>>>>>> LatestMaster
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1218,19 +874,43 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "944"
-            endingLineNumber = "944"
-=======
-            timestampString = "467404497.0931"
+            startingLineNumber = "949"
+            endingLineNumber = "949"
+            landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "915"
-            endingLineNumber = "915"
->>>>>>> LatestMaster
+            startingLineNumber = "951"
+            endingLineNumber = "951"
+            landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467993447.178005"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "916"
+            endingLineNumber = "916"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1242,19 +922,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1752"
-            endingLineNumber = "1752"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1804"
             endingLineNumber = "1804"
->>>>>>> LatestMaster
             landmarkName = "LeadingUnitSelection(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1266,19 +938,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "912"
-            endingLineNumber = "912"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "883"
-            endingLineNumber = "883"
->>>>>>> LatestMaster
+            startingLineNumber = "884"
+            endingLineNumber = "884"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1290,19 +954,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467322729.224171"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "905"
-            endingLineNumber = "905"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "904"
             endingLineNumber = "904"
->>>>>>> LatestMaster
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1330,11 +986,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "528"
-            endingLineNumber = "528"
+            startingLineNumber = "526"
+            endingLineNumber = "526"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1346,27 +1002,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "527"
-            endingLineNumber = "527"
-            landmarkName = "touchesEnded(_:withEvent:)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "525"
             endingLineNumber = "525"
+            landmarkName = "touchesEnded(_:withEvent:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467334480.333925"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "523"
+            endingLineNumber = "523"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1442,19 +1098,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "447"
-            endingLineNumber = "447"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "448"
-            endingLineNumber = "448"
->>>>>>> LatestMaster
+            startingLineNumber = "449"
+            endingLineNumber = "449"
             landmarkName = "CheckTurnEndViableInRetreatOrDefendMode(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1466,11 +1114,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-=======
             timestampString = "467601104.199299"
->>>>>>> LatestMaster
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1689"
@@ -1501,60 +1145,28 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/Manager.swift"
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "745"
-            endingLineNumber = "745"
-            landmarkName = "PostBattleRetreatOrSurrender()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "413"
-            endingLineNumber = "413"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "414"
-            endingLineNumber = "414"
->>>>>>> LatestMaster
-            landmarkName = "CheckForcedRetreatOrDefend(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "415"
             endingLineNumber = "415"
-=======
-            timestampString = "467404497.0931"
+            landmarkName = "CheckForcedRetreatOrDefend(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "416"
-            endingLineNumber = "416"
->>>>>>> LatestMaster
+            startingLineNumber = "417"
+            endingLineNumber = "417"
             landmarkName = "CheckForcedRetreatOrDefend(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1566,51 +1178,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467322729.224171"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "989"
-            endingLineNumber = "989"
-            landmarkName = "ProcessBattle()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/Manager.swift"
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "739"
-            endingLineNumber = "739"
-            landmarkName = "PostBattleRetreatOrSurrender()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467322729.224171"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1001"
-            endingLineNumber = "1001"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "987"
             endingLineNumber = "987"
->>>>>>> LatestMaster
             landmarkName = "ProcessBattle()"
             landmarkType = "5">
          </BreakpointContent>
@@ -1622,19 +1194,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "421"
-            endingLineNumber = "421"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "422"
-            endingLineNumber = "422"
->>>>>>> LatestMaster
+            startingLineNumber = "423"
+            endingLineNumber = "423"
             landmarkName = "CheckForcedRetreatOrDefend(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1646,19 +1210,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "428"
-            endingLineNumber = "428"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "429"
-            endingLineNumber = "429"
->>>>>>> LatestMaster
+            startingLineNumber = "430"
+            endingLineNumber = "430"
             landmarkName = "CheckForcedRetreatOrDefend(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1670,19 +1226,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "431"
-            endingLineNumber = "431"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "432"
-            endingLineNumber = "432"
->>>>>>> LatestMaster
+            startingLineNumber = "433"
+            endingLineNumber = "433"
             landmarkName = "CheckForcedRetreatOrDefend(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1694,19 +1242,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467322729.224171"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1006"
-            endingLineNumber = "1006"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1004"
             endingLineNumber = "1004"
->>>>>>> LatestMaster
             landmarkName = "ProcessBattle()"
             landmarkType = "5">
          </BreakpointContent>
@@ -1718,19 +1258,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Conflict.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "452"
-            endingLineNumber = "452"
-=======
             timestampString = "467599262.120219"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "475"
             endingLineNumber = "475"
->>>>>>> LatestMaster
             landmarkName = "SetupRetreatRequirements()"
             landmarkType = "5">
          </BreakpointContent>
@@ -1742,19 +1274,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Conflict.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "462"
-            endingLineNumber = "462"
-=======
             timestampString = "467599262.120219"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "485"
             endingLineNumber = "485"
->>>>>>> LatestMaster
             landmarkName = "SetupRetreatRequirements()"
             landmarkType = "5">
          </BreakpointContent>
@@ -1766,19 +1290,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Conflict.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
-=======
             timestampString = "467599262.120219"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "508"
             endingLineNumber = "508"
->>>>>>> LatestMaster
             landmarkName = "SetupRetreatRequirements()"
             landmarkType = "5">
          </BreakpointContent>
@@ -1790,19 +1306,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1886"
-            endingLineNumber = "1886"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1936"
             endingLineNumber = "1936"
->>>>>>> LatestMaster
             landmarkName = "ToggleBattleWidthUnitSelection(_:theThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1814,19 +1322,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1868"
-            endingLineNumber = "1868"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1918"
             endingLineNumber = "1918"
->>>>>>> LatestMaster
             landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1838,19 +1338,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "846"
-            endingLineNumber = "846"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "817"
-            endingLineNumber = "817"
->>>>>>> LatestMaster
+            startingLineNumber = "818"
+            endingLineNumber = "818"
             landmarkName = "SelectableGroupsForFeintDefense(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1862,19 +1354,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467322729.224171"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1014"
-            endingLineNumber = "1014"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1015"
             endingLineNumber = "1015"
->>>>>>> LatestMaster
             landmarkName = "ProcessBattle()"
             landmarkType = "5">
          </BreakpointContent>
@@ -1886,19 +1370,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467322729.224171"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1013"
-            endingLineNumber = "1013"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1014"
             endingLineNumber = "1014"
->>>>>>> LatestMaster
             landmarkName = "ProcessBattle()"
             landmarkType = "5">
          </BreakpointContent>
@@ -1910,19 +1386,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "878"
-            endingLineNumber = "878"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "849"
-            endingLineNumber = "849"
->>>>>>> LatestMaster
+            startingLineNumber = "850"
+            endingLineNumber = "850"
             landmarkName = "CheckTurnEndViableInDefenseMode(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1950,19 +1418,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1925"
-            endingLineNumber = "1925"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1975"
             endingLineNumber = "1975"
->>>>>>> LatestMaster
             landmarkName = "MoveOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1974,11 +1434,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "686"
-            endingLineNumber = "686"
+            startingLineNumber = "684"
+            endingLineNumber = "684"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -1990,11 +1450,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "687"
-            endingLineNumber = "687"
+            startingLineNumber = "685"
+            endingLineNumber = "685"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2006,11 +1466,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-=======
             timestampString = "467601104.199299"
->>>>>>> LatestMaster
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1242"
@@ -2026,11 +1482,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "294"
-            endingLineNumber = "294"
+            startingLineNumber = "295"
+            endingLineNumber = "295"
             landmarkName = "CheckIfViableGuardThreat(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2042,11 +1498,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "303"
-            endingLineNumber = "303"
+            startingLineNumber = "304"
+            endingLineNumber = "304"
             landmarkName = "CheckIfViableGuardThreat(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2058,11 +1514,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "743"
-            endingLineNumber = "743"
+            startingLineNumber = "741"
+            endingLineNumber = "741"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2074,11 +1530,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467225172.880495"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "482"
-            endingLineNumber = "482"
+            startingLineNumber = "480"
+            endingLineNumber = "480"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2090,11 +1546,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-=======
             timestampString = "467601104.199299"
->>>>>>> LatestMaster
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1683"
@@ -2110,11 +1562,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "226"
-            endingLineNumber = "226"
+            startingLineNumber = "227"
+            endingLineNumber = "227"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2126,11 +1578,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "91"
-            endingLineNumber = "91"
+            startingLineNumber = "90"
+            endingLineNumber = "90"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2142,11 +1594,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "95"
-            endingLineNumber = "95"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2158,7 +1610,23 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
+            landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "98"
@@ -2174,11 +1642,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2190,11 +1658,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "103"
-            endingLineNumber = "103"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2206,11 +1674,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "151"
-            endingLineNumber = "151"
+            startingLineNumber = "125"
+            endingLineNumber = "125"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2222,27 +1690,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "126"
-            endingLineNumber = "126"
-            landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "111"
-            endingLineNumber = "111"
+            startingLineNumber = "110"
+            endingLineNumber = "110"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2286,11 +1738,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467229368.402921"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "48"
-            endingLineNumber = "48"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
             landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2302,11 +1754,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467229387.572336"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
+            startingLineNumber = "60"
+            endingLineNumber = "60"
             landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2318,11 +1770,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467229425.078784"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "58"
-            endingLineNumber = "58"
+            startingLineNumber = "61"
+            endingLineNumber = "61"
             landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2334,39 +1786,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467229452.437931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "66"
-            endingLineNumber = "66"
-            landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "75"
-            endingLineNumber = "75"
-            landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "69"
@@ -2382,11 +1802,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "69"
-            endingLineNumber = "69"
+            startingLineNumber = "76"
+            endingLineNumber = "76"
             landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2398,11 +1818,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467230251.190311"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "71"
-            endingLineNumber = "71"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
+            landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467992476.448304"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
             landmarkName = "OrdersAvailableOnMove(_:ordersLeft:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2414,11 +1850,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467237906.547925"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "697"
-            endingLineNumber = "697"
+            startingLineNumber = "695"
+            endingLineNumber = "695"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2430,19 +1866,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1921"
-            endingLineNumber = "1921"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1971"
             endingLineNumber = "1971"
->>>>>>> LatestMaster
             landmarkName = "MoveOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2454,11 +1882,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467238849.575752"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "387"
-            endingLineNumber = "387"
+            startingLineNumber = "385"
+            endingLineNumber = "385"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2470,11 +1898,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467238857.811711"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "383"
-            endingLineNumber = "383"
+            startingLineNumber = "381"
+            endingLineNumber = "381"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2486,11 +1914,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-            timestampString = "467238867.393609"
+            timestampString = "467334480.333925"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "384"
-            endingLineNumber = "384"
+            startingLineNumber = "382"
+            endingLineNumber = "382"
             landmarkName = "touchesEnded(_:withEvent:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2550,19 +1978,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "923"
-            endingLineNumber = "923"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "894"
-            endingLineNumber = "894"
->>>>>>> LatestMaster
+            startingLineNumber = "895"
+            endingLineNumber = "895"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2574,19 +1994,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1019"
-            endingLineNumber = "1019"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "990"
-            endingLineNumber = "990"
->>>>>>> LatestMaster
+            startingLineNumber = "991"
+            endingLineNumber = "991"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2598,19 +2010,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1319"
-            endingLineNumber = "1319"
-=======
-            timestampString = "467610852.503754"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1268"
-            endingLineNumber = "1268"
->>>>>>> LatestMaster
+            startingLineNumber = "1273"
+            endingLineNumber = "1273"
             landmarkName = "SelectableUnits(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2622,19 +2026,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "968"
-            endingLineNumber = "968"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "939"
-            endingLineNumber = "939"
->>>>>>> LatestMaster
+            startingLineNumber = "940"
+            endingLineNumber = "940"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
             <Locations>
@@ -2678,19 +2074,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "973"
-            endingLineNumber = "973"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "944"
-            endingLineNumber = "944"
->>>>>>> LatestMaster
+            startingLineNumber = "945"
+            endingLineNumber = "945"
             landmarkName = "SelectableLeadingGroups(_:thePhase:resetState:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2766,19 +2154,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "190"
-            endingLineNumber = "190"
-=======
             timestampString = "467577553.274087"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "191"
             endingLineNumber = "191"
->>>>>>> LatestMaster
             landmarkName = "SelectLeadingUnits(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2886,19 +2266,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1077"
-            endingLineNumber = "1077"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1110"
             endingLineNumber = "1110"
->>>>>>> LatestMaster
             landmarkName = "PostBattleMove(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2910,19 +2282,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1700"
-            endingLineNumber = "1700"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1750"
             endingLineNumber = "1750"
->>>>>>> LatestMaster
             landmarkName = "DefenseGroupUnitSelection(_:retreatMode:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2934,19 +2298,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1699"
-            endingLineNumber = "1699"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1749"
             endingLineNumber = "1749"
->>>>>>> LatestMaster
             landmarkName = "DefenseGroupUnitSelection(_:retreatMode:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2958,19 +2314,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1695"
-            endingLineNumber = "1695"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1744"
             endingLineNumber = "1744"
->>>>>>> LatestMaster
             landmarkName = "DefenseGroupUnitSelection(_:retreatMode:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -2982,19 +2330,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1707"
-            endingLineNumber = "1707"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1758"
             endingLineNumber = "1758"
->>>>>>> LatestMaster
             landmarkName = "DefenseGroupUnitSelection(_:retreatMode:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -3006,19 +2346,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "844"
-            endingLineNumber = "844"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "815"
-            endingLineNumber = "815"
->>>>>>> LatestMaster
+            startingLineNumber = "816"
+            endingLineNumber = "816"
             landmarkName = "SelectableGroupsForFeintDefense(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3030,19 +2362,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "845"
-            endingLineNumber = "845"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "816"
-            endingLineNumber = "816"
->>>>>>> LatestMaster
+            startingLineNumber = "817"
+            endingLineNumber = "817"
             landmarkName = "SelectableGroupsForFeintDefense(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3054,19 +2378,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1972"
-            endingLineNumber = "1972"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2022"
             endingLineNumber = "2022"
->>>>>>> LatestMaster
             landmarkName = "DeselectEverything(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -3078,19 +2394,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameScene.swift"
-<<<<<<< HEAD
-            timestampString = "467328766.641521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1973"
-            endingLineNumber = "1973"
-=======
             timestampString = "467601104.199299"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2023"
             endingLineNumber = "2023"
->>>>>>> LatestMaster
             landmarkName = "DeselectEverything(_:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -3102,11 +2410,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Manager.swift"
-            timestampString = "467323437.845963"
+            timestampString = "467344245.076914"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "484"
-            endingLineNumber = "484"
+            startingLineNumber = "486"
+            endingLineNumber = "486"
             landmarkName = "NewPhase(_:reverse:playback:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -3118,19 +2426,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-<<<<<<< HEAD
-            timestampString = "467328249.692791"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1026"
-            endingLineNumber = "1026"
-=======
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "997"
-            endingLineNumber = "997"
->>>>>>> LatestMaster
+            startingLineNumber = "998"
+            endingLineNumber = "998"
             landmarkName = "ToggleCommands(_:makeSelectable:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3142,17 +2442,15 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Manager.swift"
-            timestampString = "467323724.471101"
+            timestampString = "467344245.076914"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
+            startingLineNumber = "487"
+            endingLineNumber = "487"
             landmarkName = "NewPhase(_:reverse:playback:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
-<<<<<<< HEAD
-=======
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
@@ -3288,12 +2586,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/Manager.swift"
-            timestampString = "467344245.076914"
+            timestampString = "467951758.137025"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "668"
-            endingLineNumber = "668"
-            landmarkName = "SetupThreat()"
+            startingLineNumber = "665"
+            endingLineNumber = "665"
+            landmarkName = "setupCommandDashboard()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3320,11 +2618,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "538"
-            endingLineNumber = "538"
+            startingLineNumber = "539"
+            endingLineNumber = "539"
             landmarkName = "SelectableGroupsForAttackAdjacent(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3336,11 +2634,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "535"
-            endingLineNumber = "535"
+            startingLineNumber = "536"
+            endingLineNumber = "536"
             landmarkName = "SelectableGroupsForAttackAdjacent(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3352,11 +2650,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "528"
-            endingLineNumber = "528"
+            startingLineNumber = "529"
+            endingLineNumber = "529"
             landmarkName = "SelectableGroupsForAttackAdjacent(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3384,11 +2682,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "549"
-            endingLineNumber = "549"
+            startingLineNumber = "550"
+            endingLineNumber = "550"
             landmarkName = "OrdersAvailableOnAttack(_:ordersLeft:theConflict:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3400,11 +2698,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "683"
-            endingLineNumber = "683"
+            startingLineNumber = "684"
+            endingLineNumber = "684"
             landmarkName = "AttackMoveLocationsAvailable(_:selectors:feint:theConflict:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3416,11 +2714,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "687"
-            endingLineNumber = "687"
+            startingLineNumber = "688"
+            endingLineNumber = "688"
             landmarkName = "AttackMoveLocationsAvailable(_:selectors:feint:theConflict:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3608,11 +2906,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467401172.867842"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3624,39 +2922,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467401191.834723"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "173"
-            endingLineNumber = "173"
-            landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404497.0931"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "229"
-            endingLineNumber = "229"
-            landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467401323.140659"
+            timestampString = "467992476.448304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "172"
@@ -3672,11 +2938,43 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467404533.673137"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "192"
-            endingLineNumber = "192"
+            startingLineNumber = "230"
+            endingLineNumber = "230"
+            landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467992476.448304"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "171"
+            endingLineNumber = "171"
+            landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467992476.448304"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "191"
+            endingLineNumber = "191"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3912,11 +3210,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467601686.218038"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "669"
-            endingLineNumber = "669"
+            startingLineNumber = "670"
+            endingLineNumber = "670"
             landmarkName = "AttackMoveLocationsAvailable(_:selectors:feint:theConflict:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3928,11 +3226,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467601696.71471"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "660"
-            endingLineNumber = "660"
+            startingLineNumber = "661"
+            endingLineNumber = "661"
             landmarkName = "AttackMoveLocationsAvailable(_:selectors:feint:theConflict:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3944,11 +3242,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603512.342231"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "562"
-            endingLineNumber = "562"
+            startingLineNumber = "563"
+            endingLineNumber = "563"
             landmarkName = "OrdersAvailableOnAttack(_:ordersLeft:theConflict:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3960,11 +3258,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603550.951214"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "569"
-            endingLineNumber = "569"
+            startingLineNumber = "570"
+            endingLineNumber = "570"
             landmarkName = "OrdersAvailableOnAttack(_:ordersLeft:theConflict:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3976,11 +3274,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603625.975069"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "624"
-            endingLineNumber = "624"
+            startingLineNumber = "625"
+            endingLineNumber = "625"
             landmarkName = "OrdersAvailableOnAttack(_:ordersLeft:theConflict:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3992,11 +3290,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603656.664106"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "629"
-            endingLineNumber = "629"
+            startingLineNumber = "630"
+            endingLineNumber = "630"
             landmarkName = "OrdersAvailableOnAttack(_:ordersLeft:theConflict:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4008,7 +3306,23 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603840.753722"
+            timestampString = "467993447.178005"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "767"
+            endingLineNumber = "767"
+            landmarkName = "AttackByRdPossible(_:twoPlusCorps:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameLogic.swift"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "766"
@@ -4024,11 +3338,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603842.283708"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "765"
-            endingLineNumber = "765"
+            startingLineNumber = "761"
+            endingLineNumber = "761"
             landmarkName = "AttackByRdPossible(_:twoPlusCorps:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4040,27 +3354,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603856.109967"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "760"
-            endingLineNumber = "760"
-            landmarkName = "AttackByRdPossible(_:twoPlusCorps:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467603878.93502"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "771"
-            endingLineNumber = "771"
+            startingLineNumber = "772"
+            endingLineNumber = "772"
             landmarkName = "AttackByRdPossible(_:twoPlusCorps:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4200,11 +3498,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467605766.932065"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "253"
-            endingLineNumber = "253"
+            startingLineNumber = "254"
+            endingLineNumber = "254"
             landmarkName = "MoveLocationsAvailable(_:selectors:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4216,11 +3514,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467605870.20388"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "729"
-            endingLineNumber = "729"
+            startingLineNumber = "730"
+            endingLineNumber = "730"
             landmarkName = "AttackMoveLocationsAvailable(_:selectors:feint:theConflict:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4232,11 +3530,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467605947.229795"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "731"
-            endingLineNumber = "731"
+            startingLineNumber = "732"
+            endingLineNumber = "732"
             landmarkName = "AttackMoveLocationsAvailable(_:selectors:feint:theConflict:undoOrAct:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4248,11 +3546,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467610993.868185"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1097"
-            endingLineNumber = "1097"
+            startingLineNumber = "1098"
+            endingLineNumber = "1098"
             landmarkName = "EnemyRdTargets(_:twoPlusCorps:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4264,11 +3562,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467611004.835038"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1099"
-            endingLineNumber = "1099"
+            startingLineNumber = "1100"
+            endingLineNumber = "1100"
             landmarkName = "EnemyRdTargets(_:twoPlusCorps:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -4280,15 +3578,334 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/GameLogic.swift"
-            timestampString = "467611038.741518"
+            timestampString = "467993447.178005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1103"
-            endingLineNumber = "1103"
+            startingLineNumber = "1104"
+            endingLineNumber = "1104"
             landmarkName = "EnemyRdTargets(_:twoPlusCorps:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
->>>>>>> LatestMaster
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467947980.635159"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "546"
+            endingLineNumber = "546"
+            landmarkName = "touchesEnded(_:withEvent:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467947982.49015"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "545"
+            endingLineNumber = "545"
+            landmarkName = "touchesEnded(_:withEvent:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467948306.86467"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1313"
+            endingLineNumber = "1313"
+            landmarkName = "ReduceUnitUI(_:theGroupConflict:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467949759.251109"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1309"
+            endingLineNumber = "1309"
+            landmarkName = "ReduceUnitUI(_:theGroupConflict:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467949818.512803"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "568"
+            endingLineNumber = "568"
+            landmarkName = "touchesEnded(_:withEvent:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467949840.674852"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "570"
+            endingLineNumber = "570"
+            landmarkName = "touchesEnded(_:withEvent:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/GameScene.swift"
+            timestampString = "467949860.643241"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "572"
+            endingLineNumber = "572"
+            landmarkName = "touchesEnded(_:withEvent:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951005.234349"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "745"
+            endingLineNumber = "745"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951146.519518"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "778"
+            endingLineNumber = "778"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951147.453333"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "780"
+            endingLineNumber = "780"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951179.267314"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "155"
+            endingLineNumber = "155"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951227.180043"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951239.532144"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951282.989882"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "776"
+            endingLineNumber = "776"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951406.185131"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "803"
+            endingLineNumber = "803"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951409.346932"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "802"
+            endingLineNumber = "802"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951443.197445"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "755"
+            endingLineNumber = "755"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951448.113757"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "762"
+            endingLineNumber = "762"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951685.73022"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "804"
+            endingLineNumber = "804"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/Order.swift"
+            timestampString = "467951714.922796"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "797"
+            endingLineNumber = "797"
+            landmarkName = "ExecuteOrder(_:playback:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

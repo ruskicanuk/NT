@@ -775,7 +775,7 @@ class Order {
             
         case (true, .Reduce):
             
-            if orderGroup != nil {
+            if swappedUnit != nil {
                 
                 if !playback && !battleReduction! {
                     if swappedUnit!.unitType != .Art {
@@ -794,7 +794,7 @@ class Order {
                 
                 if !playback {
                     // Reverse the morale losses
-                    guard let theSide = groupSelection?.groups[0].command.commandSide else {break}
+                    guard let theSide = swappedUnit?.unitSide else {break}
                     if reverseCavCommit.0 {
                         manager!.heavyCavCommited[theSide] = false
                         manager!.morale[theSide] = manager!.morale[theSide]! + reverseCavCommit.1

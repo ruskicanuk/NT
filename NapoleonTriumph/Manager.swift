@@ -580,10 +580,7 @@ class GameManager {
         repeatAttackGroup = nil
         repeatAttackMoveNumber = nil
         selectionRetreatReserves = []
-        //reserveThreats = []
-        //approachThreats = [:]
         activeThreat = nil
-        //approachThreats = [:]
     }
 
     // MARK: Property Observer functions

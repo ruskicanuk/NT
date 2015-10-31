@@ -119,9 +119,9 @@
 		8C18DAD11B5B342900FF30DF = {
 			isa = PBXGroup;
 			children = (
-				8C18DAF51B5B342900FF30DF /* NapoleonTriumphTests */,
 				8C208D991B5C8BE600FAE45A /* Notes */,
 				8C18DADC1B5B342900FF30DF /* NapoleonTriumph */,
+				8C18DAF51B5B342900FF30DF /* NapoleonTriumphTests */,
 				8C18DB001B5B342900FF30DF /* NapoleonTriumphUITests */,
 				8C18DADB1B5B342900FF30DF /* Products */,
 			);

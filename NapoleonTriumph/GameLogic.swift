@@ -35,13 +35,16 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
             if CheckIfViableAttach(each.units[0], groupSelected: groupSelected) {attachMove = .On; each.selector?.selected = .On}
         }
         
-        corpsMove = .On; detachMove = .On; if indOrders > 0 {detachMove = .Option; independent = .On} else {independent = .NotAvail} // Default "On" state is option (1 selected) or On
+        corpsMove = .On; detachMove = .On
+        if indOrders > 0 {detachMove = .Option; independent = .On} else {independent = .NotAvail} // Default "On" state is option (1 selected) or On
         
     } else {
         corpsMove = .NotAvail; detachMove = .NotAvail; attachMove = .NotAvail
         if indOrders > 0 {independent = .On}
         else {independent = .NotAvail}
     }
+    
+    if commandSelected.currentLocationType == .Reserve && (commandSelected.currentLocation! as! Reserve).offMap! {detachMove = .Off; attachMove = .Off} // Off map cannot detach or attach
     
     //print(commandSelected.movedVia)
     // Has moved case - in which case either independent move / corps move again (or attach if there is a viable attach)
@@ -68,8 +71,6 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
         if !commandSelected.hasLeader {return (.Off, .Off, attachMove, independent)} // Independent and attach
         else if commandSelected.unitCount == 1 {return (.Off, detachMove, .Off, independent)} // Can't attach last unit in a corps
         else {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
-        //else if commandSelected.hasLeader && !unitsHaveLeader && commandSelected.unitCount != 2 {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
-        //else {return (.Off, .Off, attachMove, .Off)} // Only a leader is selected or 1 non leader selected from a command with a leader and only 1 other unit with it
         
     // Case: 2+ units selected, no leader, can only detach
     } else if unitsSelected.count > 1 && !unitsHaveLeader {
@@ -81,8 +82,6 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
         return (corpsMove, .Off, .Off, .Off)
     }
     
-    // Shouldn't go here - if so, all off...
-    //return (.Off, .Off, .Off, .Off)
 }
 
 // Returns true (if road move), first array are viable "peaceful" moves, second array are viable "attack" moves
@@ -198,17 +197,19 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     }
     
     // Move each enemy occupied adj move into the Attack bucket
-    if (scenario == 1 || scenario == 2 || scenario == 3 || scenario == 4) {
+    if (scenario == 1 || scenario == 2 || scenario == 3 || scenario == 4) && !currentReserve!.offMap {
         
-        for each in adjAvailableReserves {if (manager!.actingPlayer.ContainsEnemy(each.localeControl)) {
-            let (_, defenseApproach) = ApproachesFromReserves(currentReserve!, reserve2: each)!
-            enemyOccupiedAttackApproaches += [defenseApproach]
-            adjAvailableReserves.removeObject(each)
+        for each in adjAvailableReserves {
+            if (manager!.actingPlayer.ContainsEnemy(each.localeControl)) {
+                if let defenseApproach = ApproachesFromReserves(currentReserve!, reserve2: each) {
+                    enemyOccupiedAttackApproaches += [defenseApproach.0]
+                    adjAvailableReserves.removeObject(each)
+                }
             }
         }
     }
     
-    if !rdBlock && !(scenario == 1) && (scenario == 5 || (scenario == 6 && !(currentReserve!.containsAdjacent2PlusCorps == manager?.actingPlayer.Other()))) {
+    if !rdBlock && !(scenario == 1) && (scenario == 5 || (scenario == 6 && !(currentReserve!.containsAdjacent2PlusCorps == manager?.actingPlayer.Other()))) && !currentReserve!.offMap {
         
         // Allows Cav to move into the approach of a moved-into locale
         if groupSelected.allCav && !undoOrAct {
@@ -1023,9 +1024,9 @@ func CavApproaches(previousReserve:Reserve, currentReserve:Reserve) -> [Approach
     for eachPath in previousReserve.rdReserves {
         
         if eachPath[1] == currentReserve {
-            var moveFromApproach:Approach
-            (moveFromApproach, _) = ApproachesFromReserves(eachPath[1], reserve2: eachPath[2])!; targetApproaches += [moveFromApproach]
-            (moveFromApproach, _) = ApproachesFromReserves(eachPath[1], reserve2: eachPath[0])!; targetApproaches += [moveFromApproach]
+            //var moveFromApproach:Approach
+            if let moveFromApproach = ApproachesFromReserves(eachPath[1], reserve2: eachPath[2]) {targetApproaches += [moveFromApproach.0]}
+            if let moveFromApproach2 = ApproachesFromReserves(eachPath[1], reserve2: eachPath[0]) {targetApproaches += [moveFromApproach2.0]}
         }
     }
     return Array(Set(targetApproaches))
@@ -1105,13 +1106,14 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
             if eachPath[i].localeControl == manager!.actingPlayer.Other() {
                 
                 // Found a potential enemy to rd feint
-                var attackToApproach:Approach
-                (_, attackToApproach) = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i])!
+                //var attackToApproach:Approach
+                if let attackToApproach = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i]) {
                 
-                if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
-                if attackToApproach.occupantCount > 0 {break}
-                
-                targetApproaches += [attackToApproach]
+                    if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
+                    if attackToApproach.0.occupantCount > 0 {break}
+                    
+                    targetApproaches += [attackToApproach.0]
+                }
                 break // Must break after finding an enemy (path can't go any further)
                 
             } else if (!twoPlusCorps && eachPath[i].has2PlusCorpsPassed) || (twoPlusCorps && (eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || eachPath[i].containsAdjacent2PlusCorps == manager?.actingPlayer.Other())) {break}
@@ -1182,8 +1184,9 @@ func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false, mustBeCav:Bool 
     for eachReserve in rdAvailableReserves {
         if manager!.actingPlayer.ContainsEnemy(eachReserve.localeControl) {
             rdAvailableReserves.removeObject(eachReserve)
-            let (_, theApproach) = ApproachesFromReserves(theGroup.command.currentLocation as! Reserve, reserve2: eachReserve)!
-            enemyRdAvailableApproaches += [theApproach]
+            if let theApproach = ApproachesFromReserves(theGroup.command.currentLocation as! Reserve, reserve2: eachReserve) {
+                enemyRdAvailableApproaches += [theApproach.0]
+            }
         }
     }
     
@@ -1204,6 +1207,8 @@ func DistanceBetweenTwoCGPoints(Position1:CGPoint, Position2:CGPoint) -> CGFloat
 
 // Returns tuple of two neighboring approaches given two reserves (nil if no common exists)
 func ApproachesFromReserves(reserve1:Reserve, reserve2:Reserve) -> (Approach,Approach)? {
+    
+    if reserve1.ownApproaches.isEmpty || reserve2.ownApproaches.isEmpty {return nil}
     
     for each1 in reserve1.ownApproaches {
         for each2 in reserve2.ownApproaches {

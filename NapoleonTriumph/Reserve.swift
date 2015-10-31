@@ -14,10 +14,12 @@ class Reserve:Location {
     
     // Attributes of the reserve area
     let capacity:Int!
+    let offMap:Bool!
     
     var ownApproaches:[Approach] = []
     var adjReserves:[Reserve] = []
     var rdReserves:[[Reserve]] = []
+    
     
     let ownApproachesName:[String]
     let adjReservesName:[String]
@@ -68,6 +70,8 @@ class Reserve:Location {
         for each in rdReservesName1 {
             rdReservesName += [(each.characters).split{$0 == " "}.map(String.init)]
         }
+        
+        if theApproaches.isEmpty {offMap = true} else {offMap = false} // Initializes off-map reserves
         
         super.init(theDict: theDict, scaleFactor: scaleFactor, reserveLocation: reserveLocation)
         
