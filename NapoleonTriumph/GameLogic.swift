@@ -26,27 +26,33 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     var detachMove:SelState = .Off
     var independent:SelState = .Off
     
+    // Free-move detector
+    var freeMove = false
+    if groupSelected.command.freeMove && groupSelected.command.turnEnteredMap == manager!.turn && groupSelected.command.moveNumber == 0 {
+        freeMove = true
+    }
+    
     // Corps move verification
-    if corpsOrders > 0 {
+    if corpsOrders > 0 || freeMove {
         
         for each in commandSelected.currentLocation!.occupants {
             each.selector?.selected = .Off
             if each == commandSelected {continue}
-            if CheckIfViableAttach(each.units[0], groupSelected: groupSelected) {attachMove = .On; each.selector?.selected = .On}
+            if CheckIfViableAttach(groupSelected, touchedUnit: nil) {attachMove = .On; each.selector?.selected = .On}
         }
         
         corpsMove = .On; detachMove = .On
-        if indOrders > 0 {detachMove = .Option; independent = .On} else {independent = .NotAvail} // Default "On" state is option (1 selected) or On
+        if indOrders > 0 || freeMove {detachMove = .Option; independent = .On} else {independent = .NotAvail} // Default "On" state is option (1 selected) or On
         
     } else {
         corpsMove = .NotAvail; detachMove = .NotAvail; attachMove = .NotAvail
-        if indOrders > 0 {independent = .On}
+        if indOrders > 0 || freeMove {independent = .On}
         else {independent = .NotAvail}
     }
     
-    if commandSelected.currentLocationType == .Reserve && (commandSelected.currentLocation! as! Reserve).offMap! {detachMove = .Off; attachMove = .Off} // Off map cannot detach or attach
+    // Off map cannot detach or attach
+    if commandSelected.currentLocationType == .Reserve && (commandSelected.currentLocation! as! Reserve).offMap! {detachMove = .Off; attachMove = .Off}
     
-    //print(commandSelected.movedVia)
     // Has moved case - in which case either independent move / corps move again (or attach if there is a viable attach)
     if commandSelected.hasMoved {
         
@@ -66,20 +72,21 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     let unitsHaveLeader:Bool = groupSelected.leaderInGroup
     
     // Case: 1 unit selected (most ambiguity is here)
-    if unitsSelected.count == 1 {
+    if unitsSelected.count <= 1 {
         
-        if !commandSelected.hasLeader {return (.Off, .Off, attachMove, independent)} // Independent and attach
-        else if commandSelected.unitCount == 1 {return (.Off, detachMove, .Off, independent)} // Can't attach last unit in a corps
-        else {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
+        if !commandSelected.hasLeader {return (.Off, .Off, .Off, independent)} // Independent and attach
+        else {return (.Off, detachMove, .Off, independent)}
+        //else if commandSelected.unitCount == 1 {return (.Off, detachMove, .Off, independent)} // Can't attach last unit in a corps
+        //else {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
         
     // Case: 2+ units selected, no leader, can only detach
-    } else if unitsSelected.count > 1 && !unitsHaveLeader {
+    } else if !unitsHaveLeader {
         if detachMove == .Option {detachMove = .On}
         if unitsSelected.count < (commandSelected.activeUnits.count-1) {return (.Off, detachMove, .Off, .Off)} else {return (.Off, .Off, .Off, .Off)}
         
     // Case 3: Corps moves only (2+ units - must have leader)
     } else {
-        return (corpsMove, .Off, .Off, .Off)
+        return (corpsMove, .Off, attachMove, .Off)
     }
     
 }
@@ -88,6 +95,7 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
 func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([SKNode], [SKNode], [SKNode]) {
     
     guard let commandSelected = groupSelected.command else {return ([], [], [])}
+    
     if groupSelected.nonLdrUnitCount == 0 {return ([], [], [])}
     
     //var locationQueue:Array<SKNode> = [nil, [], []]
@@ -100,7 +108,6 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     // Determine unit size (1 or 2+)
     let unitSize:Int!
     if groupSelected.nonLdrUnitCount > 1 {unitSize = 2} else {unitSize = 1}
-    //else if unitsSelected.count == 0 && (commandSelected.unitCount > 2 || (commandSelected.unitCount == 2 && !hasLeader)) {unitSize = 2}
 
     // Set the scenario
     var scenario:Int = 0
@@ -110,7 +117,11 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     if !(moveOn || detachOn || indOn) {return ([], [], [])}
     
     var isReserve:Bool = false
-    if commandSelected.currentLocationType == .Reserve {isReserve = true}
+    var reinforcement:Bool = false
+    if commandSelected.currentLocationType == .Reserve {
+        isReserve = true
+        reinforcement = (commandSelected.currentLocation as! Reserve).offMap
+    }
     let moveNumber = commandSelected.moveNumber
     
     // Set the Scenario
@@ -129,7 +140,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     else if moveNumber > 0 && unitSize == 1 {scenario = 5}
     else if moveNumber > 0 && unitSize == 2 {scenario = 6}
     else {return ([], [], [])}
-
+    
     var currentReserve:Reserve?
     var currentApproach:Approach?
     
@@ -164,13 +175,19 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         // Must feint by road options
         if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: true)}
         
-    case 5, 6:
+    default: break
+        
+    }
+    
+    // Ensures that reinforcements are in rd-move mode
+    if reinforcement && scenario == 3 {scenario = 5}
+    else if reinforcement && scenario == 4 {scenario = 6}
+    
+    if scenario == 5 || scenario == 6 {
         
         let (theReserves, _, theRdBlock) = GroupMayMoveByRd(groupSelected)
         rdBlock = theRdBlock
         rdAvailableReserves = Array(Set(theReserves)) // Ensure the array is unique
-        
-    default: break
         
     }
     
@@ -197,13 +214,13 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     }
     
     // Move each enemy occupied adj move into the Attack bucket
-    if (scenario == 1 || scenario == 2 || scenario == 3 || scenario == 4) && !currentReserve!.offMap {
+    if (scenario == 1 || scenario == 2 || scenario == 3 || scenario == 4) {
         
         for each in adjAvailableReserves {
             if (manager!.actingPlayer.ContainsEnemy(each.localeControl)) {
+            adjAvailableReserves.removeObject(each)
                 if let defenseApproach = ApproachesFromReserves(currentReserve!, reserve2: each) {
-                    enemyOccupiedAttackApproaches += [defenseApproach.0]
-                    adjAvailableReserves.removeObject(each)
+                    enemyOccupiedAttackApproaches += [defenseApproach.1]
                 }
             }
         }
@@ -221,10 +238,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         }
     }
     
-    // Fill check
-    //for each in rdAvailableReserves {if !((each.currentFill + unitCount) <= each.capacity) {rdAvailableReserves.removeObject(each)}}
-    
-    if moveNumber > 0 {
+    if moveNumber > 0 || reinforcement {
         
         // Remove adjacent reserves that would go beyond capacity with the move if it's the last move of the command / units (approaches too)
         for eachReserve in Array(Set(finalReserveMoves).intersect(Set(rdAvailableReserves))) {
@@ -237,7 +251,13 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         let rdMoves = rdAvailableReserves as [SKNode] + rdAvailableApproaches as [SKNode]
         for each in rdMoves {each.hidden = false; each.zPosition = 200}
         
-        return (rdMoves, [], [])
+        if reinforcement {
+        
+            let mustFeintThreats = enemyOccupiedMustFeintApproaches as [SKNode]
+            for each in mustFeintThreats {each.hidden = false; each.zPosition = 200}
+            return (rdMoves, [], mustFeintThreats)
+
+        } else {return (rdMoves, [], [])}
         
     } else {
         
@@ -251,7 +271,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         for eachApproach in enemyOccupiedMustFeintApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedMustFeintApproaches.removeObject(eachApproach)}}
         
         let attackThreats = enemyOccupiedAttackApproaches as [SKNode]
-        let mustFeintThreats = enemyOccupiedMustFeintApproaches as [SKNode]
+        let mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches))) as [SKNode]
         for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         // "NEW" version would separate rd attacks from adj attacks
         if manager!.night { // Night turn, no attacks allowed
@@ -263,22 +283,32 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     }
 }
 
-func CheckIfViableAttach(touchedUnit:Unit, groupSelected:Group) -> Bool {
+func CheckIfViableAttach(groupSelected:Group, touchedUnit:Unit?) -> Bool {
     
-    guard let touchedCommand = touchedUnit.parent as? Command else {return false}
+    //guard let touchedCommand = touchedUnit.parent as? Command else {return false}
     guard let commandSelected = groupSelected.command else {return false}
-    guard let unitsSelected = groupSelected.units else {return false}
-    var viableCommandSelected:Bool = false
-    var viableTouchedSelected:Bool = false
+    var differentCommandSameLocation = false
+    if touchedUnit != nil {
+        let touchedCommand = touchedUnit!.parentCommand!
+        if touchedCommand != commandSelected && touchedCommand.currentLocation == commandSelected.currentLocation && touchedCommand.activeUnits.count != 2 && touchedUnit!.unitType != .Ldr {
+            differentCommandSameLocation = true
+        }
+    } else {
+        differentCommandSameLocation = true
+    }
+    
+    //guard let unitsSelected = groupSelected.units else {return false}
+    //var viableCommandSelected = false
+    //var viableTouchedSelected = false
     
     // Check if selected command is viable
-    if unitsSelected.count == 1 && unitsSelected[0].unitType != .Ldr {viableCommandSelected = true}
-    else if commandSelected.unitCount == 1 && commandSelected.activeUnits[0].unitType != .Ldr {viableCommandSelected = true}
+    if groupSelected.fullCommand && differentCommandSameLocation && groupSelected.leaderInGroup {return true} else {return false}
+    //else if commandSelected.unitCount == 1 && commandSelected.activeUnits[0].unitType != .Ldr {viableCommandSelected = true}
     
     //Check if touched command is viable
-    if !((touchedCommand == commandSelected) || (touchedCommand.currentLocation != commandSelected.currentLocation) || touchedCommand.hasLeader == false || touchedCommand.finishedMove == true) {viableTouchedSelected = true}
+    //if !((touchedCommand == commandSelected) || (touchedCommand.currentLocation != commandSelected.currentLocation) || touchedCommand.hasLeader == false || touchedCommand.finishedMove == true) {viableTouchedSelected = true}
     
-    if viableCommandSelected && viableTouchedSelected {return true} else {return false}
+    //if viableCommandSelected && viableTouchedSelected {return true} else {return false}
     
 }
 
@@ -565,7 +595,18 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
         detachMove = .Off
     }
     
-    let (corpsOrders, indOrders) = ordersLeft
+    // Deals with reinforcement free-moves
+    var freeCorps = 0
+    var freeInd = 0
+    for eachGroup in groupsSelected {
+        if eachGroup.command.freeMove && eachGroup.command.turnEnteredMap == manager!.turn && eachGroup.command.moveNumber == 0 {
+            if eachGroup.leaderInGroup {freeCorps++}
+            if eachGroup.nonLdrUnitCount == 1 && eachGroup.command.activeUnits.count != 2 {freeInd++}
+        }
+    }
+    
+    let corpsOrders = ordersLeft.0 + freeCorps
+    let indOrders = ordersLeft.1 + freeInd
     
     if groupsSelected.count > 1 { // Attack mode, multi selections
         
@@ -993,11 +1034,11 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
 
 // MARK: Toggle Selections
 
-func ToggleCommands(theCommands:[Command], makeSelectable:Bool = true) {
+func ToggleCommands(theCommands:[Command], makeSelection:SelectType = .Normal) {
     
     for eachCommand in theCommands {
-        eachCommand.selectable = makeSelectable
-        for eachUnit in eachCommand.activeUnits {if makeSelectable {eachUnit.selected = .Normal} else {eachUnit.selected = .NotSelectable}}
+        //eachCommand.selectable = makeSelectable
+        for eachUnit in eachCommand.activeUnits {eachUnit.selected = makeSelection}
     }
 }
 
@@ -1106,13 +1147,12 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
             if eachPath[i].localeControl == manager!.actingPlayer.Other() {
                 
                 // Found a potential enemy to rd feint
-                //var attackToApproach:Approach
                 if let attackToApproach = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i]) {
                 
-                    if (eachPath[i-1].currentFill >= eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
-                    if attackToApproach.0.occupantCount > 0 {break}
+                    if (eachPath[i-1].currentFill + theGroup.nonLdrUnitCount > eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
+                    if attackToApproach.1.occupantCount > 0 {break}
                     
-                    targetApproaches += [attackToApproach.0]
+                    targetApproaches += [attackToApproach.1]
                 }
                 break // Must break after finding an enemy (path can't go any further)
                 
@@ -1132,7 +1172,7 @@ func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false, mustBeCav:Bool 
     let (thePaths, pathIndices) = ActivePaths(theGroup.command)
     if thePaths.isEmpty {return([],[], true)}
     let moveNumber = theGroup.command.moveNumber
-    if moveNumber == 0 {return([],[], false)}
+    //if moveNumber == 0 {return([],[], false)}
     if theGroup.command.currentLocationType == .Approach {return ([],[], false)}
     
     var rdAvailableReserves:[Reserve] = []
@@ -1143,7 +1183,7 @@ func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false, mustBeCav:Bool 
         
         let pathIndex = pathIndices[i]
         
-        if theGroup.command.moveNumber < (eachPath.count-1) { // Still have moves remaining
+        if moveNumber < (eachPath.count-1) { // Still have moves remaining
             
             switch (twoPlusCorps) {
                 
@@ -1153,11 +1193,11 @@ func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false, mustBeCav:Bool 
                 
                 if pathIndex == (eachPath.count-1) {continue} // End of path, no moves left
                 else if pathIndex == 0 {  // Can go right only
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed) {rdAvailableReserves += [eachPath[pathIndex+1]]}
+                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed) && !eachPath[pathIndex+1].offMap {rdAvailableReserves += [eachPath[pathIndex+1]]}
                 }
                 else { // Normal case
-                    if !(eachPath[pathIndex-1].has2PlusCorpsPassed) {rdAvailableReserves += [eachPath[pathIndex-1]]}
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed) {rdAvailableReserves += [eachPath[pathIndex+1]]}
+                    if !(eachPath[pathIndex-1].has2PlusCorpsPassed) && !eachPath[pathIndex-1].offMap {rdAvailableReserves += [eachPath[pathIndex-1]]}
+                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed) && !eachPath[pathIndex+1].offMap {rdAvailableReserves += [eachPath[pathIndex+1]]}
                 }
                 
             case true:
@@ -1167,13 +1207,13 @@ func GroupMayMoveByRd(theGroup:Group, twoPlusCorps:Bool = false, mustBeCav:Bool 
                 if pathIndex == (eachPath.count-1) {continue} // End of path, no moves left
                 else if pathIndex == 0 { // Can go right only
                     
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || eachPath[pathIndex+1].numberCommandsEntered > 0) {rdAvailableReserves += [eachPath[pathIndex+1]]}
+                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || eachPath[pathIndex+1].numberCommandsEntered > 0) && !eachPath[pathIndex+1].offMap {rdAvailableReserves += [eachPath[pathIndex+1]]}
                 }
                 else { // Normal case
                     
-                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || eachPath[pathIndex+1].numberCommandsEntered > 0) {rdAvailableReserves += [eachPath[pathIndex+1]]}
+                    if !(eachPath[pathIndex+1].has2PlusCorpsPassed || eachPath[pathIndex+1].numberCommandsEntered > 0) && !eachPath[pathIndex+1].offMap {rdAvailableReserves += [eachPath[pathIndex+1]]}
                     
-                    if !(eachPath[pathIndex-1].has2PlusCorpsPassed || eachPath[pathIndex-1].numberCommandsEntered > 0) {rdAvailableReserves += [eachPath[pathIndex-1]]}
+                    if !(eachPath[pathIndex-1].has2PlusCorpsPassed || eachPath[pathIndex-1].numberCommandsEntered > 0) && !eachPath[pathIndex-1].offMap {rdAvailableReserves += [eachPath[pathIndex-1]]}
                 }
                 
             }

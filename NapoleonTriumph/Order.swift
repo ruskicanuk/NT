@@ -11,7 +11,7 @@ import SpriteKit
 // Stores the kind of order
 enum OrderType {
     
-    case Move, Attach, FeintThreat, NormalThreat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle
+    case Move, Attach, FeintThreat, NormalThreat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove
     
 }
 
@@ -87,12 +87,12 @@ class Order {
     }
     
     // Initiate order (attach)
-    init(groupFromView:Group, touchedCommandFromView:Command, orderFromView:OrderType, moveTypePassed:MoveType = .CorpsAttach, corpsOrder:Bool = true) {
+    init(groupFromView:Group, touchedUnitFromView:Unit, orderFromView:OrderType, moveTypePassed:MoveType = .CorpsAttach, corpsOrder:Bool = true) {
         
         //print(commandFromView)
-        baseGroup = Group(theCommand: touchedCommandFromView, theUnits: touchedCommandFromView.units)
-        oldCommands = [groupFromView.command]
-        swappedUnit = groupFromView.units[0]
+        baseGroup = groupFromView
+        oldCommands = [touchedUnitFromView.parentCommand!]
+        swappedUnit = touchedUnitFromView
         
         order = orderFromView
         
@@ -139,6 +139,16 @@ class Order {
         swappedUnit = theUnit
     }
     
+    // Initiate order (SecondMove)
+    init(groupFromView:Group, orderFromView:OrderType) {
+        
+        baseGroup = groupFromView
+        order = orderFromView
+        
+        startLocation = [baseGroup!.command.currentLocation!]
+        endLocation = baseGroup!.command.currentLocation!
+    }
+    
     // Reduce order (Surrender, initial battle, final battle)
     init(passedGroupConflict: GroupConflict, orderFromView: OrderType) {
         order = orderFromView
@@ -158,11 +168,13 @@ class Order {
         let startApproach:Approach?
         
         // Determine whether to increment / decrement orders available
-        if (corpsCommand != nil) && !playback {
+        if (corpsCommand != nil) && !playback && !(baseGroup!.command.freeMove && baseGroup!.command.turnEnteredMap == manager!.turn && corpsCommand!) {
             if reverse {
-                if corpsCommand! {manager?.corpsCommandsAvail++} else {manager?.indCommandsAvail++}
+                if corpsCommand! {manager?.corpsCommandsAvail++}
+                else {manager?.indCommandsAvail++}
             } else {
-                if corpsCommand! {manager?.corpsCommandsAvail--} else {manager?.indCommandsAvail--}
+                if corpsCommand! {manager?.corpsCommandsAvail--}
+                else {manager?.indCommandsAvail--}
             }
         }
         
@@ -258,13 +270,25 @@ class Order {
                     if startLocation[0] == endLocation {each.finishedMove = true} // Rare case for attack moves when declaring a move "in place"
                     if !moveBase[0] {each.movedVia = moveType!} else {baseGroup!.command.movedVia = moveType!} // Detached move ends move (no road movement)
                     
-                    // Movement from or to an approach
-                    if (startLocation[0].locationType == .Approach || endLocation.locationType == .Approach) == true {each.finishedMove = true}
+                    // For french reinforcements (flag their second-move is available upon move-out and which turn it entered)
+                    if startLocaleReserve != nil && startLocaleReserve!.name == "201" {
+                        each.turnEnteredMap = manager!.turn
+                    }
+                    //each.freeMove = baseGroup!.command.freeMove
+                    //each.turnEnteredMap = baseGroup!.command.turnEnteredMap
                     
+                    // Movement from or to an approach
+                    if (startLocation[0].locationType == .Approach || endLocation.locationType == .Approach) == true {each.finishedMove = true} 
                 }
                 
                 // Add the new commands to their occupants if the base moved (if something was detached in the original location
-                if moveBase[0] && !newCommands.isEmpty {for each in newCommands[0]! {each.currentLocation?.occupants += [each]}}
+                if moveBase[0] && !newCommands.isEmpty {
+                    for each in newCommands[0]! {
+                        each.currentLocation?.occupants += [each]
+                        //each.freeMove = baseGroup!.command.freeMove
+                        //each.turnEnteredMap = baseGroup!.command.turnEnteredMap
+                    }
+                }
                 
                 // Update reserves
                 if endLocation.locationType != .Start {for each in endLocaleReserve!.adjReserves {each.UpdateReserveState()}; endLocaleReserve!.UpdateReserveState()}
@@ -315,7 +339,7 @@ class Order {
                     
                     // Remove the now command (stays in memory due to orders)
                     each.removeFromParent() // Removes from the map
-                    endLocation.occupants.removeObject(each) // Removes from the occupants of current location
+                    each.currentLocation!.occupants.removeObject(each) // Removes from the occupants of current location
                     manager!.gameCommands[each.commandSide]!.removeObject(each) // Removes from the game list
                     each.selector = nil // Removes the selector (which has a strong reference with the command)
                     
@@ -339,6 +363,11 @@ class Order {
                     if endLocation.locationType != .Start {baseGroup!.command.moveNumber--}  else {baseGroup?.command.rdMoves = []}
                     if baseGroup!.command.moveNumber == 0 {baseGroup!.command.movedVia = .None}
                     baseGroup!.command.finishedMove = false
+                    
+                    //if startLocaleReserve!.name == "201" {
+                    //    baseGroup!.command.turnEnteredMap = -1
+                    //}
+                    
                 }
                 
             } else {
@@ -625,12 +654,17 @@ class Order {
             
             // If the units array has something, pass it it's only unit
             if !oldCommands[0].units.isEmpty {
+                
                 oldCommands[0].passUnitTo(swappedUnit!, recievingCommand: baseGroup!.command)
                 if playback{break}
                 
                 if oldCommands[0].hasMoved {oldCommands[0].finishedMove = true; reverseCode = 2} // Captures rare case where you might "drop off" an attached unit and try to move again
                 baseGroup!.command.movedVia = .CorpsActed
                 
+                if oldCommands[0].unitCount == 0 {
+                    oldCommands[0].currentLocation?.occupants.removeObject(oldCommands[0])
+                }
+                    
                 if startLocation[0].locationType != .Start {for each in startLocaleReserve!.adjReserves {each.UpdateReserveState()}; startLocaleReserve!.UpdateReserveState()}
             }
             
@@ -896,6 +930,29 @@ class Order {
         case (true, .FinalBattle):
             break
             
+        // MARK: Second Move
+            
+        case (false, .SecondMove):
+            
+            if !playback {
+                reverseCode = baseGroup!.command.moveNumber
+                startLocation = baseGroup!.command.rdMoves
+                baseGroup!.command.moveNumber = 0
+                baseGroup!.command.movedVia = .None
+                baseGroup!.command.secondMoveUsed = true
+                baseGroup!.command.freeMove = true
+            }
+                
+        case (true, .SecondMove):
+            
+            if !playback {
+                baseGroup!.command.freeMove = false
+                baseGroup!.command.secondMoveUsed = false
+                baseGroup!.command.moveNumber = reverseCode
+                baseGroup!.command.rdMoves = startLocation
+                if baseGroup!.leaderInGroup {baseGroup!.command.movedVia = .CorpsMove} else {baseGroup!.command.movedVia = .IndMove}
+            }
+                
         // default:
             
         }

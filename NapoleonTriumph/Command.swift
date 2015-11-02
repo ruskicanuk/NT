@@ -21,9 +21,13 @@ class Command:SKNode {
     let loc:String
     let locID:String
     var selectable:Bool = true
-
-    //var defendingUnits:[Unit] = [] // Used to store defenders for a current attack
     
+    //var secondMoveAvailable = false
+    var secondMoveUsed = false
+    var turnMayEnterMap = -1
+    var turnEnteredMap = -1
+    var freeMove = false
+
     // Used to store units available to defend
     var availableToDefend:[Unit] {
         var theUnits:[Unit] = []
@@ -35,7 +39,17 @@ class Command:SKNode {
     
     //var attackingUnits:[Unit] = []
     // Set to true when command can make no more moves during the round
-    var finishedMove:Bool = false
+    var finishedMove:Bool = false {
+        didSet {
+            if finishedMove && self.hasLeader {
+                theLeader!.selected = .NotSelectable
+                if nonLeaderUnits.count == 1 {nonLeaderUnits[0].selected = .NotSelectable}
+            } else if !finishedMove && !hasMoved && self.hasLeader {
+                theLeader!.selected = .Normal
+                if nonLeaderUnits.count == 1 {nonLeaderUnits[0].selected = .Normal}
+            }
+        }
+    }
     
     // Any move or attach order sets this to true
     var hasMoved:Bool = false {
@@ -52,10 +66,10 @@ class Command:SKNode {
             if movedVia == .None {self.hasMoved = false; self.finishedMove = false}
             if movedVia == .CorpsMove {self.hasMoved = true}
             if movedVia == .IndMove {self.hasMoved = true}
-            if movedVia == .CorpsDetach {self.hasMoved = true; self.finishedMove = true}
+            //if movedVia == .CorpsDetach {self.hasMoved = true; self.finishedMove = true}
             
             // Units did not move
-            if movedVia == .CorpsAttach {}
+            //if movedVia == .CorpsAttach {}
             if movedVia == .CorpsActed {self.finishedMove = true} // Used for the command doing the attaching or detaching
         }
     }

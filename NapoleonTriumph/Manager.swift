@@ -17,7 +17,7 @@ let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"A
 
 let imageNamesSelected = [133.0:"AUCAV3H", 132.0:"AUCAV3H", 131.0:"AUCAV3H", 123.0:"AUCAV3H", 122.0:"AUCAV3H", 121.0:"AUCAV3H", 111.0:"AUCAV3H", 142.0:"AUCAV3H", 141.0:"AUCAV3H", 143.0:"AUCAV3H", 151.1:"AUCAV3H", 151.2:"AUCAV3H", 151.3:"AUCAV3H", 233.0:"FRINF2H", 232.0:"FRINF2H", 231.0:"FRINF2H", 223.0:"FRINF2H", 222.0:"FRINF2H", 221.0:"FRINF2H", 211.0:"FRINF2H", 243.0:"FRINF2H", 242.0:"FRINF2H", 241.0:"FRINF2H", 251.1:"FRINF2H", 251.2:"FRINF2H"]
 
-let imageNamesGreyedOut = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
+let imageNamesGreyedOut = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration Grey", 151.2:"Dokhturov Grey", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire Grey", 251.2:"Vandamme Grey"]
 
 // Split this into "Off" and "Greyed out"
 let imageNamesOff = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 142.0:"AUback", 141.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
@@ -455,7 +455,7 @@ class GameManager {
         case .StoodAgainstNormalThreat, .RetreatedBeforeCombat, .StoodAgainstFeintThreat:
             
             // Set selectable commands
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             selectableAttackByRoadGroups = SelectableGroupsForAttackByRoad(activeThreat!.conflict)
             selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeThreat!.conflict)
             ToggleGroups(selectableAttackByRoadGroups, makeSelection: .Normal)
@@ -463,12 +463,13 @@ class GameManager {
         
         case .FeintMove:
             
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             SelectableGroupsForFeintDefense(activeThreat!.conflict)
+            activeThreat!.conflict.attackApproach.hidden = true
         
         case .RealAttack:
             
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             
             SelectableLeadingGroups(activeThreat!.conflict, thePhase: phaseOld)
             SelectLeadingUnits(activeThreat!.conflict)
@@ -477,14 +478,14 @@ class GameManager {
             
             // Defense leading units visible to attacker
             selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeThreat!.conflict)
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
             ToggleGroups(activeThreat!.conflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
         
         case .DeclaredAttackers:
             
             // Defense leading units visible to attacker
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             ToggleGroups(activeThreat!.conflict.attackGroup!.groups, makeSelection: .Normal)
             ToggleGroups(activeThreat!.conflict.defenseGroup!.groups, makeSelection: .NotSelectable)
             ToggleGroups(activeThreat!.conflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
@@ -495,7 +496,7 @@ class GameManager {
         case .DeclaredLeadingA:
             
             // Attack leading units visible to defender
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             ToggleGroups(activeThreat!.conflict.attackLeadingUnits!.groups, makeSelection: .Selected)
             
             if activeThreat!.conflict.mayCounterAttack {
@@ -732,7 +733,7 @@ class GameManager {
         
         //for eachGroup in reserveThreats {
             
-        ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:false)
+        ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
         
         // Determine selectable defend groups (those which can defend)
         selectableDefenseGroups = SelectableGroupsForDefense(activeThreat!.conflict)

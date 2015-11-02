@@ -18,7 +18,10 @@ enum SelectType {case Normal, Selected, Off, NotSelectable}
 class Unit: SKSpriteNode {
     
     var selected:SelectType = .Normal {
-        didSet {updateUnitTexture()}
+        didSet {
+            updateSelectedStatus()
+            updateUnitTexture()
+        }
     }
     
     var unitCode:Double = 133.0
@@ -26,7 +29,11 @@ class Unit: SKSpriteNode {
     var unitSide:Allegience = .Austrian
     var unitType:Type = .Inf
     var fixed:Bool = false
-    var hasMoved:Bool = false
+    var hasMoved:Bool = false {
+        didSet {
+            updateSelectedStatus()
+        }
+    }
     var startedAsGrd:Bool = false
     
     var alreadyDefended:Bool = false
@@ -62,6 +69,12 @@ class Unit: SKSpriteNode {
     }
     
     // MARK: Update Unit Properties
+    
+    func updateSelectedStatus() {
+        
+        if hasMoved && selected == .Normal {selected = .NotSelectable}
+        else if !hasMoved && selected == .NotSelectable {selected = .Normal}
+    }
     
     func updateUnitTexture() {
         
