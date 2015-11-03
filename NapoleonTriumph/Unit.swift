@@ -72,8 +72,12 @@ class Unit: SKSpriteNode {
     
     func updateSelectedStatus() {
         
-        if hasMoved && selected == .Normal {selected = .NotSelectable}
-        else if !hasMoved && selected == .NotSelectable {selected = .Normal}
+        if hasMoved && selected == .Normal {
+            selected = .NotSelectable
+        }
+        else if !hasMoved && selected == .NotSelectable {
+            selected = .Normal
+        } // Undo-case
     }
     
     func updateUnitTexture() {

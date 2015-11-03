@@ -41,36 +41,36 @@ class Command:SKNode {
     // Set to true when command can make no more moves during the round
     var finishedMove:Bool = false {
         didSet {
-            if finishedMove && self.hasLeader {
-                theLeader!.selected = .NotSelectable
-                if nonLeaderUnits.count == 1 {nonLeaderUnits[0].selected = .NotSelectable}
-            } else if !finishedMove && !hasMoved && self.hasLeader {
-                theLeader!.selected = .Normal
-                if nonLeaderUnits.count == 1 {nonLeaderUnits[0].selected = .Normal}
+            if finishedMove && hasLeader {
+                theLeader!.hasMoved = true
+            } else if !finishedMove && !hasMoved && hasLeader {
+                theLeader!.hasMoved = false
             }
         }
     }
     
     // Any move or attach order sets this to true
-    var hasMoved:Bool = false {
+    var hasMoved:Bool = false
+    /*
+    {
         didSet {
             if hasMoved == true {for each in self.activeUnits {each.hasMoved = true}}
             else {for each in self.activeUnits {each.hasMoved = false}}
         }
-    }
+    }*/
     //var staggeredStop:Bool = false
     
     var movedVia:MoveType = .None {
         didSet {
             // Units moved
-            if movedVia == .None {self.hasMoved = false; self.finishedMove = false}
-            if movedVia == .CorpsMove {self.hasMoved = true}
-            if movedVia == .IndMove {self.hasMoved = true}
-            //if movedVia == .CorpsDetach {self.hasMoved = true; self.finishedMove = true}
+            if movedVia == .None {hasMoved = false; finishedMove = false; for each in activeUnits {each.hasMoved = false}}
+            if movedVia == .CorpsMove {hasMoved = true; for each in activeUnits {each.hasMoved = true}}
+            if movedVia == .IndMove {hasMoved = true; activeUnits[0].hasMoved = true}
+            if movedVia == .CorpsDetach {hasMoved = true; finishedMove = true; activeUnits[0].hasMoved = true}
             
             // Units did not move
             //if movedVia == .CorpsAttach {}
-            if movedVia == .CorpsActed {self.finishedMove = true} // Used for the command doing the attaching or detaching
+            if movedVia == .CorpsActed {hasMoved = true; finishedMove = true} // Used for the command doing the attaching or detaching
         }
     }
     
@@ -157,13 +157,13 @@ class Command:SKNode {
                 
             case 0:
                 rdMoves = [currentLocation!]
-                hasMoved = false
+                //hasMoved = false
             case 1:
                 if rdMoves.count == 1 {rdMoves += [currentLocation!]} else {rdMoves.removeAtIndex(2)}
-                hasMoved = true
+                //hasMoved = true
             case 2:
                 if rdMoves.count == 2 {rdMoves += [currentLocation!]} else {rdMoves.removeAtIndex(3)}
-                hasMoved = true
+                //hasMoved = true
             case 3:
                 if rdMoves.count == 3 {rdMoves += [currentLocation!]}
             default:
@@ -346,7 +346,8 @@ class Command:SKNode {
         
         //Set command properties
         if nonLeaderCount == cavCount {isAllCav = true}
-        if (hasLeader && nonLeaderCount > 1) {isTwoPlusCorps = true}
+        
+        if hasLeader && nonLeaderCount > 1 {isTwoPlusCorps = true}
         unitCount = nonLeaderCount
         
         // Case of a dead command (place in heaven or resurrect)

@@ -227,8 +227,8 @@ class Order {
                     newCommandArray += [nCommand]; manager!.gameCommands[nCommand.commandSide]! += [nCommand] // Add new command to orders and game commands
                     
                     moveCommandArray += [nCommand]
-                    baseGroup!.command.movedVia = .CorpsActed
                 }
+                baseGroup!.command.movedVia = .CorpsActed
                 
             } else if moveType == .IndMove {
                 
@@ -282,12 +282,19 @@ class Order {
                 }
                 
                 // Add the new commands to their occupants if the base moved (if something was detached in the original location
+                //print (moveBase[0])
                 if moveBase[0] && !newCommands.isEmpty {
                     for each in newCommands[0]! {
                         each.currentLocation?.occupants += [each]
                         //each.freeMove = baseGroup!.command.freeMove
                         //each.turnEnteredMap = baseGroup!.command.turnEnteredMap
                     }
+                } else if baseGroup!.leaderInGroup && baseGroup!.command
+                    .theLeader!.hasMoved && baseGroup!.command.unitCount == 1 {
+                        if !baseGroup!.nonLdrUnits[0].hasMoved {swappedUnit = baseGroup!.nonLdrUnits[0]; swappedUnit!.hasMoved = true}
+                } else if otherGroup!.leaderInGroup && otherGroup!.command
+                    .theLeader!.hasMoved && otherGroup!.command.unitCount == 1 {
+                        if !otherGroup!.nonLdrUnits[0].hasMoved {swappedUnit = otherGroup!.nonLdrUnits[0]; swappedUnit!.hasMoved = true}
                 }
                 
                 // Update reserves
@@ -364,15 +371,21 @@ class Order {
                     if baseGroup!.command.moveNumber == 0 {baseGroup!.command.movedVia = .None}
                     baseGroup!.command.finishedMove = false
                     
+                    
+                    
                     //if startLocaleReserve!.name == "201" {
                     //    baseGroup!.command.turnEnteredMap = -1
                     //}
                     
                 }
                 
-            } else {
+            } else if !playback {
                 
-                if moveType == .CorpsDetach && !playback {baseGroup!.command.movedVia = .None}
+                if moveType == .CorpsDetach {baseGroup!.command.movedVia = .None}
+                
+                if swappedUnit != nil {
+                    swappedUnit!.hasMoved = false
+                }
             }
             
             if playback {break}

@@ -1186,10 +1186,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func MoveUI(touchedNodeFromView:SKNode) {
         
         let returnType = ReturnMoveType(); if returnType == .None {return Void()}
+        let theGroup = manager!.currentGroupsSelected[0]
         
         // Sets up command order usage
         var commandUsage:Bool?
-        if manager!.currentGroupsSelected[0].command.hasMoved || manager!.phaseOld == .Setup {}
+        if manager!.phaseOld == .Setup {}
+        else if theGroup.fullCommand && theGroup.command.hasMoved {}
+        //else if theGroup.units.count > 1 && theGroup.command
         else if independentSelector?.selected == .On {commandUsage = false}
         else {commandUsage = true}
         

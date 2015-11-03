@@ -136,6 +136,7 @@ class Reserve:Location {
             if eachReserveCommand.commandSide == .Austrian {localeControl = .Austrian} else {localeControl = .French}
             if eachReserveCommand.isTwoPlusCorps {has2PlusCorps = eachReserveCommand.commandSide}
             if eachReserveCommand.moveNumber > 0 {haveCommandsEntered = true; commandsEntered += [eachReserveCommand]; numberCommandsEntered++}
+            //if eachReserveCommand.hasLeader {eachReserveCommand.theLeader!.updateSelectedStatus()}
                 //== true {commandsEntered++}
         }
         

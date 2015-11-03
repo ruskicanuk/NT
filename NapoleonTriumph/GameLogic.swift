@@ -56,9 +56,9 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     // Has moved case - in which case either independent move / corps move again (or attach if there is a viable attach)
     if commandSelected.hasMoved {
         
-        if commandSelected.movedVia == .IndMove && groupSelected.fullCommand && !commandSelected.finishedMove {return (.Off, .Off, attachMove, .On)}
-        else if commandSelected.movedVia == .CorpsMove && groupSelected.fullCommand && !commandSelected.finishedMove {return (.On, .Off, attachMove, .Off)}
-        else {return (.Off, .Off, attachMove, .Off)}
+        if commandSelected.movedVia == .IndMove {return (.Off, .Off, .Off, .On)}
+        else if commandSelected.movedVia == .CorpsMove && groupSelected.fullCommand {return (.On, .Off, .Off, .Off)}
+        //else {return (.Off, .Off, attachMove, .Off)}
     }
     
     // If command has finished move, return off for all (except if a single unit is selected - could happen if a unit is attached)
