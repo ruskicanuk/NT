@@ -9,7 +9,7 @@ import UIKit
 
 class StateManager {
 
-    var games:Array<Game> = []
+    var games:Array<GameManager> = []
 
     init()
     {
@@ -36,7 +36,7 @@ class StateManager {
             // do we get serialized data back from the attempted path?
             // if so, unarchive it into an AnyObject, and then convert to an array of HighScores, if possible
             let scoreArray: AnyObject? = NSKeyedUnarchiver.unarchiveObjectWithData(rawData);
-            self.games = scoreArray as? [Game] ?? [];
+            self.games = scoreArray as? [GameManager] ?? [];
         }
         
     }
@@ -51,8 +51,9 @@ class StateManager {
         saveData.writeToFile(path, atomically: true);
     }
     
-    func addGame(game: Game)
+    func addGame(game: GameManager)
     {
+        self.games = []
         self.games.append(game)
         save()
     }

@@ -95,9 +95,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
     var swipeStart:Bool = false
     var swipeDown:Bool = false
     var swipeUp:Bool = false
-    var swipeQueue:Array = [SKNode]()
+    var swipeQueue = [SKNode?]()
     var swipeQueueIndex:Int = 0
     var newSwipeQueue:Bool = true
+    
     
     func QueueSwipe (swipeUp:Bool) {
         
@@ -119,10 +120,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
 
         // Elevate z-position of next in index
         if swipeQueue[swipeQueueIndex] is Command {(swipeQueue[swipeQueueIndex] as! Command).SetUnitsZ(100)}
-        else {swipeQueue[swipeQueueIndex].zPosition = 200}
+        else {swipeQueue[swipeQueueIndex]!.zPosition = 200}
         
         if swipeQueue[nextIndex] is Command {(swipeQueue[nextIndex] as! Command).SetUnitsZ(1000)}
-        else {swipeQueue[nextIndex].zPosition = 1000}
+        else {swipeQueue[nextIndex]!.zPosition = 1000}
 
         swipeQueueIndex = nextIndex
     }
@@ -135,9 +136,20 @@ class GameScene: SKScene, NSXMLParserDelegate {
         mapScaleFactor = setupMap()
         setupMenu()
         
-        // Setup game-manager
-        manager = GameManager(theMenu: NTMenu!)
-        manager!.setupCommandDashboard()
+        
+        let sManager = StateManager()
+        
+        if(sManager.games.count>0)
+        {
+            manager = sManager.games.first
+        }
+        else
+        {
+            // Setup game-manager
+            manager = GameManager(theMenu: NTMenu!)
+            manager!.setupCommandDashboard()
+
+        }
         
         //Parse xml file to finish map setup
         parseXMLFileWithName("MapBuilder")
@@ -229,10 +241,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 let distanceFromCommandSelected = DistanceBetweenTwoCGPoints(eachCommand.position, Position2: mapLocation!)
                 if distanceFromCommandSelected < acceptableDistance {
-                    swipeQueue += [eachCommand]
+//TODO: Find the solution for below 2 commented lines
+                    //                    swipeQueue += [eachCommand]
                 }
             }
-            swipeQueue = Array(Set(swipeQueue))
+//            swipeQueue = Array(Set(swipeQueue))
             swipeQueueIndex = 0
             newSwipeQueue = false
         }
@@ -2054,7 +2067,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         for eachObject in swipeQueue {
             if eachObject is Command {(eachObject as! Command).SetUnitsZ(100)}
-            else {eachObject.zPosition = 200}
+            else {eachObject!.zPosition = 200}
         }
         
         swipeQueue = []
