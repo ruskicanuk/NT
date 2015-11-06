@@ -286,15 +286,11 @@ class Order {
                 if moveBase[0] && !newCommands.isEmpty {
                     for each in newCommands[0]! {
                         each.currentLocation?.occupants += [each]
-                        //each.freeMove = baseGroup!.command.freeMove
-                        //each.turnEnteredMap = baseGroup!.command.turnEnteredMap
                     }
-                } else if baseGroup!.leaderInGroup && baseGroup!.command
-                    .theLeader!.hasMoved && baseGroup!.command.unitCount == 1 {
-                        if !baseGroup!.nonLdrUnits[0].hasMoved {swappedUnit = baseGroup!.nonLdrUnits[0]; swappedUnit!.hasMoved = true}
-                } else if otherGroup!.leaderInGroup && otherGroup!.command
-                    .theLeader!.hasMoved && otherGroup!.command.unitCount == 1 {
-                        if !otherGroup!.nonLdrUnits[0].hasMoved {swappedUnit = otherGroup!.nonLdrUnits[0]; swappedUnit!.hasMoved = true}
+                } else if baseGroup!.leaderInGroup {
+                    swappedUnit = CheckForOneBlockCorps(baseGroup!.command)
+                } else if otherGroup!.leaderInGroup {
+                    swappedUnit = CheckForOneBlockCorps(baseGroup!.command)
                 }
                 
                 // Update reserves
@@ -367,9 +363,8 @@ class Order {
                 // Update command movement trackers
                 if !playback {
                 
-                    if endLocation.locationType != .Start {baseGroup!.command.moveNumber--}  else {baseGroup?.command.rdMoves = []}
+                    if endLocation.locationType != .Start && startLocation[0] != endLocation {baseGroup!.command.moveNumber--}  else {baseGroup!.command.hasMoved = false} //{baseGroup?.command.rdMoves = []}
                     if baseGroup!.command.moveNumber == 0 {baseGroup!.command.movedVia = .None}
-                    baseGroup!.command.finishedMove = false
                     
                     
                     
@@ -671,12 +666,15 @@ class Order {
                 oldCommands[0].passUnitTo(swappedUnit!, recievingCommand: baseGroup!.command)
                 if playback{break}
                 
-                if oldCommands[0].hasMoved {oldCommands[0].finishedMove = true; reverseCode = 2} // Captures rare case where you might "drop off" an attached unit and try to move again
+                //if oldCommands[0].hasMoved {oldCommands[0].finishedMove = true; reverseCode = 2} // Captures rare case where you might "drop off" an attached unit and try to move again
                 baseGroup!.command.movedVia = .CorpsActed
                 
                 if oldCommands[0].unitCount == 0 {
                     oldCommands[0].currentLocation?.occupants.removeObject(oldCommands[0])
                 }
+                
+                // This stores a unit that is flagged for deselection due to being the last unit in a used corps
+                reduceLeaderReduction = CheckForOneBlockCorps(oldCommands[0])
                     
                 if startLocation[0].locationType != .Start {for each in startLocaleReserve!.adjReserves {each.UpdateReserveState()}; startLocaleReserve!.UpdateReserveState()}
             }
@@ -693,8 +691,11 @@ class Order {
                 if playback{break}
                 
                 baseGroup!.command.movedVia = .None
+                
+                // This reverses a unit flagged as having moved for being alone with a leader
+                if reduceLeaderReduction != nil {reduceLeaderReduction!.hasMoved = false}
             
-                if reverseCode == 2 {oldCommands[0].finishedMove = false}
+                //if reverseCode == 2 {oldCommands[0].finishedMove = false}
                 
                 // Update reserves
                 if startLocation[0].locationType != .Start {for each in startLocaleReserve!.adjReserves {each.UpdateReserveState()}; startLocaleReserve!.UpdateReserveState()}

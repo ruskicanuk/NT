@@ -930,15 +930,24 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 theConflict.counterAttackGroup = GroupSelection(theGroups: theConflict.availableCounterAttackers!.groups, selectedOnly:false)
                 
-                // Initial selection
-                //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
+                // Use up orders and update moved status for attack groups
+                let numberOfCommands = theConflict.attackGroup!.groups.count
+                if independentSelector!.selected == .On {
+                    manager!.indCommandsAvail -= numberOfCommands
+                    for eachGroup in theConflict.attackGroup!.groups {eachGroup.command.movedVia = .IndMove}
+                } else if corpsDetachSelector!.selected == .On {
+                    manager!.corpsCommandsAvail -= numberOfCommands
+                    theConflict.attackGroup!.groups[0].command.movedVia = .CorpsActed
+                    for each in theConflict.attackGroup!.groups[0].units {each.hasMoved = true}
+                } else if corpsMoveSelector!.selected == .On {
+                    for eachGroup in theConflict.attackGroup!.groups {eachGroup.command.movedVia = .CorpsMove}
+                }
                 
-                //ToggleGroups(theConflict.defenseGroup!.groups, makeSelection: .NotSelectable)
-                //ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
+                // Assign has-moved status
+                
 
                 manager!.NewPhase(1, reverse: false, playback: false)
                 ResetSelectors()
-                //SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
                 
             // Attacker confirming their leading units
             case .DeclaredAttackers:
@@ -1073,13 +1082,18 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     newOrder.ExecuteOrder()
                     manager!.orders += [newOrder]
                     
+                    if theConflict.attackMoveType == .CorpsDetach {
+                        remainGroup.groups[0].command.movedVia = .CorpsActed
+                    }
                     // Need to set the units as having moved (no need to store order as not undoable)
+                    /*
                     for (_, commandGroup) in newOrder.moveCommands {
                         for eachCommand in commandGroup {
                             eachCommand.movedVia = theConflict.attackMoveType!
                             eachCommand.finishedMove = true
                         }
                     }
+                    */
                 }
                 
             }
@@ -1121,7 +1135,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Attack moves
         for eachGroup in theConflict.attackGroup!.groups {
             
-            let newOrder = Order(groupFromView: eachGroup, touchedNodeFromView: moveToNode, orderFromView: .Move, corpsOrder: theConflict.attackMoveType! != .IndMove, moveTypePassed: theConflict.attackMoveType!, mapFromView:NTMap!)
+            let newOrder = Order(groupFromView: eachGroup, touchedNodeFromView: moveToNode, orderFromView: .Move, corpsOrder: nil, moveTypePassed: theConflict.attackMoveType!, mapFromView:NTMap!)
             newOrder.ExecuteOrder()
             newOrder.unDoable = false
             manager!.orders += [newOrder]

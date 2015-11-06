@@ -51,14 +51,6 @@ class Command:SKNode {
     
     // Any move or attach order sets this to true
     var hasMoved:Bool = false
-    /*
-    {
-        didSet {
-            if hasMoved == true {for each in self.activeUnits {each.hasMoved = true}}
-            else {for each in self.activeUnits {each.hasMoved = false}}
-        }
-    }*/
-    //var staggeredStop:Bool = false
     
     var movedVia:MoveType = .None {
         didSet {

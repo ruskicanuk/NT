@@ -1313,6 +1313,18 @@ func SelectableUnits(theGroups:[Group]) -> [Unit] {
     return theUnits
 }
 
+// Returns the lone unit if the leader has moved and the unit did not
+func CheckForOneBlockCorps(theCommand:Command?) -> Unit? {
+    
+    if theCommand == nil {return nil}
+    var potentialUnit:Unit?
+    if theCommand!.hasLeader && theCommand!.theLeader!.hasMoved && theCommand!.unitCount == 1 {
+        potentialUnit = theCommand!.activeUnits.filter{$0.unitType != .Ldr}[0]
+        if !potentialUnit!.hasMoved {potentialUnit!.hasMoved = true; return potentialUnit}
+    }
+    return nil
+}
+
 
 /*
 func UnitsHaveLeader(units:[Unit]) -> Bool {
