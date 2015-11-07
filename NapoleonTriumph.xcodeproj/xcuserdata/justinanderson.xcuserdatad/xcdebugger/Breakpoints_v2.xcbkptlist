@@ -15,7 +15,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1441"
             endingLineNumber = "1441"
-            landmarkName = "parser(_:didStartElement:namespaceURI:qualifiedName:attributes:)"
+            landmarkName = "parseXMLFileWithName(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -47,7 +47,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "515"
             endingLineNumber = "515"
-            landmarkName = "NewPhase(_:reverse:playback:)"
+            landmarkName = "encodeWithCoder(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -143,7 +143,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1641"
             endingLineNumber = "1641"
-            landmarkName = "linkReserves()"
+            landmarkName = "linkApproaches()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -191,7 +191,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2009"
             endingLineNumber = "2009"
-            landmarkName = "MoveOrdersAvailable(_:)"
+            landmarkName = "ToggleBattleWidthUnitSelection(_:theThreat:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -271,7 +271,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2029"
             endingLineNumber = "2029"
-            landmarkName = "AttackOrdersAvailable(_:)"
+            landmarkName = "MoveOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -335,7 +335,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2028"
             endingLineNumber = "2028"
-            landmarkName = "AttackOrdersAvailable(_:)"
+            landmarkName = "MoveOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -431,7 +431,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2037"
             endingLineNumber = "2037"
-            landmarkName = "AttackOrdersAvailable(_:)"
+            landmarkName = "MoveOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -447,7 +447,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2030"
             endingLineNumber = "2030"
-            landmarkName = "AttackOrdersAvailable(_:)"
+            landmarkName = "MoveOrdersAvailable(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -575,7 +575,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2124"
             endingLineNumber = "2124"
-            landmarkName = "ReturnMoveType()"
+            landmarkName = "ResetSelectors()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -591,7 +591,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2125"
             endingLineNumber = "2125"
-            landmarkName = "ReturnMoveType()"
+            landmarkName = "ResetSelectors()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -895,7 +895,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1849"
             endingLineNumber = "1849"
-            landmarkName = "LeadingUnitSelection(_:)"
+            landmarkName = "FeintDefenseUnitSelection(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1087,7 +1087,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1734"
             endingLineNumber = "1734"
-            landmarkName = "DefenseGroupUnitSelection(_:retreatMode:theTouchedThreat:)"
+            landmarkName = "MoveGroupUnitSelection(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1103,7 +1103,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "418"
             endingLineNumber = "418"
-            landmarkName = "NewPhase(_:reverse:playback:)"
+            landmarkName = "getGamephase(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1151,8 +1151,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1008"
             endingLineNumber = "1008"
-            landmarkName = "ProcessBattle()"
-            landmarkType = "5">
+            landmarkName = "GameScene"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1279,7 +1279,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1981"
             endingLineNumber = "1981"
-            landmarkName = "ToggleBattleWidthUnitSelection(_:theThreat:)"
+            landmarkName = "AttackGroupUnitSelection(_:realAttack:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1391,8 +1391,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2020"
             endingLineNumber = "2020"
-            landmarkName = "MoveOrdersAvailable(_:)"
-            landmarkType = "5">
+            landmarkName = "GameScene"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1439,7 +1439,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1271"
             endingLineNumber = "1271"
-            landmarkName = "AttackThreatUI(_:)"
+            landmarkName = "MoveUI(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1839,7 +1839,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2016"
             endingLineNumber = "2016"
-            landmarkName = "MoveOrdersAvailable(_:)"
+            landmarkName = "ToggleBattleWidthUnitSelection(_:theThreat:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2351,7 +2351,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2067"
             endingLineNumber = "2067"
-            landmarkName = "DeselectEverything(_:)"
+            landmarkName = "ResetSwipeQueue()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2367,7 +2367,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2068"
             endingLineNumber = "2068"
-            landmarkName = "DeselectEverything(_:)"
+            landmarkName = "ResetSwipeQueue()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2383,7 +2383,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "495"
             endingLineNumber = "495"
-            landmarkName = "NewPhase(_:reverse:playback:)"
+            landmarkName = "encodeWithCoder(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2415,7 +2415,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "496"
             endingLineNumber = "496"
-            landmarkName = "NewPhase(_:reverse:playback:)"
+            landmarkName = "encodeWithCoder(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2559,8 +2559,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "674"
             endingLineNumber = "674"
-            landmarkName = "setupCommandDashboard()"
-            landmarkType = "5">
+            landmarkName = "GameManager"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2639,7 +2639,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "437"
             endingLineNumber = "437"
-            landmarkName = "NewPhase(_:reverse:playback:)"
+            landmarkName = "getAllegience(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2719,7 +2719,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1816"
             endingLineNumber = "1816"
-            landmarkName = "FeintDefenseUnitSelection(_:)"
+            landmarkName = "DefenseGroupUnitSelection(_:retreatMode:theTouchedThreat:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2815,8 +2815,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1675"
             endingLineNumber = "1675"
-            landmarkName = "MoveGroupUnitSelection(_:)"
-            landmarkType = "5">
+            landmarkName = "GameScene"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2831,7 +2831,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1672"
             endingLineNumber = "1672"
-            landmarkName = "MoveGroupUnitSelection(_:)"
+            landmarkName = "linkReserves()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2927,7 +2927,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2115"
             endingLineNumber = "2115"
-            landmarkName = "ResetSelectors()"
+            landmarkName = "HideAllLocations(_:hiddenLocationsOnly:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3567,7 +3567,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1342"
             endingLineNumber = "1342"
-            landmarkName = "ReduceUnitUI(_:theGroupConflict:)"
+            landmarkName = "DefendAgainstFeintUI(_:theGroupSelection:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3583,7 +3583,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1338"
             endingLineNumber = "1338"
-            landmarkName = "ReduceUnitUI(_:theGroupConflict:)"
+            landmarkName = "DefendAgainstFeintUI(_:theGroupSelection:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3983,7 +3983,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1351"
             endingLineNumber = "1351"
-            landmarkName = "SecondMoveUI()"
+            landmarkName = "ReduceUnitUI(_:theGroupConflict:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3999,7 +3999,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1353"
             endingLineNumber = "1353"
-            landmarkName = "SecondMoveUI()"
+            landmarkName = "ReduceUnitUI(_:theGroupConflict:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
