@@ -18,9 +18,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
     // Map drawing and menu buttons
     var NTMap:SKSpriteNode?
     var NTMenu:SKNode?
-    var undoButton:SKSpriteNode?
+    var undoButton:UIButton!
+    //var undoButton:SKSpriteNode?
     var endTurnButton:SKSpriteNode?
-    var terrainButton:SKSpriteNode?
+    //var terrainButton:SKSpriteNode?
+    var terrainButton:UIButton!
     var fastfwdButton:SKSpriteNode?
     var rewindButton:SKSpriteNode?
     var hideCommandsButton:SKSpriteNode?
@@ -158,7 +160,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Hide the locations
         HideAllLocations(true)
-        NSNotificationCenter.defaultCenter().postNotificationName(SHOWMENU, object: nil)
+        //NSNotificationCenter.defaultCenter().postNotificationName(SHOWMENU, object: nil)
     }
     
     // MARK: TouchedNode and HoldNode
@@ -1543,26 +1545,42 @@ class GameScene: SKScene, NSXMLParserDelegate {
         NTMenu!.zPosition = 5000
         self.addChild(NTMenu!)
         
+        /*
         undoButton = SKSpriteNode(texture: SKTexture(imageNamed: "black_marker"), color: UIColor(), size: CGSize(width: 50, height: 50))
         NTMenu!.addChild(undoButton!)
         undoButton!.zPosition = NTMenu!.zPosition + 1.0
         undoButton!.position = CGPoint(x: 0.0, y: 60.0)
+        */
         
+        undoButton = UIButton.init(frame: CGRectMake(-30, -30, 100, 100))
+        undoButton.setImage(UIImage.init(named: "black_marker"), forState: UIControlState.Normal)
+        undoButton.addTarget(self, action:"undoTest" , forControlEvents: UIControlEvents.TouchUpInside)
+        largeMenu.addSubview(undoButton)
+
         endTurnButton = SKSpriteNode(texture: SKTexture(imageNamed: "blue_marker"), color: UIColor(), size: CGSize(width: 50, height: 50))
         NTMenu!.addChild(endTurnButton!)
         endTurnButton!.zPosition = NTMenu!.zPosition + 1.0
         endTurnButton!.position = CGPoint(x: 0.0, y: 0.0)
         
+        /*
         terrainButton = SKSpriteNode(texture: SKTexture(imageNamed: "FRback"), color: UIColor(), size: CGSize(width: 50, height: 10))
         NTMenu!.addChild(terrainButton!)
         terrainButton!.zPosition = NTMenu!.zPosition + 1.0
         terrainButton!.position = CGPoint(x: 0.0, y: -50.0)
+        */
         
+        terrainButton = UIButton.init(frame: CGRectMake(-10, -30, 100, 100))
+        terrainButton.setImage(UIImage.init(named: "FRback"), forState: UIControlState.Normal)
+        terrainButton.addTarget(self, action:"terrainToggle" , forControlEvents: UIControlEvents.TouchUpInside)
+        largeMenu.addSubview(terrainButton)
+
         fastfwdButton = SKSpriteNode(texture: SKTexture(imageNamed: "icon_blue_down"), color: UIColor(), size: CGSize(width: 50, height: 50))
         NTMenu!.addChild(fastfwdButton!)
         fastfwdButton!.zPosition = NTMenu!.zPosition + 1.0
         fastfwdButton!.zRotation = CGFloat(M_PI/2)
         fastfwdButton!.position = CGPoint(x: 0.0, y: -110.0)
+        
+        //baseMenu.addSubview(fastfwdButton)
         
         rewindButton = SKSpriteNode(texture: SKTexture(imageNamed: "icon_red_down"), color: UIColor(), size: CGSize(width: 50, height: 50))
         NTMenu!.addChild(rewindButton!)
@@ -2141,7 +2159,20 @@ class GameScene: SKScene, NSXMLParserDelegate {
         else if manager!.phaseOld == .Setup {return .CorpsMove}
         else {return .None}
     }
-        
+    
+    // MARK: Menu functions
+    
+    func undoTest() {
+        print("made it")
+    }
+    
+    func terrainToggle() {
+        commandsHidden = !commandsHidden
+        HideAllCommands(commandsHidden)
+        HideAllOrderArrows(commandsHidden)
+        HideAllLocations(commandsHidden)
+    }
+    
 }
 
 

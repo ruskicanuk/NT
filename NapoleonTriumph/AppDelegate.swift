@@ -8,17 +8,13 @@
 
 import UIKit
 
-let HIDEMENU: String = "hidemenu"
-let SHOWMENU: String = "showmenu"
-
-var gameScene:GameScene!
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        
         // Override point for customization after application launch.
         
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
@@ -57,7 +53,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
       
     }
-    
-    
 }
 
