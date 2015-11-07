@@ -36,17 +36,17 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "showMenu", name: SHOWMENU, object: nil)
 
         
-        let manager: StateManager = StateManager.init()
-        
-        let games: Array<Game> = manager.games
-        
-        if games.count == 0
-        {
-            let game:Game = Game.init(score: 100, gameMode: GameMode.SinglePlayer)
-            manager.addGame(game)
-        }
-        
-        print(games.description)
+//        let manager: StateManager = StateManager.init()
+//        
+//        let games: Array<GameManager> = manager.games
+//        
+//        if games.count == 0
+//        {
+//            let game:Game = Game.init(score: 100, gameMode: GameMode.SinglePlayer)
+//            manager.addGame(game)
+//        }
+//        
+//        print(games.description)
         
         /*
         

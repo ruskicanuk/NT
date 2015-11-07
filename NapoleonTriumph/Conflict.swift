@@ -5,6 +5,7 @@
 //  Created by Justin Anderson on 2015-08-28.
 //  Copyright © 2015 Justin Anderson. All rights reserved.
 //
+import Foundation
 
 
 class Conflict {
@@ -517,7 +518,7 @@ class GroupConflict {
     
 }
 
-class Group {
+class Group: NSObject, NSCoding {
     
     let command:Command!
     let units:[Unit]!
@@ -541,6 +542,40 @@ class Group {
     var guardInGroup:Bool = false
     var cavCount:Int = 0
     var nonLdrUnitCount:Int = 0
+    
+    func encodeWithCoder(aCoder: NSCoder) {
+        
+        aCoder.encodeObject(command, forKey: "command")
+        aCoder.encodeObject(units, forKey: "units")
+        aCoder.encodeBool(artOnly, forKey: "artOnly")
+        aCoder.encodeBool(artOnly, forKey: "artOnly")
+        aCoder.encodeBool(fullCommand, forKey: "fullCommand")
+        aCoder.encodeBool(leaderInGroup, forKey: "leaderInGroup")
+        aCoder.encodeBool(allCav, forKey: "allCav")
+        aCoder.encodeBool(allGuard, forKey: "allGuard")
+        aCoder.encodeBool(guardInGroup, forKey: "guardInGroup")
+        aCoder.encodeObject(leaderUnit, forKey: "leaderUnit")
+        aCoder.encodeInteger(cavCount, forKey: "cavCount")
+        aCoder.encodeInteger(nonLdrUnitCount, forKey: "nonLdrUnitCount")
+        
+        }
+    
+    required init(coder aDecoder: NSCoder) {
+
+        command = aDecoder.decodeObjectForKey("command") as! Command
+        units = aDecoder.decodeObjectForKey("units") as! [Unit]!
+//        nonLdrUnits = aDecoder.decodeObjectForKey("nonLdrUnits") as! [Unit]!
+        artOnly=aDecoder.decodeBoolForKey("artOnly")
+        leaderUnit=aDecoder.decodeObjectForKey("leaderUnit") as? Unit
+        fullCommand=aDecoder.decodeBoolForKey("fullCommand")
+        leaderInGroup=aDecoder.decodeBoolForKey("leaderInGroup")
+        allCav=aDecoder.decodeBoolForKey("allCav")
+        allGuard=aDecoder.decodeBoolForKey("allGuard")
+        someUnitsHaveMoved=aDecoder.decodeBoolForKey("someUnitsHaveMoved")
+        guardInGroup=aDecoder.decodeBoolForKey("guardInGroup")
+        cavCount=aDecoder.decodeIntegerForKey("cavCount")
+        nonLdrUnitCount=aDecoder.decodeIntegerForKey("nonLdrUnitCount")
+    }
 
     init(theCommand:Command, theUnits:[Unit]) {
         command = theCommand
@@ -557,6 +592,8 @@ class Group {
         }
         
         if nonLdrUnitCount == command.unitCount {fullCommand = true}
+        super.init()
+
     }
     
 }

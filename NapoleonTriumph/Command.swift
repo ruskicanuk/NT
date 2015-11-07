@@ -15,6 +15,7 @@ enum MoveType {
 
 class Command:SKNode {
     
+    
     // MARK: Properties
     
     //Stores the name and type of initial location

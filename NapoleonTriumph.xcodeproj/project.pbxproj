@@ -20,22 +20,23 @@
 		8C208D9E1B61DA0600FAE45A /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208D9D1B61DA0600FAE45A /* Location.swift */; };
 		8C208DA21B637D9900FAE45A /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208DA11B637D9900FAE45A /* Manager.swift */; };
 		8C208DA41B6F29E400FAE45A /* GameLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208DA31B6F29E400FAE45A /* GameLogic.swift */; };
-		8C5493491BD99C1E008B8CC0 /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5493481BD99C1E008B8CC0 /* AI.swift */; settings = {ASSET_TAGS = (); }; };
+		8C5493491BD99C1E008B8CC0 /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5493481BD99C1E008B8CC0 /* AI.swift */; };
 		8CCAB4811B5B480C00324D99 /* Approach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4801B5B480C00324D99 /* Approach.swift */; };
 		8CCAB4831B5B4A8100324D99 /* MapBuilder.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8CCAB4821B5B4A8100324D99 /* MapBuilder.xml */; };
 		8CCAB4871B5B6C3A00324D99 /* Reserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4861B5B6C3A00324D99 /* Reserve.swift */; };
 		8CCAB4891B5B722100324D99 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAB4881B5B722100324D99 /* Command.swift */; };
 		8CF85B041B76F0E7008D7723 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF85B031B76F0E7008D7723 /* Support.swift */; };
-		8E19A4AD1BD4ACBC00BF2EA9 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E19A4AC1BD4ACBC00BF2EA9 /* Game.swift */; settings = {ASSET_TAGS = (); }; };
-		8E19A4B21BD4B70200BF2EA9 /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E19A4B11BD4B70200BF2EA9 /* StateManager.swift */; settings = {ASSET_TAGS = (); }; };
-		8E19A4B41BD4D76B00BF2EA9 /* default.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8E19A4B31BD4D76B00BF2EA9 /* default.plist */; settings = {ASSET_TAGS = (); }; };
-		8E19A4B51BD4D76E00BF2EA9 /* default.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8E19A4B31BD4D76B00BF2EA9 /* default.plist */; settings = {ASSET_TAGS = (); }; };
-		8E19A4B61BD4D76F00BF2EA9 /* default.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8E19A4B31BD4D76B00BF2EA9 /* default.plist */; settings = {ASSET_TAGS = (); }; };
-		8E2F18841BD0BD91000E2AFB /* CustomMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E2F18831BD0BD91000E2AFB /* CustomMenuView.swift */; settings = {ASSET_TAGS = (); }; };
-		8E65EB3A1BBBF499001BE1E9 /* HowToPlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E65EB391BBBF499001BE1E9 /* HowToPlayViewController.swift */; settings = {ASSET_TAGS = (); }; };
-		8E8DF43F1BBBF79000CE8E28 /* GameSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8DF43E1BBBF79000CE8E28 /* GameSetup.swift */; settings = {ASSET_TAGS = (); }; };
-		8E9736651BB909CB008FB496 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9736641BB909CB008FB496 /* MenuView.swift */; settings = {ASSET_TAGS = (); }; };
-		8E97366D1BB912E8008FB496 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E97366C1BB912E8008FB496 /* Assets.xcassets */; settings = {ASSET_TAGS = (); }; };
+		8E19A4AD1BD4ACBC00BF2EA9 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E19A4AC1BD4ACBC00BF2EA9 /* Game.swift */; };
+		8E19A4B21BD4B70200BF2EA9 /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E19A4B11BD4B70200BF2EA9 /* StateManager.swift */; };
+		8E19A4B41BD4D76B00BF2EA9 /* default.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8E19A4B31BD4D76B00BF2EA9 /* default.plist */; };
+		8E19A4B51BD4D76E00BF2EA9 /* default.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8E19A4B31BD4D76B00BF2EA9 /* default.plist */; };
+		8E19A4B61BD4D76F00BF2EA9 /* default.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8E19A4B31BD4D76B00BF2EA9 /* default.plist */; };
+		8E2F18841BD0BD91000E2AFB /* CustomMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E2F18831BD0BD91000E2AFB /* CustomMenuView.swift */; };
+		8E65EB3A1BBBF499001BE1E9 /* HowToPlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E65EB391BBBF499001BE1E9 /* HowToPlayViewController.swift */; };
+		8E8DF43F1BBBF79000CE8E28 /* GameSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8DF43E1BBBF79000CE8E28 /* GameSetup.swift */; };
+		8E9736651BB909CB008FB496 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9736641BB909CB008FB496 /* MenuView.swift */; };
+		8E97366D1BB912E8008FB496 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E97366C1BB912E8008FB496 /* Assets.xcassets */; };
+		ECB03AA91BECE287003AAB11 /* default.plist in Resources */ = {isa = PBXBuildFile; fileRef = ECB03AA81BECE287003AAB11 /* default.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +90,7 @@
 		8E8DF43E1BBBF79000CE8E28 /* GameSetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameSetup.swift; sourceTree = "<group>"; };
 		8E9736641BB909CB008FB496 /* MenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		8E97366C1BB912E8008FB496 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		ECB03AA81BECE287003AAB11 /* default.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = default.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +121,7 @@
 		8C18DAD11B5B342900FF30DF = {
 			isa = PBXGroup;
 			children = (
+				ECB03AA81BECE287003AAB11 /* default.plist */,
 				8C208D991B5C8BE600FAE45A /* Notes */,
 				8C18DADC1B5B342900FF30DF /* NapoleonTriumph */,
 				8C18DAF51B5B342900FF30DF /* NapoleonTriumphTests */,
@@ -143,6 +146,7 @@
 				8E19A4AE1BD4B65B00BF2EA9 /* Manager */,
 				8E19A4AB1BD4ACA600BF2EA9 /* Models */,
 				8E97366C1BB912E8008FB496 /* Assets.xcassets */,
+				8E19A4B11BD4B70200BF2EA9 /* StateManager.swift */,
 				8E65EB391BBBF499001BE1E9 /* HowToPlayViewController.swift */,
 				8E8DF43E1BBBF79000CE8E28 /* GameSetup.swift */,
 				8E9736641BB909CB008FB496 /* MenuView.swift */,
@@ -198,7 +202,6 @@
 		8E19A4AE1BD4B65B00BF2EA9 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				8E19A4B11BD4B70200BF2EA9 /* StateManager.swift */,
 			);
 			name = Manager;
 			sourceTree = "<group>";
@@ -311,6 +314,7 @@
 			files = (
 				8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */,
 				8E19A4B51BD4D76E00BF2EA9 /* default.plist in Resources */,
+				ECB03AA91BECE287003AAB11 /* default.plist in Resources */,
 				8C208D9A1B5C8BE600FAE45A /* Notes in Resources */,
 				8E97366D1BB912E8008FB496 /* Assets.xcassets in Resources */,
 				8CCAB4831B5B4A8100324D99 /* MapBuilder.xml in Resources */,
@@ -498,6 +502,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/NapoleonTriumph/swift-2.1",
+				);
 				INFOPLIST_FILE = NapoleonTriumph/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -511,6 +519,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/NapoleonTriumph/swift-2.1",
+				);
 				INFOPLIST_FILE = NapoleonTriumph/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

@@ -8,7 +8,6 @@
 
 //import Foundation
 import SpriteKit
-
 // MARK: Game Global Constants
 
 var mapScaleFactor:CGFloat = 1.0
@@ -285,8 +284,301 @@ activeThreat
 */
 
 
-class GameManager {
+class GameManager: NSObject, NSCoding {
 
+    required init(coder aDecoder: NSCoder) {
+
+        super.init()
+        //Retrive GameCommands
+        let auCommand = aDecoder.decodeObjectForKey("auCommands") as! [Command]
+        let frCommand = aDecoder.decodeObjectForKey("frCommands") as! [Command]
+
+        let playerAu:Allegience = .Austrian
+        let playerFr:Allegience = .French
+        
+        gameCommands[playerAu] = auCommand
+        gameCommands[playerFr] = frCommand
+        //
+        
+        //Retrive priorityLosses
+        let auLosses = aDecoder.decodeObjectForKey("auLosses") as! [Int]
+        let frLosses = aDecoder.decodeObjectForKey("frLosses") as! [Int]
+        
+        let PriorityLossesAu:Allegience = .Austrian
+        let PriorityLossesFr:Allegience = .French
+        
+        priorityLosses[PriorityLossesAu] = auLosses
+        priorityLosses[PriorityLossesFr] = frLosses
+        //
+        
+        //Retrive priorityLeaderAndBattle
+        let auLeaderAndBattle = aDecoder.decodeObjectForKey("auLeaderAndBattle") as! [Int]
+        let frLeaderAndBattle = aDecoder.decodeObjectForKey("frLeaderAndBattle") as! [Int]
+        priorityLeaderAndBattle[PriorityLossesAu] = auLeaderAndBattle
+        priorityLeaderAndBattle[PriorityLossesFr] = frLeaderAndBattle
+        //
+        
+        selectableDefenseGroups = aDecoder.decodeObjectForKey("selectableDefenseGroups") as! [Group]
+        selectableRetreatGroups = aDecoder.decodeObjectForKey("selectableRetreatGroups") as! [Group]
+        selectableAttackGroups = aDecoder.decodeObjectForKey("selectableAttackGroups") as! [Group]
+        selectableAttackByRoadGroups = aDecoder.decodeObjectForKey("selectableAttackByRoadGroups") as! [Group]
+        selectableAttackAdjacentGroups = aDecoder.decodeObjectForKey("selectableAttackAdjacentGroups") as! [Group]
+        currentGroupsSelected = aDecoder.decodeObjectForKey("currentGroupsSelected") as! [Group]
+        repeatAttackGroup = aDecoder.decodeObjectForKey("repeatAttackGroup") as? Group
+
+        repeatAttackMoveNumber = aDecoder.decodeIntegerForKey("repeatAttackMoveNumber")
+        
+        activeThreat = aDecoder.decodeObjectForKey("activeThreat") as? GroupConflict
+        
+     
+        approaches = aDecoder.decodeObjectForKey("approaches") as! [NapoleonTriumph.Approach]
+
+        reserves = aDecoder.decodeObjectForKey("reserves") as! [NapoleonTriumph.Reserve]
+
+        orders = aDecoder.decodeObjectForKey("orders") as! [NapoleonTriumph.Order]
+
+        orderHistory = aDecoder.decodeObjectForKey("orderHistory") as! [Int : [Order]]
+
+        
+        player1 = self.getAllegience(aDecoder.decodeObjectForKey("player1") as! String)
+
+
+        player1CorpsCommands = aDecoder.decodeIntegerForKey("player1CorpsCommands")
+
+        
+        player1IndCommands = aDecoder.decodeIntegerForKey("player1IndCommands")
+
+        player2CorpsCommands = aDecoder.decodeIntegerForKey("player2CorpsCommands")
+
+        player2IndCommands = aDecoder.decodeIntegerForKey("player2IndCommands")
+
+        orderHistoryTurn = aDecoder.decodeIntegerForKey("orderHistoryTurn")
+
+        phasingPlayer = self.getAllegience(aDecoder.decodeObjectForKey("phasingPlayer") as! String)
+
+        actingPlayer = self.getAllegience(aDecoder.decodeObjectForKey("actingPlayer") as! String)
+
+        scenario = aDecoder.decodeIntegerForKey("scenario")
+
+        day = aDecoder.decodeIntegerForKey("day")
+
+        turn = aDecoder.decodeIntegerForKey("turn")
+
+        night = aDecoder.decodeBoolForKey("night")
+        
+        phaseOld = self.getGamephase(aDecoder.decodeObjectForKey("phaseOld") as! String)
+
+        corpsCommandsAvail = aDecoder.decodeIntegerForKey("corpsCommandsAvail")
+
+        indCommandsAvail = aDecoder.decodeIntegerForKey("indCommandsAvail")
+
+        commandLabel = aDecoder.decodeObjectForKey("commandLabel") as! SKLabelNode
+        indLabel = aDecoder.decodeObjectForKey("indLabel") as! SKLabelNode
+        phasingLabel = aDecoder.decodeObjectForKey("phasingLabel") as! SKLabelNode
+        actingLabel = aDecoder.decodeObjectForKey("actingLabel") as! SKLabelNode
+        turnLabel = aDecoder.decodeObjectForKey("turnLabel") as! SKLabelNode
+        alliedMoraleLabel = aDecoder.decodeObjectForKey("alliedMoraleLabel") as! SKLabelNode
+        frenchMoraleLabel = aDecoder.decodeObjectForKey("frenchMoraleLabel") as! SKLabelNode
+        
+        morale[.French]! = aDecoder.decodeIntegerForKey("morF")
+
+        morale[.Austrian]! = aDecoder.decodeIntegerForKey("morA")
+
+        frReinforcements = aDecoder.decodeBoolForKey("frReinforcements")
+        
+
+        heavyCavCommited[.French] = aDecoder.decodeBoolForKey("frheavyCavCommited")
+
+        heavyCavCommited[.Austrian] = aDecoder.decodeBoolForKey("auheavyCavCommited")
+
+        //guardCommitted
+        guardCommitted[.French] = aDecoder.decodeBoolForKey("frguardCommitted")
+        
+        guardCommitted[.Austrian] = aDecoder.decodeBoolForKey("auguardCommitted")
+
+        //guardFailed
+        guardFailed[.French] = aDecoder.decodeBoolForKey("frguardFailed")
+        
+        guardFailed[.Austrian] = aDecoder.decodeBoolForKey("auguardFailed")
+        
+        heavyCavCommittedCost = aDecoder.decodeIntegerForKey("heavyCavCommittedCost")
+
+        guardCommittedCost = aDecoder.decodeIntegerForKey("guardCommittedCost")
+
+        drawOnNode = aDecoder.decodeObjectForKey("drawOnNode") as? SKNode
+    }
+    
+    func getGamephase(value:String)->oldGamePhase {
+        
+        switch value {
+        
+            case "PreGame": return .Setup
+            case "Move": return .Move
+            case "FeintThreat": return .FeintThreat
+            case "NormalThreat": return .NormalThreat
+            case "StoodAgainstFT": return .StoodAgainstFeintThreat
+            case "StoodAgainstNT": return .StoodAgainstNormalThreat
+            case "RetreatedB4": return .RetreatedBeforeCombat
+            case "FeintMove": return .FeintMove
+            case "RealAttack": return .RealAttack
+            case "DeclaredLeadingD": return .DeclaredLeadingD
+            case "DeclaredAttackers": return .DeclaredAttackers
+            case "DeclaredLeadingA": return .DeclaredLeadingA
+            case "RetreatAfterCombat": return .RetreatAfterCombat
+            case "PostVictoryFeintMove": return .PostVictoryFeintMove
+        default: return .Setup
+        }
+        
+    }
+    
+    func getAllegience(value:String)->Allegience {
+        
+        var suggestedAllegience:Allegience!
+        switch value {
+        case "Austrian":
+            suggestedAllegience = .Austrian
+        case "French":
+            suggestedAllegience = .French
+        case "Neutral":
+            suggestedAllegience = .Neutral
+        case "Both":
+            suggestedAllegience = .Both
+        default:
+            suggestedAllegience = .Austrian
+            
+        }
+
+        return suggestedAllegience
+    }
+    
+    func encodeWithCoder(aCoder: NSCoder) {
+  
+        //Save GameCommands
+        let playerAu:Allegience = .Austrian
+        let playerFr:Allegience = .French
+        let auCommands = gameCommands[playerAu]!
+        let frCommands = gameCommands[playerFr]!
+        aCoder.encodeObject(auCommands, forKey: "auCommands")
+        aCoder.encodeObject(frCommands, forKey: "frCommands")
+        //
+        
+        //Save priorityLosses
+        let PriorityLossesAu:Allegience = .Austrian
+        let PriorityLossesFr:Allegience = .French
+        let auLosses = priorityLosses[PriorityLossesAu]!
+        let frLosses = priorityLosses[PriorityLossesFr]! 
+        aCoder.encodeObject(auLosses, forKey: "auLosses")
+        aCoder.encodeObject(frLosses, forKey: "frLosses")
+        //
+        
+        //Save priorityLeaderAndBattle
+        let priorityLeaderAndBattleAu:Allegience = .Austrian
+        let priorityLeaderAndBattleFr:Allegience = .French
+        let auLeaderAndBattle = priorityLeaderAndBattle[priorityLeaderAndBattleAu]!
+        let frLeaderAndBattle = priorityLeaderAndBattle[priorityLeaderAndBattleFr]!
+        aCoder.encodeObject(auLeaderAndBattle, forKey: "auLeaderAndBattle")
+        aCoder.encodeObject(frLeaderAndBattle, forKey: "frLeaderAndBattle")
+        //
+        
+        
+        aCoder.encodeObject(selectableDefenseGroups, forKey: "selectableDefenseGroups")
+        aCoder.encodeObject(selectableRetreatGroups, forKey: "selectableRetreatGroups")
+        aCoder.encodeObject(selectableAttackGroups, forKey: "selectableAttackGroups")
+        aCoder.encodeObject(selectableAttackByRoadGroups, forKey: "selectableAttackByRoadGroups")
+        aCoder.encodeObject(selectableAttackAdjacentGroups, forKey: "selectableAttackAdjacentGroups")
+
+        aCoder.encodeObject(currentGroupsSelected, forKey: "currentGroupsSelected")
+
+        aCoder.encodeObject(repeatAttackGroup, forKey: "repeatAttackGroup")
+
+        aCoder.encodeInteger(repeatAttackMoveNumber!, forKey: "repeatAttackMoveNumber")
+        
+        aCoder.encodeObject(activeThreat, forKey: "activeThreat")
+        
+        aCoder.encodeObject(approaches, forKey: "approaches")
+
+        aCoder.encodeObject(reserves, forKey: "reserves")
+
+        aCoder.encodeObject(orders, forKey: "orders")
+
+        aCoder.encodeObject(orderHistory, forKey: "orderHistory")
+
+        aCoder.encodeObject(player1.ID, forKey: "player1")
+
+        aCoder.encodeInteger(player1CorpsCommands, forKey: "player1CorpsCommands")
+
+        aCoder.encodeInteger(player1IndCommands, forKey: "player1IndCommands")
+
+        aCoder.encodeInteger(player2CorpsCommands, forKey: "player2CorpsCommands")
+
+        aCoder.encodeInteger(player2IndCommands, forKey: "player2IndCommands")
+
+        aCoder.encodeInteger(orderHistoryTurn, forKey: "orderHistoryTurn")
+
+        aCoder.encodeObject(phasingPlayer.ID, forKey: "phasingPlayer")
+
+        aCoder.encodeObject(actingPlayer.ID, forKey: "actingPlayer")
+
+        aCoder.encodeInteger(scenario, forKey: "scenario")
+
+        aCoder.encodeInteger(day, forKey: "day")
+
+        aCoder.encodeInteger(turn, forKey: "turn")
+
+        aCoder.encodeBool(night, forKey: "night")
+        
+        aCoder.encodeObject(phaseOld.ID, forKey: "phaseOld")
+
+        aCoder.encodeInteger(corpsCommandsAvail, forKey: "corpsCommandsAvail")
+
+        aCoder.encodeInteger(indCommandsAvail, forKey: "indCommandsAvail")
+
+        aCoder.encodeObject(commandLabel, forKey: "commandLabel")
+        aCoder.encodeObject(indLabel, forKey: "indLabel")
+        aCoder.encodeObject(phasingLabel, forKey: "phasingLabel")
+        aCoder.encodeObject(actingLabel, forKey: "actingLabel")
+        aCoder.encodeObject(turnLabel, forKey: "turnLabel")
+        aCoder.encodeObject(alliedMoraleLabel, forKey: "alliedMoraleLabel")
+        aCoder.encodeObject(frenchMoraleLabel, forKey: "frenchMoraleLabel")
+
+        aCoder.encodeInteger(maxMorale[.French]!, forKey: "maxF")
+
+        aCoder.encodeInteger(maxMorale[.Austrian]!, forKey: "maxA")
+
+        aCoder.encodeInteger(morale[.French]!, forKey: "morF")
+        
+        aCoder.encodeInteger(morale[.Austrian]!, forKey: "morA")
+
+        aCoder.encodeBool(frReinforcements, forKey: "frReinforcements")
+
+        aCoder.encodeBool(heavyCavCommited[.French]!, forKey: "frheavyCavCommited")
+
+        aCoder.encodeBool(heavyCavCommited[.Austrian]!, forKey: "auheavyCavCommited")
+
+        aCoder.encodeBool(guardCommitted[.French]!, forKey: "frguardCommitted")
+        
+        aCoder.encodeBool(guardCommitted[.Austrian]!, forKey: "auguardCommitted")
+
+        aCoder.encodeBool(guardFailed[.French]!, forKey: "frguardFailed")
+        
+        aCoder.encodeBool(guardFailed[.Austrian]!, forKey: "auguardFailed")
+
+        aCoder.encodeInteger(heavyCavCommittedCost, forKey: "heavyCavCommittedCost")
+
+        aCoder.encodeInteger(guardCommittedCost, forKey: "guardCommittedCost")
+
+        aCoder.encodeInteger(guardFailedCost, forKey: "guardFailedCost")
+
+        aCoder.encodeObject(drawOnNode, forKey: "drawOnNode")
+
+
+       
+        //GameCommands
+//priorityLosses
+//priorityLeaderAndBattle
+        
+    }
+    
     var gameCommands:[Allegience:[Command]] = [.Austrian:[], .French:[]]
     var priorityLosses:[Allegience:[Int]] = [.Austrian:[43, 23, 22, 21, 33, 32, 31], .French:[43, 23, 22, 21, 33, 32, 31]]
     var priorityLeaderAndBattle:[Allegience:[Int]] = [.Austrian:[33, 43, 23, 32, 22, 31, 21], .French:[33, 43, 23, 32, 22, 31, 21]]
@@ -319,13 +611,13 @@ class GameManager {
     var orderHistory:[Int:[Order]] = [:]
     
     // Phasing and acting player
-    let player1:Allegience = .Austrian
+    var player1:Allegience = .Austrian
    
     // Commands available
-    let player1CorpsCommands:Int = 5
-    let player1IndCommands:Int = 3
+    var player1CorpsCommands:Int = 5
+    var player1IndCommands:Int = 3
     var player2CorpsCommands:Int = 6
-    let player2IndCommands:Int = 4
+    var player2IndCommands:Int = 4
     
     var orderHistoryTurn:Int = 1
     
@@ -409,6 +701,7 @@ class GameManager {
     init(theMenu:SKNode) {
         drawOnNode = theMenu
     }
+
     
     // MARK: New Phase
     
