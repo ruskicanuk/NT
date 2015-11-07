@@ -15,8 +15,6 @@ enum GameMode:String {
 
 class Game: NSObject, NSCoding {
 
-   
-    
     var gameMode: GameMode = GameMode.SinglePlayer
     var count : Int = 0
     
