@@ -372,13 +372,13 @@ class GameManager: NSObject, NSCoding {
 
         indCommandsAvail = aDecoder.decodeIntegerForKey("indCommandsAvail")
 
-        commandLabel = aDecoder.decodeObjectForKey("commandLabel") as! SKLabelNode
-        indLabel = aDecoder.decodeObjectForKey("indLabel") as! SKLabelNode
-        phasingLabel = aDecoder.decodeObjectForKey("phasingLabel") as! SKLabelNode
-        actingLabel = aDecoder.decodeObjectForKey("actingLabel") as! SKLabelNode
-        turnLabel = aDecoder.decodeObjectForKey("turnLabel") as! SKLabelNode
-        alliedMoraleLabel = aDecoder.decodeObjectForKey("alliedMoraleLabel") as! SKLabelNode
-        frenchMoraleLabel = aDecoder.decodeObjectForKey("frenchMoraleLabel") as! SKLabelNode
+        //commandLabel = aDecoder.decodeObjectForKey("commandLabel") as! SKLabelNode
+        //indLabel = aDecoder.decodeObjectForKey("indLabel") as! SKLabelNode
+        //phasingLabel = aDecoder.decodeObjectForKey("phasingLabel") as! SKLabelNode
+        //actingLabel = aDecoder.decodeObjectForKey("actingLabel") as! SKLabelNode
+        //turnLabel = aDecoder.decodeObjectForKey("turnLabel") as! SKLabelNode
+        //alliedMoraleLabel = aDecoder.decodeObjectForKey("alliedMoraleLabel") as! SKLabelNode
+        //frenchMoraleLabel = aDecoder.decodeObjectForKey("frenchMoraleLabel") as! SKLabelNode
         
         morale[.French]! = aDecoder.decodeIntegerForKey("morF")
 
@@ -405,7 +405,7 @@ class GameManager: NSObject, NSCoding {
 
         guardCommittedCost = aDecoder.decodeIntegerForKey("guardCommittedCost")
 
-        drawOnNode = aDecoder.decodeObjectForKey("drawOnNode") as? SKNode
+        //drawOnNode = aDecoder.decodeObjectForKey("drawOnNode") as? SKNode
     }
     
     func getGamephase(value:String)->oldGamePhase {
@@ -569,7 +569,7 @@ class GameManager: NSObject, NSCoding {
 
         aCoder.encodeInteger(guardFailedCost, forKey: "guardFailedCost")
 
-        aCoder.encodeObject(drawOnNode, forKey: "drawOnNode")
+        //aCoder.encodeObject(drawOnNode, forKey: "drawOnNode")
 
 
        
@@ -671,6 +671,7 @@ class GameManager: NSObject, NSCoding {
     }
     //var frIndCommandsAvail:Int = 0
     
+    /*
     var commandLabel = SKLabelNode()
     var indLabel = SKLabelNode()
     var phasingLabel = SKLabelNode()
@@ -678,6 +679,7 @@ class GameManager: NSObject, NSCoding {
     var turnLabel = SKLabelNode()
     var alliedMoraleLabel = SKLabelNode()
     var frenchMoraleLabel = SKLabelNode()
+    */
     
     // Morale
     var maxMorale:[Allegience:Int!] = [ .Austrian: 27, .French: 23]
@@ -696,10 +698,14 @@ class GameManager: NSObject, NSCoding {
     var guardFailedCost:Int = 3
     
     // Refers to the menu
-    var drawOnNode:SKNode?
+    //var drawOnNode:SKNode?
     
-    init(theMenu:SKNode) {
-        drawOnNode = theMenu
+    override init() {
+        phasingPlayer = player1
+        actingPlayer = player1
+        phaseOld = .Setup
+        corpsCommandsAvail = 0
+        indCommandsAvail = 0
     }
 
     
@@ -887,30 +893,7 @@ class GameManager: NSObject, NSCoding {
 
     // MARK: Property Observer functions
     
-    func updateCommandLabel() {
-        commandLabel.text = "Corps Commands: \(self.corpsCommandsAvail)"
-    }
     
-    func updateIndLabel() {
-        indLabel.text = "Ind. Commands: \(self.indCommandsAvail)"
-    }
-    
-    func updatePhasingLabel() {
-        phasingLabel.text = "Phasing Player: \(self.phasingPlayer.ID)"
-    }
-    
-    func updateActingLabel() {
-        actingLabel.text = "Acting Player: \(self.actingPlayer.ID)"
-    }
-    
-    func updateTurnLabel() {
-        turnLabel.text = "Turn: \(self.turn) Phase: \(self.phaseOld.ID)"
-    }
-    
-    func updateMoraleLabel() {
-        alliedMoraleLabel.text = "Allied Morale: \(self.morale[.Austrian]!)"
-        frenchMoraleLabel.text = "French Morale: \(self.morale[.French]!)"
-    }
     
     // MARK: Manager Support Functions
     
@@ -924,6 +907,8 @@ class GameManager: NSObject, NSCoding {
     }
     
     func setupCommandDashboard() {
+        
+        /*
         
         phasingLabel.fontSize = 20*mapScaleFactor
         phasingLabel.fontColor = SKColor.blackColor()
@@ -960,7 +945,9 @@ class GameManager: NSObject, NSCoding {
         drawOnNode!.addChild(frenchMoraleLabel)
         frenchMoraleLabel.position = CGPoint(x: -140.0, y: -340.0)
         
-        updateMoraleLabel()
+        */
+
+        //updateMoraleLabel()
         
         phasingPlayer = player1
         actingPlayer = player1

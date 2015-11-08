@@ -7,9 +7,11 @@
 //
 
 import SpriteKit
-import Foundation
+//import Foundation
 import UIKit
+
 class GameSetup: SKScene {
+
     let singlePlayer = SKSpriteNode(imageNamed: "singleplayer")
     let multiPlayer = SKSpriteNode(imageNamed: "multiplayer")
     
@@ -22,6 +24,7 @@ class GameSetup: SKScene {
     var buttonSpacing:CGFloat = 50
     
     override func didMoveToView(view: SKView) {
+    
         /* Setup your scene here */
         
         loadButtons()

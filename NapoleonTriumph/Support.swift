@@ -45,7 +45,46 @@ func Delay(delay:Double, closure:()->()) {
 }
 
 enum SelState {
-    case On, Off, Option, NotAvail
+    case On, Off, Option, Normal, NotAvail
+}
+
+class UIStateButton:UIButton {
+    
+    var buttonState:SelState {
+        didSet {
+            toggleSelection()
+        }
+    }
+    
+    init(initialState:SelState, theRect:CGRect) {
+        
+        buttonState = initialState
+        super.init(frame: theRect)
+        toggleSelection()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func toggleSelection() {
+        
+        switch buttonState {
+            
+        case .Off: self.enabled = false; self.layer.borderWidth = 0
+            
+        case .On: self.enabled = true; self.layer.borderWidth = 3; self.layer.borderColor = UIColor(red: 0, green: 1, blue: 0, alpha: 1).CGColor
+            
+        case .Option: self.enabled = true; self.layer.borderWidth = 3; self.layer.borderColor = UIColor(red: 0, green: 0, blue: 1, alpha: 1).CGColor
+            
+        case .Normal: self.enabled = true; self.layer.borderWidth = 0
+            
+        case .NotAvail: self.enabled = false; self.layer.borderWidth = 3; self.layer.borderColor = UIColor(red: 1, green: 0, blue: 0, alpha: 1).CGColor
+            
+        }
+        
+    }
+    
 }
 
 class SpriteSelector {
@@ -115,7 +154,7 @@ class SpriteSelector {
             
             if drawOnNode != nil {drawOnNode?.addChild(selectionBox!)}
             
-        } else if selected == .NotAvail {
+        } else if selected == .Normal {
             
             //selectionBox = SKShapeNode(rect: parent!.calculateAccumulatedFrame())
             //selectionBox!.position = parent!.position

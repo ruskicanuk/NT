@@ -14,6 +14,7 @@
 		8C18DAEC1B5B342900FF30DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C18DAEA1B5B342900FF30DF /* LaunchScreen.storyboard */; };
 		8C18DAF71B5B342900FF30DF /* NapoleonTriumphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DAF61B5B342900FF30DF /* NapoleonTriumphTests.swift */; };
 		8C18DB021B5B342900FF30DF /* NapoleonTriumphUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C18DB011B5B342900FF30DF /* NapoleonTriumphUITests.swift */; };
+		8C1FA1031BEEDE1100138DD1 /* Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C1FA1021BEEDE1100138DD1 /* Display.swift */; };
 		8C208D981B5C82A400FAE45A /* Unit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208D971B5C82A400FAE45A /* Unit.swift */; };
 		8C208D9A1B5C8BE600FAE45A /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 8C208D991B5C8BE600FAE45A /* Notes */; };
 		8C208D9C1B60940300FAE45A /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C208D9B1B60940300FAE45A /* Order.swift */; };
@@ -70,6 +71,7 @@
 		8C18DAFD1B5B342900FF30DF /* NapoleonTriumphUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NapoleonTriumphUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C18DB011B5B342900FF30DF /* NapoleonTriumphUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NapoleonTriumphUITests.swift; sourceTree = "<group>"; };
 		8C18DB031B5B342900FF30DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C1FA1021BEEDE1100138DD1 /* Display.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Display.swift; sourceTree = "<group>"; };
 		8C208D971B5C82A400FAE45A /* Unit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Unit.swift; sourceTree = "<group>"; };
 		8C208D991B5C8BE600FAE45A /* Notes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
 		8C208D9B1B60940300FAE45A /* Order.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				8C5493481BD99C1E008B8CC0 /* AI.swift */,
 				8C208D971B5C82A400FAE45A /* Unit.swift */,
 				8C208DA11B637D9900FAE45A /* Manager.swift */,
+				8C1FA1021BEEDE1100138DD1 /* Display.swift */,
 				8C18DAE11B5B342900FF30DF /* GameScene.swift */,
 				8C208DA31B6F29E400FAE45A /* GameLogic.swift */,
 				8CF85B031B76F0E7008D7723 /* Support.swift */,
@@ -360,6 +363,7 @@
 				8C5493491BD99C1E008B8CC0 /* AI.swift in Sources */,
 				8C18DADE1B5B342900FF30DF /* AppDelegate.swift in Sources */,
 				8C18A3221B916B22008C9C9A /* Conflict.swift in Sources */,
+				8C1FA1031BEEDE1100138DD1 /* Display.swift in Sources */,
 				8CCAB4811B5B480C00324D99 /* Approach.swift in Sources */,
 				8C208DA21B637D9900FAE45A /* Manager.swift in Sources */,
 				8CCAB4891B5B722100324D99 /* Command.swift in Sources */,

@@ -15,6 +15,7 @@ let SHOWMENU: String = "showmenu"
 var gameScene:GameScene!
 let baseMenu = UIView.init()
 let largeMenu = UIView.init()
+let labelMenu = UIView.init()
 
 extension Int {
 
@@ -31,17 +32,15 @@ var delegate:AppDelegate!
 
 class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate {
 
-
     var scalingView: UIView!
     var scrollview: UIScrollView!
     var skView:SKView!
-
     var scale:Float = 1.0
 
     //MARK: View Hiearchy
     override func viewDidLoad() {
-
     super.viewDidLoad()
+        
     //NSNotificationCenter.defaultCenter().addObserver(self, selector: "hideMenu", name: HIDEMENU, object: nil)
     //NSNotificationCenter.defaultCenter().addObserver(self, selector: "showMenu", name: SHOWMENU, object: nil)
 
@@ -86,8 +85,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     baseMenu.multipleTouchEnabled = true
     baseMenu.exclusiveTouch = true
     baseMenu.userInteractionEnabled = true
-    baseMenu.frame = CGRectMake(100, 100, self.view.frame.size.width / 20, self.view.frame.size.height / 20)
-    baseMenu.backgroundColor = UIColor.blackColor()
+    baseMenu.frame = CGRectMake(150, 300, self.view.frame.size.width / 10, self.view.frame.size.height / 4)
+    baseMenu.backgroundColor = UIColor.darkGrayColor()
     baseMenu.hidden = false
     self.view.addSubview(baseMenu)
         
@@ -95,19 +94,28 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     largeMenu.multipleTouchEnabled = true
     largeMenu.exclusiveTouch = true
     largeMenu.userInteractionEnabled = true
-    largeMenu.frame = CGRectMake(150, 100, self.view.frame.size.width / 2, self.view.frame.size.height / 20)
-    largeMenu.backgroundColor = UIColor.redColor()
+    largeMenu.frame = CGRectMake(150 + baseMenu.frame.width, 300, self.view.frame.size.width / 5, self.view.frame.size.height / 4)
+    largeMenu.backgroundColor = UIColor.blackColor()
     largeMenu.hidden = true
     self.view.addSubview(largeMenu)
+        
+    // Large menu button setup
+    labelMenu.multipleTouchEnabled = false
+    labelMenu.userInteractionEnabled = false
+    labelMenu.frame = CGRectMake(650, 500, self.view.frame.size.width / 4, self.view.frame.size.height / 5)
+    labelMenu.backgroundColor = UIColor.whiteColor()
+    labelMenu.hidden = false
+    self.view.addSubview(labelMenu)
 
-    let popButton:UIButton = UIButton.init(frame: CGRectMake(-30, -30, 100, 100))
-    popButton.setImage(UIImage.init(named: "Menu"), forState: UIControlState.Normal)
-    popButton.addTarget(self, action:"changeMenu" , forControlEvents: UIControlEvents.TouchUpInside)
+    let popMenuImage = UIImage.init(named: "Menu")!
+    let popButton:UIButton = UIButton.init(frame: CGRectMake(0, self.view.frame.size.height / 4 - popMenuImage.size.height, popMenuImage.size.width, popMenuImage.size.height))
+    popButton.setImage(popMenuImage, forState: UIControlState.Normal)
+    popButton.addTarget(self, action:"popOutMenuTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
     baseMenu.addSubview(popButton)
 
 }
 
-func changeMenu() {
+func popOutMenuTrigger() {
     if largeMenu.hidden {openMenu()}
     else {closeMenu()}
 }
