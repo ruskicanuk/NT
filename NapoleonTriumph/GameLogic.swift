@@ -868,12 +868,6 @@ func SaveDefenseGroup(theGroupThreat:GroupConflict) {
     
     let defenseSelection = GroupSelection(theGroups: manager!.selectableDefenseGroups)
     
-    /*
-    let newOrder = Order(defenseSelection: defenseSelection, passedConflict: theThreat, orderFromView: .Defend, mapFromView:NTMap! )
-    newOrder.ExecuteOrder()
-    manager!.orders += [newOrder]
-    */
-    
     theThreat.defenseGroup = defenseSelection
     theThreat.parentGroupConflict!.defendedApproaches += [theThreat.defenseApproach]
     defenseSelection.SetGroupSelectionPropertyUnitsHaveDefended(true, approachDefended: theThreat.defenseApproach)

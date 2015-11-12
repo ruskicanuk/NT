@@ -10,7 +10,6 @@ import UIKit
 
 class CustomMenuView: UIView {
 
-    
     override init (frame : CGRect) {
         super.init(frame : frame)
     }

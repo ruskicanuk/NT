@@ -9,10 +9,129 @@
 //import Foundation
 import SpriteKit
 
-// MARK: Map Label Functions
+/*
+Z-positions
+Menu: 2000
+Elevated (swipe queue): 1000
+Units: 100
+SKNodes (Commands): 0
+Locations: 200
+*/
+
+// MARK: Global Constants
+
+var mapScaleFactor:CGFloat = 1.0
+
+let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 242.0:"FRINF2", 241.0:"FRINF1", 251.1:"St Hilaire", 251.2:"Vandamme"]
+
+let imageNamesSelected = [133.0:"AUINF3 Selected", 132.0:"AUINF2 Selected", 131.0:"AUINF1 Selected", 123.0:"AUCAV3 Selected", 122.0:"AUCAV2 Selected", 121.0:"AUCAV1 Selected", 111.0:"AUART1 Selected", 143.0:"AUINFEL3 Selected", 151.1:"Bagration Selected", 151.2:"Dokhturov Selected", 151.3:"Constantine Selected", 233.0:"FRINF3 Selected", 232.0:"FRINF2 Selected", 231.0:"FRINF1 Selected", 223.0:"FRCAV3 Selected", 222.0:"FRCAV2 Selected", 221.0:"FRCAV1 Selected", 211.0:"FRART1 Selected", 243.0:"FRINFEL3 Selected", 251.1:"St Hilaire Selected", 251.2:"Vandamme Selected"]
+
+let imageNamesGreyedOut = [133.0:"AUINF3 Greyed", 132.0:"AUINF2 Greyed", 131.0:"AUINF1 Greyed", 123.0:"AUCAV3 Greyed", 122.0:"AUCAV2 Greyed", 121.0:"AUCAV1 Greyed", 111.0:"AUART1 Greyed", 143.0:"AUINFEL3 Greyed", 151.1:"Bagration Greyed", 151.2:"Dokhturov Greyed", 151.3:"Constantine Greyed", 233.0:"FRINF3 Greyed", 232.0:"FRINF2 Greyed", 231.0:"FRINF1 Greyed", 223.0:"FRCAV3 Greyed", 222.0:"FRCAV2 Greyed", 221.0:"FRCAV1 Greyed", 211.0:"FRART1 Greyed", 243.0:"FRINFEL3 Greyed", 251.1:"St Hilaire Greyed", 251.2:"Vandamme Greyed"]
+
+// Split this into "Off" and "Greyed out"
+let imageNamesOff = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
+
+let unitHeight:CGFloat = 9.5/1.5
+let unitWidth:CGFloat = 56/1.5
+let commandOffset:CGFloat = 2.0
+
+// MARK: Global Enums
+
+enum ReviewState {case Front, Middle, Back}
+
+enum SelState {
+    case On, Off, Option, Normal, NotAvail, Possible
+}
+
+enum Allegience {
+    
+    case Austrian, French, Neutral, Both
+    
+    var ID:String {
+        switch self {
+        case .Austrian: return "Austrian"
+        case .French: return "French"
+        case .Neutral: return "Neutral"
+        case .Both: return "Both"
+        }
+    }
+    
+    // Returns true if paramater is the true opposite, otherwise false
+    func Opposite(check:Allegience) -> Bool? {
+        if self == .Neutral || check == .Neutral {return false}
+        else if self == check {return false}
+        else {return true}
+    }
+    
+    mutating func Switch () {
+        
+        if self == .French {self = .Austrian}
+        else if self == .Austrian {self = .French}
+        
+    }
+    
+    func Other() -> Allegience? {
+        if self == .French {return .Austrian}
+        else if self == .Austrian {return .French}
+        else {return .Neutral}
+    }
+    
+    func ContainsEnemy(check:Allegience) -> Bool {
+        if self == .French {if check == .Austrian || check == .Both{return true}}
+        else if self == .Austrian {if check == .French || check == .Both{return true}}
+        return false
+    }
+}
+
+// MARK: Global Extensions
+
+extension Int {
+    
+    var degreesToRadians : CGFloat {
+        return CGFloat(self) * CGFloat(M_PI) / 180.0
+    }
+}
+
+//Not used currently
+extension Array {
+    
+    // Returns the first element satisfying the predicate, or `nil`
+    // if there is no matching element.
+    func findFirstMatching<L : BooleanType>(predicate: Element -> L) -> Element? {
+        for item in self {
+            if predicate(item) {
+                return item // found
+            }
+        }
+        return nil // not found
+    }
+}
+
+extension Array where Element : Equatable {
+    
+    // Remove first collection element that is equal to the given `object`:
+    mutating func removeObject(object : Generator.Element) {
+        if let index = self.indexOf(object) {
+            self.removeAtIndex(index)
+        }
+    }
+}
+
+// MARK: Global Functions
+
+func Delay(delay:Double, closure:()->()) {
+    dispatch_after(
+        dispatch_time(
+            DISPATCH_TIME_NOW,
+            Int64(delay * Double(NSEC_PER_SEC))
+        ),
+        dispatch_get_main_queue(), closure)
+}
+
+// MARK: Map, labels and buttons
 
 // Map drawing and menu buttons
-var NTMap:SKSpriteNode?
+var NTMap:SKSpriteNode!
 
 var commandLabel = UILabel()
 var indLabel = UILabel()
@@ -21,16 +140,13 @@ var actingLabel = UILabel()
 var turnLabel = UILabel()
 var alliedMoraleLabel = UILabel()
 var frenchMoraleLabel = UILabel()
+var playbackStateLabel = UILabel()
 
-//var NTMenu:SKNode?
 var undoButton:UIStateButton!
-//var undoButton:SKSpriteNode?
 var endTurnButton:UIStateButton!
-//var terrainButton:SKSpriteNode?
 var terrainButton:UIStateButton!
 var fastfwdButton:UIStateButton!
 var rewindButton:UIStateButton!
-//var hideCommandsButton:SKSpriteNode?
 var corpsMoveButton:UIStateButton!
 var corpsDetachButton:UIStateButton!
 var corpsAttachButton:UIStateButton!
@@ -39,16 +155,7 @@ var retreatButton:UIStateButton!
 var commitButton:UIStateButton!
 var guardButton:UIStateButton!
 
-// Selectors
-//var corpsMoveSelector:SpriteSelector?
-//var corpsDetachSelector:SpriteSelector?
-//var corpsAttachSelector:SpriteSelector?
-//var independentSelector:SpriteSelector?
-//var retreatSelector:SpriteSelector?
-//var commitSelector:SpriteSelector?
-//var endTurnSelector:SpriteSelector?
-//var guardSelector:SpriteSelector?
-
+// Set up the labels on the labelMenu
 func setupCommandDashboard() {
     
     turnLabel.font = UIFont(name: turnLabel.font.fontName, size: 12)
@@ -85,35 +192,15 @@ func setupCommandDashboard() {
     frenchMoraleLabel.textColor = SKColor.blackColor()
     frenchMoraleLabel.frame = CGRect(x: 5, y: 95, width: 200, height: 15)
     labelMenu.addSubview(frenchMoraleLabel)
+    
+    playbackStateLabel.font = UIFont(name: playbackStateLabel.font.fontName, size: 12)
+    playbackStateLabel.textColor = SKColor.blackColor()
+    playbackStateLabel.frame = CGRect(x: 5, y: 110, width: 200, height: 15)
+    labelMenu.addSubview(playbackStateLabel)
 
-    /*
-    indLabel.fontSize = 20*mapScaleFactor
-    indLabel.fontColor = SKColor.blackColor()
-    NTMap!.addChild(indLabel)
-    indLabel.position = CGPoint(x: 100, y: 100)
-    
-    actingLabel.fontSize = 20*mapScaleFactor
-    actingLabel.fontColor = SKColor.blackColor()
-    NTMap!.addChild(actingLabel)
-    actingLabel.position = CGPoint(x: -140.0, y: -280.0)
-    
-    turnLabel.fontSize = 20*mapScaleFactor
-    turnLabel.fontColor = SKColor.blackColor()
-    NTMap!.addChild(turnLabel)
-    turnLabel.position = CGPoint(x: -140.0, y: -300.0)
-    
-    alliedMoraleLabel.fontSize = 20*mapScaleFactor
-    alliedMoraleLabel.fontColor = SKColor.blackColor()
-    NTMap!.addChild(alliedMoraleLabel)
-    alliedMoraleLabel.position = CGPoint(x: -140.0, y: -320.0)
-    
-    frenchMoraleLabel.fontSize = 20*mapScaleFactor
-    frenchMoraleLabel.fontColor = SKColor.blackColor()
-    NTMap!.addChild(frenchMoraleLabel)
-    frenchMoraleLabel.position = CGPoint(x: -140.0, y: -340.0)
-    */
 }
 
+// Refreshes the labels on the labelMenu
 func updateCommandLabel() {
     commandLabel.text = "Corps Commands: \(manager!.corpsCommandsAvail)"
 }
@@ -137,4 +224,8 @@ func updateTurnLabel() {
 func updateMoraleLabel() {
     alliedMoraleLabel.text = "Allied Morale: \(manager!.morale[.Austrian]!)"
     frenchMoraleLabel.text = "French Morale: \(manager!.morale[.French]!)"
+}
+
+func updatePlaybackState() {
+    playbackStateLabel.text = "Playback: \(manager!.statePointTracker)"
 }

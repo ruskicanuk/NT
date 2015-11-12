@@ -16,8 +16,38 @@ class GameScene: SKScene, NSXMLParserDelegate {
     // MARK: Main Properties
     
     // Playback properties
-    var statePoint:ReviewState = .Front
     var selectedStatePoint:ReviewState = .Front
+    
+    var statePoint:ReviewState = .Front {
+        didSet {
+            updatePlaybackState()
+            if statePoint == .Front {
+                manager!.RemoveArrows()
+                
+                // Case: Repeat attacker
+                if manager!.phaseOld == .RetreatedBeforeCombat && manager!.repeatAttackGroup != nil {
+                    
+                    if CheckTurnEndViableInCommitMode(manager!.activeThreat!.conflict, endLocation:manager!.repeatAttackGroup!.command.currentLocation!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
+                    manager!.currentGroupsSelected = [manager!.repeatAttackGroup!]
+                    ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
+                    AttackOrdersAvailable()
+                    undoOrAct = true
+                }
+                
+                // Case: Attacking unit making a feint move
+                if (manager!.phaseOld == .StoodAgainstFeintThreat || manager!.phaseOld == .StoodAgainstNormalThreat) && manager!.currentGroupsSelected != [] && manager!.currentGroupsSelected[0].command.moveNumber > 0 {
+                
+                    if CheckTurnEndViableInCommitMode(manager!.activeThreat!.conflict, endLocation:manager!.currentGroupsSelected[0].command.currentLocation!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
+                    
+                    AttackOrdersAvailable()
+                    undoOrAct = true
+                
+                }
+            }
+            manager!.statePointTracker = statePoint
+        }
+    }
+    
     var fastFwdIndex:Int = 0
     var fastFwdExecuted:CFTimeInterval = 0
     var undoOrAct:Bool = false
@@ -42,19 +72,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
     let unitName:String = "Unit"
     let approachName:String = "Approach"
     let reserveName:String = "Reserve"
-    //let orderName:String = "Order"
-    //let undoName:String = "Undo"
-    //let endTurnName:String = "EndTurn"
-    //let terrainName:String = "Terrain"
-    //let fastfwdName:String = "Fastfwd"
-    //let rewindName:String = "Rewind"
-    //let corpsMoveName:String = "CorpsMove"
-    //let corpsDetachName:String = "CorpsDetach"
-    //let corpsAttachName:String = "CorpsAttach"
-    //let independentName:String = "Independent"
-    //let retreatName:String = "Retreat"
-    //let commitName:String = "Commit"
-    //let guardName:String = "Guard"
     
     // Stores name of selection
     var selectionCase:String = ""
@@ -116,7 +133,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         {
             // Setup game-manager
             manager = GameManager()
-            manager!.setupCommandDashboard()
+            //manager!.setupCommandDashboard()
 
         }
         
@@ -127,6 +144,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         updateActingLabel()
         updateTurnLabel()
         updateMoraleLabel()
+        updatePlaybackState()
         
         //Parse xml file to finish map setup
         parseXMLFileWithName("MapBuilder")
@@ -207,7 +225,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Find the touched nodes
         let touch = touches.first as UITouch!
-        let mapLocation:CGPoint? = touch.locationInNode(NTMap!)
+        let mapLocation:CGPoint? = touch.locationInNode(NTMap)
         let acceptableDistance:CGFloat = mapScaleFactor*50
         if mapLocation == nil {return Void()}
         let touchedNodesMap = self.nodesAtPoint(mapLocation!)
@@ -242,7 +260,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         if swipeStart {
             
             let touch = touches.first as UITouch!
-            let mapLocation = touch.locationInNode(NTMap!)
+            let mapLocation = touch.locationInNode(NTMap)
             let yRequiredForSwipe:CGFloat = mapScaleFactor*20.0
             
             //print("mapLocationX: \(mapLocation.x), mapLocationY: \(mapLocation.y), swipeStartPointX: \(swipeStartPoint!.x), swipeStartPointY: \(swipeStartPoint!.y), yRequiredForSwipe: \(yRequiredForSwipe)")
@@ -268,6 +286,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
+        // Exit if in rewind mode
+        if statePoint != .Front {return Void()}
+        
         touchStartTime = nil
         if holdNode == nil {return} else {holdNode = nil}
         if disableTouches {return}
@@ -275,22 +296,23 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let touch = touches.first as UITouch!
         
         //Find the selected node within the map and the scene
-        let sceneLocation = touch.locationInNode(self)
-        let mapLocation = touch.locationInNode(NTMap!)
+        //let sceneLocation = touch.locationInNode(self)
+        let mapLocation = touch.locationInNode(NTMap)
         
-        var touchedNodeScene:SKNode?
+        //var touchedNodeScene:SKNode?
         var touchedNode:SKNode?
 
         let touchedCount:Int = touch.tapCount
         
         // Select the highest Z value in the touch
-        let touchedNodesScene = self.nodesAtPoint(sceneLocation)
+        //let touchedNodesScene = self.nodesAtPoint(sceneLocation)
         let touchedNodesMap = self.nodesAtPoint(mapLocation)
 
-        var highestSceneZ = CGFloat(-1)
+        //var highestSceneZ = CGFloat(-1)
         
-        var countTouchesScene = 0
+        //var countTouchesScene = 0
         
+        /*
         for each in touchedNodesScene {
         
             if let possibleTouch = (each as? Command) {if manager!.actingPlayer.Opposite(possibleTouch.commandSide)! {continue}} // Skip touches on non-acting player (except when declaring attack group)
@@ -302,27 +324,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
             }
             countTouchesScene++
         }
+        */
 
         // Sets the touched node
         touchedNode = theTouchedNode(touchedNodesMap, mapLocation:mapLocation, touchedCount:touchedCount)
-
-        // Exit if in rewind mode
-        if statePoint != .Front && touchedNodeScene != fastfwdButton && touchedNodeScene != rewindButton {return Void()}
         
-        // Button touched cases
-        //if touchedNodeScene == undoButton {selectionCase = undoName; print("UndoTouch", terminator: "")}
-        //else if touchedNodeScene == endTurnButton {selectionCase = endTurnName; print("EndTurnTouch", terminator: "")}
-        //else if touchedNodeScene == terrainButton {selectionCase = terrainName; print("HideCommandsTouch", terminator: "")}
-        //else if touchedNodeScene == fastfwdButton {if undoOrAct {return Void()}; selectionCase = fastfwdName; print("FastFwdTouch", terminator: "")}
-        //else if touchedNodeScene == rewindButton {if undoOrAct {return Void()}; selectionCase = rewindName; print("RewindTouch", terminator: "")}
-        //else if touchedNodeScene == corpsMoveButton {selectionCase = corpsMoveName; print("CorpsMoveTouch", terminator: "")}
-        //else if touchedNodeScene == corpsDetachButton {selectionCase = corpsDetachName; print("CorpsDetachTouch", terminator: "")}
-        //else if touchedNodeScene == corpsAttachButton {selectionCase = corpsAttachName; print("CorpsAttachTouch", terminator: "")}
-        //else if touchedNodeScene == independentButton {selectionCase = independentName; print("IndependentTouch", terminator: "")}
-        //else if touchedNodeScene == retreatButton {selectionCase = retreatName; print("RetreatTouch", terminator: "")}
-        //else if touchedNodeScene == commitButton {selectionCase = commitName; print("CommitTouch", terminator: "")}
-        //else if touchedNodeScene == guardButton {selectionCase = guardName; print("GuardTouch", terminator: "")}
-            
         if touchedNode == NTMap {
             print("MapTouch", terminator: "\n")
             if undoOrAct {return Void()}
@@ -428,7 +434,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 ToggleGroups(manager!.selectableDefenseGroups, makeSelection: .Normal)
             }
             for each in manager!.reserves {each.hidden = true} // ###
-            if retreatButton.buttonState == .Off {endTurnButton.buttonState = .Off}
+            if retreatButton.buttonState == .Possible {endTurnButton.buttonState = .Off}
         
         // MARK: Move after Pre-retreat, Feint-move & Attack-declaration Touch
         
@@ -452,7 +458,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             if manager!.currentGroupsSelected.isEmpty && manager!.phaseOld == .StoodAgainstNormalThreat {commitButton.buttonState = .Option} else {commitButton.buttonState = .Off}
         
-        case (reserveName,1,"Commit"): if touchedNode != nil && !manager!.currentGroupsSelected.isEmpty {MoveUI(touchedNode!)}
+        case (reserveName,1,"Commit"):
+            if touchedNode != nil && !manager!.currentGroupsSelected.isEmpty {MoveUI(touchedNode!)}
+            manager!.RemoveArrows()
             
         case (approachName,1,"Commit"):
             
@@ -560,11 +568,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             manager!.NewPhase(1, reverse: false, playback: false)
             
-            // Reveal all retreaters
-            //var normalCommands:[Command] = []
-            //normalCommands = theConflict.defenseReserve.occupants
-            //for eachApproach in theConflict.defenseReserve.ownApproaches {normalCommands += eachApproach.occupants}
-            
             manager!.activeThreat!.SetupRetreatRequirements() // Re-seeds the reduce requirements for retreating
             // Morale reductions (after combat retreat)
             
@@ -605,7 +608,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 if !retreatGroup.groups.isEmpty && retreatGroup.groupSelectionStrength > 0 {
                     
-                    let newOrder = Order(retreatSelection: retreatGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: theConflict.attackReserve as Location, orderFromView: .Retreat, mapFromView: NTMap!)
+                    let newOrder = Order(retreatSelection: retreatGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: theConflict.attackReserve as Location, orderFromView: .Retreat, mapFromView: NTMap)
                     newOrder.ExecuteOrder()
                     manager!.orders += [newOrder]
                     
@@ -620,7 +623,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 if !remainGroup.groups.isEmpty && remainGroup.groupSelectionStrength > 0 {
                     
-                    let newOrder = Order(retreatSelection: remainGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: remainGroup.groups[0].command.currentLocation!, orderFromView: .Retreat, mapFromView: NTMap!)
+                    let newOrder = Order(retreatSelection: remainGroup!, passedGroupConflict: theConflict.parentGroupConflict!, touchedReserveFromView: remainGroup.groups[0].command.currentLocation!, orderFromView: .Retreat, mapFromView: NTMap)
                     newOrder.ExecuteOrder()
                     manager!.orders += [newOrder]
                     
@@ -677,7 +680,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Attack moves
         for eachGroup in theConflict.attackGroup!.groups {
             
-            let newOrder = Order(groupFromView: eachGroup, touchedNodeFromView: moveToNode, orderFromView: .Move, corpsOrder: nil, moveTypePassed: theConflict.attackMoveType!, mapFromView:NTMap!)
+            let newOrder = Order(groupFromView: eachGroup, touchedNodeFromView: moveToNode, orderFromView: .Move, corpsOrder: nil, moveTypePassed: theConflict.attackMoveType!, mapFromView:NTMap)
             newOrder.ExecuteOrder()
             newOrder.unDoable = false
             manager!.orders += [newOrder]
@@ -705,8 +708,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             manager!.NewPhase(1, reverse: false, playback: false)
             manager!.NewPhase(1, reverse: false, playback: false)
             
-            //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-            //SelectableLeadingGroups(theThreat, thePhase: manager!.phaseOld)
             endTurnButton.buttonState = .On // Always can end turn when selecting leading units
             return
         }
@@ -718,7 +719,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
             manager!.orders += [newOrder]
             retreatButton.buttonState = .Option
         }
-        else {retreatButton.buttonState = .Off} // Defense mode
+        else {
+            if manager!.activeThreat!.mustDefend {retreatButton.buttonState = .Off}
+            else {retreatButton.buttonState = .Possible}
+        } // Defense mode
         
         if manager!.phaseOld == .RetreatAfterCombat {
             
@@ -752,7 +756,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         else if independentButton.buttonState == .On {commandUsage = false}
         else {commandUsage = true}
         
-        let newOrder = Order(groupFromView: manager!.currentGroupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .Move, corpsOrder: commandUsage, moveTypePassed: returnType, mapFromView:NTMap!)
+        let newOrder = Order(groupFromView: manager!.currentGroupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .Move, corpsOrder: commandUsage, moveTypePassed: returnType, mapFromView:NTMap)
         
         undoOrAct = newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
@@ -807,7 +811,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func AttackThreatUI(touchedNodeFromView:SKNode) {
         
         // Create an order, execute and deselect everything
-        let newOrder = Order(groupFromView: manager!.currentGroupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .NormalThreat, corpsOrder: nil, moveTypePassed: ReturnMoveType(), mapFromView:NTMap!)
+        let newOrder = Order(groupFromView: manager!.currentGroupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .NormalThreat, corpsOrder: nil, moveTypePassed: ReturnMoveType(), mapFromView:NTMap)
         
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
@@ -827,7 +831,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         if !forceFeint && AdjacentThreatPotentialCheck(touchedNodeFromView, commandOrdersAvailable: manager!.corpsCommandsAvail > 0, independentOrdersAvailable: manager!.indCommandsAvail > 0) {AttackThreatUI(touchedNodeFromView); return Void()}
         
         // Create an order, execute and deselect everything
-        let newOrder = Order(groupFromView: manager!.currentGroupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .FeintThreat, corpsOrder: nil, moveTypePassed: ReturnMoveType(), mapFromView:NTMap!)
+        let newOrder = Order(groupFromView: manager!.currentGroupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .FeintThreat, corpsOrder: nil, moveTypePassed: ReturnMoveType(), mapFromView:NTMap)
         
         endTurnButton.buttonState = .On
 
@@ -845,12 +849,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         let retreatSelection = GroupSelection(theGroups: manager!.selectableRetreatGroups)
         
-        let newOrder = Order(retreatSelection: retreatSelection, passedGroupConflict: manager!.activeThreat!, touchedReserveFromView: touchedNodeFromView, orderFromView: .Retreat, mapFromView:NTMap!)
+        let newOrder = Order(retreatSelection: retreatSelection, passedGroupConflict: manager!.activeThreat!, touchedReserveFromView: touchedNodeFromView, orderFromView: .Retreat, mapFromView:NTMap)
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
         
-        // Hide the selected reserve
-        touchedNodeFromView.hidden = true
+        // Hide the retreat reserves
+        for eachReserve in manager!.activeThreat!.defenseReserve.adjReserves {eachReserve.hidden = true}
         
         // Resets selectable defense group
         var theCode = ""
@@ -863,7 +867,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func DefendAgainstFeintUI(touchedNodeFromView:Approach, theGroupSelection:GroupSelection) {
         
-        let newOrder = Order(retreatSelection: theGroupSelection, passedGroupConflict: manager!.activeThreat!, touchedApproachFromView: touchedNodeFromView, orderFromView: .Feint, mapFromView: NTMap!)
+        let newOrder = Order(retreatSelection: theGroupSelection, passedGroupConflict: manager!.activeThreat!, touchedApproachFromView: touchedNodeFromView, orderFromView: .Feint, mapFromView: NTMap)
 
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
@@ -984,14 +988,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             let xmlDict = attributeDict
             let newApproach:Approach = Approach(theDict: xmlDict, scaleFactor: mapScaleFactor, reserveLocation:false)
-            NTMap!.addChild(newApproach)
+            NTMap.addChild(newApproach)
             manager!.approaches += [newApproach]
             
         case "Reserve"?:
             
             let xmlDict = attributeDict
             let newReserve:Reserve = Reserve(theDict: xmlDict, scaleFactor: mapScaleFactor, reserveLocation:true)
-            NTMap!.addChild(newReserve)
+            NTMap.addChild(newReserve)
             manager!.reserves += [newReserve]
             
         case "Command"?:
@@ -1014,7 +1018,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             newCommand.currentLocation?.occupants += [newCommand]
             
-            NTMap!.addChild(newCommand)
+            NTMap.addChild(newCommand)
             manager!.gameCommands[newCommand.commandSide]! += [newCommand]
             
         default:
@@ -1034,8 +1038,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
         var setMapY:CGFloat
         let sceneSizeX:CGFloat = self.size.width
         let sceneSizeY:CGFloat = self.size.height
-        let mapSizeX:CGFloat = NTMap!.size.width
-        let mapSizeY:CGFloat = NTMap!.size.height
+        let mapSizeX:CGFloat = NTMap.size.width
+        let mapSizeY:CGFloat = NTMap.size.height
             
         let sceneAspect:CGFloat = sceneSizeY / sceneSizeX
         let mapAspect:CGFloat = mapSizeY / mapSizeX
@@ -1048,12 +1052,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 setMapX = setMapY*(1/mapAspect)
             }
             
-        NTMap!.anchorPoint = CGPoint(x: 0.0,y: 0.0)
-        NTMap!.size = CGSize(width: setMapX, height: setMapY)
-        NTMap!.position = CGPoint(x: 0.0, y: 0.0)
-        NTMap!.zPosition = 0.0
+        NTMap.anchorPoint = CGPoint(x: 0.0,y: 0.0)
+        NTMap.size = CGSize(width: setMapX, height: setMapY)
+        NTMap.position = CGPoint(x: 0.0, y: 0.0)
+        NTMap.zPosition = 0.0
             
-        self.addChild(NTMap!)
+        self.addChild(NTMap)
         
         return (setMapX/editorPixelWidth)
         
@@ -1097,22 +1101,22 @@ class GameScene: SKScene, NSXMLParserDelegate {
         topPosition += terrainImage.size.height*mapScaleFactor + 5*mapScaleFactor
         rightPosition = 5*mapScaleFactor
         
-        let fastFwdImage = UIImage.init(named: "icon_blue_down")!
-        fastfwdButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, fastFwdImage.size.width*mapScaleFactor, fastFwdImage.size.height*mapScaleFactor))
-        fastfwdButton.setImage(fastFwdImage, forState: UIControlState.Normal)
-        fastfwdButton.addTarget(self, action:"fastFwdTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
-        fastfwdButton.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2))
-        baseMenu.addSubview(fastfwdButton)
-        
-        topPosition += 0
-        rightPosition = fastFwdImage.size.width*mapScaleFactor + 5*mapScaleFactor
-        
         let rewindImage = UIImage.init(named: "icon_red_down")!
         rewindButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, rewindImage.size.width*mapScaleFactor, rewindImage.size.height*mapScaleFactor))
         rewindButton.setImage(rewindImage, forState: UIControlState.Normal)
         rewindButton.addTarget(self, action:"rewindTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
-        rewindButton.transform = CGAffineTransformMakeRotation(CGFloat(-M_PI_2))
+        rewindButton.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2))
         baseMenu.addSubview(rewindButton)
+        
+        topPosition += 0
+        rightPosition = rewindImage.size.width*mapScaleFactor + 5*mapScaleFactor
+        
+        let fastFwdImage = UIImage.init(named: "icon_blue_down")!
+        fastfwdButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, fastFwdImage.size.width*mapScaleFactor, fastFwdImage.size.height*mapScaleFactor))
+        fastfwdButton.setImage(fastFwdImage, forState: UIControlState.Normal)
+        fastfwdButton.addTarget(self, action:"fastFwdTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        fastfwdButton.transform = CGAffineTransformMakeRotation(CGFloat(-M_PI_2))
+        baseMenu.addSubview(fastfwdButton)
         
         topPosition += rewindImage.size.height*mapScaleFactor + 5*mapScaleFactor
         rightPosition = 5*mapScaleFactor
@@ -1708,6 +1712,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     // MARK: Menu functions
     
     func hideTerrainTrigger() {
+        
         if terrainButton.buttonState == .Normal {
             terrainButton.buttonState = .On
             HideAllCommands(true)
@@ -1726,7 +1731,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         if statePoint == .Middle {
         
         // Remove order arrows from previous turn
-        if manager!.orderHistoryTurn > 1 {
+        if manager!.orderHistoryTurn > 1 && manager!.orderHistory[manager!.orderHistoryTurn-1] != nil {
         for eachOrder in manager!.orderHistory[manager!.orderHistoryTurn-1]! {eachOrder.orderArrow?.removeFromParent()}
         }
         
@@ -1746,29 +1751,31 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Rewind to the end of the current turn
         if statePoint == .Front {
         
-        undoOrAct = false
-        DeselectEverything()
+            undoOrAct = false
+            DeselectEverything()
+            
+            for var rewindIndex = manager!.orders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
+                manager!.orders[rewindIndex].ExecuteOrder(true, playback: true)
+            }
+                
+            selectedStatePoint = .Middle
+            statePoint = .Middle
         
-        for var rewindIndex = manager!.orders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
-        manager!.orders[rewindIndex].ExecuteOrder(true, playback: true)
-        }
-        selectedStatePoint = .Middle
-        statePoint = .Middle
+        } else if statePoint == .Middle && manager!.orderHistoryTurn > 1 && manager!.orderHistory[manager!.orderHistoryTurn-1] != nil { // Not the first turn and exists orders in the previous turn
         
-        } else if statePoint == .Middle && manager!.orderHistoryTurn > 1 { // Not the first turn and exists orders in the previous turn
-        
-        undoOrAct = false
-        let historicalOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!
-        for var rewindIndex = historicalOrders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
-        historicalOrders[rewindIndex].ExecuteOrder(true, playback: true)
-        }
-        selectedStatePoint = .Back
-        statePoint = .Back
-        }
-        
+            let historicalOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!
+            undoOrAct = false
+            for var rewindIndex = historicalOrders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
+            historicalOrders[rewindIndex].ExecuteOrder(true, playback: true)
+            }
+            selectedStatePoint = .Back
+            statePoint = .Back
+            }
     }
     
     func corpsDetachTrigger() {
+        
+        if statePoint != .Front {return}
         
         if corpsDetachButton.buttonState == .Option {
             corpsDetachButton.buttonState = .On
@@ -1778,6 +1785,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     }
     
     func independentMoveTrigger() {
+        
+        if statePoint != .Front {return}
     
         if independentButton.buttonState == .Option {
         corpsDetachButton.buttonState = .Option
@@ -1787,26 +1796,31 @@ class GameScene: SKScene, NSXMLParserDelegate {
     }
     
     func retreatTrigger() {
-    
-        if manager!.phaseOld == .RetreatAfterCombat {return}
         
+        if statePoint != .Front || manager!.phaseOld == .RetreatAfterCombat {return}
+    
         // In retreat mode, not flagged as must retreat, no reductions made
         if manager!.activeThreat!.retreatMode && !manager!.activeThreat!.mustRetreat && !manager!.activeThreat!.madeReductions {
-        retreatButton.buttonState = .Off; manager!.activeThreat!.retreatMode = false
-        ToggleGroups(manager!.selectableRetreatGroups, makeSelection: .NotSelectable)
-        ToggleGroups(manager!.selectableDefenseGroups, makeSelection: .Normal)
-        for eachReserve in manager!.selectionRetreatReserves {eachReserve.hidden = true}
+            retreatButton.buttonState = .Possible
+            endTurnButton.buttonState = .Off
+            manager!.activeThreat!.retreatMode = false
+            ToggleGroups(manager!.selectableRetreatGroups, makeSelection: .NotSelectable)
+            ToggleGroups(manager!.selectableDefenseGroups, makeSelection: .Normal)
+            for eachReserve in manager!.selectionRetreatReserves {eachReserve.hidden = true}
         
         // In defend mode, not flagged as must defend
         } else if !manager!.activeThreat!.retreatMode && !manager!.activeThreat!.mustDefend {
-        retreatButton.buttonState = .Option; manager!.activeThreat!.retreatMode = true
-        ToggleGroups(manager!.selectableDefenseGroups, makeSelection: .NotSelectable)
-        ToggleGroups(manager!.selectableRetreatGroups, makeSelection: .Normal)
+            retreatButton.buttonState = .Option
+            endTurnButton.buttonState = .Off
+            manager!.activeThreat!.retreatMode = true
+            ToggleGroups(manager!.selectableDefenseGroups, makeSelection: .NotSelectable)
+            ToggleGroups(manager!.selectableRetreatGroups, makeSelection: .Normal)
         }
-        
     }
     
     func commitTrigger() {
+        
+        if statePoint != .Front {return}
     
         if commitButton.buttonState == .Option {
         commitButton.buttonState = .On
@@ -1820,6 +1834,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func guardAttackTrigger() {
         
+        if statePoint != .Front {return}
+        
         if guardButton.buttonState == .Option {guardButton.buttonState = .On}
         else if guardButton.buttonState == .On {guardButton.buttonState = .Option}
         
@@ -1829,7 +1845,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func endTurnTrigger() {
         
-        if endTurnButton.buttonState == .Off {return}
+        if endTurnButton.buttonState == .Off || statePoint != .Front {return}
         
         switch (manager!.phaseOld) {
             
@@ -1868,11 +1884,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             if let theGroupThreat = manager!.activeThreat {
                 
-                endTurnButton.buttonState = .Off
+                endTurnButton.buttonState = .Off; retreatButton.buttonState = .Off
                 
                 if theGroupThreat.retreatMode {
-                    
-                    retreatButton.buttonState = .Off
                     
                     // Morale reductions (before combat retreat)
                     manager!.ReduceMorale(theGroupThreat.moraleLossFromRetreat, side: manager!.phasingPlayer.Other()!, mayDemoralize: true)
@@ -1888,6 +1902,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 // Continue-attack mode
                 if manager!.repeatAttackGroup != nil {
                     if CheckTurnEndViableInCommitMode(theGroupThreat.conflict, endLocation:manager!.repeatAttackGroup!.command.currentLocation!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
+                    //manager!.RemoveArrows()
                     manager!.currentGroupsSelected = [manager!.repeatAttackGroup!]
                     ToggleGroups(manager!.currentGroupsSelected, makeSelection: .Selected)
                     AttackOrdersAvailable()
@@ -1933,8 +1948,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 manager!.NewPhase(2, reverse: false, playback: false)
                 
-                //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-                //SelectableGroupsForFeintDefense(manager!.activeThreat!.conflict)
                 if CheckTurnEndViableInDefenseMode(manager!.activeThreat!.conflict) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             }
             
@@ -1959,19 +1972,22 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     manager!.orders += [newOrder]
                     retreatButton.buttonState = .Option
                 }
-                else {retreatButton.buttonState = .Off}
+                else {
+                    if manager!.activeThreat!.mustDefend {retreatButton.buttonState = .Off}
+                    else {retreatButton.buttonState = .Possible}
+                }
                 
                 if CheckTurnEndViableInRetreatOrDefendMode(manager!.activeThreat!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
                 
-                undoOrAct = false
-                
             } else {
                 
+                DeselectEverything()
                 manager!.NewPhase(1, reverse: false, playback: false)
                 endTurnButton.buttonState = .Option
-                undoOrAct = false
+                
             }
             
+            undoOrAct = false
             ResetSelectors()
             
             // Defender confirming their leading units
@@ -2029,13 +2045,25 @@ class GameScene: SKScene, NSXMLParserDelegate {
             let numberOfCommands = theConflict.attackGroup!.groups.count
             if independentButton.buttonState == .On {
                 manager!.indCommandsAvail -= numberOfCommands
-                for eachGroup in theConflict.attackGroup!.groups {eachGroup.command.movedVia = .IndMove}
+                
+                // Set each independent move status to has moved
+                for eachGroup in theConflict.attackGroup!.groups {eachGroup.units[0].hasMoved = true}
+            
             } else if corpsDetachButton.buttonState == .On {
                 manager!.corpsCommandsAvail -= numberOfCommands
+                
+                // set command to having acted and units moving as having moved
                 theConflict.attackGroup!.groups[0].command.movedVia = .CorpsActed
                 for each in theConflict.attackGroup!.groups[0].units {each.hasMoved = true}
+            
             } else if corpsMoveButton.buttonState == .On {
-                for eachGroup in theConflict.attackGroup!.groups {eachGroup.command.movedVia = .CorpsMove}
+                
+                // Command has moved and accompanying units too
+                for eachGroup in theConflict.attackGroup!.groups {
+                    eachGroup.command.hasMoved = true
+                    for eachUnit in eachGroup.units {eachUnit.hasMoved = true}
+                }
+            
             }
             
             ResetSelectors()
@@ -2067,7 +2095,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             PostBattleMove()
             
         }
-        
     }
     
     // MARK: Undo

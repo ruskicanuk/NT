@@ -203,7 +203,7 @@ class Order {
             let moveToLocation = endLocation
             var newCommandArray:[Command] = []
             var moveCommandArray:[Command] = []
-            
+
             if moveType == .CorpsMove {
                 moveBase.append(true)
                 if otherGroup != nil {
@@ -248,7 +248,7 @@ class Order {
             } else {
                 break
             }
-            
+
             newCommands[0] = newCommandArray
             moveCommands[0] = moveCommandArray
             
@@ -265,10 +265,14 @@ class Order {
                     moveToLocation.occupants += [each]
                     
                     // Update command movement trackers
-                    if startLocation[0].locationType != .Start && startLocation[0] != endLocation {each.moveNumber++} else {each.moveNumber = 0; each.hasMoved = true} // # of steps moved (may need to fiddle with hasMoved)
+                    if startLocation[0].locationType != .Start && startLocation[0] != endLocation {each.moveNumber++} else {each.moveNumber = 0; each.hasMoved = true} // Setup phase moves
                     if manager!.actingPlayer.ContainsEnemy(endLocaleReserve!.containsAdjacent2PlusCorps) && each.isTwoPlusCorps {each.finishedMove = true}
                     if startLocation[0] == endLocation {each.finishedMove = true} // Rare case for attack moves when declaring a move "in place"
-                    if !moveBase[0] {each.movedVia = moveType!} else {baseGroup!.command.movedVia = moveType!} // Detached move ends move (no road movement)
+                    if moveBase[0] {
+                        baseGroup!.command.movedVia = moveType!
+                    } else {
+                        each.movedVia = moveType!
+                    }  // Detached move ends move (no road movement)
                     
                     // For french reinforcements (flag their second-move is available upon move-out and which turn it entered)
                     if startLocaleReserve != nil && startLocaleReserve!.name == "201" {

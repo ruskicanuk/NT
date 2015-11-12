@@ -6,9 +6,8 @@
 //  Copyright © 2015 Justin Anderson. All rights reserved.
 //
 
-import Foundation
+//import Foundation
 import UIKit
-
 
 class HowToPlayViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -18,15 +17,14 @@ class HowToPlayViewController: UIViewController, UITableViewDelegate, UITableVie
         
         //Left side tableview to show index
         let tableMenu:UITableView = UITableView(frame: CGRectMake(0, 0, 100, self.view.frame.size.height)) as UITableView
-        tableMenu.delegate=self
-        tableMenu.dataSource=self
+        tableMenu.delegate = self
+        tableMenu.dataSource = self
         self.view.addSubview(tableMenu)
-        
         
         //Right side content view. Note that i used webview as it seems in DF game they are showing static html file.
         //This is a quick turn around right nowl
         //I am not sure why i need to apply 30 to y position but if i won't apply then it cuts the webview
-        webView.frame=CGRectMake(100, 30, self.view.frame.size.width-100, self.view.frame.size.height-30)
+        webView.frame = CGRectMake(100, 30, self.view.frame.size.width-100, self.view.frame.size.height-30)
         self.view.addSubview(webView)
         
         //To close current screen and go back to menu sceeen
@@ -42,7 +40,7 @@ class HowToPlayViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     
-    //MARK: TableView Delegate
+    // MARK: TableView Delegate
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
     }
@@ -65,8 +63,8 @@ class HowToPlayViewController: UIViewController, UITableViewDelegate, UITableVie
         return cell!
     }
     
-    //MARK: Open content here.
-    //TODO: Create a method to show content based on selected index.
+    // MARK: Web links
+    
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
     {
         var link:String = "https://google.com"
@@ -89,6 +87,5 @@ class HowToPlayViewController: UIViewController, UITableViewDelegate, UITableVie
         webView.loadRequest(NSURLRequest.init(URL: NSURL.init(string: link)!))
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
-    
-    
 }
+

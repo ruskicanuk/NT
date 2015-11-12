@@ -9,22 +9,13 @@
 import UIKit
 import SpriteKit
 
-let HIDEMENU: String = "hidemenu"
-let SHOWMENU: String = "showmenu"
+//let HIDEMENU: String = "hidemenu"
+//let SHOWMENU: String = "showmenu"
 
 var gameScene:GameScene!
 let baseMenu = UIView.init()
 let largeMenu = UIView.init()
 let labelMenu = UIView.init()
-
-extension Int {
-
-    var degreesToRadians : CGFloat {
-
-    return CGFloat(self) * CGFloat(M_PI) / 180.0
-
-    }
-}
 
 //var scene:GameScene!
 var scene:MenuView!
@@ -36,6 +27,13 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     var scrollview: UIScrollView!
     var skView:SKView!
     var scale:Float = 1.0
+    
+    var selectedView:UIView?
+    var threshold:CGFloat = 0.0
+    let shouldDragY = true
+    let shouldDragX = true
+    let snapY:CGFloat = 1.0
+    let snapX:CGFloat = 1.0
 
     //MARK: View Hiearchy
     override func viewDidLoad() {
@@ -91,28 +89,87 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     self.view.addSubview(baseMenu)
         
     // Large menu button setup
-    largeMenu.multipleTouchEnabled = true
-    largeMenu.exclusiveTouch = true
-    largeMenu.userInteractionEnabled = true
-    largeMenu.frame = CGRectMake(150 + baseMenu.frame.width, 300, self.view.frame.size.width / 5, self.view.frame.size.height / 4)
-    largeMenu.backgroundColor = UIColor.blackColor()
-    largeMenu.hidden = true
-    self.view.addSubview(largeMenu)
+    //largeMenu.multipleTouchEnabled = true
+    //largeMenu.exclusiveTouch = true
+    //largeMenu.userInteractionEnabled = true
+    //largeMenu.frame = CGRectMake(150 + baseMenu.frame.width, 300, self.view.frame.size.width / 5, self.view.frame.size.height / 4)
+    //largeMenu.backgroundColor = UIColor.blackColor()
+    //largeMenu.hidden = true
+    //self.view.addSubview(largeMenu)
         
     // Large menu button setup
     labelMenu.multipleTouchEnabled = false
-    labelMenu.userInteractionEnabled = false
+    labelMenu.userInteractionEnabled = true
     labelMenu.frame = CGRectMake(650, 500, self.view.frame.size.width / 4, self.view.frame.size.height / 5)
     labelMenu.backgroundColor = UIColor.whiteColor()
     labelMenu.hidden = false
     self.view.addSubview(labelMenu)
 
-    let popMenuImage = UIImage.init(named: "Menu")!
-    let popButton:UIButton = UIButton.init(frame: CGRectMake(0, self.view.frame.size.height / 4 - popMenuImage.size.height, popMenuImage.size.width, popMenuImage.size.height))
-    popButton.setImage(popMenuImage, forState: UIControlState.Normal)
-    popButton.addTarget(self, action:"popOutMenuTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
-    baseMenu.addSubview(popButton)
+    //let popMenuImage = UIImage.init(named: "Menu")!
+    //let popButton:UIButton = UIButton.init(frame: CGRectMake(0, self.view.frame.size.height / 4 - popMenuImage.size.height, popMenuImage.size.width, popMenuImage.size.height))
+    //popButton.setImage(popMenuImage, forState: UIControlState.Normal)
+    //popButton.addTarget(self, action:"popOutMenuTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+    //baseMenu.addSubview(popButton)
+    
+    // TODO: Put constraints so player can not drag the menu off-map
+    setupGestures()
 
+}
+    
+func setupGestures() {
+    let pan = UIPanGestureRecognizer(target:self, action:"pan:")
+    pan.maximumNumberOfTouches = 1
+    pan.minimumNumberOfTouches = 1
+    self.view.addGestureRecognizer(pan)
+}
+
+func pan(rec:UIPanGestureRecognizer) {
+    
+    let p:CGPoint = rec.locationInView(self.view)
+    var center:CGPoint = CGPointZero
+    
+    switch rec.state {
+    case .Began:
+        print("began")
+        selectedView = view.hitTest(p, withEvent: nil)
+        if selectedView != nil {
+            self.view.bringSubviewToFront(selectedView!)
+        }
+        
+    case .Changed:
+        if let subview = selectedView {
+            center = subview.center
+            let distance = sqrt(pow((center.x - p.x), 2.0) + pow((center.y - p.y), 2.0))
+            print("distance \(distance)")
+            
+            if subview == labelMenu || subview == baseMenu {
+                if distance > threshold {
+                    if shouldDragX {
+                        subview.center.x = p.x - (p.x % snapX)
+                    }
+                    if shouldDragY {
+                        subview.center.y = p.y - (p.y % snapY)
+                    }
+                }
+            }
+        }
+        
+    case .Ended:
+        print("ended")
+        if let subview = selectedView {
+            if subview == labelMenu {
+                // do whatever
+            }
+        }
+        selectedView = nil
+        
+    case .Possible:
+        print("possible")
+    case .Cancelled:
+        print("cancelled")
+    case .Failed:
+        print("failed")
+    }
 }
 
 func popOutMenuTrigger() {
@@ -127,6 +184,8 @@ func openMenu() {
 func closeMenu() {
     largeMenu.hidden = true
 }
+    
+/*
 
 //MARK: ScrollView Delegate
 internal func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
@@ -160,7 +219,7 @@ func pinched(pinchGesture : UIPinchGestureRecognizer) {
     }
 }
 
-func dragged(dragGesture : UIPanGestureRecognizer) {
+func dragged(dragGesture: UIPanGestureRecognizer) {
 
 if dragGesture.state == .Began || dragGesture.state == .Changed {
 
@@ -181,6 +240,8 @@ if dragGesture.state == .Began || dragGesture.state == .Changed {
     dragGesture.setTranslation(CGPointZero, inView: dragGesture.view)
     }
 }
+
+*/
 
 override func shouldAutorotate() -> Bool {
     return true

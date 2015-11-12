@@ -8,77 +8,8 @@
 
 //import Foundation
 import SpriteKit
-// MARK: Game Global Constants
 
-var mapScaleFactor:CGFloat = 1.0
-
-let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 242.0:"FRINF2", 241.0:"FRINF1", 251.1:"St Hilaire", 251.2:"Vandamme"]
-
-let imageNamesSelected = [133.0:"AUINF3 Selected", 132.0:"AUINF2 Selected", 131.0:"AUINF1 Selected", 123.0:"AUCAV3 Selected", 122.0:"AUCAV2 Selected", 121.0:"AUCAV1 Selected", 111.0:"AUART1 Selected", 143.0:"AUINFEL3 Selected", 151.1:"Bagration Selected", 151.2:"Dokhturov Selected", 151.3:"Constantine Selected", 233.0:"FRINF3 Selected", 232.0:"FRINF2 Selected", 231.0:"FRINF1 Selected", 223.0:"FRCAV3 Selected", 222.0:"FRCAV2 Selected", 221.0:"FRCAV1 Selected", 211.0:"FRART1 Selected", 243.0:"FRINFEL3 Selected", 251.1:"St Hilaire Selected", 251.2:"Vandamme Selected"]
-
-let imageNamesGreyedOut = [133.0:"AUINF3 Greyed", 132.0:"AUINF2 Greyed", 131.0:"AUINF1 Greyed", 123.0:"AUCAV3 Greyed", 122.0:"AUCAV2 Greyed", 121.0:"AUCAV1 Greyed", 111.0:"AUART1 Greyed", 143.0:"AUINFEL3 Greyed", 151.1:"Bagration Greyed", 151.2:"Dokhturov Greyed", 151.3:"Constantine Greyed", 233.0:"FRINF3 Greyed", 232.0:"FRINF2 Greyed", 231.0:"FRINF1 Greyed", 223.0:"FRCAV3 Greyed", 222.0:"FRCAV2 Greyed", 221.0:"FRCAV1 Greyed", 211.0:"FRART1 Greyed", 243.0:"FRINFEL3 Greyed", 251.1:"St Hilaire Greyed", 251.2:"Vandamme Greyed"]
-
-// Split this into "Off" and "Greyed out"
-let imageNamesOff = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
-
-//let imageNamesBlank:[Allegience:String] = [.Austrian:"AUback", .French:"FRback"]
-
-let unitHeight:CGFloat = 9.5/1.5
-let unitWidth:CGFloat = 56/1.5
-let commandOffset:CGFloat = 2.0
-
-/*
-Z-positions
-Menu: 2000
-Elevated (swipe queue): 1000
-Units: 100
-SKNodes (Commands): 0
-Locations: 200
-*/
-
-// MARK: Game Types
-
-enum ReviewState {case Front, Middle, Back}
-
-enum Allegience {
-    
-    case Austrian, French, Neutral, Both
-    
-    var ID:String {
-        switch self {
-            case .Austrian: return "Austrian"
-            case .French: return "French"
-            case .Neutral: return "Neutral"
-            case .Both: return "Both"
-        }
-    }
-    
-    // Returns true if paramater is the true opposite, otherwise false
-    func Opposite(check:Allegience) -> Bool? {
-        if self == .Neutral || check == .Neutral {return false}
-        else if self == check {return false}
-        else {return true}
-    }
-    
-    mutating func Switch () {
-        
-        if self == .French {self = .Austrian}
-        else if self == .Austrian {self = .French}
-        
-    }
-    
-    func Other() -> Allegience? {
-        if self == .French {return .Austrian}
-        else if self == .Austrian {return .French}
-        else {return .Neutral}
-    }
-    
-    func ContainsEnemy(check:Allegience) -> Bool {
-        if self == .French {if check == .Austrian || check == .Both{return true}}
-        else if self == .Austrian {if check == .French || check == .Both{return true}}
-        return false
-    }
-}
+// MARK: New Phase
 
 /*
 enum newGamePhase {
@@ -128,6 +59,8 @@ enum newGamePhase {
     }
 }
 */
+
+// MARK: Old Phase
 
 enum oldGamePhase {
     
@@ -260,30 +193,6 @@ enum oldGamePhase {
 
 // MARK: Game Manager
 
-/*
-
-gameCommands
-priorityLosses
-priorityLeaderAndBattle
-
-selectableDefenseGroups
-selectableRetreatGroups
-selectableAttackGroups
-selectableAttackByRoadGroups
-selectableAttackAdjacentGroups
-
-currentGroupsSelected
-
-repeatAttackGroup
-repeatAttackMoveNumber
-
-selectionRetreatReserves
-
-activeThreat
-
-*/
-
-
 class GameManager: NSObject, NSCoding {
 
     required init(coder aDecoder: NSCoder) {
@@ -298,7 +207,6 @@ class GameManager: NSObject, NSCoding {
         
         gameCommands[playerAu] = auCommand
         gameCommands[playerFr] = frCommand
-        //
         
         //Retrive priorityLosses
         let auLosses = aDecoder.decodeObjectForKey("auLosses") as! [Int]
@@ -426,9 +334,8 @@ class GameManager: NSObject, NSCoding {
             case "DeclaredLeadingA": return .DeclaredLeadingA
             case "RetreatAfterCombat": return .RetreatAfterCombat
             case "PostVictoryFeintMove": return .PostVictoryFeintMove
-        default: return .Setup
+            default: return .Setup
         }
-        
     }
     
     func getAllegience(value:String)->Allegience {
@@ -570,13 +477,7 @@ class GameManager: NSObject, NSCoding {
         aCoder.encodeInteger(guardFailedCost, forKey: "guardFailedCost")
 
         //aCoder.encodeObject(drawOnNode, forKey: "drawOnNode")
-
-
        
-        //GameCommands
-//priorityLosses
-//priorityLeaderAndBattle
-        
     }
     
     var gameCommands:[Allegience:[Command]] = [.Austrian:[], .French:[]]
@@ -590,20 +491,12 @@ class GameManager: NSObject, NSCoding {
     var selectableAttackAdjacentGroups:[Group] = []
     
     var currentGroupsSelected:[Group] = []
-    //var locationsVisible:[Location] = []
     
     var repeatAttackGroup:Group? // Used to store the group for rare cases of repeat attacks along the rd
     var repeatAttackMoveNumber:Int?
     
     var selectionRetreatReserves:[Reserve] = [] // Stores viable retreat reserves for the current selection
-    //var defendingGroups:[Approach:[Group]]? // Used to store defenders for a current attack
-    //var attackingGroups:[Approach:[Group]]?
-    //var reserveThreats:[GroupConflict] = []
     var activeThreat:GroupConflict?
-    
-    //var approachThreats:[Approach:Conflict] = [:]
-    //var theThreatsRetreatStatus:[Reserve:Bool] = [:] // Stores which mode (retreat or defend) each threat is in
-    //var defendingLeading
     
     var approaches = [Approach]()
     var reserves = [Reserve]()
@@ -612,6 +505,8 @@ class GameManager: NSObject, NSCoding {
     
     // Phasing and acting player
     var player1:Allegience = .Austrian
+    
+    var statePointTracker:ReviewState = .Front
    
     // Commands available
     var player1CorpsCommands:Int = 5
@@ -654,9 +549,6 @@ class GameManager: NSObject, NSCoding {
         }
     }
     
-    // Current phase
-    //var phaseNew:newGamePhase = newGamePhase()
-    
     var phaseOld:oldGamePhase = oldGamePhase() {
         didSet {
             updateTurnLabel()
@@ -669,17 +561,6 @@ class GameManager: NSObject, NSCoding {
     var indCommandsAvail:Int = 0 {
         didSet {updateIndLabel()}
     }
-    //var frIndCommandsAvail:Int = 0
-    
-    /*
-    var commandLabel = SKLabelNode()
-    var indLabel = SKLabelNode()
-    var phasingLabel = SKLabelNode()
-    var actingLabel = SKLabelNode()
-    var turnLabel = SKLabelNode()
-    var alliedMoraleLabel = SKLabelNode()
-    var frenchMoraleLabel = SKLabelNode()
-    */
     
     // Morale
     var maxMorale:[Allegience:Int!] = [ .Austrian: 27, .French: 23]
@@ -697,9 +578,6 @@ class GameManager: NSObject, NSCoding {
     var guardCommittedCost:Int = 4
     var guardFailedCost:Int = 3
     
-    // Refers to the menu
-    //var drawOnNode:SKNode?
-    
     override init() {
         phasingPlayer = player1
         actingPlayer = player1
@@ -708,7 +586,6 @@ class GameManager: NSObject, NSCoding {
         indCommandsAvail = 0
     }
 
-    
     // MARK: New Phase
     
     // Triggered by conflict commands (eg. moving into an enemy locale)
@@ -718,20 +595,10 @@ class GameManager: NSObject, NSCoding {
         if playback {return "Playback"}
         
         let phaseChange = phaseOld.NextPhase(fight, reverse: reverse) // Moves us to the next phase, returns true if need to swith acting player
-        if phaseChange {SideSwith(); actingPlayer.Switch()}
-        if orders.last != nil {orders.last?.unDoable = false}
+        if phaseChange {actingPlayer.Switch()}
+        RefreshCommands()
         
-        /*
-        let thePhaseClass:String!
-        if phaseOld == .Setup || phaseOld == .Move {thePhaseClass = "Move"}
-        else if phaseOld == .FeintThreat || phaseOld == .NormalThreat {thePhaseClass = "Threat"}
-        else if phaseOld == .StoodAgainstNormalThreat || phaseOld == .StoodAgainstFeintThreat || phaseOld == .RetreatedBeforeCombat {thePhaseClass = "Commit"}
-        else if phaseOld == .RealAttack {thePhaseClass = "DeclareLeading"}
-        else if phaseOld == .DeclaredAttackers {thePhaseClass = "DeclareLeading"}
-        //else if phaseOld == .DeclaredLeadingA {thePhaseClass = "DeclareLeading"}
-        else if phaseOld == .FeintMove || phaseOld == .RealAttack {thePhaseClass = "Nothing"}
-        else {thePhaseClass = "Nothing"}
-        */
+        if orders.last != nil {orders.last?.unDoable = false}
         
         switch (phaseOld) {
         
@@ -745,11 +612,8 @@ class GameManager: NSObject, NSCoding {
                 CheckForOneBlockCorps(eachCommand)
             }
             
-            for each in orders {
-                if each.order != .Move && each.order != .Retreat && each.order != .Feint {each.orderArrow?.removeFromParent()}
-            }
+            RemoveArrows()
             ResetManagerState()
-            //ToggleCommands(gameCommands[actingPlayer]!, makeSelectable:true)
         
         case .FeintThreat, .NormalThreat:
             
@@ -869,10 +733,11 @@ class GameManager: NSObject, NSCoding {
         ResetManagerState()
         
         // Always switch side, phasing and acting player
-        SideSwith()
+        
         if orders.last != nil {orders.last?.unDoable = false}
         phasingPlayer.Switch()
         actingPlayer.Switch()
+        RefreshCommands()
         
     }
     
@@ -891,10 +756,6 @@ class GameManager: NSObject, NSCoding {
         activeThreat = nil
     }
 
-    // MARK: Property Observer functions
-    
-    
-    
     // MARK: Manager Support Functions
     
     func turnID() -> Int {
@@ -906,68 +767,17 @@ class GameManager: NSObject, NSCoding {
         }
     }
     
-    func setupCommandDashboard() {
-        
-        /*
-        
-        phasingLabel.fontSize = 20*mapScaleFactor
-        phasingLabel.fontColor = SKColor.blackColor()
-        drawOnNode!.addChild(phasingLabel)
-        phasingLabel.position = CGPoint(x: -140.0, y: -220.0)
-        
-        commandLabel.fontSize = 20*mapScaleFactor
-        commandLabel.fontColor = SKColor.blackColor()
-        drawOnNode!.addChild(commandLabel)
-        commandLabel.position = CGPoint(x: -140.0, y: -240.0)
-        
-        indLabel.fontSize = 20*mapScaleFactor
-        indLabel.fontColor = SKColor.blackColor()
-        drawOnNode!.addChild(indLabel)
-        indLabel.position = CGPoint(x: -140.0, y: -260.0)
-        
-        actingLabel.fontSize = 20*mapScaleFactor
-        actingLabel.fontColor = SKColor.blackColor()
-        drawOnNode!.addChild(actingLabel)
-        actingLabel.position = CGPoint(x: -140.0, y: -280.0)
-        
-        turnLabel.fontSize = 20*mapScaleFactor
-        turnLabel.fontColor = SKColor.blackColor()
-        drawOnNode!.addChild(turnLabel)
-        turnLabel.position = CGPoint(x: -140.0, y: -300.0)
-        
-        alliedMoraleLabel.fontSize = 20*mapScaleFactor
-        alliedMoraleLabel.fontColor = SKColor.blackColor()
-        drawOnNode!.addChild(alliedMoraleLabel)
-        alliedMoraleLabel.position = CGPoint(x: -140.0, y: -320.0)
-        
-        frenchMoraleLabel.fontSize = 20*mapScaleFactor
-        frenchMoraleLabel.fontColor = SKColor.blackColor()
-        drawOnNode!.addChild(frenchMoraleLabel)
-        frenchMoraleLabel.position = CGPoint(x: -140.0, y: -340.0)
-        
-        */
-
-        //updateMoraleLabel()
-        
-        phasingPlayer = player1
-        actingPlayer = player1
-        phaseOld = .Setup
-        corpsCommandsAvail = 0
-        indCommandsAvail = 0
-        
-    }
-    
-    func SideSwith() {
+    func RefreshCommands() {
         
         for eachCommand in gameCommands[manager!.actingPlayer]! {
             for eachUnit in eachCommand.activeUnits {
-                eachUnit.selected = .Off
+                eachUnit.selected = .Normal
             }
         }
         
         for eachCommand in gameCommands[manager!.actingPlayer.Other()!]! {
             for eachUnit in eachCommand.activeUnits {
-                eachUnit.selected = .Normal
+                eachUnit.selected = .Off
             }
         }
     }
@@ -976,13 +786,7 @@ class GameManager: NSObject, NSCoding {
     func SetupThreat() {
         
         let index = self.orders.endIndex-1
-        //var theGroupConflicts:[Reserve:[Conflict]] = [:]
-        //self.reserveThreats = []
-        
-        //repeat {
-            
-            // Break conditions
-       //     if index < 0 {break}
+
         guard let theConflict = self.orders[index].theConflict else {return}
         activeThreat = GroupConflict(passReserve: theConflict.defenseReserve, passConflict: theConflict)
         
@@ -997,23 +801,6 @@ class GameManager: NSObject, NSCoding {
                 }
             }
         }
-            //self.approachThreats[theConflict.defenseApproach] = theConflict
-       /*
-            if theGroupConflicts[theConflict.defenseReserve] == nil {
-                theGroupConflicts[theConflict.defenseReserve] = [theConflict]
-            } else {
-                theGroupConflicts[theConflict.defenseReserve]! += [theConflict]
-            }
-            
-            index--
-            
-        } while true
-        
-        for (reserve, theConflicts) in theGroupConflicts {
-            self.reserveThreats += [GroupConflict(passReserve: reserve, passConflicts: theConflicts)]
-        }
-        */
-    
     }
     
     // Returns retreat mode (for the retreat selector)
@@ -1087,11 +874,11 @@ class GameManager: NSObject, NSCoding {
         if morale[side] > 0 {return false} else {return true}
     }
     
+    func RemoveArrows() {
+        for each in orders {
+            if each.order != .Move && each.order != .Retreat && each.order != .Feint {each.orderArrow?.removeFromParent()}
+        }
+    }
+    
 }
-
-
-
-
-
-
 

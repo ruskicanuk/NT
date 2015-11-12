@@ -7,7 +7,6 @@
 //
 import Foundation
 
-
 class Conflict {
     
     let defenseReserve:Reserve!
@@ -34,6 +33,7 @@ class Conflict {
     var finalResult = 0
     
     var availableCounterAttackers:GroupSelection? {
+        
         // Safety check
         if defenseGroup == nil {return nil}
         if defenseLeadingUnits == nil {return defenseGroup}

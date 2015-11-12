@@ -8,45 +8,7 @@
 
 import SpriteKit
 
-// MARK: Support Functions and Classes
-
-extension Array where Element : Equatable {
-    
-    // Remove first collection element that is equal to the given `object`:
-    mutating func removeObject(object : Generator.Element) {
-        if let index = self.indexOf(object) {
-            self.removeAtIndex(index)
-        }
-    }
-}
-
-//Not used currently
-extension Array {
-    
-    // Returns the first element satisfying the predicate, or `nil`
-    // if there is no matching element.
-    func findFirstMatching<L : BooleanType>(predicate: Element -> L) -> Element? {
-        for item in self {
-            if predicate(item) {
-                return item // found
-            }
-        }
-        return nil // not found
-    }
-}
-
-func Delay(delay:Double, closure:()->()) {
-    dispatch_after(
-        dispatch_time(
-            DISPATCH_TIME_NOW,
-            Int64(delay * Double(NSEC_PER_SEC))
-        ),
-        dispatch_get_main_queue(), closure)
-}
-
-enum SelState {
-    case On, Off, Option, Normal, NotAvail
-}
+// MARK: Support Classes
 
 class UIStateButton:UIButton {
     
@@ -80,6 +42,8 @@ class UIStateButton:UIButton {
         case .Normal: self.enabled = true; self.layer.borderWidth = 0
             
         case .NotAvail: self.enabled = false; self.layer.borderWidth = 3; self.layer.borderColor = UIColor(red: 1, green: 0, blue: 0, alpha: 1).CGColor
+            
+        case .Possible: self.enabled = true; self.layer.borderWidth = 3; self.layer.borderColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1).CGColor
             
         }
         
