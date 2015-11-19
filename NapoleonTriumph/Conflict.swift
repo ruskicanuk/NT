@@ -431,7 +431,7 @@ class GroupConflict {
     }
     
     let defenseReserve:Reserve!
-    let conflict:Conflict!
+    var conflicts:[Conflict] = []
     var threatenedApproaches:[Approach] = []
     var defendedApproaches:[Approach] = []
     var unresolvedApproaches:[Approach] {
@@ -451,22 +451,26 @@ class GroupConflict {
     var destroyDelivered:[Location:Int] = [:]
     var moraleLossFromRetreat = 0
     
-    init(passReserve:Reserve, passConflict:Conflict) {
+    init(passReserve:Reserve, passConflicts:[Conflict]) {
 
         defenseReserve = passReserve
-        conflict = passConflict
+        conflicts = passConflicts
         if defenseReserve.has2PlusCorps == .Neutral {twoPlusCorps = false} else {twoPlusCorps = true} // Saves whether the reserve has a two-plus Corps
 
-        threatenedApproaches += [conflict.defenseApproach]
-        conflict.parentGroupConflict = self
-
-        if conflict.defenseApproach.occupantCount > 0 {
-            defendedApproaches += [conflict.defenseApproach]
-            conflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(conflict.defenseApproach.occupants, includeLeader: false), selectedOnly: false)
-            conflict.defenseGroup!.SetGroupSelectionPropertyUnitsHaveDefended(true, approachDefended: conflict.defenseApproach)
-            conflict.approachConflict = true
+        // Links the threatened approaches and conflicts to their parent-conflict
+        for eachConflict in conflicts {
+            threatenedApproaches += [eachConflict.defenseApproach]
+            eachConflict.parentGroupConflict = self
+            
+            // Case that the defense approach is occupied (must defend)
+            if eachConflict.defenseApproach.occupantCount > 0 {
+                defendedApproaches += [eachConflict.defenseApproach]
+                eachConflict.defenseGroup = GroupSelection(theGroups: GroupsFromCommands(eachConflict.defenseApproach.occupants, includeLeader: false), selectedOnly: false)
+                eachConflict.defenseGroup!.SetGroupSelectionPropertyUnitsHaveDefended(true, approachDefended: eachConflict.defenseApproach)
+                eachConflict.approachConflict = true
+            }
         }
-        
+
         SetupRetreatRequirements()
     }
     
@@ -493,10 +497,13 @@ class GroupConflict {
             destroyDelivered[eachApproach] = 0
         }
         
-        let maxWidth:Int!
-        switch (conflict.defenseApproach.wideApproach) {
-        case true: maxWidth = 2
-        case false: maxWidth = 1
+        // Set the max-width from the unoccupied approaches
+        var maxWidth:Int = 1
+        for eachApproach in unresolvedApproaches {
+            if eachApproach.wideApproach {
+                maxWidth = 2
+                break
+            }
         }
         
         var potentialLosses:Int = 0
@@ -539,6 +546,7 @@ class Group: NSObject, NSCoding {
     var allCav:Bool = true
     var allGuard:Bool = true
     var someUnitsHaveMoved:Bool = false
+    var someUnitsFixed:Bool = false
     var guardInGroup:Bool = false
     var cavCount:Int = 0
     var nonLdrUnitCount:Int = 0
@@ -588,6 +596,7 @@ class Group: NSObject, NSCoding {
             else if eachUnit.unitType == .Grd {nonLdrUnitCount++; artOnly = false; allCav = false}
             else {nonLdrUnitCount++; artOnly = false; allCav = false; allGuard = false}
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
+            if eachUnit.fixed {someUnitsFixed = true}
             if eachUnit.unitType == .Grd {guardInGroup = true}
         }
         

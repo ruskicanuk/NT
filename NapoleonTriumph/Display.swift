@@ -34,6 +34,15 @@ let imageNamesOff = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUba
 let unitHeight:CGFloat = 9.5/1.5
 let unitWidth:CGFloat = 56/1.5
 let commandOffset:CGFloat = 2.0
+let editorPixelWidth:CGFloat = 1267.2
+
+var activeGroupConflict:GroupConflict?
+var activeConflict:Conflict? {
+    didSet {
+        if activeConflict == nil {activeGroupConflict = nil}
+        else {activeGroupConflict = activeConflict!.parentGroupConflict}
+    }
+}
 
 // MARK: Global Enums
 
@@ -218,7 +227,7 @@ func updateActingLabel() {
 }
 
 func updateTurnLabel() {
-    turnLabel.text = "Turn: \(manager!.turn) Phase: \(manager!.phaseOld.ID)"
+    turnLabel.text = "Turn: \(manager!.turn) Phase: \(manager!.phaseNew)"
 }
 
 func updateMoraleLabel() {

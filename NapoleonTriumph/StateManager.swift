@@ -38,7 +38,6 @@ class StateManager {
             let scoreArray: AnyObject? = NSKeyedUnarchiver.unarchiveObjectWithData(rawData);
             self.games = scoreArray as? [GameManager] ?? [];
         }
-        
     }
     
     func save() {

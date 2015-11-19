@@ -170,5 +170,4 @@ class MenuView: SKScene {
         view!.presentScene(gameScene, transition: transition)
         gameScene.scaleMode = .AspectFill
     }
-    
 }

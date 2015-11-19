@@ -10,9 +10,7 @@ import SpriteKit
 
 // Stores the kind of order
 enum OrderType {
-    
     case Move, Attach, FeintThreat, NormalThreat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove
-    
 }
 
 class Order {
@@ -153,8 +151,8 @@ class Order {
     init(passedGroupConflict: GroupConflict, orderFromView: OrderType) {
         order = orderFromView
         theGroupConflict = passedGroupConflict
-        startLocation = [theGroupConflict!.conflict.attackReserve!]
-        endLocation = theGroupConflict!.conflict.defenseApproach!
+        startLocation = [activeConflict!.attackReserve!]
+        endLocation = activeConflict!.defenseApproach!
     }
     
     // MARK: Order Functions
@@ -483,7 +481,7 @@ class Order {
             if !playback {
                 
                 // Catches the mysterious case of attacker retreats
-                if !(theGroupConflict != nil && theGroupConflict!.conflict.attackReserve == endLocation) {
+                if !(theGroupConflict != nil && activeConflict!.attackReserve == endLocation) {
                     theGroupConflict?.retreatOrders++
                     theGroupConflict?.mustRetreat = true
                     manager!.ResetRetreatDefenseSelection()
@@ -536,7 +534,7 @@ class Order {
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
                 }
                 // All retreat cases other than attacker retreat
-                if !(theGroupConflict != nil && theGroupConflict!.conflict.attackReserve == endLocation) {
+                if !(theGroupConflict != nil && activeConflict!.attackReserve == endLocation) {
                     theGroupConflict?.retreatOrders--
                     if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
                     manager!.ResetRetreatDefenseSelection()
@@ -881,7 +879,7 @@ class Order {
                 // Commit morale loss tracker
                 if !playback {
                     
-                    guard let theSide = theGroupConflict?.conflict.defenseSide else {break}
+                    guard let theSide = activeConflict!.defenseSide else {break}
                     //print("B4 Surrender Commiting: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
                     for (eachUnit, _) in surrenderDict {
                         
@@ -914,7 +912,7 @@ class Order {
             // Reverse the morale losses
             if !playback {
                 
-                guard let theSide = theGroupConflict?.conflict.defenseSide else {break}
+                guard let theSide = activeConflict!.defenseSide else {break}
                 if reverseCavCommit.0 {
                     manager!.heavyCavCommited[theSide] = false
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseCavCommit.1
@@ -931,7 +929,7 @@ class Order {
         // MARK: Battle
             
         case (false, .InitialBattle):
-            if !playback {theGroupConflict!.conflict.InitialResult()}
+            if !playback {activeConflict!.InitialResult()}
             // Animate
             
         case (true, .InitialBattle):
@@ -940,8 +938,8 @@ class Order {
         case (false, .FinalBattle):
             if !playback {
                 //theGroupConflict!.SetupRetreatRequirements() <-- This should be done only in the case of attacker victory
-                theGroupConflict!.conflict.ApplyCounterLosses()
-                theGroupConflict!.conflict.FinalResult()
+                activeConflict!.ApplyCounterLosses()
+                activeConflict!.FinalResult()
             }
             // Animate
             

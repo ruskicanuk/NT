@@ -72,7 +72,7 @@ class Unit: SKSpriteNode {
     
     func updateSelectedStatus() {
         
-        if manager!.phaseOld != .Move && manager!.phaseOld != .Setup {return}
+        if manager!.phaseNew != .Move && manager!.phaseNew != .Setup {return}
         else {
             
             if hasMoved && selected == .Normal {

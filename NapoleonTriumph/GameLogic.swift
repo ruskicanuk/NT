@@ -94,12 +94,10 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
 // Returns true (if road move), first array are viable "peaceful" moves, second array are viable "attack" moves
 func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([SKNode], [SKNode], [SKNode]) {
     
+    // Safety Check
     guard let commandSelected = groupSelected.command else {return ([], [], [])}
-    
     if groupSelected.nonLdrUnitCount == 0 {return ([], [], [])}
-    
-    //var locationQueue:Array<SKNode> = [nil, [], []]
-    if commandSelected.currentLocationType == .Start {return ([], [], [])} // Start Locations - skip game logic, eventually put in the initial location code here
+    if commandSelected.currentLocationType == .Start {return ([], [], [])}
     
     // Check has moved restrictions
     if groupSelected.someUnitsHaveMoved && !groupSelected.fullCommand {return ([], [], [])} // Return if some units moved (breaking up new commands must be done from 0-moved units)
@@ -273,9 +271,16 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         let attackThreats = enemyOccupiedAttackApproaches as [SKNode]
         let mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches))) as [SKNode]
         for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
-        // "NEW" version would separate rd attacks from adj attacks
-        if manager!.night { // Night turn, no attacks allowed
+        
+        // Night turn, no attacks allowed
+        if manager!.night {
             return (adjMoves,  [], [])
+        
+        // Commit phase or fixed art, only attacks allowed
+        } else if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
+            return ([],  attackThreats, mustFeintThreats)
+            
+        // Move phase, both attacks and moves allowed
         } else {
             return (adjMoves,  attackThreats, mustFeintThreats)
         }
@@ -420,7 +425,7 @@ func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelSta
     }
     
     // Load attacked reserves
-    let attackedReserve = theThreat.conflict.attackReserve
+    let attackedReserve = activeConflict!.attackReserve
     
     // Load reserves where available area is sufficient
     var adjReservesWithSpace:[Reserve] = []
@@ -457,7 +462,7 @@ func CheckForcedRetreatOrDefend(theThreat:GroupConflict) -> (Bool, Bool) {
     }
     
     // No command was given, check if there is any unresolved approaches
-    if theThreat.unresolvedApproaches.count == 0 && manager!.phaseOld != .RetreatAfterCombat {return (false, true)}
+    if theThreat.unresolvedApproaches.count == 0 && manager!.phaseNew != .PostCombatRetreatAndVictoryResponseMoves {return (false, true)}
     
     // Retreat command was given and space exists
     if theThreat.mustRetreat {return (true, false)}
@@ -475,7 +480,7 @@ func CheckTurnEndViableInRetreatOrDefendMode(theThreat:GroupConflict) -> Bool {
     if theThreat.retreatMode {
         if theThreat.defenseReserve.currentFill == 0 {return true}
     } else {
-        let theGroupSelectionCheck = GroupSelection(theGroups: manager!.selectableDefenseGroups)
+        let theGroupSelectionCheck = GroupSelection(theGroups: manager!.groupsSelectable)
         if theGroupSelectionCheck.groups.isEmpty {return false} else {return true}
     }
     return false
@@ -501,9 +506,9 @@ func AdjacentThreatPotentialCheck (touchedNodePassed:SKNode, commandOrdersAvaila
 func SelectableGroupsForAttackByRoad (theConflict:Conflict) -> [Group]  {
     
     // Catches rare case of a repeat attack along the road
-    if manager!.repeatAttackGroup != nil {
-        return [manager!.repeatAttackGroup!]
-    }
+    //if manager!.repeatAttackGroup != nil {
+    //    return [manager!.repeatAttackGroup!]
+    //}
     
     var theCommandGroups:[Group] = []
     //let corpsMovesAvailable = manager!.indCommandsAvail > 0
@@ -537,9 +542,9 @@ func SelectableGroupsForAttackByRoad (theConflict:Conflict) -> [Group]  {
 func SelectableGroupsForAttackAdjacent(theConflict:Conflict) -> [Group] {
     
     // Catches rare case of a repeat attack along the road
-    if manager!.repeatAttackGroup != nil {
-        return []
-    }
+    //if manager!.repeatAttackGroup != nil {
+    //    return []
+    //}
     
     var theCommandGroups:[Group] = []
     //let corpsMovesAvailable = manager!.indCommandsAvail > 0
@@ -633,14 +638,14 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], ordersLeft:(Int, Int), the
         }
         
         // Capacity constraints
-        if (manager!.phaseOld == .StoodAgainstFeintThreat || manager!.phaseOld == .StoodAgainstNormalThreat) && !adjacentLocation {
+        if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare {
             
             if theGroup.nonLdrUnits.count > theConflict.attackReserve.availableSpace {return (.Off, .Off, .Off, .Off)}
             
-        } else if manager!.phaseOld == .RetreatedBeforeCombat {
-            
+        } else {
+        
             if theGroup.nonLdrUnits.count > theConflict.defenseReserve.capacity {return (.Off, .Off, .Off, .Off)}
-            
+        
         }
         
         if theGroup.nonLdrUnits.count > 1 {
@@ -711,18 +716,16 @@ func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState,
     if theLocation is Approach {
         adjacentLocation = true
         onApproach = true
-    } else if manager!.repeatAttackGroup == nil  {
+    } else {
         theReserve = (theLocation as! Reserve)
         if theReserve == theConflict.attackReserve {adjacentLocation = true}
         if moveNumber == 0 {theConflict.rdAttackerMultiPaths = theReserve!.rdReserves} // Sets the pathways
-    } else {
-        theReserve = (theLocation as! Reserve)
     }
     
     let theReserveAsSKNode = theConflict.attackReserve as SKNode
     let theApproachAsSKNode = theConflict.attackApproach as SKNode
     
-    switch (adjacentLocation, feint, manager!.repeatAttackMoveNumber != nil) {
+    switch (adjacentLocation, feint, false) { // Elminate 3rd piece
         
     case (true, true, false):
         
@@ -827,7 +830,7 @@ func CheckTurnEndViableInCommitMode(theThreat:Conflict, endLocation:Location) ->
     let targetReserve:Reserve!
     let targetApproach:Approach!
     
-    switch (manager!.phaseOld == .RetreatedBeforeCombat, manager!.repeatAttackGroup == nil) {
+    switch (manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare, true) {
         
     case (true, true):
         
@@ -863,17 +866,17 @@ func SelectableGroupsForFeintDefense (theThreat:Conflict) {
 func SaveDefenseGroup(theGroupThreat:GroupConflict) {
     
     // Safety drill
-    let theThreat = theGroupThreat.conflict
-    if theThreat.approachConflict {return} // Approach conflicts do not get extra defenders
     
-    let defenseSelection = GroupSelection(theGroups: manager!.selectableDefenseGroups)
+    if activeConflict == nil {return} // Approach conflicts do not get extra defenders
     
-    theThreat.defenseGroup = defenseSelection
-    theThreat.parentGroupConflict!.defendedApproaches += [theThreat.defenseApproach]
-    defenseSelection.SetGroupSelectionPropertyUnitsHaveDefended(true, approachDefended: theThreat.defenseApproach)
+    let defenseSelection = GroupSelection(theGroups: manager!.groupsSelectable)
     
-    theThreat.parentGroupConflict!.defenseOrders++
-    theThreat.parentGroupConflict!.mustDefend = true
+    activeConflict!.defenseGroup = defenseSelection
+    activeConflict!.parentGroupConflict!.defendedApproaches += [activeConflict!.defenseApproach]
+    defenseSelection.SetGroupSelectionPropertyUnitsHaveDefended(true, approachDefended: activeConflict!.defenseApproach)
+    
+    activeConflict!.parentGroupConflict!.defenseOrders++
+    activeConflict!.parentGroupConflict!.mustDefend = true
     
     manager!.ResetRetreatDefenseSelection()
     
@@ -888,15 +891,15 @@ func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
 
 // MARK: Leading Units Logic
 
-func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, resetState:Bool = false) -> [Unit] {
+func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, resetState:Bool = false) -> [Unit] {
     
     var theGroups:[Group] = []
     switch thePhase {
-    case .RealAttack: theGroups = theConflict.defenseGroup!.groups
-    case .DeclaredAttackers:
+    case .SelectDefenseLeading: theGroups = theConflict.defenseGroup!.groups
+    case .SelectAttackLeading:
         if theConflict.guardAttack {theGroups = theConflict.guardAttackGroup!.groups}
         else {theGroups = theConflict.attackGroup!.groups}
-    case .DeclaredLeadingA: theGroups = theConflict.counterAttackGroup!.groups
+    case .SelectCounterGroup: theGroups = theConflict.counterAttackGroup!.groups
     default: break
     }
     
@@ -928,9 +931,9 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
     ToggleGroups(theGroups, makeSelection: .Normal)
     
     switch thePhase {
-    case .RealAttack: theConflict.defenseLeadingUnits = selectedLeadingGroups
-    case .DeclaredAttackers: theConflict.attackLeadingUnits = selectedLeadingGroups
-    case .DeclaredLeadingA: theConflict.counterAttackLeadingUnits = selectedLeadingGroups
+    case .SelectDefenseLeading: theConflict.defenseLeadingUnits = selectedLeadingGroups
+    case .SelectAttackLeading: theConflict.attackLeadingUnits = selectedLeadingGroups
+    case .SelectCounterGroup: theConflict.counterAttackLeadingUnits = selectedLeadingGroups
     default: break
     }
     
@@ -939,10 +942,10 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
 
     // Three scenarios: Defense Leading, Attack Leading and Counter Attacking
     // APPROACH?, # BLOCKS SELECTED, WIDE?, LEADING D - LEADING A OR COUNTERATTACK?
-    // .RealAttack, .DeclaredAttackers, .DeclaredLeadingA
-    switch (theConflict.approachConflict, selectedLeadingGroups.blocksSelected, theConflict.wideBattle, manager!.phaseOld) {
+    // .SelectDefenseLeading, .DeclaredAttackers, .SelectCounterGroup
+    switch (theConflict.approachConflict, selectedLeadingGroups.blocksSelected, theConflict.wideBattle, manager!.phaseNew) {
         
-    case (_, 1, false, .RealAttack), (_, 1, false, .DeclaredAttackers):
+    case (_, 1, false, .SelectDefenseLeading), (_, 1, false, .SelectAttackLeading):
         
         ToggleGroups(theGroups, makeSelection: .NotSelectable)
         
@@ -950,19 +953,19 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
         
         ToggleGroups(theGroups, makeSelection: .NotSelectable)
         
-    case (true, 0...1, true, .RealAttack): break
+    case (true, 0...1, true, .SelectDefenseLeading): break
         
-    case (false, 0, _, .RealAttack),(_, 0, _, .DeclaredLeadingA):
+    case (false, 0, _, .SelectDefenseLeading),(_, 0, _, .SelectCounterGroup):
         
         for eachGroup in theGroups {
             for eachUnit in eachGroup.units {
-                if eachUnit.unitStrength == 1 || (manager!.phaseOld == .DeclaredLeadingA && theConflict.conflictInitialWinner == theConflict.defenseSide && eachUnit.unitType != .Cav) {
+                if eachUnit.unitStrength == 1 || (manager!.phaseNew == .SelectCounterGroup && theConflict.conflictInitialWinner == theConflict.defenseSide && eachUnit.unitType != .Cav) {
                     eachUnit.selected = .NotSelectable
                 }
             }
         }
         
-    case (_, 0, _, .DeclaredAttackers):
+    case (_, 0, _, .SelectAttackLeading):
         
         for eachGroup in theGroups {
             for eachUnit in eachGroup.units {
@@ -972,7 +975,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
             }
         }
         
-    case (false, 1, true, .RealAttack):
+    case (false, 1, true, .SelectDefenseLeading):
             
         let selectedGroup = selectedLeadingGroups.groups[0]
         
@@ -988,7 +991,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
             }
         }
         
-    case (_, 1, true, .DeclaredAttackers):
+    case (_, 1, true, .SelectAttackLeading):
         
         let selectedGroup = selectedLeadingGroups.groups[0]
         
@@ -1004,13 +1007,13 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:oldGamePhase, reset
             }
         }
         
-    case (_, 1, _, .DeclaredLeadingA):
+    case (_, 1, _, .SelectCounterGroup):
         
         let selectedGroup = selectedLeadingGroups.groups[0]
         
         for eachGroup in theGroups {
             for eachUnit in eachGroup.units {
-                if eachUnit.unitStrength == 1 || eachUnit.parentCommand! != selectedGroup.command || (manager!.phaseOld == .DeclaredLeadingA && theConflict.conflictInitialWinner == theConflict.defenseSide && eachUnit.unitType != .Cav) {
+                if eachUnit.unitStrength == 1 || eachUnit.parentCommand! != selectedGroup.command || (manager!.phaseNew == .SelectCounterGroup && theConflict.conflictInitialWinner == theConflict.defenseSide && eachUnit.unitType != .Cav) {
                     eachUnit.selected = .NotSelectable
                 } else if eachUnit.unitType != selectedGroup.units[0].unitType {
                     eachUnit.selected = .NotSelectable

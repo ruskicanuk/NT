@@ -17,7 +17,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
 
     repeat {
         
-        let unitsRemaining = SelectableLeadingGroups(theConflict, thePhase: manager!.phaseOld)
+        let unitsRemaining = SelectableLeadingGroups(theConflict, thePhase: manager!.phaseNew)
     
         if unitsRemaining.isEmpty {selectionsAvailable = false}
             
@@ -25,14 +25,14 @@ func SelectLeadingUnits(theConflict:Conflict) {
             
             // Check if artillery is possible
             var count = 0
-            if count == 0 && (manager!.phaseOld == .DeclaredAttackers) && (unitsRemaining[0].parentCommand!.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) && theConflict.defenseApproach.mayArtAttack {attackLeadingArtPossible = true}
+            if count == 0 && (manager!.phaseNew == .SelectAttackLeading) && (unitsRemaining[0].parentCommand!.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) && theConflict.defenseApproach.mayArtAttack {attackLeadingArtPossible = true}
             count++
             
             let unitPriority = manager!.priorityLeaderAndBattle[manager!.actingPlayer]!
             
-            switch (theConflict.wideBattle, theConflict.approachConflict, manager!.phaseOld) {
+            switch (theConflict.wideBattle, theConflict.approachConflict, manager!.phaseNew) {
     
-            case (true, false, .RealAttack): // Defenders in reserve, wide (same type, same corps, guard = inf)
+            case (true, false, .SelectDefenseLeading): // Defenders in reserve, wide (same type, same corps, guard = inf)
             
                 var theFinalInf:[Command:[Unit]] = [:]
                 var theFinalCav:[Command:[Unit]] = [:]
@@ -83,7 +83,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
                     overideUnitPriority[1].selected = .Selected
                 }
     
-            case (true, _, .DeclaredAttackers): // Attackers, wide (same type, guard != inf)
+            case (true, _, .SelectAttackLeading): // Attackers, wide (same type, guard != inf)
                 
             var theFinalInf:[Unit] = []
             var theFinalGrd:[Unit] = []
@@ -130,7 +130,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
                 overideUnitPriority[1].selected = .Selected
             }
             
-            case (_, _, .DeclaredLeadingA): // Counter-attackers, all situations (same type, same corps, guard != inf)
+            case (_, _, .SelectCounterGroup): // Counter-attackers, all situations (same type, same corps, guard != inf)
                 
             var theFinalInf:[Command:[Unit]] = [:]
             var theFinalGrd:[Command:[Unit]] = [:]
@@ -197,12 +197,12 @@ func SelectLeadingUnits(theConflict:Conflict) {
                 overideUnitPriority[1].selected = .Selected
             }
                 
-            case (false, false, .RealAttack), (_, true, .RealAttack), (false, _, .DeclaredAttackers): // Defenders in reserve, narrow (simple priority), Defenders in approach, any (simple priority), Attackers, narrow (simple priority)
+            case (false, false, .SelectDefenseLeading), (_, true, .SelectDefenseLeading), (false, _, .SelectAttackLeading): // Defenders in reserve, narrow (simple priority), Defenders in approach, any (simple priority), Attackers, narrow (simple priority)
                 
                 var flagArt = false
                 
                 // Selects artillery if its in the group
-                if manager!.phaseOld == .DeclaredAttackers && attackLeadingArtPossible {
+                if manager!.phaseNew == .SelectAttackLeading && attackLeadingArtPossible {
                     for eachUnit in unitsRemaining {
                         if eachUnit.unitType == .Art {
                             eachUnit.selected = .Selected
