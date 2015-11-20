@@ -10,7 +10,6 @@
 import SpriteKit
 
 //Unit naming convention: 3-digit code: 1st: 1/2 Austrian/French, 2nd: 1/2/3/4/5 Art/Cav/Inf/Guard/Leader, 3rd: 0/1/2/3 Strength
-
 enum Type {case Inf, Cav, Art, Grd, Ldr}
 
 enum SelectType {case Normal, Selected, Off, NotSelectable}
@@ -34,12 +33,15 @@ class Unit: SKSpriteNode {
             updateSelectedStatus()
         }
     }
+    var repeatMove:Bool = false // set to true if moved into pre-retreat area or post-retreat area (if moves still exist?)
     var startedAsGrd:Bool = false
     
     var alreadyDefended:Bool = false
     var approachDefended:Approach?
     var wasInBattle:Bool = false
     var parentCommand:Command?
+    
+    var assigned:String = "None" // "Corps" "Ind"
     
     //Add a converter from the current properties to unitCode and from unitCode to set the properties
     
@@ -72,8 +74,7 @@ class Unit: SKSpriteNode {
     
     func updateSelectedStatus() {
         
-        if manager!.phaseNew != .Move && manager!.phaseNew != .Setup {return}
-        else {
+        if manager!.phaseNew == .Setup || manager!.phaseNew == .Move || manager!.phaseNew == .Commit {
             
             if hasMoved && selected == .Normal {
                 selected = .NotSelectable

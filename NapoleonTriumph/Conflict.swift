@@ -14,6 +14,7 @@ class Conflict {
     let defenseApproach:Approach!
     let attackApproach:Approach!
     
+    var threatenGroup:Group?
     var defenseGroup:GroupSelection?
     var attackGroup:GroupSelection?
     var guardAttackGroup:GroupSelection?
@@ -550,6 +551,7 @@ class Group: NSObject, NSCoding {
     var guardInGroup:Bool = false
     var cavCount:Int = 0
     var nonLdrUnitCount:Int = 0
+    var mayRepeatMove:Bool = true
     
     func encodeWithCoder(aCoder: NSCoder) {
         
@@ -588,23 +590,51 @@ class Group: NSObject, NSCoding {
     init(theCommand:Command, theUnits:[Unit]) {
         command = theCommand
         units = theUnits
+        var availableNonLdrUnits = 0
+        
         for eachUnit in theUnits {
             
-            if eachUnit.unitType == .Ldr {leaderInGroup = true; leaderUnit = eachUnit}
+            if eachUnit.unitType == .Ldr {
+                leaderInGroup = true
+                leaderUnit = eachUnit
+            }
             else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false; allGuard = false}
             else if eachUnit.unitType == .Art {nonLdrUnitCount++; allCav = false; allGuard = false}
             else if eachUnit.unitType == .Grd {nonLdrUnitCount++; artOnly = false; allCav = false}
             else {nonLdrUnitCount++; artOnly = false; allCav = false; allGuard = false}
+            
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
             if eachUnit.fixed {someUnitsFixed = true}
             if eachUnit.unitType == .Grd {guardInGroup = true}
+            if !eachUnit.repeatMove {mayRepeatMove = false}
         }
         
-        if nonLdrUnitCount == command.unitCount {fullCommand = true}
         super.init()
-
+        
+        if nonLdrUnitCount == command.unitCount {fullCommand = true}
     }
     
+    func SetGroupProperty(category:String, onOff:Bool) {
+        for eachUnit in self.units {
+            
+            switch category {
+                
+            case "hasMoved":
+                if onOff {eachUnit.hasMoved = true}
+                else {eachUnit.hasMoved = false}
+                
+            case "assignedCorps":
+                if onOff {eachUnit.assigned = "Corps"}
+                else {eachUnit.assigned = "None"}
+                
+            case "assignedInd":
+                if onOff {eachUnit.assigned = "Ind"}
+                else {eachUnit.assigned = "None"}
+                
+            default: break
+            }
+        }
+    }
 }
 
 class GroupSelection {
@@ -675,6 +705,22 @@ class GroupSelection {
             for eachUnit in eachGroup.units {
                 if onOff {eachUnit.alreadyDefended = true; eachUnit.approachDefended = approachDefended}
                 else {eachUnit.alreadyDefended = false; eachUnit.approachDefended = nil}
+            }
+        }
+    }
+    
+    func SetGroupSelectionProperty(category:String, onOff:Bool) {
+        for eachGroup in self.groups {
+            for eachUnit in eachGroup.units {
+                
+                switch category {
+                
+                case "hasMoved":
+                    if onOff {eachUnit.hasMoved = true}
+                    else {eachUnit.hasMoved = false}
+                
+                default: break
+                }
             }
         }
     }

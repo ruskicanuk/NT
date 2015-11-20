@@ -323,13 +323,13 @@ class GameManager: NSObject, NSCoding {
         if phaseChange {actingPlayer.Switch()}
         RefreshCommands() // Switches block visibility
         
-        if orders.last != nil {orders.last?.unDoable = false}
+        //if orders.last != nil {orders.last?.unDoable = false}
         
         switch phaseNew {
         
         case .Move:
             
-            // Updates the selected status of the game commands generally after a battle
+            // Updates the selected status of the game commands generally after a battle and ensures 1-block corps are handled
             for eachCommand in gameCommands[actingPlayer]! {
                 for eachUnit in eachCommand.activeUnits {
                     eachUnit.updateSelectedStatus()
@@ -340,13 +340,13 @@ class GameManager: NSObject, NSCoding {
             RemoveNonMovementArrows()
             ResetManagerState()
         
-        case .Commit:
+        case .Commit: break
             
             // Setup the threat-groups and setup the retreat and defense selection groups @ Will need to go through all orders in "new version"
-            SetupThreats()
+            //SetupThreats()
             
             // Return the code (whether forced retreat / defend)
-            return ResetRetreatDefenseSelection()
+            //return ResetRetreatDefenseSelection()
             
         /*
         
@@ -478,10 +478,16 @@ class GameManager: NSObject, NSCoding {
         //selectableAttackByRoadGroups = []
         //selectableAttackAdjacentGroups = []
         
+        // Reset conflict-related attriutes
+        for eachLocaleThreat in localeThreats {
+            for eachConflict in eachLocaleThreat.conflicts {
+                eachConflict.defenseApproach.threatened = false
+            }
+        }
+        phantomCorpsCommand = 0
+        phantomIndCommand = 0
         groupsSelected = []
         groupsSelectable = []
-        //repeatAttackGroup = nil
-        //repeatAttackMoveNumber = nil
         selectionRetreatReserves = []
         localeThreats = []
         activeGroupConflict = nil

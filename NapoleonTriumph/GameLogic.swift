@@ -20,20 +20,38 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     guard let commandSelected = groupSelected.command else {return (.Off, .Off, .Off, .Off)}
     guard let unitsSelected = groupSelected.units else {return (.Off, .Off, .Off, .Off)}
     
-    let (corpsOrders, indOrders) = ordersLeft
+    var adjustCorps:Int
+    var adjustInd:Int
+    
+    // If we are in commit mode, account for phantom commands
+    if manager!.phaseNew == .Commit {
+        (adjustCorps, adjustInd) = (manager!.phantomCorpsCommand, manager!.phantomIndCommand)
+    }
+    else {(adjustCorps, adjustInd) = (0, 0)}
+    
+    // Repeat attack with full command may always attack or move
+    if groupSelected.mayRepeatMove && groupSelected.fullCommand {(adjustCorps, adjustInd) = (-1, -1)}
+
+    var corpsOrders = ordersLeft.0 - adjustCorps
+    var indOrders = ordersLeft.1 - adjustInd
+    
+    // Check for unique unit combinations (leader assigned or single unassigned unit)
+    if groupSelected.command.hasLeader && groupSelected.command.theLeader!.assigned != "None" {corpsOrders = 0}
+    else if groupSelected.command.hasLeader && groupSelected.command.theLeader!.assigned == "None" && groupSelected.command.OneSelectableOnlyWithLeader() {corpsOrders = 0; indOrders = 0}
+
     var attachMove:SelState = .Off
     var corpsMove:SelState = .Off
     var detachMove:SelState = .Off
     var independent:SelState = .Off
     
     // Free-move detector
-    var freeMove = false
-    if groupSelected.command.freeMove && groupSelected.command.turnEnteredMap == manager!.turn && groupSelected.command.moveNumber == 0 {
-        freeMove = true
-    }
+    //var freeMove = false
+    //if groupSelected.command.freeMove && groupSelected.command.turnEnteredMap == manager!.turn && groupSelected.command.moveNumber == 0 {
+    //    freeMove = true
+    //}
     
     // Corps move verification
-    if corpsOrders > 0 || freeMove {
+    if corpsOrders > 0 {
         
         for each in commandSelected.currentLocation!.occupants {
             each.selector?.selected = .Off
@@ -42,11 +60,11 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
         }
         
         corpsMove = .On; detachMove = .On
-        if indOrders > 0 || freeMove {detachMove = .Option; independent = .On} else {independent = .NotAvail} // Default "On" state is option (1 selected) or On
+        if indOrders > 0 {detachMove = .Option; independent = .On} else {independent = .NotAvail} // Default "On" state is option (1 selected) or On
         
     } else {
         corpsMove = .NotAvail; detachMove = .NotAvail; attachMove = .NotAvail
-        if indOrders > 0 || freeMove {independent = .On}
+        if indOrders > 0 {independent = .On}
         else {independent = .NotAvail}
     }
     
@@ -62,19 +80,21 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     }
     
     // If command has finished move, return off for all (except if a single unit is selected - could happen if a unit is attached)
+    /* Don't think this is used anymore
     var indUnit:Bool = false
     if unitsSelected.count == 1 && unitsSelected[0].unitType != .Ldr {indUnit = true}
     if commandSelected.finishedMove {
         if indUnit {return (.Off, .Off, attachMove, independent)}
         return (.Off, .Off, attachMove, .Off)
     }
+    */
     
     let unitsHaveLeader:Bool = groupSelected.leaderInGroup
     
     // Case: 1 unit selected (most ambiguity is here)
     if unitsSelected.count <= 1 {
         
-        if !commandSelected.hasLeader {return (.Off, .Off, .Off, independent)} // Independent and attach
+        if !commandSelected.hasLeader {return (.Off, .Off, .Off, independent)} // Independent
         else {return (.Off, detachMove, .Off, independent)}
         //else if commandSelected.unitCount == 1 {return (.Off, detachMove, .Off, independent)} // Can't attach last unit in a corps
         //else {return (.Off, detachMove, attachMove, independent)} // Independent, corps move and detach
@@ -92,16 +112,16 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
 }
 
 // Returns true (if road move), first array are viable "peaceful" moves, second array are viable "attack" moves
-func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([SKNode], [SKNode], [SKNode]) {
+func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([SKNode], [SKNode]) {
     
     // Safety Check
-    guard let commandSelected = groupSelected.command else {return ([], [], [])}
-    if groupSelected.nonLdrUnitCount == 0 {return ([], [], [])}
-    if commandSelected.currentLocationType == .Start {return ([], [], [])}
+    guard let commandSelected = groupSelected.command else {return ([], [])}
+    if groupSelected.nonLdrUnitCount == 0 {return ([], [])}
+    if commandSelected.currentLocationType == .Start {return ([], [])}
     
     // Check has moved restrictions
-    if groupSelected.someUnitsHaveMoved && !groupSelected.fullCommand {return ([], [], [])} // Return if some units moved (breaking up new commands must be done from 0-moved units)
-    else if commandSelected.finishedMove && groupSelected.fullCommand == true {return ([], [], [])} // Command finished move - disable further movement
+    if groupSelected.someUnitsHaveMoved && !groupSelected.fullCommand {return ([], [])} // Return if some units moved (breaking up new commands must be done from 0-moved units)
+    else if commandSelected.finishedMove && groupSelected.fullCommand == true {return ([], [])} // Command finished move - disable further movement
     
     // Determine unit size (1 or 2+)
     let unitSize:Int!
@@ -112,7 +132,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     let (moveOnS, detachOnS, _, indOnS) = selectors
     let moveOn = (moveOnS == .On); let detachOn = (detachOnS == .On); let indOn = (indOnS == .On)
     
-    if !(moveOn || detachOn || indOn) {return ([], [], [])}
+    if !(moveOn || detachOn || indOn) {return ([], [])}
     
     var isReserve:Bool = false
     var reinforcement:Bool = false
@@ -137,7 +157,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     else if moveNumber == 0 && unitSize == 2 {scenario = 4}
     else if moveNumber > 0 && unitSize == 1 {scenario = 5}
     else if moveNumber > 0 && unitSize == 2 {scenario = 6}
-    else {return ([], [], [])}
+    else {return ([], [])}
     
     var currentReserve:Reserve?
     var currentApproach:Approach?
@@ -153,8 +173,6 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     var enemyOccupiedAttackApproaches:[Approach] = []
     var enemyOccupiedMustFeintApproaches:[Approach] = []
     var rdBlock = false
-   
-    print("Move Scenario: \(scenario)")
     
     switch scenario {
         
@@ -218,6 +236,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
             if (manager!.actingPlayer.ContainsEnemy(each.localeControl)) {
             adjAvailableReserves.removeObject(each)
                 if let defenseApproach = ApproachesFromReserves(currentReserve!, reserve2: each) {
+                    if defenseApproach.1.threatened {continue} // Skip approaches already threatened
                     enemyOccupiedAttackApproaches += [defenseApproach.1]
                 }
             }
@@ -253,9 +272,9 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         
             let mustFeintThreats = enemyOccupiedMustFeintApproaches as [SKNode]
             for each in mustFeintThreats {each.hidden = false; each.zPosition = 200}
-            return (rdMoves, [], mustFeintThreats)
+            return (rdMoves, mustFeintThreats)
 
-        } else {return (rdMoves, [], [])}
+        } else {return (rdMoves, [])}
         
     } else {
         
@@ -270,19 +289,19 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         
         let attackThreats = enemyOccupiedAttackApproaches as [SKNode]
         let mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches))) as [SKNode]
-        for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
+        //for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         
         // Night turn, no attacks allowed
         if manager!.night {
-            return (adjMoves,  [], [])
+            return (adjMoves, [])
         
         // Commit phase or fixed art, only attacks allowed
         } else if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
-            return ([],  attackThreats, mustFeintThreats)
+            return ([],  attackThreats + mustFeintThreats)
             
         // Move phase, both attacks and moves allowed
         } else {
-            return (adjMoves,  attackThreats, mustFeintThreats)
+            return (adjMoves,  attackThreats + mustFeintThreats)
         }
         
     }
@@ -1147,8 +1166,7 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
                 if let attackToApproach = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i]) {
                 
                     if (eachPath[i-1].currentFill + theGroup.nonLdrUnitCount > eachPath[i-1].capacity && eachPath[i].defendersAvailable > 0) {break}
-                    if attackToApproach.1.occupantCount > 0 {break}
-                    
+                    if attackToApproach.1.occupantCount > 0 || attackToApproach.1.threatened {break}
                     targetApproaches += [attackToApproach.1]
                 }
                 break // Must break after finding an enemy (path can't go any further)

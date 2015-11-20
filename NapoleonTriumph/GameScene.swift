@@ -66,7 +66,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     // Available locations
     var adjMoves:[SKNode] = []
     var attackThreats:[SKNode] = []
-    var mustFeintThreats:[SKNode] = []
+    //var mustFeintThreats:[SKNode] = []
     var hiddenLocations:[Location] = []
     
     // Name of Selectors
@@ -355,7 +355,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             if MoveGroupUnitSelection(touchedUnit) {MoveOrdersAvailable()}
                 
             // Attach scenario
-            else if manager!.phaseNew != .Commit {
+            else if manager!.phaseNew == .Move {
                 
                 // Create an order
                 let newOrder = Order(groupFromView: manager!.groupsSelected[0], touchedUnitFromView: touchedUnit, orderFromView: .Attach)
@@ -373,11 +373,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case (.Setup, approachName), (.Move, approachName), (.Commit, approachName):
             
-            if touchedNode != nil && !manager!.groupsSelected.isEmpty {
-                if mustFeintThreats.contains(touchedNode!) {MustFeintThreatUI(touchedNode!)}
-                else if attackThreats.contains(touchedNode!) {AttackThreatUI(touchedNode!)}
+            if touchedNode != nil && !manager!.groupsSelected.isEmpty && manager!.groupsSelected.count == 1 {
+                if attackThreats.contains(touchedNode!) {
+                    AttackThreatUI(touchedNode!)
+                    if manager!.phaseNew == .Move {manager!.NewPhase()}
+                }
                 else {MoveUI(touchedNode!)}
-            }
+            
+            } else {DeselectEverything()}
             
         case (.Setup, mapName), (.Move, mapName), (.Commit, mapName):
             
@@ -735,7 +738,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
         var commandUsage:Bool?
         if manager!.phaseNew == .Setup {}
         else if theGroup.fullCommand && theGroup.command.hasMoved {}
-        //else if theGroup.units.count > 1 && theGroup.command
         else if independentButton.buttonState == .On {commandUsage = false}
         else {commandUsage = true}
         
@@ -753,17 +755,19 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case .Move:
             
-        if newOrder.moveCommands[0]!.count == 1 && (newOrder.moveType == .CorpsMove || newOrder.moveType == .IndMove) {
-            manager!.groupsSelected = [Group(theCommand: newOrder.moveCommands[0]![0], theUnits: manager!.groupsSelected[0].units)]
-            MoveOrdersAvailable()
-            //if adjMoves.isEmpty {DeselectEverything()}
-        } else {DeselectEverything()}
+            // Reselect (other than for detach and attach orders)
+            if !newOrder.moveCommands.isEmpty && newOrder.moveCommands[0]!.count == 1 && (newOrder.moveType == .CorpsMove || newOrder.moveType == .IndMove) {
+                manager!.groupsSelected = [Group(theCommand: newOrder.moveCommands[0]![0], theUnits: manager!.groupsSelected[0].units)]
+                MoveOrdersAvailable()
+            } else {DeselectEverything()}
+            
+            /*
             
         case .PreRetreatOrFeintMoveOrAttackDeclare:
         
-            if activeGroupConflict == nil {break}
+            if activeConflict == nil {break}
             let endLocation = newOrder.endLocation
-            let startLocation = newOrder.startLocation[0]
+            //let startLocation = newOrder.startLocation[0]
             
             // Select the moving command
             manager!.groupsSelected = [Group(theCommand: newOrder.moveCommands[0]![0], theUnits: manager!.groupsSelected[0].units)]
@@ -787,6 +791,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             AttackOrdersAvailable()
             undoOrAct = true
+
+            */
             
         default: break
         }
@@ -796,19 +802,19 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func AttackThreatUI(touchedNodeFromView:SKNode) {
         
         // Create an order, execute and deselect everything
-        let newOrder = Order(groupFromView: manager!.groupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .NormalThreat, corpsOrder: nil, moveTypePassed: ReturnMoveType(), mapFromView:NTMap)
+        let newOrder = Order(groupFromView: manager!.groupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .Threat, corpsOrder: independentButton.buttonState != .On, moveTypePassed: ReturnMoveType(), mapFromView:NTMap)
         
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
         
-        endTurnButton.buttonState = .On
+        //endTurnButton.buttonState = .On
         if CheckIfViableGuardThreat(newOrder.theConflict!) {guardButton.buttonState = .Option}
         
         DeselectEverything()
-        undoOrAct = true
-        
+        //undoOrAct = true
     }
     
+    /*
     // Order to threaten an approach (must feint)
     func MustFeintThreatUI(touchedNodeFromView:SKNode, forceFeint:Bool = false) {
         
@@ -826,6 +832,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         undoOrAct = true
         
     }
+    */
     
     // Order to retreat
     func RetreatUI(touchedNodeFromView:Reserve) {
@@ -1265,7 +1272,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             // Leader always deselects whatever is selected then selects all in its command (including self)
             ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
             theUnits = theCommand.units
-            for eachUnit in theUnits {eachUnit.selected = .Selected}
+            for eachUnit in theUnits {if eachUnit.selected != .NotSelectable {eachUnit.selected = .Selected}}
         case (false, true, _, _):
             // Selected unit (toggle)
             if selectedUnit {touchedUnit.selected = .Normal; theUnits.removeObject(touchedUnit)} else {touchedUnit.selected = .Selected; theUnits += [touchedUnit]}
@@ -1583,7 +1590,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
         (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState) = OrdersAvailableOnMove(manager!.groupsSelected[0], ordersLeft: ((manager!.corpsCommandsAvail), (manager!.indCommandsAvail)))
             
         // Setup the swipe queue for the selected command
-        (adjMoves, attackThreats, mustFeintThreats) = MoveLocationsAvailable(manager!.groupsSelected[0], selectors: (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState), undoOrAct:undoOrAct)
+        (adjMoves, attackThreats) = MoveLocationsAvailable(manager!.groupsSelected[0], selectors: (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState), undoOrAct:undoOrAct)
+        
+        // Reveal available moves
+        for each in (adjMoves + attackThreats) {each.hidden = false}
     }
     
     func AttackOrdersAvailable(setCommands:Bool = true) {
@@ -2108,22 +2118,27 @@ class GameScene: SKScene, NSXMLParserDelegate {
             case .Move, .Setup:
                 
                 undoOrAct = manager!.orders.last!.ExecuteOrder(true)
+                manager!.orders.removeLast()
                 
-                if manager!.orders.last!.order as OrderType == .FeintThreat || manager!.orders.last!.order as OrderType == .NormalThreat {
-                    endTurnButton.buttonState = .Option
-                    guardButton.buttonState = .Off
-                    //manager!.activeGroupConflict = nil
-                    undoOrAct = false
-                }
-                
-                if undoOrAct || manager!.orders.last!.order! == .SecondMove || manager!.orders.last!.baseGroup!.command.moveNumber > 0 {
+                if undoOrAct || manager!.orders.last!.baseGroup!.command.moveNumber > 0 {
                     manager!.groupsSelected = [manager!.orders.last!.baseGroup!]
                     ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
                     MoveOrdersAvailable()
                     
                 } else {DeselectEverything()}
                 
-            case .Commit: break
+            case .Commit:
+                
+                undoOrAct = manager!.orders.last!.ExecuteOrder(true)
+                manager!.orders.removeLast()
+                
+                if manager!.orders.isEmpty || manager!.orders.last!.order! != .Threat {
+                    endTurnButton.buttonState = .Option
+                    guardButton.buttonState = .Off
+                    undoOrAct = false
+                    manager!.NewPhase(true, playback: false)
+                    DeselectEverything()
+                }
                 
             default: break
                 

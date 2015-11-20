@@ -15,7 +15,6 @@ enum MoveType {
 
 class Command:SKNode {
     
-    
     // MARK: Properties
     
     //Stores the name and type of initial location
@@ -170,6 +169,7 @@ class Command:SKNode {
     var isTwoPlusCorps:Bool = false
     var hasLeader:Bool = false
     var theLeader:Unit?
+    var onlyOneNonLdrAvailable:Bool = false
     
     var commandSide:Allegience = .Neutral
     
@@ -381,6 +381,16 @@ class Command:SKNode {
     func SetUnitsZ(zValue:CGFloat) {
         self.zPosition = 0
         for eachUnit in activeUnits {eachUnit.zPosition = zValue}
+    }
+    
+    func OneSelectableOnlyWithLeader() -> Bool {
+        
+        if !hasLeader {return false}
+        var selectables = 0
+        for eachUnit in activeUnits {
+            if eachUnit.selected == .Normal {selectables++}
+        }
+        return selectables == 1
     }
     
 }

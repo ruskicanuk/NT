@@ -10,7 +10,7 @@ import SpriteKit
 
 // Stores the kind of order
 enum OrderType {
-    case Move, Attach, FeintThreat, NormalThreat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove
+    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove
 }
 
 class Order {
@@ -66,7 +66,7 @@ class Order {
         print ("DEINIT Order")
     }
     
-    // Initiate order (move, must feint, attack)
+    // Initiate order (move, attack)
     init(groupFromView:Group, touchedNodeFromView:SKNode, orderFromView:OrderType, corpsOrder:Bool?, moveTypePassed:MoveType, mapFromView:SKSpriteNode) {
 
         baseGroup = groupFromView
@@ -165,8 +165,8 @@ class Order {
         let endApproach:Approach?
         let startApproach:Approach?
         
-        // Determine whether to increment / decrement orders available
-        if (corpsCommand != nil) && !playback && !(baseGroup!.command.freeMove && baseGroup!.command.turnEnteredMap == manager!.turn && corpsCommand!) {
+        // Determine whether to increment / decrement orders available ## replace below with simple button move reset (one for each command)
+        if (corpsCommand != nil && order != .Threat) && !playback && !(baseGroup!.command.freeMove && baseGroup!.command.turnEnteredMap == manager!.turn && corpsCommand!) {
             if reverse {
                 if corpsCommand! {manager?.corpsCommandsAvail++}
                 else {manager?.indCommandsAvail++}
@@ -705,7 +705,7 @@ class Order {
             }
             
         // MARK: Must Feint
-            
+        /*
         case (false, .FeintThreat):
             
             if (endLocation is Approach) {
@@ -729,28 +729,50 @@ class Order {
             //manager!.NewPhase(2, reverse: true, playback: playback)
 
             print("Must Feint order rescinded", terminator: "")
+
+            */
             
-        // MARK: Attack
+        // MARK: Threat
             
-        case (false, .NormalThreat):
+        case (false, .Threat):
             
-            if playback {break}
-            if (endLocation is Approach) {
-                
-                let defenseApproach = (endLocation as! Approach)
-                let attackApproach = defenseApproach.oppApproach!
-                let defenseReserve = defenseApproach.ownReserve!
-                let attackReserve = attackApproach.ownReserve!
-                
-                theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: false)
+            if playback || !(endLocation is Approach) {break}
+
+            let defenseApproach = (endLocation as! Approach)
+            let attackApproach = defenseApproach.oppApproach!
+            let defenseReserve = defenseApproach.ownReserve!
+            let attackReserve = attackApproach.ownReserve!
+            
+            theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: false)
+            theConflict!.defenseApproach.threatened = true
+            theConflict!.threatenGroup = baseGroup
+            
+            if !baseGroup!.mayRepeatMove {
+                baseGroup!.SetGroupProperty("hasMoved", onOff: true)
+                if corpsCommand! {manager!.phantomCorpsCommand++}
+                else {manager!.phantomIndCommand++}
             }
+            
+            // Assigned the units in the group
+            if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: true)}
+            else {baseGroup!.SetGroupProperty("assignedInd", onOff: true)}
         
-        case (true, .NormalThreat):
+        case (true, .Threat):
             
-            if playback {break}
-            //manager!.NewPhase(1, reverse: true, playback: playback)
+            if playback || !(endLocation is Approach) {break}
+            theConflict!.defenseApproach.threatened = false
             
-            print("Attack order rescinded", terminator: "")
+            if !baseGroup!.mayRepeatMove {
+                baseGroup!.SetGroupProperty("hasMoved", onOff: false)
+                if corpsCommand! {manager!.phantomCorpsCommand--}
+                else {manager!.phantomIndCommand--}
+            }
+            
+            // Unassign the units in the group
+            if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: false)}
+            else {baseGroup!.SetGroupProperty("assignedInd", onOff: false)}
+
+            theConflict = nil
             
         /*
         
@@ -1048,7 +1070,7 @@ class Order {
                 CGPathAddLineToPoint(orderPath, nil, endLocation.position.x, endLocation.position.y)
                 orderArrow = SKShapeNode(path: orderPath)
             
-            } else if order == .FeintThreat || order == .NormalThreat {
+            } else if order == .Threat {
                 
                 if let endApproach = endLocation as? Approach {
                     if let startReserve = endApproach.oppApproach?.ownReserve {
@@ -1081,18 +1103,11 @@ class Order {
                 
                 // No arrow
                 
-            } else if order == .NormalThreat {
+            } else if order == .Threat {
                 
                 strokeColor = SKColor.redColor()
                 lineWidth = 5.0
                 glowHeight = 3.0
-                zPosition = 1
-                
-            } else if order == .FeintThreat {
-                
-                strokeColor = SKColor.purpleColor()
-                lineWidth = 4.0
-                glowHeight = 2.0
                 zPosition = 1
                 
             } else if order == .Feint {
