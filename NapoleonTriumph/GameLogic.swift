@@ -291,8 +291,8 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         let mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches))) as [SKNode]
         //for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         
-        // Night turn, no attacks allowed
-        if manager!.night {
+        // Night turn or all general attacks made no attacks allowed
+        if manager!.night || manager!.generalThreatsMade >= 2 {
             return (adjMoves, [])
         
         // Commit phase or fixed art, only attacks allowed

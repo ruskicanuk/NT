@@ -384,10 +384,28 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case (.Setup, mapName), (.Move, mapName), (.Commit, mapName):
             
-            SecondMoveUI()
+            //SecondMoveUI()
             DeselectEverything()
             
         // MARK: Defend & Pre-retreat Touch
+            
+        case (.RetreatOrDefenseSelection, approachName):
+            
+            // Safety check
+            guard let touchedApproach = touchedNode as? Approach else {break}
+            
+            for eachLocaleConflict in manager!.localeThreats {
+                for eachConflict in eachLocaleConflict.conflicts {
+                    if eachConflict.defenseApproach == touchedApproach {
+                        if activeConflict != nil {activeConflict!.defenseApproach.zPosition = 200}
+                        activeConflict = eachConflict
+                        activeConflict!.defenseApproach.zPosition = 50
+                        break
+                    }
+                }
+            }
+            
+            // UpdateSelectables()
             
         case (.RetreatOrDefenseSelection, unitName):
             
@@ -1269,17 +1287,21 @@ class GameScene: SKScene, NSXMLParserDelegate {
         switch (touchedLeader, selectedUnit, sameCommand, unitsSelected) {
             
         case (true, _, _, _):
+            
             // Leader always deselects whatever is selected then selects all in its command (including self)
             ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
             theUnits = theCommand.units
             for eachUnit in theUnits {if eachUnit.selected != .NotSelectable {eachUnit.selected = .Selected}}
         case (false, true, _, _):
+            
             // Selected unit (toggle)
             if selectedUnit {touchedUnit.selected = .Normal; theUnits.removeObject(touchedUnit)} else {touchedUnit.selected = .Selected; theUnits += [touchedUnit]}
         case (false, false, true, _):
+            
             // New unit in the same group
             if selectedUnit {touchedUnit.selected = .Normal; theUnits.removeObject(touchedUnit)} else {touchedUnit.selected = .Selected; theUnits += [touchedUnit]}
         case (false, false, false, _):
+            
             // New unit in a different group
             ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
             touchedUnit.selected = .Selected; theUnits = [touchedUnit]
@@ -1853,32 +1875,18 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Attacker ending the turn
         case .Move:
             
-            //var threatRespondMode:Bool = false
-            //var theCode:String = ""
-            
-            if endTurnButton.buttonState == .Option {
-                HideAllLocations(true)
-                manager!.NewTurn()
-            }
-            /*
-            else if endTurnButton.buttonState == .On && manager!.orders.last?.order == .NormalThreat {
-                
-                threatRespondMode = true
-                theCode = manager!.NewPhase(1, reverse: false, playback: false)
-                
-            } else if endTurnButton.buttonState == .On && manager!.orders.last?.order == .FeintThreat {
-                
-                threatRespondMode = true
-                theCode = manager!.NewPhase(2, reverse: false, playback: false)
-            }
-            */
-            undoOrAct = false
+            HideAllLocations(true)
+            //undoOrAct = false
             ResetSelectors()
+            
+            manager!.NewTurn()
             
             //if threatRespondMode {RetreatPreparation(theCode)}
             
-        // Defender confirming a retreat or defense
-        case .Commit: break
+        // Finished assigning threats
+        case .Commit: manager!.NewPhase(false, playback: false)
+            
+            
             
         // Defender confirming a retreat or defense
         case .RetreatOrDefenseSelection:

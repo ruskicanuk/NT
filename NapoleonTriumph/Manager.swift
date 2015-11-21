@@ -341,6 +341,11 @@ class GameManager: NSObject, NSCoding {
             ResetManagerState()
         
         case .Commit: break
+        
+        case .RetreatOrDefenseSelection:
+            
+            generalThreatsMade++
+            SetupThreats()
             
             // Setup the threat-groups and setup the retreat and defense selection groups @ Will need to go through all orders in "new version"
             //SetupThreats()
@@ -358,7 +363,7 @@ class GameManager: NSObject, NSCoding {
             selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeGroupConflict!.conflict)
             ToggleGroups(selectableAttackByRoadGroups, makeSelection: .Normal)
             ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
-        
+            
         case .FeintMove:
             
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
@@ -484,6 +489,7 @@ class GameManager: NSObject, NSCoding {
                 eachConflict.defenseApproach.threatened = false
             }
         }
+        generalThreatsMade = 0
         phantomCorpsCommand = 0
         phantomIndCommand = 0
         groupsSelected = []
@@ -529,7 +535,10 @@ class GameManager: NSObject, NSCoding {
         while index >= 0 {
         
             if orders[index].theConflict != nil {
+                
                 let newConflict = self.orders[index].theConflict
+                newConflict!.defenseApproach.hidden = false
+                
                 if theReserveConflicts[newConflict!.defenseReserve] == nil {
                    theReserveConflicts[newConflict!.defenseReserve] = [newConflict!]
                 } else {
@@ -540,24 +549,9 @@ class GameManager: NSObject, NSCoding {
             index--
         }
         
-            // Captures second attack over same location (resets those units that were involved in the first conflict)
-        
-        /*
-        if activeGroupConflict!.conflict.defenseApproach.mayNormalAttack && !activeGroupConflict!.conflict.defenseApproach.mayArtAttack {
-            for eachCommand in theConflict.defenseApproach.occupants + theConflict.defenseReserve.occupants {
-                for eachUnit in eachCommand.activeUnits {
-                    if eachUnit.approachDefended != nil && activeGroupConflict!.conflict.defenseApproach == eachUnit.approachDefended {
-                        eachUnit.alreadyDefended = false
-                        eachUnit.approachDefended = nil
-                    }
-                }
-            }
-        }
-        */
-        
         // Setup the group-conflicts
         for (reserve, conflicts) in theReserveConflicts {
-            localeThreats = [GroupConflict(passReserve: reserve, passConflicts: conflicts)]
+            localeThreats += [GroupConflict(passReserve: reserve, passConflicts: conflicts)]
         }
     
     }
