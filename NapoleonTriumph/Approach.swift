@@ -34,6 +34,7 @@ class Approach:Location {
     let approachLength:Int!
     
     var threatened:Bool = false
+    var approachSelector:SpriteSelector?
     
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -73,6 +74,8 @@ class Approach:Location {
         
         let theID:String = theDict["id"] as AnyObject? as! String
         self.name = theID
+        
+        approachSelector = SpriteSelector(parentNode: self as SKNode, initialSelection: .Off, theCoordinateSystem: NTMap!, passDrawType: "Normal")
         
     }
     

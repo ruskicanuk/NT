@@ -51,7 +51,7 @@ class Location:SKSpriteNode {
         // Use this function to create false locations
         locationType = .Start
         locationImage = ""
-
+        
         super.init(texture: SKTexture(), color: UIColor(), size: CGSize())
         self.position = nodePosition
         self.zRotation = nodeRotation

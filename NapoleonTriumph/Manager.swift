@@ -346,6 +346,13 @@ class GameManager: NSObject, NSCoding {
             
             generalThreatsMade++
             SetupThreats()
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            
+            
+            // Initialize the locale threats
+            //for eachLocaleConflict in localeThreats {
+            //    ConflictSelectDuringDefensePhase
+            //}
             
             // Setup the threat-groups and setup the retreat and defense selection groups @ Will need to go through all orders in "new version"
             //SetupThreats()
@@ -558,10 +565,11 @@ class GameManager: NSObject, NSCoding {
 
 
     // Returns retreat mode (for the retreat selector)
+    /*
     func ResetRetreatDefenseSelection () -> String {
         
         //for eachGroup in reserveThreats {
-        ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
+        ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
         
         // Determine selectable defend groups (those which can defend)
         ///selectableDefenseGroups = SelectableGroupsForDefense(activeGroupConflict!.conflict)
@@ -570,7 +578,7 @@ class GameManager: NSObject, NSCoding {
         ///selectableRetreatGroups = SelectableGroupsForRetreat(activeGroupConflict!.conflict) // Get this to return available reserves
         
         // Determines whether there is a forced retreat condition
-        (activeGroupConflict!.mustRetreat, activeGroupConflict!.mustDefend) = CheckForcedRetreatOrDefend(activeGroupConflict!)
+        //(activeGroupConflict!.mustRetreat, activeGroupConflict!.mustDefend) = CheckForcedRetreatOrDefend(activeGroupConflict!)
 
         // Surrender Case
         if activeGroupConflict!.mustRetreat == true && activeGroupConflict!.mustDefend == true {activeGroupConflict!.retreatMode = true; return "TurnOnSurrender"}
@@ -597,6 +605,7 @@ class GameManager: NSObject, NSCoding {
             return "TurnOnRetreat"
         }
     }
+    */
     
     func PostBattleRetreatOrSurrender() -> String {
             
@@ -604,7 +613,7 @@ class GameManager: NSObject, NSCoding {
         ///selectableRetreatGroups = SelectableGroupsForRetreat(activeGroupConflict!.conflict)
         
         // Determines whether there is a forced retreat condition
-        let (_, mustDefend) = CheckForcedRetreatOrDefend(activeGroupConflict!)
+        //let (_, mustDefend) = CheckForcedRetreatOrDefend(activeGroupConflict!)
         
         // Surrender Case
         ///if mustDefend == true {return "TurnOnSurrender"}

@@ -46,9 +46,7 @@ class UIStateButton:UIButton {
         case .Possible: self.enabled = true; self.layer.borderWidth = 3; self.layer.borderColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1).CGColor
             
         }
-        
     }
-    
 }
 
 class SpriteSelector {
@@ -84,9 +82,6 @@ class SpriteSelector {
         if drawType == "Normal" {
             selectionBox = SKShapeNode(rect: parent!.calculateAccumulatedFrame())
         } else if drawType == "Command" {
-            //selectionBox = SKShapeNode()
-            //print(parent!.calculateAccumulatedFrame().size)
-            //selectionBox = SKShapeNode(rectOfSize: parent!.calculateAccumulatedFrame().size)
             selectionBox = SKShapeNode(ellipseOfSize: CGSize(width: parent!.calculateAccumulatedFrame().width, height: parent!.calculateAccumulatedFrame().width*0.5))
         } else if drawType == "EndTurn" {
             selectionBox = SKShapeNode(circleOfRadius: parent!.calculateAccumulatedFrame().width/2)

@@ -80,7 +80,12 @@ class Conflict {
     
     var mustFeint:Bool = false
     
-    var approachConflict:Bool = false
+    var approachConflict:Bool = false {
+        didSet {
+            if approachConflict {approachDefended = true}
+        }
+    }
+    var approachDefended:Bool = false
     var wideBattle:Bool = false
     //var battleOccured:Bool = false
     
@@ -187,7 +192,7 @@ class Conflict {
         
         for eachGroup in counterLead.groups {
             for eachUnit in eachGroup.units {
-                let newOrder = Order(theUnit: eachUnit, passedGroupConflict: self.parentGroupConflict!, orderFromView: .Reduce, battleReduce: true)
+                let newOrder = Order(theUnit: eachUnit, orderFromView: .Reduce, battleReduce: true)
                 newOrder.ExecuteOrder()
                 manager!.orders += [newOrder]
             }
@@ -385,13 +390,13 @@ class Conflict {
     
     func BattleReductions(unitsToReduce:[Unit]) {
         for eachUnit in unitsToReduce {
-        let newOrder = Order(theUnit: eachUnit, passedGroupConflict: self.parentGroupConflict!, orderFromView: .Reduce, battleReduce: true)
+        let newOrder = Order(theUnit: eachUnit, orderFromView: .Reduce, battleReduce: true)
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
         
             // Destroy leader case
             if eachUnit.parentCommand!.activeUnits.count == 1 && eachUnit.parentCommand!.hasLeader {
-                let newOrder = Order(theUnit: eachUnit.parentCommand!.theLeader!, passedGroupConflict: self.parentGroupConflict!, orderFromView: .Reduce, battleReduce: true)
+                let newOrder = Order(theUnit: eachUnit.parentCommand!.theLeader!, orderFromView: .Reduce, battleReduce: true)
                 newOrder.ExecuteOrder()
                 manager!.orders += [newOrder]
             }
@@ -415,7 +420,7 @@ class GroupConflict {
     var mustRetreat:Bool = false
     var mustDefend:Bool = false
     var retreatMode:Bool = false
-
+    
     // Used to store number of orders for the purposes of releasing the mustRetreat / mustDefend condition when un-doing
     var retreatOrders:Int = 0
     var defenseOrders:Int = 0

@@ -429,7 +429,7 @@ func ReduceStrengthIfRetreat(touchedUnit:Unit, theLocation:Location, theGroupCon
 }
 
 // Returns whether retreat state is ready (on) or still requires action (option)
-func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelState {
+func CheckRetreatViable(retreatGroup:[Group]) -> SelState {
     
     for eachReserve in manager!.selectionRetreatReserves {eachReserve.hidden = true}
     let retreatSelection = GroupSelection(theGroups: retreatGroup)
@@ -438,8 +438,8 @@ func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelSta
     // Check if reductions are finished for selected units locations
     for eachGroup in retreatGroup {
         for eachUnit in eachGroup.units {
-            if eachUnit.selected == .Selected && theThreat.damageDelivered[eachGroup.command.currentLocation!] < theThreat.damageRequired[eachGroup.command.currentLocation!] {return .Option}
-            if eachUnit.selected == .Selected && theThreat.destroyDelivered[eachGroup.command.currentLocation!] < theThreat.destroyRequired[eachGroup.command.currentLocation!] {return .Option}
+            if eachUnit.selected == .Selected && activeGroupConflict!.damageDelivered[eachGroup.command.currentLocation!] < activeGroupConflict!.damageRequired[eachGroup.command.currentLocation!] {return .Option}
+            if eachUnit.selected == .Selected && activeGroupConflict!.destroyDelivered[eachGroup.command.currentLocation!] < activeGroupConflict!.destroyRequired[eachGroup.command.currentLocation!] {return .Option}
         }
     }
     
@@ -450,7 +450,7 @@ func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelSta
     var adjReservesWithSpace:[Reserve] = []
     var spaceRequired = retreatSelection.blocksSelected
     if retreatSelection.containsLeader {spaceRequired--}
-    for eachReserve in theThreat.defenseReserve.adjReserves {
+    for eachReserve in activeGroupConflict!.defenseReserve.adjReserves {
         if eachReserve.availableSpace >= spaceRequired && eachReserve.localeControl != manager!.actingPlayer.Other() {adjReservesWithSpace += [eachReserve]}
     }
     
@@ -462,47 +462,94 @@ func CheckRetreatViable(theThreat:GroupConflict, retreatGroup:[Group]) -> SelSta
     if returnOn {return .On} else {return .NotAvail}
 }
 
-// Returns (true, true) if can't retreat or defend, (true, false) if can only retreat, (false, true) if can only defend and (false, false) if can do either
-func CheckForcedRetreatOrDefend(theThreat:GroupConflict) -> (Bool, Bool) {
+// Returns "TurnOnRetreat", "TurnOnSurrender" or "TurnOnDefend" plus sets selectable group
+func ConflictSelectDuringDefensePhase() -> String {
+    
+    if activeConflict == nil {return "TurnOnNothing"}
+    
+    // Grey-out all commands
+    ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelection: .NotSelectable)
     
     // Must defend? (already gave a defense order)
-    if theThreat.mustDefend {return (false, true)}
+    if activeGroupConflict!.mustDefend {
+        activeGroupConflict!.retreatMode = false
+        
+        return "TurnOnDefendOnly"
+    }
     
     // Space available? (retreat or no order) - this will return the destroy case (true, true)
     var spaceAvailable:Bool = false
-    for eachReserve in theThreat.defenseReserve.adjReserves {
+    for eachReserve in activeGroupConflict!.defenseReserve.adjReserves {
         if eachReserve.availableSpace > 0 && eachReserve.localeControl != manager!.phasingPlayer {spaceAvailable = true; break}
     }
 
+    // No space available case
     if !spaceAvailable {
-        if theThreat.mustRetreat {return (true, true)}
-        else if theThreat.unresolvedApproaches.count > theThreat.defenseReserve.defendersAvailable {return (true, true)}
-        else {return (false, true)} // Enough to defend with
+        
+        // No space, must-retreat (no-one to defend with)
+        if activeGroupConflict!.mustRetreat {
+            activeGroupConflict!.retreatMode = true
+            return "TurnOnSurrender"
+        }
+        
+        // Not in must-retreat mode
+        else {
+            activeGroupConflict!.retreatMode = false
+            return "TurnOnDefendOnly"
+        }
     }
     
     // No command was given, check if there is any unresolved approaches
-    if theThreat.unresolvedApproaches.count == 0 && manager!.phaseNew != .PostCombatRetreatAndVictoryResponseMoves {return (false, true)}
+    //if activeGroupConflict!.unresolvedApproaches.count == 0 && manager!.phaseNew != .PostCombatRetreatAndVictoryResponseMoves {
+    //    return (false, true)
+    //}
     
     // Retreat command was given and space exists
-    if theThreat.mustRetreat {return (true, false)}
+    if activeGroupConflict!.mustRetreat {
+        activeGroupConflict!.retreatMode = true
+        return "TurnOnRetreatOnly"
+    }
     
     // No command was given, check if there is enough defenders available
-    if theThreat.unresolvedApproaches.count > theThreat.defenseReserve.defendersAvailable {return (true, false)}
+    //if activeGroupConflict!.unresolvedApproaches.count > theThreat.defenseReserve.defendersAvailable {return (true, false)}
     //print(theThreat.madeReductions)
     
     // If you make it through, neither is forced (no command given)
-    return (false, false)
+    return "TurnOnBoth"
 }
 
 // Returns true if endTurn is viable
-func CheckTurnEndViableInRetreatOrDefendMode(theThreat:GroupConflict) -> Bool {
-    if theThreat.retreatMode {
-        if theThreat.defenseReserve.currentFill == 0 {return true}
-    } else {
-        let theGroupSelectionCheck = GroupSelection(theGroups: manager!.groupsSelectable)
-        if theGroupSelectionCheck.groups.isEmpty {return false} else {return true}
+func CheckEndTurnStatusInRetreatOrDefenseSelection() -> Bool {
+    
+    var endTurnViable = true
+    for eachLocaleThreat in manager!.localeThreats {
+     
+        if eachLocaleThreat.retreatMode {
+            if eachLocaleThreat.defenseReserve.currentFill > 0 {
+                endTurnViable = false
+                for eachConflict in eachLocaleThreat.conflicts {
+                    eachConflict.defenseApproach.approachSelector!.selected = .NotAvail
+                }
+            } else {
+                for eachConflict in eachLocaleThreat.conflicts {
+                    eachConflict.defenseApproach.approachSelector!.selected = .On
+                }
+            }
+        } else {
+            if eachLocaleThreat.unresolvedApproaches.count > 0 && eachLocaleThreat.defenseReserve.defendersAvailable > 0 {
+                endTurnViable = false
+            }
+            for eachConflict in eachLocaleThreat.conflicts {
+                if eachConflict.approachDefended {
+                    eachConflict.defenseApproach.approachSelector!.selected = .On
+                } else {
+                    eachConflict.defenseApproach.approachSelector!.selected = .NotAvail
+                }
+            }
+        }
+        
     }
-    return false
+    return endTurnViable
 }
 
 func AdjacentThreatPotentialCheck (touchedNodePassed:SKNode, commandOrdersAvailable:Bool, independentOrdersAvailable:Bool) -> Bool {
@@ -882,6 +929,7 @@ func SelectableGroupsForFeintDefense (theThreat:Conflict) {
 }
 
 // Order to defend
+
 func SaveDefenseGroup(theGroupThreat:GroupConflict) {
     
     // Safety drill
@@ -897,7 +945,7 @@ func SaveDefenseGroup(theGroupThreat:GroupConflict) {
     activeConflict!.parentGroupConflict!.defenseOrders++
     activeConflict!.parentGroupConflict!.mustDefend = true
     
-    manager!.ResetRetreatDefenseSelection()
+    //manager!.ResetRetreatDefenseSelection()
     
 }
 
@@ -950,9 +998,11 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, reset
     ToggleGroups(theGroups, makeSelection: .Normal)
     
     switch thePhase {
+        
     case .SelectDefenseLeading: theConflict.defenseLeadingUnits = selectedLeadingGroups
     case .SelectAttackLeading: theConflict.attackLeadingUnits = selectedLeadingGroups
     case .SelectCounterGroup: theConflict.counterAttackLeadingUnits = selectedLeadingGroups
+    
     default: break
     }
     
