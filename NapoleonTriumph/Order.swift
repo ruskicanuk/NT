@@ -31,9 +31,9 @@ class Order {
     var moveCommands:[Int:[Command]] = [:]
     var surrenderDict:[Unit:Int] = [:] // Used for the surrender order
     
-    // Conflict objects
+    // Conflict object
     var theConflict:Conflict?
-    var theGroupConflict:GroupConflict?
+    //var theGroupConflict:GroupConflict?
     
     // Group receiving orders
     var orderGroup:Group?
@@ -101,7 +101,7 @@ class Order {
         
         order = orderFromView
         groupSelection = retreatSelection
-        theGroupConflict = activeGroupConflict
+        theConflict = activeConflict!
         
         var theLocations:[Location] = []
         if groupSelection != nil {for eachGroup in groupSelection!.groups {theLocations += [eachGroup.command.currentLocation!]}}
@@ -126,7 +126,7 @@ class Order {
     // Reduce order (Reduce)
     init(theUnit:Unit, orderFromView: OrderType, battleReduce:Bool = false) {
         order = orderFromView
-        theGroupConflict = activeGroupConflict!
+        theConflict = activeConflict!
         startLocation = [theUnit.parentCommand!.currentLocation!]
         endLocation = theUnit.parentCommand!.currentLocation!
         battleReduction = battleReduce
@@ -147,7 +147,6 @@ class Order {
     init(orderFromView: OrderType) {
         order = orderFromView
         theConflict = activeConflict!
-        theGroupConflict = activeGroupConflict!
         startLocation = [theConflict!.attackReserve!]
         endLocation = theConflict!.defenseApproach!
     }
@@ -477,13 +476,12 @@ class Order {
             
             if !playback {
                 
-                // Catches the mysterious case of attacker retreats
-                //if !(theGroupConflict != nil && activeConflict!.attackReserve == endLocation) {
-                    //theGroupConflict?.retreatOrders++
-                //    theGroupConflict?.mustRetreat = true
-                    //manager!.ResetRetreatDefenseSelection()
-                //}
-                
+                // Sets up proper retreat reversing
+                if !(theConflict != nil && theConflict!.attackReserve == endLocation) && theConflict!.parentGroupConflict!.mustRetreat == false {
+                    reverseCode = 2
+                    theConflict!.parentGroupConflict!.mustRetreat = true
+                }
+
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
                 startLocaleReserve!.UpdateReserveState()
@@ -530,12 +528,12 @@ class Order {
                     manager!.guardCommitted[theSide] = false
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
                 }
-                // All retreat cases other than attacker retreat
-                //if !(theGroupConflict != nil && theConflict!.attackReserve == endLocation) {
-                //    theGroupConflict?.retreatOrders--
-                //    if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
-                //    //manager!.ResetRetreatDefenseSelection()
-                //}
+
+                // Sets up proper retreat reversing
+                if theConflict != nil && reverseCode == 2 {
+                    theConflict!.parentGroupConflict!.mustRetreat = false
+                }
+
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
                 startLocaleReserve!.UpdateReserveState()
@@ -806,9 +804,9 @@ class Order {
             if swappedUnit != nil {
                 if !playback && !battleReduction! {
                     if swappedUnit!.unitType != .Art {
-                        theGroupConflict!.damageDelivered[startLocation[0]] = theGroupConflict!.damageDelivered[startLocation[0]]! + 1
+                        theConflict!.parentGroupConflict!.damageDelivered[startLocation[0]] = theConflict!.parentGroupConflict!.damageDelivered[startLocation[0]]! + 1
                     } else {
-                        theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! + 1
+                        theConflict!.parentGroupConflict!.destroyDelivered[startLocation[0]] = theConflict!.parentGroupConflict!.destroyDelivered[startLocation[0]]! + 1
                     }
                 }
                 
@@ -837,6 +835,12 @@ class Order {
                         if swappedUnit!.unitSide == .French {manager!.player2CorpsCommands--}
                         reduceLeaderReduction = swappedUnit!.parentCommand!.theLeader!
                     }
+                    
+                    // Sets up proper reduce reversing
+                    if theConflict != nil && !battleReduction! && theConflict!.parentGroupConflict!.mustRetreat == false {
+                        reverseCode = 2
+                        theConflict!.parentGroupConflict!.mustRetreat = true
+                    }
                 }
                 
                 swappedUnit!.decrementStrength() 
@@ -848,9 +852,9 @@ class Order {
                 
                 if !playback && !battleReduction! {
                     if swappedUnit!.unitType != .Art {
-                        theGroupConflict!.damageDelivered[startLocation[0]] = theGroupConflict!.damageDelivered[startLocation[0]]! - 1
+                        theConflict!.parentGroupConflict!.damageDelivered[startLocation[0]] = theConflict!.parentGroupConflict!.damageDelivered[startLocation[0]]! - 1
                     } else {
-                        theGroupConflict!.destroyDelivered[startLocation[0]] = theGroupConflict!.destroyDelivered[startLocation[0]]! - 1
+                        theConflict!.parentGroupConflict!.destroyDelivered[startLocation[0]] = theConflict!.parentGroupConflict!.destroyDelivered[startLocation[0]]! - 1
                     }
                     
                     // Reverse a leader-kill
@@ -872,6 +876,11 @@ class Order {
                         manager!.guardCommitted[theSide] = false
                         manager!.morale[theSide] = manager!.morale[theSide]! + reverseGrdCommit.1
                     }
+                    
+                    // Sets up proper reduce reversing
+                    if theConflict != nil && !battleReduction! && reverseCode == 2 {
+                        theConflict!.parentGroupConflict!.mustRetreat = false
+                    }
                 }
             }
             
@@ -880,14 +889,14 @@ class Order {
         case (false, .Surrender):
             
             // Build the surrender dictionary
-            if theGroupConflict != nil {
+            if theConflict != nil {
                 
-                for eachCommand in theGroupConflict!.defenseReserve.occupants {
+                for eachCommand in theConflict!.parentGroupConflict!.defenseReserve.occupants {
                     for eachUnit in eachCommand.units {
                         surrenderDict[eachUnit] = eachUnit.unitStrength
                     }
                 }
-                for eachApproach in theGroupConflict!.defenseReserve.ownApproaches {
+                for eachApproach in theConflict!.parentGroupConflict!.defenseReserve.ownApproaches {
                     for eachCommand in eachApproach.occupants {
                         for eachUnit in eachCommand.units {
                             surrenderDict[eachUnit] = eachUnit.unitStrength
@@ -898,7 +907,7 @@ class Order {
                 // Commit morale loss tracker
                 if !playback {
                     
-                    guard let theSide = activeConflict!.defenseSide else {break}
+                    guard let theSide = theConflict!.defenseSide else {break}
                     //print("B4 Surrender Commiting: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
                     for (eachUnit, _) in surrenderDict {
                         
@@ -922,8 +931,7 @@ class Order {
                 
                 // Execute the surrender dictionary
                 SurrenderUnits(surrenderDict, reduce: true)
-                startLocaleReserve!.UpdateReserveState()
-                //print("After Surrender Reductions: \(manager!.morale[manager!.phasingPlayer.Other()!]!))")
+                endLocaleReserve!.UpdateReserveState()
             }
             
         case (true, .Surrender):
@@ -931,7 +939,7 @@ class Order {
             // Reverse the morale losses
             if !playback {
                 
-                guard let theSide = activeConflict!.defenseSide else {break}
+                guard let theSide = theConflict!.defenseSide else {break}
                 if reverseCavCommit.0 {
                     manager!.heavyCavCommited[theSide] = false
                     manager!.morale[theSide] = manager!.morale[theSide]! + reverseCavCommit.1
@@ -943,12 +951,14 @@ class Order {
             }
             
             SurrenderUnits(surrenderDict, reduce: false)
-            startLocaleReserve!.UpdateReserveState()
+            endLocaleReserve!.UpdateReserveState()
+            endLocaleReserve!.reShuffleLocation()
+            for eachApproach in endLocaleReserve!.ownApproaches {eachApproach.reShuffleLocation()}
             
         // MARK: Battle
             
         case (false, .InitialBattle):
-            if !playback {activeConflict!.InitialResult()}
+            if !playback {theConflict!.InitialResult()}
             // Animate
             
         case (true, .InitialBattle):
@@ -957,8 +967,8 @@ class Order {
         case (false, .FinalBattle):
             if !playback {
                 //theGroupConflict!.SetupRetreatRequirements() <-- This should be done only in the case of attacker victory
-                activeConflict!.ApplyCounterLosses()
-                activeConflict!.FinalResult()
+                theConflict!.ApplyCounterLosses()
+                theConflict!.FinalResult()
             }
             // Animate
             
@@ -1002,9 +1012,7 @@ class Order {
             
             //theConflict!.parentGroupConflict!.defenseOrders++
             theConflict!.approachDefended = true
-            if theConflict!.parentGroupConflict!.mustDefend {
-                reverseCode = 1
-            } else {
+            if  theConflict != nil && !theConflict!.parentGroupConflict!.mustDefend {
                 reverseCode = 2
                 theConflict!.parentGroupConflict!.mustDefend = true
             }
@@ -1013,7 +1021,7 @@ class Order {
             
             if playback {break}
             
-            if reverseCode == 2 {
+            if  theConflict != nil && reverseCode == 2 {
                 theConflict!.parentGroupConflict!.mustDefend = false
             }
             theConflict!.approachDefended = false
@@ -1023,6 +1031,7 @@ class Order {
             //theConflict!.parentGroupConflict!.defenseOrders--
             theConflict!.defenseGroup!.SetGroupSelectionPropertyUnitsHaveDefended(false, approachDefended: theConflict!.defenseApproach)
             
+            ToggleGroups(theConflict!.defenseGroup!.groups, makeSelection: .NotSelectable)
             theConflict!.defenseGroup = nil
             theConflict!.parentGroupConflict!.defendedApproaches.removeObject(theConflict!.defenseApproach)
         }
@@ -1050,6 +1059,7 @@ class Order {
                 var i = 0
                 while i < unitStrength {
                     theUnit.decrementStrength(false)
+                    theUnit.selected = .NotSelectable // Grey's out the units
                     if theUnit.unitType != .Ldr {
                         manager!.morale[manager!.phasingPlayer.Other()!]! = manager!.morale[manager!.phasingPlayer.Other()!]! + 1
                     } else {

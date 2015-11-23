@@ -64,9 +64,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
     var holdNode:SKNode?
     
     // Available locations
-    var adjMoves:[SKNode] = []
-    var attackThreats:[SKNode] = []
-    //var mustFeintThreats:[SKNode] = []
+    var adjMoves:[Location] = []
+    var attackThreats:[Approach] = []
+    var mustFeintThreats:[Approach] = []
     var hiddenLocations:[Location] = []
     
     // Name of Selectors
@@ -370,11 +370,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
         case (.Setup, reserveName), (.Move, reserveName):
             
             if touchedNode != nil && !manager!.groupsSelected.isEmpty {MoveUI(touchedNode!)}
+            guardButton.buttonState = .Off
             
         case (.Setup, approachName), (.Move, approachName), (.Commit, approachName):
             
-            if touchedNode != nil && !manager!.groupsSelected.isEmpty && manager!.groupsSelected.count == 1 {
-                if attackThreats.contains(touchedNode!) {
+            guard let touchedApproach = touchedNode as? Approach else {break}
+            
+            if !manager!.groupsSelected.isEmpty && manager!.groupsSelected.count == 1 {
+                if attackThreats.contains(touchedApproach) || mustFeintThreats.contains(touchedApproach) {
                     AttackThreatUI(touchedNode!)
                     if manager!.phaseNew == .Move {manager!.NewPhase()}
                 }
@@ -382,10 +385,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             } else {DeselectEverything()}
             
+            guardButton.buttonState = .Off
+            
         case (.Setup, mapName), (.Move, mapName), (.Commit, mapName):
             
             //SecondMoveUI()
             DeselectEverything()
+            guardButton.buttonState = .Off
             
         // MARK: Defend & Pre-retreat Touch
             
@@ -399,23 +405,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     if eachConflict.defenseApproach == touchedApproach {
                         if activeConflict != nil {activeConflict!.defenseApproach.zPosition = 200}
                         activeConflict = eachConflict
-                        activeConflict!.defenseApproach.zPosition = 50
                         break
                     }
                 }
             }
             
-            // Safety check
-            if activeConflict == nil {break}
-            
-            ToggleGroups(manager!.groupsSelectable, makeSelection: .NotSelectable)
-            
-            // Function determins what retreat mode we are in (defense only, retreat only, etc)
-            RetreatPreparation()
-            
-            if activeConflict!.defenseGroup != nil && !activeGroupConflict!.retreatMode {ToggleGroups(activeConflict!.defenseGroup!.groups, makeSelection: .Selected)}
-            
-            ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+            SetupActiveConflict()
             
             if CheckEndTurnStatusInRetreatOrDefenseSelection() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
@@ -736,9 +731,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
         case "TurnOnDefendOnly":
             manager!.groupsSelectable = SelectableGroupsForDefense(activeConflict!)
             retreatButton.buttonState = .Off
+        
         case "TurnOnRetreatOnly":
             manager!.groupsSelectable = SelectableGroupsForRetreat(activeConflict!)
             retreatButton.buttonState = .Option
+        
         case "TurnOnBoth":
             if activeGroupConflict!.retreatMode {
                 manager!.groupsSelectable = SelectableGroupsForRetreat(activeConflict!)
@@ -752,7 +749,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             let newOrder = Order(orderFromView: .Surrender)
             newOrder.ExecuteOrder()
-            newOrder.unDoable = false
+            //newOrder.unDoable = false
             manager!.orders += [newOrder]
             
             manager!.groupsSelectable = []
@@ -803,6 +800,24 @@ class GameScene: SKScene, NSXMLParserDelegate {
         else {endTurnButton.buttonState = .Off}
 
         */
+        
+    }
+    
+    func SetupActiveConflict() {
+        
+        // Safety check
+        if activeConflict == nil {return}
+        
+        activeConflict!.defenseApproach.zPosition = 50
+        
+        ToggleGroups(manager!.groupsSelectable, makeSelection: .NotSelectable)
+        
+        // Function determins what retreat mode we are in (defense only, retreat only, etc)
+        RetreatPreparation()
+        
+        if activeConflict!.defenseGroup != nil && !activeGroupConflict!.retreatMode {ToggleGroups(activeConflict!.defenseGroup!.groups, makeSelection: .Selected)}
+        
+        ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
         
     }
     
@@ -887,11 +902,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
         newOrder.ExecuteOrder()
         manager!.orders += [newOrder]
         
-        //endTurnButton.buttonState = .On
-        if CheckIfViableGuardThreat(newOrder.theConflict!) {guardButton.buttonState = .Option}
-        
+        if guardButton.buttonState == .On {
+            newOrder.theConflict!.guardAttack = true
+        }
+
         DeselectEverything()
-        //undoOrAct = true
     }
     
     /*
@@ -1649,17 +1664,45 @@ class GameScene: SKScene, NSXMLParserDelegate {
     func  MoveOrdersAvailable() {
     
         // Hide locations, check that we have a selection group then update based on what was touched
-        if manager!.groupsSelected.isEmpty {return}
+        if manager!.groupsSelected.isEmpty {
+            guardButton.buttonState = .Off
+            return
+        }
         HideAllLocations(true)
 
         // Commands available
         (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState) = OrdersAvailableOnMove(manager!.groupsSelected[0], ordersLeft: ((manager!.corpsCommandsAvail), (manager!.indCommandsAvail)))
             
         // Setup the swipe queue for the selected command
-        (adjMoves, attackThreats) = MoveLocationsAvailable(manager!.groupsSelected[0], selectors: (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState), undoOrAct:undoOrAct)
+        (adjMoves, attackThreats, mustFeintThreats) = MoveLocationsAvailable(manager!.groupsSelected[0], selectors: (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState), undoOrAct:undoOrAct)
         
         // Reveal available moves
-        for each in (adjMoves + attackThreats) {each.hidden = false}
+        var possibleGuardAttack = false
+        var actualGuardAttack = false
+        for each in attackThreats {
+            if CheckIfGuardAttackViable(manager!.groupsSelected[0], theApproach: each) {possibleGuardAttack = true}
+            //each.hidden = false
+        }
+        if possibleGuardAttack {
+            if guardButton.buttonState == .On {
+                actualGuardAttack = true
+                for each in attackThreats {
+                    if CheckIfGuardAttackViable(manager!.groupsSelected[0], theApproach: each) {each.hidden = false}
+                }
+            }
+            else {
+                guardButton.buttonState = .Option
+                for each in attackThreats {each.hidden = false}
+            }
+        } else {
+            guardButton.buttonState = .Off
+            for each in attackThreats {each.hidden = false}
+        }
+        if !actualGuardAttack {
+            for each in mustFeintThreats {each.hidden = false}
+            for each in adjMoves {each.hidden = false}
+        }
+        
     }
     
     func AttackOrdersAvailable(setCommands:Bool = true) {
@@ -1904,6 +1947,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         if guardButton.buttonState == .Option {guardButton.buttonState = .On}
         else if guardButton.buttonState == .On {guardButton.buttonState = .Option}
+        MoveOrdersAvailable()
         
     }
     
@@ -1934,6 +1978,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Finished assigning threats
         case .Commit:
             manager!.NewPhase(false, playback: false)
+            manager!.orders.last!.unDoable = false
             if CheckEndTurnStatusInRetreatOrDefenseSelection() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
         // Defender confirming a defense (if option) or the defense/retreat selection phase (if end-turn)
@@ -2183,7 +2228,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             case .Move, .Setup:
                 
                 undoOrAct = manager!.orders.last!.ExecuteOrder(true)
-                manager!.orders.removeLast()
                 
                 if undoOrAct || manager!.orders.last!.baseGroup!.command.moveNumber > 0 {
                     manager!.groupsSelected = [manager!.orders.last!.baseGroup!]
@@ -2194,23 +2238,19 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
             case .Commit:
                 
-                undoOrAct = manager!.orders.last!.ExecuteOrder(true)
-                manager!.orders.removeLast()
+                manager!.orders.last!.ExecuteOrder(true)
                 
-                if manager!.orders.isEmpty || manager!.orders.last!.order! != .Threat {
+                if manager!.orders.count == 1 || manager!.orders[manager!.orders.endIndex-2].order! != .Threat {
                     endTurnButton.buttonState = .Option
                     guardButton.buttonState = .Off
-                    undoOrAct = false
+                    //undoOrAct = false
                     manager!.NewPhase(true, playback: false)
                     DeselectEverything()
                 }
                 
             case .RetreatOrDefenseSelection:
                 
-                // Safety drill
-                if manager!.orders.last!.order! != .Defend && manager!.orders.last!.order! != .Retreat && manager!.orders.last!.order! != .Reduce {break}
                 manager!.orders.last!.ExecuteOrder(true, playback: false)
-                manager!.orders.removeLast()
                 
                 if activeConflict != nil {
                     activeConflict!.defenseApproach.zPosition = 200
@@ -2220,11 +2260,21 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 guardButton.buttonState = .Off
                 manager!.groupsSelected = []
                 manager!.groupsSelectable = []
+                
+                if manager!.orders.last!.order! != .Retreat && manager!.orders.last!.order! != .Surrender {
+                    activeConflict = manager!.orders.last!.theConflict!
+                    SetupActiveConflict()
+                }
+                
                 if CheckEndTurnStatusInRetreatOrDefenseSelection() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
+                
+                
                 
             default: break
                 
             }
+            
+            manager!.orders.removeLast()
             
         }
     }

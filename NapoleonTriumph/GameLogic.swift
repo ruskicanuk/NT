@@ -112,16 +112,16 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
 }
 
 // Returns true (if road move), first array are viable "peaceful" moves, second array are viable "attack" moves
-func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([SKNode], [SKNode]) {
+func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([Location], [Approach], [Approach]) {
     
     // Safety Check
-    guard let commandSelected = groupSelected.command else {return ([], [])}
-    if groupSelected.nonLdrUnitCount == 0 {return ([], [])}
-    if commandSelected.currentLocationType == .Start {return ([], [])}
+    guard let commandSelected = groupSelected.command else {return ([], [], [])}
+    if groupSelected.nonLdrUnitCount == 0 {return ([], [], [])}
+    if commandSelected.currentLocationType == .Start {return ([], [], [])}
     
     // Check has moved restrictions
-    if groupSelected.someUnitsHaveMoved && !groupSelected.fullCommand {return ([], [])} // Return if some units moved (breaking up new commands must be done from 0-moved units)
-    else if commandSelected.finishedMove && groupSelected.fullCommand == true {return ([], [])} // Command finished move - disable further movement
+    if groupSelected.someUnitsHaveMoved && !groupSelected.fullCommand {return ([], [], [])} // Return if some units moved (breaking up new commands must be done from 0-moved units)
+    else if commandSelected.finishedMove && groupSelected.fullCommand == true {return ([], [], [])} // Command finished move - disable further movement
     
     // Determine unit size (1 or 2+)
     let unitSize:Int!
@@ -132,7 +132,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     let (moveOnS, detachOnS, _, indOnS) = selectors
     let moveOn = (moveOnS == .On); let detachOn = (detachOnS == .On); let indOn = (indOnS == .On)
     
-    if !(moveOn || detachOn || indOn) {return ([], [])}
+    if !(moveOn || detachOn || indOn) {return ([], [], [])}
     
     var isReserve:Bool = false
     var reinforcement:Bool = false
@@ -157,7 +157,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     else if moveNumber == 0 && unitSize == 2 {scenario = 4}
     else if moveNumber > 0 && unitSize == 1 {scenario = 5}
     else if moveNumber > 0 && unitSize == 2 {scenario = 6}
-    else {return ([], [])}
+    else {return ([], [], [])}
     
     var currentReserve:Reserve?
     var currentApproach:Approach?
@@ -265,43 +265,43 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
             }
         }
         
-        let rdMoves = rdAvailableReserves as [SKNode] + rdAvailableApproaches as [SKNode]
+        let rdMoves = rdAvailableReserves as [Location] + rdAvailableApproaches as [Location]
         for each in rdMoves {each.hidden = false; each.zPosition = 200}
         
         if reinforcement {
         
-            let mustFeintThreats = enemyOccupiedMustFeintApproaches as [SKNode]
+            let mustFeintThreats = enemyOccupiedMustFeintApproaches
             for each in mustFeintThreats {each.hidden = false; each.zPosition = 200}
-            return (rdMoves, mustFeintThreats)
+            return (rdMoves, [], mustFeintThreats)
 
-        } else {return (rdMoves, [])}
+        } else {return (rdMoves, [], [])}
         
     } else {
         
         // Remove adjacent reserves that would go beyond capacity with the move if it's the last move of the command / units
         for eachReserve in Array(Set(finalReserveMoves).intersect(Set(adjAvailableReserves))) {if (groupSelected.nonLdrUnitCount + eachReserve.currentFill) > eachReserve.capacity {adjAvailableReserves.removeObject(eachReserve)}}
         
-        let adjMoves = adjAvailableReserves as [SKNode] + adjAvailableApproaches as [SKNode]
+        let adjMoves = adjAvailableReserves as [Location] + adjAvailableApproaches as [Location]
         
         // Remove approaches already attacked by normal attack
         for eachApproach in enemyOccupiedAttackApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedAttackApproaches.removeObject(eachApproach)}}
         for eachApproach in enemyOccupiedMustFeintApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedMustFeintApproaches.removeObject(eachApproach)}}
         
-        let attackThreats = enemyOccupiedAttackApproaches as [SKNode]
-        let mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches))) as [SKNode]
+        let attackThreats = enemyOccupiedAttackApproaches
+        let mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches)))
         //for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         
         // Night turn or all general attacks made no attacks allowed
         if manager!.night || manager!.generalThreatsMade >= 2 {
-            return (adjMoves, [])
+            return (adjMoves, [], [])
         
         // Commit phase or fixed art, only attacks allowed
         } else if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
-            return ([],  attackThreats + mustFeintThreats)
+            return ([],  attackThreats, mustFeintThreats)
             
         // Move phase, both attacks and moves allowed
         } else {
-            return (adjMoves,  attackThreats + mustFeintThreats)
+            return (adjMoves, attackThreats, mustFeintThreats)
         }
         
     }
@@ -336,6 +336,17 @@ func CheckIfViableAttach(groupSelected:Group, touchedUnit:Unit?) -> Bool {
     
 }
 
+func CheckIfGuardAttackViable(theGroup:Group, theApproach:Approach) -> Bool {
+    
+    if !theGroup.allGuard {return false}
+    if theApproach.obstructedApproach {return false}
+    if manager!.guardFailed[manager!.actingPlayer]! {return false}
+    return true
+
+}
+
+/*
+
 func CheckIfViableGuardThreat(theThreat:Conflict) -> Bool {
     
     var corpsOnly = false
@@ -357,6 +368,8 @@ func CheckIfViableGuardThreat(theThreat:Conflict) -> Bool {
     
     return viableGuard
 }
+
+*/
 
 // MARK: Feint & Retreat Logic
 
@@ -480,21 +493,25 @@ func ConflictSelectDuringDefensePhase() -> String {
     // Space available? (retreat or no order) - this will return the destroy case (true, true)
     var spaceAvailable:Bool = false
     for eachReserve in activeGroupConflict!.defenseReserve.adjReserves {
-        if eachReserve.availableSpace > 0 && eachReserve.localeControl != manager!.phasingPlayer {spaceAvailable = true; break}
+        if eachReserve.availableSpace > 0 && eachReserve.localeControl != manager!.phasingPlayer && activeConflict!.attackReserve != eachReserve {spaceAvailable = true; break}
     }
+    
+    let noDefendersAvailable = activeConflict!.defenseReserve.defendersAvailable < 1
 
     // No space available case
     if !spaceAvailable {
         
         // No space, must-retreat (no-one to defend with)
-        if activeGroupConflict!.mustRetreat {
+        if noDefendersAvailable {
             activeGroupConflict!.retreatMode = true
+            activeGroupConflict!.mustRetreat = true
             return "TurnOnSurrender"
         }
         
-        // Not in must-retreat mode
+        // Must defend mode
         else {
             activeGroupConflict!.retreatMode = false
+            activeGroupConflict!.mustDefend = true
             return "TurnOnDefendOnly"
         }
     }
@@ -505,8 +522,9 @@ func ConflictSelectDuringDefensePhase() -> String {
     //}
     
     // Retreat command was given and space exists
-    if activeGroupConflict!.mustRetreat {
+    if activeGroupConflict!.mustRetreat || noDefendersAvailable {
         activeGroupConflict!.retreatMode = true
+        activeGroupConflict!.mustRetreat = true
         return "TurnOnRetreatOnly"
     }
     
@@ -528,7 +546,7 @@ func CheckEndTurnStatusInRetreatOrDefenseSelection() -> Bool {
             if eachLocaleThreat.defenseReserve.currentFill > 0 {
                 endTurnViable = false
                 for eachConflict in eachLocaleThreat.conflicts {
-                    eachConflict.defenseApproach.approachSelector!.selected = .NotAvail
+                    eachConflict.defenseApproach.approachSelector!.selected = .Off
                 }
             } else {
                 for eachConflict in eachLocaleThreat.conflicts {
@@ -542,8 +560,10 @@ func CheckEndTurnStatusInRetreatOrDefenseSelection() -> Bool {
             for eachConflict in eachLocaleThreat.conflicts {
                 if eachConflict.approachDefended {
                     eachConflict.defenseApproach.approachSelector!.selected = .On
-                } else {
+                } else if endTurnViable {
                     eachConflict.defenseApproach.approachSelector!.selected = .NotAvail
+                } else {
+                    eachConflict.defenseApproach.approachSelector!.selected = .Off
                 }
             }
         }

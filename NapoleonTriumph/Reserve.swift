@@ -149,7 +149,6 @@ class Reserve:Location {
             if eachCommandEntered.moveNumber >= 2 {if eachCommandEntered.isTwoPlusCorps {has2PlusCorpsPassed = true}}
         }
 
-        
         currentFill = (self.occupantCount + countApproachUnits)
     }
     

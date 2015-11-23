@@ -422,7 +422,7 @@ class GroupConflict {
     var retreatMode:Bool = false
     
     // Used to store number of orders for the purposes of releasing the mustRetreat / mustDefend condition when un-doing
-    var retreatOrders:Int = 0
+    //var retreatOrders:Int = 0
     var defenseOrders:Int = 0
     
     var twoPlusCorps:Bool = false

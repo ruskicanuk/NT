@@ -349,7 +349,7 @@ class Command:SKNode {
             self.currentLocation!.occupants.removeObject(self)
         } else if self.currentLocationType == .Heaven {
             self.currentLocationType = self.currentLocation!.locationType
-            self.currentLocation?.occupants += [self]
+            self.currentLocation!.occupants += [self]
         }
         
         // Reshuffle current location (if units were added/subtracted)
