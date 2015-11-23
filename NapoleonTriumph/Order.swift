@@ -10,7 +10,7 @@ import SpriteKit
 
 // Stores the kind of order
 enum OrderType {
-    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove, Defend
+    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack
 }
 
 class Order {
@@ -114,7 +114,6 @@ class Order {
     init(feintSelection:GroupSelection, touchedApproachFromView:Approach, orderFromView: OrderType) {
         order = orderFromView
         groupSelection = feintSelection
-        //theGroupConflict = passedGroupConflict
         
         var theLocations:[Location] = []
         if groupSelection != nil {for eachGroup in groupSelection!.groups {theLocations += [eachGroup.command.currentLocation!]}}
@@ -841,9 +840,13 @@ class Order {
                         reverseCode = 2
                         theConflict!.parentGroupConflict!.mustRetreat = true
                     }
+                    
+                    // Morale reduction
+                    manager!.ReduceMorale(1, side: theSide, mayDemoralize: true)
                 }
                 
-                swappedUnit!.decrementStrength() 
+                swappedUnit!.decrementStrength()
+                
             }
             
         case (true, .Reduce):
@@ -881,6 +884,9 @@ class Order {
                     if theConflict != nil && !battleReduction! && reverseCode == 2 {
                         theConflict!.parentGroupConflict!.mustRetreat = false
                     }
+                    
+                    // Morale reduction
+                    manager!.ReduceMorale(-1, side: theSide, mayDemoralize: true)
                 }
             }
             
@@ -1028,13 +1034,67 @@ class Order {
             
             if theConflict!.defenseGroup == nil {break}
             
-            //theConflict!.parentGroupConflict!.defenseOrders--
             theConflict!.defenseGroup!.SetGroupSelectionPropertyUnitsHaveDefended(false, approachDefended: theConflict!.defenseApproach)
             
             ToggleGroups(theConflict!.defenseGroup!.groups, makeSelection: .NotSelectable)
             theConflict!.defenseGroup = nil
             theConflict!.parentGroupConflict!.defendedApproaches.removeObject(theConflict!.defenseApproach)
+            
+        case (false, .LeadingDefense), (false, .LeadingAttack), (false, .LeadingCounterAttack):
+            
+            if playback {break}
+            
+            let leadingSelection = GroupSelection(theGroups: manager!.groupsSelectable)
+            
+            switch order! {
+            
+            case .LeadingDefense:
+                
+                theConflict!.defenseLeadingUnits = leadingSelection
+                theConflict!.defenseLeadingSet = true
+                
+            case .LeadingAttack:
+                
+                theConflict!.attackLeadingUnits = leadingSelection
+                theConflict!.attackLeadingSet = true
+                
+            case .LeadingCounterAttack:
+                
+                theConflict!.counterAttackLeadingUnits = leadingSelection
+                theConflict!.counterAttackLeadingSet = true
+            
+            default: break
+                
+            }
+            
+        case (true, .LeadingDefense), (true, .LeadingAttack), (true, .LeadingCounterAttack):
+            
+        if playback {break}
+        
+        switch order! {
+            
+        case .LeadingDefense:
+            
+            theConflict!.defenseLeadingUnits = nil
+            theConflict!.defenseLeadingSet = false
+            
+        case .LeadingAttack:
+            
+            theConflict!.attackLeadingUnits = nil
+            theConflict!.attackLeadingSet = false
+            
+        case .LeadingCounterAttack:
+            
+            theConflict!.counterAttackLeadingUnits = nil
+            theConflict!.counterAttackLeadingSet = false
+            
+        default: break
+            
+            }
+            
         }
+        
+
         
         return false
     }

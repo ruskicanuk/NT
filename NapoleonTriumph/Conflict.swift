@@ -27,6 +27,10 @@ class Conflict {
     var attackLeadingUnits:GroupSelection?
     var counterAttackLeadingUnits:GroupSelection?
     
+    var defenseLeadingSet:Bool = false
+    var attackLeadingSet:Bool = false
+    var counterAttackLeadingSet:Bool = false
+    
     var mayCounterAttack:Bool = true
     var conflictInitialWinner:Allegience
     var conflictFinalWinner:Allegience

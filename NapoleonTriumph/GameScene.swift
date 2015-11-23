@@ -976,8 +976,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
         manager!.orders += [newOrder]
         
         if manager!.phaseNew == .PostCombatRetreatAndVictoryResponseMoves {manager!.PostBattleRetreatOrSurrender()}
-        //else {manager!.ResetRetreatDefenseSelection()}
-        //if CheckTurnEndViableInRetreatOrDefendMode(activeGroupConflict!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
     }
     
     func SecondMoveUI() {
@@ -1973,12 +1971,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             manager!.NewTurn()
             
-            //if threatRespondMode {RetreatPreparation(theCode)}
-            
         // Finished assigning threats
         case .Commit:
             manager!.NewPhase(false, playback: false)
             manager!.orders.last!.unDoable = false
+            
             if CheckEndTurnStatusInRetreatOrDefenseSelection() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
         // Defender confirming a defense (if option) or the defense/retreat selection phase (if end-turn)
@@ -1995,6 +1992,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 ToggleGroups(manager!.groupsSelected, makeSelection: .NotSelectable)
                 manager!.groupsSelectable = []
                 manager!.groupsSelected = []
+                
                 if CheckEndTurnStatusInRetreatOrDefenseSelection() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
             // Ending the phase
@@ -2003,13 +2001,52 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 endTurnButton.buttonState = .Off; retreatButton.buttonState = .Off
                 
                 // Reduce morale in the retreat locales
+                /*
                 for eachLocaleThreat in manager!.localeThreats {
                     if !eachLocaleThreat.retreatMode {
                         manager!.ReduceMorale(eachLocaleThreat.moraleLossFromRetreat, side: manager!.phasingPlayer.Other()!, mayDemoralize: true)
                     }
                 }
-                manager!.NewPhase(false, playback: false)
+                */
+                manager!.NewPhase()
+                manager!.orders.last!.unDoable = false
             }
+            
+        // Defender confirming their leading units
+        case .SelectDefenseLeading:
+            
+            // Selected for that conflict
+            if endTurnButton.buttonState == .Option {
+                
+                let newOrder = Order(orderFromView: .LeadingDefense)
+                newOrder.ExecuteOrder()
+                manager!.orders += [newOrder]
+                
+                // Reset status
+                ToggleGroups(manager!.groupsSelected, makeSelection: .NotSelectable)
+                manager!.groupsSelectable = []
+                manager!.groupsSelected = []
+                
+                if CheckEndTurnStatusLeadingUnits("DefenseLeading") {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
+  
+            // End of phase
+            } else if endTurnButton.buttonState == .On {
+                endTurnButton.buttonState = .Off
+                manager!.NewPhase()
+                manager!.orders.last!.unDoable = false
+            }
+            
+            //manager!.NewPhase(1, reverse: false, playback: false)
+            
+            //endTurnButton.buttonState = .Off
+            //manager!.selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(theConflict)
+            
+            //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
+            
+            //ToggleGroups(manager!.selectableAttackAdjacentGroups, makeSelection: .Normal)
+            //ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
+            
+            // Defender confirming their feint-response (after a feint-threat or won battle)
         
         default: break
             

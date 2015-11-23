@@ -417,6 +417,7 @@ func SelectableGroupsForRetreat (theConflict:Conflict) -> [Group] {
 
 }
 
+// Called from the Hold Touch command
 func ReduceStrengthIfRetreat(touchedUnit:Unit, theLocation:Location, theGroupConflict:GroupConflict, retreatMode:Bool) -> Bool {
     if !retreatMode {return false} // Not in retreat mode
     if touchedUnit.selected != .Selected {return false} // Not selected
@@ -515,22 +516,13 @@ func ConflictSelectDuringDefensePhase() -> String {
             return "TurnOnDefendOnly"
         }
     }
-    
-    // No command was given, check if there is any unresolved approaches
-    //if activeGroupConflict!.unresolvedApproaches.count == 0 && manager!.phaseNew != .PostCombatRetreatAndVictoryResponseMoves {
-    //    return (false, true)
-    //}
-    
+
     // Retreat command was given and space exists
     if activeGroupConflict!.mustRetreat || noDefendersAvailable {
         activeGroupConflict!.retreatMode = true
         activeGroupConflict!.mustRetreat = true
         return "TurnOnRetreatOnly"
     }
-    
-    // No command was given, check if there is enough defenders available
-    //if activeGroupConflict!.unresolvedApproaches.count > theThreat.defenseReserve.defendersAvailable {return (true, false)}
-    //print(theThreat.madeReductions)
     
     // If you make it through, neither is forced (no command given)
     return "TurnOnBoth"
@@ -572,6 +564,7 @@ func CheckEndTurnStatusInRetreatOrDefenseSelection() -> Bool {
     return endTurnViable
 }
 
+/*
 func AdjacentThreatPotentialCheck (touchedNodePassed:SKNode, commandOrdersAvailable:Bool, independentOrdersAvailable:Bool) -> Bool {
     guard let approachAttacked = touchedNodePassed as? Approach else {return false}
     
@@ -586,6 +579,7 @@ func AdjacentThreatPotentialCheck (touchedNodePassed:SKNode, commandOrdersAvaila
     
     return false
 }
+*/
 
 // MARK: Commit Logic
 
@@ -1116,6 +1110,37 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, reset
     
     ToggleGroups(selectedLeadingGroups.groups, makeSelection: .Selected)
     return SelectableUnits(theGroups)
+}
+
+func CheckEndTurnStatusLeadingUnits(leadingScenario: String) -> Bool {
+    
+    var endTurnViable = true
+    
+    for eachLocaleThreat in manager!.localeThreats {
+        for eachConflict in eachLocaleThreat.conflicts {
+            
+            let approachSet:Bool!
+            
+            switch leadingScenario {
+                
+            case "DefenseLeading": approachSet = eachConflict.defenseLeadingSet
+            case "AttackLeading": approachSet = eachConflict.attackLeadingSet
+            case "CounterAttackLeading": approachSet = eachConflict.counterAttackLeadingSet
+            default: approachSet = false
+                
+            }
+            
+            if approachSet! {
+                eachConflict.defenseApproach.approachSelector!.selected = .On
+            } else {
+                eachConflict.defenseApproach.approachSelector!.selected = .Off
+                endTurnViable = false
+            }
+        }
+    }
+
+    return endTurnViable
+    
 }
 
 // MARK: Toggle Selections
