@@ -348,7 +348,19 @@ class GameManager: NSObject, NSCoding {
             SetupThreats()
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
             
+        case .SelectDefenseLeading:
             
+            for eachLocaleConflict in localeThreats {
+                for eachConflict in eachLocaleConflict.conflicts {
+                    if eachLocaleConflict.retreatMode == true {eachConflict.defenseApproach.hidden = true}
+                    eachConflict.defenseApproach.approachSelector!.selected = .Off
+                }
+            }
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+
+        case .SelectAttackLeading: break
+            
+        case .SelectCounterGroup: break
             // Initialize the locale threats
             //for eachLocaleConflict in localeThreats {
             //    ConflictSelectDuringDefensePhase

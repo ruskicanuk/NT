@@ -972,7 +972,7 @@ func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
 
 // MARK: Leading Units Logic
 
-func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, resetState:Bool = false) -> [Unit] {
+func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, resetState:Bool = false) -> [Group] {
     
     var theGroups:[Group] = []
     switch thePhase {
@@ -1109,31 +1109,30 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, reset
     }
     
     ToggleGroups(selectedLeadingGroups.groups, makeSelection: .Selected)
-    return SelectableUnits(theGroups)
+    return theGroups
 }
 
-func CheckEndTurnStatusLeadingUnits(leadingScenario: String) -> Bool {
+func CheckEndTurnStatusLeadingUnits(leadingScenario: OrderType) -> Bool {
     
     var endTurnViable = true
     
     for eachLocaleThreat in manager!.localeThreats {
+        if eachLocaleThreat.retreatMode {continue}
         for eachConflict in eachLocaleThreat.conflicts {
             
+            /*
             let approachSet:Bool!
             
             switch leadingScenario {
                 
-            case "DefenseLeading": approachSet = eachConflict.defenseLeadingSet
-            case "AttackLeading": approachSet = eachConflict.attackLeadingSet
-            case "CounterAttackLeading": approachSet = eachConflict.counterAttackLeadingSet
+            case .LeadingDefense: approachSet = eachConflict.defenseLeadingSet
+            case .LeadingAttack: approachSet = eachConflict.attackLeadingSet
+            case .LeadingCounterAttack: approachSet = eachConflict.counterAttackLeadingSet
             default: approachSet = false
                 
             }
-            
-            if approachSet! {
-                eachConflict.defenseApproach.approachSelector!.selected = .On
-            } else {
-                eachConflict.defenseApproach.approachSelector!.selected = .Off
+            */
+            if eachConflict.defenseApproach.approachSelector!.selected == .Off {
                 endTurnViable = false
             }
         }

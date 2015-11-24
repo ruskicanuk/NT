@@ -360,15 +360,8 @@ class Order {
                 // Update command movement trackers
                 if !playback {
                 
-                    if endLocation.locationType != .Start && startLocation[0] != endLocation {baseGroup!.command.moveNumber--}  else {baseGroup!.command.hasMoved = false} //{baseGroup?.command.rdMoves = []}
+                    if endLocation.locationType != .Start && startLocation[0] != endLocation {baseGroup!.command.moveNumber--}  else {baseGroup!.command.hasMoved = false}
                     if baseGroup!.command.moveNumber == 0 {baseGroup!.command.movedVia = .None}
-                    
-                    
-                    
-                    //if startLocaleReserve!.name == "201" {
-                    //    baseGroup!.command.turnEnteredMap = -1
-                    //}
-                    
                 }
                 
             } else if !playback {
@@ -1040,6 +1033,8 @@ class Order {
             theConflict!.defenseGroup = nil
             theConflict!.parentGroupConflict!.defendedApproaches.removeObject(theConflict!.defenseApproach)
             
+        // MARK: Leading Units
+            
         case (false, .LeadingDefense), (false, .LeadingAttack), (false, .LeadingCounterAttack):
             
             if playback {break}
@@ -1066,6 +1061,7 @@ class Order {
             default: break
                 
             }
+            theConflict!.defenseApproach.approachSelector!.selected = .On
             
         case (true, .LeadingDefense), (true, .LeadingAttack), (true, .LeadingCounterAttack):
             
@@ -1093,9 +1089,7 @@ class Order {
             }
             
         }
-        
-
-        
+        theConflict!.defenseApproach.approachSelector!.selected = .Off
         return false
     }
     
@@ -1192,6 +1186,16 @@ class Order {
                     }
                 }
                 
+            } else if order == .LeadingDefense {
+                
+                if let endApproach = theConflict!.defenseApproach {
+                    if let startReserve = theConflict!.defenseReserve {
+                        CGPathMoveToPoint(orderPath, nil, startReserve.position.x, startReserve.position.y)
+                        CGPathAddLineToPoint(orderPath, nil, endApproach.position.x, endApproach.position.y)
+                        orderArrow = SKShapeNode(path: orderPath)
+                    }
+                }
+                
             } else if order == .Feint {
                 
                 if let endApproach = endLocation as? Approach {
@@ -1226,9 +1230,16 @@ class Order {
             } else if order == .Defend {
                     
                     strokeColor = SKColor.purpleColor()
-                    lineWidth = 5.0
-                    glowHeight = 3.0
+                    lineWidth = 2.0
+                    glowHeight = 1.0
                     zPosition = 1
+                
+            } else if order == .LeadingDefense {
+                
+                strokeColor = SKColor.purpleColor()
+                lineWidth = 5.0
+                glowHeight = 3.0
+                zPosition = 1
                 
             } else if order == .Feint {
                 
