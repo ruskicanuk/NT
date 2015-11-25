@@ -1011,14 +1011,14 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, reset
     
     ToggleGroups(theGroups, makeSelection: .Normal)
     
-    switch thePhase {
+    //switch thePhase {
         
-    case .SelectDefenseLeading: theConflict.defenseLeadingUnits = selectedLeadingGroups
-    case .SelectAttackLeading: theConflict.attackLeadingUnits = selectedLeadingGroups
-    case .SelectCounterGroup: theConflict.counterAttackLeadingUnits = selectedLeadingGroups
+    //case .SelectDefenseLeading: theConflict.defenseLeadingUnits = selectedLeadingGroups
+    //case .SelectAttackLeading: theConflict.attackLeadingUnits = selectedLeadingGroups
+    //case .SelectCounterGroup: theConflict.counterAttackLeadingUnits = selectedLeadingGroups
     
-    default: break
-    }
+    //default: break
+    //}
     
     var attackLeadingArtPossible = false
     if (theGroups[0].command.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) && theConflict.defenseApproach.mayArtAttack {attackLeadingArtPossible = true}
@@ -1109,10 +1109,10 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, reset
     }
     
     ToggleGroups(selectedLeadingGroups.groups, makeSelection: .Selected)
-    return theGroups
+    return selectedLeadingGroups.groups
 }
 
-func CheckEndTurnStatusLeadingUnits(leadingScenario: OrderType) -> Bool {
+func CheckEndTurnStatusLeadingUnits() -> Bool {
     
     var endTurnViable = true
     
@@ -1132,7 +1132,7 @@ func CheckEndTurnStatusLeadingUnits(leadingScenario: OrderType) -> Bool {
                 
             }
             */
-            if eachConflict.defenseApproach.approachSelector!.selected == .Off {
+            if eachConflict.defenseApproach.approachSelector!.selected != .On {
                 endTurnViable = false
             }
         }
