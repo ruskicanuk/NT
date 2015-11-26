@@ -399,13 +399,16 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             // Safety check
             guard let touchedApproach = touchedNode as? Approach else {break}
-            var currentConflict:Conflict?
-            if activeConflict != nil {currentConflict = activeConflict}
+            //var currentConflict:Conflict?
+            //if activeConflict != nil {currentConflict = activeConflict}
             
             for eachLocaleConflict in manager!.localeThreats {
                 for eachConflict in eachLocaleConflict.conflicts {
                     if eachConflict.defenseApproach == touchedApproach {
-                        if activeConflict != nil {activeConflict!.defenseApproach.zPosition = 200}
+                        if activeConflict != nil {
+                            ToggleGroups(manager!.groupsSelectable, makeSelection: .NotSelectable)
+                            activeConflict!.defenseApproach.zPosition = 200
+                        }
                         activeConflict = eachConflict
                         break
                     }
@@ -413,9 +416,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
             }
             
             // Only setup active conflict if its different from before
-            if !(currentConflict != nil && activeConflict != nil && currentConflict!.defenseApproach == activeConflict!.defenseApproach) {
-                SetupActiveConflict()
-            }
+            //if !(currentConflict != nil && activeConflict != nil && currentConflict!.defenseApproach == activeConflict!.defenseApproach) {
+            SetupActiveConflict()
+            //}
 
             //if CheckEndTurnStatusInRetreatOrDefenseSelection() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
@@ -480,24 +483,29 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             if manager!.phaseNew == .SelectAttackGroup {if ReturnMoveType() != .None {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}}
             
+        // MARK: Select Leading Units
+        
         case (.SelectDefenseLeading, unitName), (.SelectAttackLeading, unitName), (.SelectCounterGroup, unitName):
             
-            // Safety check
-            if activeConflict == nil || activeConflict!.defenseLeadingSet {break}
+            // Safety checks
+            if activeConflict == nil || activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
             guard let touchedUnit = touchedNode as? Unit else {break}
             if touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off {break}
             
             LeadingUnitSelection(touchedUnit)
-            manager!.groupsSelected = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
+            (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
             
         case (.SelectDefenseLeading, mapName), (.SelectAttackLeading, mapName), (.SelectCounterGroup, mapName):
             
-            // Safety check
-            if activeConflict == nil || activeConflict!.defenseLeadingSet {break}
+            // Safety checks
+            if activeConflict == nil || activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
+            //if manager!.phaseNew == .SelectDefenseLeading && activeConflict!.defenseLeadingSet {break}
+            //else if manager!.phaseNew == .SelectAttackLeading && activeConflict!.attackLeadingSet {break}
+            //else if manager!.phaseNew == .SelectCounterGroup && activeConflict!.counterAttackLeadingSet {break}
             
+            // Whatever was selected goes normal then reset selectables
             ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
-            manager!.groupsSelected = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
-            //manager!.groupsSelected = []
+            (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
             
         default: break
             
@@ -831,28 +839,41 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Safety check
         if activeConflict == nil {return}
-        //if active
         
+        // Reset current selection
         activeConflict!.defenseApproach.zPosition = 50
-        
         ToggleGroups(manager!.groupsSelectable, makeSelection: .NotSelectable)
+        (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
         
         // Function determines what retreat mode we are in (defense only, retreat only, etc)
         switch manager!.phaseNew {
          
         case .SelectDefenseLeading:
             
-            // Select the defense group first
-            if activeConflict!.defenseLeadingUnits != nil {ToggleGroups(activeConflict!.defenseLeadingUnits!.groups, makeSelection: .Selected)}
-            manager!.groupsSelected = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
-            
-            if endTurnButton.buttonState == .On {}
-            else if activeConflict!.defenseLeadingSet {endTurnButton.buttonState = .On}
+            if activeConflict!.defenseLeadingUnits != nil {
+                ToggleGroups(activeConflict!.defenseLeadingUnits!.groups, makeSelection: .Selected)
+            }
+            if CheckEndTurnStatusLeadingUnits() {endTurnButton.buttonState = .On}
+            else if activeConflict!.defenseLeadingSet {endTurnButton.buttonState = .Off}
             else {endTurnButton.buttonState = .Option}
             
-        case .SelectAttackLeading: break
-                
-        case .SelectCounterGroup: break
+        case .SelectAttackLeading:
+            
+            if activeConflict!.attackLeadingUnits != nil {
+                ToggleGroups(activeConflict!.attackLeadingUnits!.groups, makeSelection: .Selected)
+            }
+            if CheckEndTurnStatusLeadingUnits() {endTurnButton.buttonState = .On}
+            else if activeConflict!.attackLeadingSet {endTurnButton.buttonState = .Off}
+            else {endTurnButton.buttonState = .Option}
+            
+        case .SelectCounterGroup:
+            
+            if activeConflict!.counterAttackLeadingUnits != nil {
+                ToggleGroups(activeConflict!.counterAttackLeadingUnits!.groups, makeSelection: .Selected)
+            }
+            if CheckEndTurnStatusLeadingUnits() {endTurnButton.buttonState = .On}
+            else if activeConflict!.counterAttackLeadingSet {endTurnButton.buttonState = .Off}
+            else {endTurnButton.buttonState = .Option}
             
         case .RetreatOrDefenseSelection:
             
@@ -2047,9 +2068,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
                 if activeConflict != nil {
                     activeConflict!.defenseApproach.zPosition = 200
-                    activeConflict = nil
+                    //ToggleGroups(activeConflict!.defenseGroup!.groups, makeSelection: .NotSelectable)
                 }
-                endTurnButton.buttonState = .Off; retreatButton.buttonState = .Off
+                endTurnButton.buttonState = .Off
+                retreatButton.buttonState = .Off
                 
                 // Reduce morale in the retreat locales
                 /*
@@ -2059,8 +2081,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     }
                 }
                 */
-                manager!.NewPhase()
                 manager!.orders.last!.unDoable = false
+                manager!.NewPhase()
             }
             
         // Defender confirming their leading units
@@ -2082,12 +2104,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 newOrder.ExecuteOrder()
                 manager!.orders += [newOrder]
                 
-                // Reset status
-                //ToggleGroups(manager!.groupsSelected, makeSelection: .NotSelectable)
-                //manager!.groupsSelectable = []
-                //SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
-                //manager!.groupsSelected = []
-                
+                activeConflict!.defenseApproach.approachSelector!.selected = .On
                 if CheckEndTurnStatusLeadingUnits() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
   
             // End of phase
@@ -2097,8 +2114,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     activeConflict = nil
                 }
                 endTurnButton.buttonState = .Off
-                manager!.NewPhase()
                 manager!.orders.last!.unDoable = false
+                manager!.NewPhase()
             }
             
             //manager!.NewPhase(1, reverse: false, playback: false)
@@ -2376,16 +2393,16 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 if activeConflict != nil {
                     activeConflict!.defenseApproach.zPosition = 200
-                    activeConflict = nil
+                    ToggleGroups(manager!.groupsSelectable, makeSelection: .NotSelectable)
                 }
                 
                 activeConflict = manager!.orders.last!.theConflict!
+                activeConflict!.defenseApproach.approachSelector!.selected = .Off
                 SetupActiveConflict()
+
+                (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
                 
-                ToggleGroups(activeConflict!.defenseGroup!.groups, makeSelection: .Normal)
-                manager!.groupsSelectable = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
-                
-                if CheckEndTurnStatusLeadingUnits() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
+                endTurnButton.buttonState = .Option
                 
             default: break
                 

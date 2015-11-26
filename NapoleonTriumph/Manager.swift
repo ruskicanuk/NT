@@ -24,7 +24,7 @@ enum newGamePhase {
     
     // Changes the phase returns (whether to switch the acting player, whether to advance the turn)
     mutating func NextPhase (reverse:Bool = false) -> Bool {
-    
+        
         var switchActing = false
         
         if reverse {
@@ -318,10 +318,12 @@ class GameManager: NSObject, NSCoding {
 
         // Increments phase if we aren't in play-back mode
         if playback {return "Playback"}
-        
         let phaseChange = phaseNew.NextPhase(reverse) // Moves us to the next phase, returns true if need to swith acting player
         if phaseChange {actingPlayer.Switch()}
         RefreshCommands() // Switches block visibility
+        groupsSelected = []
+        groupsSelectable = []
+        activeConflict = nil
         
         //if orders.last != nil {orders.last?.unDoable = false}
         
@@ -449,6 +451,9 @@ class GameManager: NSObject, NSCoding {
         orderHistory[orderHistoryTurn] = orders
         for each in orders {each.orderArrow?.removeFromParent()}
         orders = []
+        groupsSelected = []
+        groupsSelectable = []
+        activeConflict = nil
         
         // Set turn and commands available
         if phasingPlayer != player1 {
@@ -495,13 +500,7 @@ class GameManager: NSObject, NSCoding {
     }
     
     func ResetManagerState() {
-        
-        //selectableDefenseGroups = []
-        //selectableRetreatGroups = []
-        //selectableAttackGroups = []
-        //selectableAttackByRoadGroups = []
-        //selectableAttackAdjacentGroups = []
-        
+
         // Reset conflict-related attriutes
         for eachLocaleThreat in localeThreats {
             for eachConflict in eachLocaleThreat.conflicts {
@@ -511,11 +510,9 @@ class GameManager: NSObject, NSCoding {
         generalThreatsMade = 0
         phantomCorpsCommand = 0
         phantomIndCommand = 0
-        groupsSelected = []
-        groupsSelectable = []
         selectionRetreatReserves = []
         localeThreats = []
-        activeGroupConflict = nil
+
     }
 
     // MARK: Support Functions

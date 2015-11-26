@@ -17,7 +17,8 @@ func SelectLeadingUnits(theConflict:Conflict) {
 
     repeat {
         
-        let unitsRemaining = SelectableUnits(SelectableLeadingGroups(theConflict, thePhase: manager!.phaseNew))
+        let (selected, _) = SelectableLeadingGroups(theConflict, thePhase: manager!.phaseNew)
+        let unitsRemaining = SelectableUnits(selected)
     
         if unitsRemaining.isEmpty {selectionsAvailable = false}
             

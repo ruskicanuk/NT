@@ -972,7 +972,7 @@ func CheckTurnEndViableInDefenseMode(theThreat:Conflict) -> Bool {
 
 // MARK: Leading Units Logic
 
-func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, resetState:Bool = false) -> [Group] {
+func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, resetState:Bool = false) -> ([Group],[Group]) {
     
     var theGroups:[Group] = []
     switch thePhase {
@@ -1000,7 +1000,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, reset
     }
     
     // Safety drill
-    if theGroups.isEmpty {return []}
+    if theGroups.isEmpty {return ([], [])}
     
     let selectedLeadingGroups:GroupSelection!
     if resetState {
@@ -1109,7 +1109,7 @@ func SelectableLeadingGroups (theConflict:Conflict, thePhase:newGamePhase, reset
     }
     
     ToggleGroups(selectedLeadingGroups.groups, makeSelection: .Selected)
-    return selectedLeadingGroups.groups
+    return (selectedLeadingGroups.groups, theGroups)
 }
 
 func CheckEndTurnStatusLeadingUnits() -> Bool {
