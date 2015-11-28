@@ -211,20 +211,10 @@ class GameManager: NSObject, NSCoding {
     
     var groupsSelected:[Group] = []
     var groupsSelectable:[Group] = []
+    var groupsSelectableByRd:[Group] = []
+    var groupsSelectableAdjacent:[Group] = []
     var selectionRetreatReserves:[Reserve] = [] // Stores viable retreat reserves for the current selection
-    
-    /*
-    var selectableDefenseGroups:[Group] = []
-    var selectableRetreatGroups:[Group] = []
-    var selectableAttackGroups:[Group] = []
-    var selectableAttackByRoadGroups:[Group] = []
-    var selectableAttackAdjacentGroups:[Group] = []
-    */
 
-    //var repeatAttackGroup:Group? // Used to store the group for rare cases of repeat attacks along the rd
-    //var repeatAttackMoveNumber:Int?
-    
-    
     var localeThreats:[GroupConflict] = []
     var generalThreatsMade:Int = 0 // Stores how many general-threats have been made during the turn
     
@@ -323,13 +313,16 @@ class GameManager: NSObject, NSCoding {
         RefreshCommands() // Switches block visibility
         groupsSelected = []
         groupsSelectable = []
+        revealedLocations = []
         activeConflict = nil
-        
-        //if orders.last != nil {orders.last?.unDoable = false}
+        if !orders.isEmpty && phaseNew != .Commit {orders.last!.unDoable = false}
         
         switch phaseNew {
         
         case .Move:
+            
+            endTurnButton.buttonState = .On
+            HideAllLocations(true)
             
             // Updates the selected status of the game commands generally after a battle and ensures 1-block corps are handled
             for eachCommand in gameCommands[actingPlayer]! {
@@ -342,7 +335,9 @@ class GameManager: NSObject, NSCoding {
             RemoveNonMovementArrows()
             ResetManagerState()
         
-        case .Commit: break
+        case .Commit:
+            
+            endTurnButton.buttonState = .On
         
         case .RetreatOrDefenseSelection:
             
@@ -353,38 +348,35 @@ class GameManager: NSObject, NSCoding {
         case .SelectDefenseLeading:
             
             for eachLocaleConflict in localeThreats {
-                for eachConflict in eachLocaleConflict.conflicts {
-                    if eachLocaleConflict.retreatMode == true {eachConflict.defenseApproach.hidden = true}
-                    eachConflict.defenseApproach.approachSelector!.selected = .Off
+                if eachLocaleConflict.retreatMode == true {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        eachConflict.defenseApproach.hidden = true
+                        eachConflict.defenseApproach.approachSelector!.selected = .Off
+                    }
+                } else {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        eachConflict.defenseApproach.approachSelector!.selected = .Option
+                    }
                 }
+                
             }
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
 
         case .SelectAttackLeading: break
             
         case .SelectCounterGroup: break
-            // Initialize the locale threats
-            //for eachLocaleConflict in localeThreats {
-            //    ConflictSelectDuringDefensePhase
-            //}
             
-            // Setup the threat-groups and setup the retreat and defense selection groups @ Will need to go through all orders in "new version"
-            //SetupThreats()
+        case .PreRetreatOrFeintMoveOrAttackDeclare:
             
-            // Return the code (whether forced retreat / defend)
-            //return ResetRetreatDefenseSelection()
-            
-        /*
+            for eachLocaleConflict in localeThreats {
+                for eachConflict in eachLocaleConflict.conflicts {
+                    eachConflict.defenseApproach.hidden = false
+                    eachConflict.defenseApproach.approachSelector!.selected = .Option
+                }
+            }
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
         
-        case .StoodAgainstNormalThreat, .RetreatedBeforeCombat, .StoodAgainstFeintThreat:
-            
-            // Set selectable commands
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
-            selectableAttackByRoadGroups = SelectableGroupsForAttackByRoad(activeGroupConflict!.conflict)
-            selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeGroupConflict!.conflict)
-            ToggleGroups(selectableAttackByRoadGroups, makeSelection: .Normal)
-            ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
-            
+            /*
         case .FeintMove:
             
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
@@ -454,6 +446,7 @@ class GameManager: NSObject, NSCoding {
         groupsSelected = []
         groupsSelectable = []
         activeConflict = nil
+        endTurnButton.buttonState = .On
         
         // Set turn and commands available
         if phasingPlayer != player1 {
@@ -501,7 +494,7 @@ class GameManager: NSObject, NSCoding {
     
     func ResetManagerState() {
 
-        // Reset conflict-related attriutes
+        // Reset conflict-related attributes
         for eachLocaleThreat in localeThreats {
             for eachConflict in eachLocaleThreat.conflicts {
                 eachConflict.defenseApproach.threatened = false
@@ -512,7 +505,6 @@ class GameManager: NSObject, NSCoding {
         phantomIndCommand = 0
         selectionRetreatReserves = []
         localeThreats = []
-
     }
 
     // MARK: Support Functions
@@ -554,6 +546,7 @@ class GameManager: NSObject, NSCoding {
                 
                 let newConflict = self.orders[index].theConflict
                 newConflict!.defenseApproach.hidden = false
+                newConflict!.defenseApproach.approachSelector!.selected = .Option
                 
                 if theReserveConflicts[newConflict!.defenseReserve] == nil {
                    theReserveConflicts[newConflict!.defenseReserve] = [newConflict!]

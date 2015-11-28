@@ -33,13 +33,14 @@ class Unit: SKSpriteNode {
             updateSelectedStatus()
         }
     }
-    var repeatMove:Bool = false // set to true if moved into pre-retreat area or post-retreat area (if moves still exist?)
+    var repeatMove:Bool = false // set to true if moved into pre-retreat area
     var startedAsGrd:Bool = false
     
     var alreadyDefended:Bool = false
     var approachDefended:Approach?
     var wasInBattle:Bool = false
     var parentCommand:Command?
+    var threatenedConflict:Conflict?
     
     var assigned:String = "None" // "Corps" "Ind"
     

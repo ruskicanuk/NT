@@ -10,7 +10,7 @@ import SpriteKit
 
 // Stores the kind of order
 enum OrderType {
-    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack
+    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack, ConfirmAttack
 }
 
 class Order {
@@ -33,7 +33,6 @@ class Order {
     
     // Conflict object
     var theConflict:Conflict?
-    //var theGroupConflict:GroupConflict?
     
     // Group receiving orders
     var orderGroup:Group?
@@ -78,7 +77,6 @@ class Order {
         
         corpsCommand = corpsOrder
         moveType = moveTypePassed
-        //if order == .NormalThreat || order == .FeintThreat {unDoable = false}
     }
     
     // Initiate order (Attach)
@@ -732,13 +730,12 @@ class Order {
             
             theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: false)
             theConflict!.defenseApproach.threatened = true
-            theConflict!.threatenGroup = baseGroup
+
+            for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = theConflict!}
             
-            if !baseGroup!.mayRepeatMove {
-                baseGroup!.SetGroupProperty("hasMoved", onOff: true)
-                if corpsCommand! {manager!.phantomCorpsCommand++}
-                else {manager!.phantomIndCommand++}
-            }
+            baseGroup!.SetGroupProperty("hasMoved", onOff: true)
+            if corpsCommand! {manager!.phantomCorpsCommand++; theConflict!.phantomCorpsOrder = true}
+            else {manager!.phantomIndCommand++; theConflict!.phantomCorpsOrder = false}
             
             // Assigned the units in the group
             if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: true)}
@@ -748,12 +745,12 @@ class Order {
             
             if playback || !(endLocation is Approach) {break}
             theConflict!.defenseApproach.threatened = false
+            for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = nil}
             
-            if !baseGroup!.mayRepeatMove {
-                baseGroup!.SetGroupProperty("hasMoved", onOff: false)
-                if corpsCommand! {manager!.phantomCorpsCommand--}
-                else {manager!.phantomIndCommand--}
-            }
+            baseGroup!.SetGroupProperty("hasMoved", onOff: false)
+            theConflict!.phantomCorpsOrder = nil
+            if corpsCommand! {manager!.phantomCorpsCommand--}
+            else {manager!.phantomIndCommand--}
             
             // Unassign the units in the group
             if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: false)}
@@ -1065,31 +1062,42 @@ class Order {
             
         case (true, .LeadingDefense), (true, .LeadingAttack), (true, .LeadingCounterAttack):
             
-        if playback {break}
-        
-        switch order! {
+            if playback {break}
             
-        case .LeadingDefense:
-            
-            theConflict!.defenseLeadingUnits = nil
-            theConflict!.defenseLeadingSet = false
-            
-        case .LeadingAttack:
-            
-            theConflict!.attackLeadingUnits = nil
-            theConflict!.attackLeadingSet = false
-            
-        case .LeadingCounterAttack:
-            
-            theConflict!.counterAttackLeadingUnits = nil
-            theConflict!.counterAttackLeadingSet = false
-            
-        default: break
+            switch order! {
+                
+            case .LeadingDefense:
+                
+                theConflict!.defenseLeadingUnits = nil
+                theConflict!.defenseLeadingSet = false
+                
+            case .LeadingAttack:
+                
+                theConflict!.attackLeadingUnits = nil
+                theConflict!.attackLeadingSet = false
+                
+            case .LeadingCounterAttack:
+                
+                theConflict!.counterAttackLeadingUnits = nil
+                theConflict!.counterAttackLeadingSet = false
+                
+            default: break
             
             }
+            theConflict!.defenseApproach.approachSelector!.selected = .Option
+        
+        // MARK: Confirm Attack
+            
+        case (false, .ConfirmAttack):
+            theConflict!.realAttack = true
+            theConflict!.defenseApproach.approachSelector!.selected = .On
+            
+        case (true, .ConfirmAttack):
+            theConflict!.realAttack = false
+            theConflict!.defenseApproach.approachSelector!.selected = .Option
             
         }
-        theConflict!.defenseApproach.approachSelector!.selected = .Off
+        
         return false
     }
     
@@ -1186,6 +1194,16 @@ class Order {
                     }
                 }
                 
+            } else if order == .ConfirmAttack {
+                
+                if let endApproach = theConflict!.defenseApproach {
+                    if let startReserve = theConflict!.defenseReserve {
+                        CGPathMoveToPoint(orderPath, nil, startReserve.position.x, startReserve.position.y)
+                        CGPathAddLineToPoint(orderPath, nil, endApproach.position.x, endApproach.position.y)
+                        orderArrow = SKShapeNode(path: orderPath)
+                    }
+                }
+                
             } else if order == .LeadingDefense {
                 
                 if let endApproach = theConflict!.defenseApproach {
@@ -1245,6 +1263,13 @@ class Order {
                 
                 strokeColor = SKColor.blueColor()
                 lineWidth = 4.0
+                glowHeight = 2.0
+                zPosition = 1
+                
+            } else if order == .ConfirmAttack {
+                
+                strokeColor = SKColor.purpleColor()
+                lineWidth = 7.0
                 glowHeight = 2.0
                 zPosition = 1
                 

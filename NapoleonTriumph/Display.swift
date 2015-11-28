@@ -44,6 +44,9 @@ var activeConflict:Conflict? {
     }
 }
 
+var revealedLocations:[SKNode] = []
+var hiddenLocations:[SKNode] = []
+
 // MARK: Global Enums
 
 enum ReviewState {case Front, Middle, Back}
@@ -238,3 +241,5 @@ func updateMoraleLabel() {
 func updatePlaybackState() {
     playbackStateLabel.text = "Playback: \(manager!.statePointTracker)"
 }
+
+

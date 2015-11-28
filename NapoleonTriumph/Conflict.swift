@@ -14,7 +14,7 @@ class Conflict {
     let defenseApproach:Approach!
     let attackApproach:Approach!
     
-    var threatenGroup:Group?
+    //var threatenGroup:Group?
     var defenseGroup:GroupSelection?
     var attackGroup:GroupSelection?
     var guardAttackGroup:GroupSelection?
@@ -30,6 +30,8 @@ class Conflict {
     var defenseLeadingSet:Bool = false
     var attackLeadingSet:Bool = false
     var counterAttackLeadingSet:Bool = false
+    var realAttack:Bool = false
+    var phantomCorpsOrder:Bool?
     
     var mayCounterAttack:Bool = true
     var conflictInitialWinner:Allegience
