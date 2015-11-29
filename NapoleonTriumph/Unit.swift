@@ -77,10 +77,10 @@ class Unit: SKSpriteNode {
         
         if manager!.phaseNew == .Setup || manager!.phaseNew == .Move || manager!.phaseNew == .Commit {
             
-            if hasMoved && selected == .Normal {
+            if (hasMoved || threatenedConflict != nil) && selected == .Normal {
                 selected = .NotSelectable
             }
-            else if !hasMoved && selected == .NotSelectable {
+            else if !(hasMoved || threatenedConflict != nil) && selected == .NotSelectable {
                 selected = .Normal
             } // Undo-case
         }

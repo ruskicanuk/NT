@@ -77,6 +77,10 @@ class Order {
         
         corpsCommand = corpsOrder
         moveType = moveTypePassed
+        
+        if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare {
+            theConflict = activeConflict
+        }
     }
     
     // Initiate order (Attach)
@@ -733,7 +737,7 @@ class Order {
 
             for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = theConflict!}
             
-            baseGroup!.SetGroupProperty("hasMoved", onOff: true)
+            //baseGroup!.SetGroupProperty("hasMoved", onOff: true)
             if corpsCommand! {manager!.phantomCorpsCommand++; theConflict!.phantomCorpsOrder = true}
             else {manager!.phantomIndCommand++; theConflict!.phantomCorpsOrder = false}
             
@@ -747,7 +751,7 @@ class Order {
             theConflict!.defenseApproach.threatened = false
             for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = nil}
             
-            baseGroup!.SetGroupProperty("hasMoved", onOff: false)
+            //baseGroup!.SetGroupProperty("hasMoved", onOff: false)
             theConflict!.phantomCorpsOrder = nil
             if corpsCommand! {manager!.phantomCorpsCommand--}
             else {manager!.phantomIndCommand--}

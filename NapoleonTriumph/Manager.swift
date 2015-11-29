@@ -341,12 +341,14 @@ class GameManager: NSObject, NSCoding {
         
         case .RetreatOrDefenseSelection:
             
+            endTurnButton.buttonState = .Off
             generalThreatsMade++
             SetupThreats()
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
             
         case .SelectDefenseLeading:
             
+            endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if eachLocaleConflict.retreatMode == true {
                     for eachConflict in eachLocaleConflict.conflicts {
@@ -368,6 +370,7 @@ class GameManager: NSObject, NSCoding {
             
         case .PreRetreatOrFeintMoveOrAttackDeclare:
             
+            endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 for eachConflict in eachLocaleConflict.conflicts {
                     eachConflict.defenseApproach.hidden = false

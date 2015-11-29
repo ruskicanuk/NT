@@ -368,6 +368,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 DeselectAndReset()
             }
             
+        case (.Setup, mapName), (.Move, mapName), (.Commit, mapName):
+            
+            DeselectAndReset()
+            guardButton.buttonState = .Off
+            
         case (.Setup, reserveName), (.Move, reserveName):
             
             if touchedNode != nil && !manager!.groupsSelected.isEmpty {MoveUI(touchedNode!)}
@@ -386,11 +391,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             } else {DeselectAndReset()}
             
-            guardButton.buttonState = .Off
-            
-        case (.Setup, mapName), (.Move, mapName), (.Commit, mapName):
-            
-            DeselectAndReset()
             guardButton.buttonState = .Off
             
         // MARK: Conflict Touch
@@ -418,11 +418,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 SetupActiveConflict()
                 
             // Case where the approach is selected for movement-purposes
-            } else if !manager!.groupsSelected.isEmpty {
-                MoveUI(touchedNode!)
-                undoOrAct = !CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: touchedNode as! Location)
-                if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-            }
+            } else if !manager!.groupsSelected.isEmpty {MoveUI(touchedNode!)}
 
         // MARK: Pre-retreat or Defend
         
@@ -501,6 +497,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
             if activeGroupConflict!.retreatMode {commitButton.buttonState = .Off}
             else {commitButton.buttonState = .Option}
             
+        case (.PreRetreatOrFeintMoveOrAttackDeclare, reserveName):
+            
+            if touchedNode != nil && activeConflict != nil && !manager!.groupsSelected.isEmpty {MoveUI(touchedNode!)}
+            
         // MARK: Select Leading Units
         
         case (.SelectDefenseLeading, unitName), (.SelectAttackLeading, unitName), (.SelectCounterGroup, unitName):
@@ -542,15 +542,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             //if manager!.phaseNew == .SelectAttackGroup {if ReturnMoveType() != .None {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}}
             
-        case (.PreRetreatOrFeintMoveOrAttackDeclare, reserveName):
-            
-            if touchedNode != nil && !manager!.groupsSelected.isEmpty {MoveUI(touchedNode!)}
-            undoOrAct = !CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: touchedNode as! Location)
-            if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-            
-            //AttackGroupUnitSelection(touchedUnit, realAttack:(manager!.phaseNew == .SelectAttackGroup), theTouchedThreat: activeConflict!)
-            AttackOrdersAvailable()
-            //manager!.RemoveArrows()
+
             
         /*
         case (.PreRetreatOrFeintMoveOrAttackDeclare, approachName):
@@ -960,7 +952,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     // Order to move (corps, detach or independent)
     func MoveUI(touchedNodeFromView:SKNode) {
         
-        let returnType = ReturnMoveType(); if returnType == .None {return Void()}
+        let returnType = ReturnMoveType()
+        if returnType == .None {return Void()}
         let theGroup = manager!.groupsSelected[0]
         
         // Sets up command order usage
@@ -990,38 +983,26 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 MoveOrdersAvailable()
             } else {DeselectAndReset()}
             
-            /*
-            
         case .PreRetreatOrFeintMoveOrAttackDeclare:
         
             if activeConflict == nil {break}
             let endLocation = newOrder.endLocation
-            //let startLocation = newOrder.startLocation[0]
+            let startLocation = newOrder.startLocation[0]
             
             // Select the moving command
             manager!.groupsSelected = [Group(theCommand: newOrder.moveCommands[0]![0], theUnits: manager!.groupsSelected[0].units)]
             
             // This sets up the repeat attack group for after moving to the retreat area
-            /*
             if endLocation is Reserve && startLocation is Reserve {
-                if (endLocation as! Reserve) == theThreat.defenseReserve && (startLocation as! Reserve) == theThreat.attackReserve {
+                if (endLocation as! Reserve) == activeConflict!.defenseReserve && (startLocation as! Reserve) == activeConflict!.attackReserve {
                     
-                    manager!.repeatAttackGroup = manager!.groupsSelected[0]
-                    manager!.repeatAttackMoveNumber = manager!.repeatAttackGroup!.command.moveNumber - 1
+                    manager!.groupsSelected[0].SetGroupProperty("repeatMove", onOff: true)
                 }
-                
             }
-            */
-            
-            // Deselect in the case of Corps Detach
-            if newOrder.moveType == .CorpsDetach {DeselectAndReset()}
-            
-            if CheckTurnEndViableInCommitMode(activeConflict!, endLocation:endLocation) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
             AttackOrdersAvailable()
-            undoOrAct = true
-
-            */
+            undoOrAct = !CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: endLocation)
+            if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
         default: break
         }
@@ -1693,7 +1674,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
                         else {ToggleGroups([eachGroup], makeSelection: .Normal)}
                     }
                 }
-                
             }
             manager!.groupsSelected = newGroups
             ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
@@ -1851,7 +1831,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         if !manager!.groupsSelected.isEmpty {
             
             let theGroup = manager!.groupsSelected[0]
-            attackNodes = AttackMoveLocationsAvailable(theGroup, selectors: (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState), feint: manager!.phaseNew != .PreRetreatOrFeintMoveOrAttackDeclare, theConflict: activeConflict!, undoOrAct:undoOrAct)
+            attackNodes = AttackMoveLocationsAvailable(theGroup, selectors: (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState), feint: !activeGroupConflict!.retreatMode, theConflict: activeConflict!, undoOrAct:undoOrAct)
          
             // Setup the swipe queue for the selected command
             for eachNode in attackNodes {RevealLocation(eachNode)}
@@ -2378,15 +2358,41 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     
                 case .Move:
                     
+                    // This mess determines whether the next two orders are the same command (re-select if so)
                     undoOrAct = manager!.orders.last!.ExecuteOrder(true)
+                    var selectUndoCommand = true
+                    var lastCommand:Command?
+                    var lastLastCommand:Command?
+                    if manager!.orders.count >= 2 {
+                        let theLastIndex:Int = manager!.orders.count-1
+                        if manager!.orders[theLastIndex].baseGroup != nil {
+                            lastCommand = manager!.orders[theLastIndex].baseGroup!.command
+                        } else {selectUndoCommand = false}
+                        if manager!.orders[theLastIndex-1].baseGroup != nil {
+                            lastLastCommand = manager!.orders[theLastIndex-1].baseGroup!.command
+                        } else {selectUndoCommand = false}
+                        if selectUndoCommand {
+                            if lastCommand != lastLastCommand {selectUndoCommand = false}
+                        }
+                    }
                     
-                    if undoOrAct || manager!.orders.last!.baseGroup!.command.moveNumber > 0 {
+                    // Sets the repeat property to false
+                    if  activeGroupConflict!.retreatMode {
+                        manager!.orders.last!.baseGroup!.SetGroupProperty("repeatMove", onOff: false)
+                    }
+                        
+                    if selectUndoCommand {
                         manager!.groupsSelected = [manager!.orders.last!.baseGroup!]
                         ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
-                        MoveOrdersAvailable()
+                        
+                        // Reset attack options, do not change conflict-state
+                        AttackOrdersAvailable()
+                        undoOrAct = !CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: manager!.orders.last!.startLocation[0])
+                        if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
                         
                     } else {
                         
+                        // Reset conflict-state
                         ResetActiveConflict()
                         activeConflict = manager!.orders.last!.theConflict!
                         SetupActiveConflict()

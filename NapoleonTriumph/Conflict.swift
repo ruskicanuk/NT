@@ -642,6 +642,8 @@ class Group: NSObject, NSCoding {
                 if onOff {eachUnit.assigned = "Ind"}
                 else {eachUnit.assigned = "None"}
                 
+            case "repeatMove": eachUnit.repeatMove = onOff
+                
             default: break
             }
         }
