@@ -119,6 +119,13 @@ class Command:SKNode {
         }
         return theUnits
     }
+    var cavPlusLdrUnits:[Unit] {
+        var theUnits:[Unit] = []
+        for eachUnit in activeUnits {
+            if eachUnit.unitType == .Cav || eachUnit.unitType == .Ldr {theUnits += [eachUnit]}
+        }
+        return theUnits
+    }
     
     // Where the command is currently
     var currentLocation:Location? {

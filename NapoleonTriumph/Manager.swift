@@ -360,7 +360,6 @@ class GameManager: NSObject, NSCoding {
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
                     }
                 }
-                
             }
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
 
@@ -374,7 +373,13 @@ class GameManager: NSObject, NSCoding {
             for eachLocaleConflict in localeThreats {
                 for eachConflict in eachLocaleConflict.conflicts {
                     eachConflict.defenseApproach.hidden = false
-                    eachConflict.defenseApproach.approachSelector!.selected = .Option
+                    
+                    if !eachLocaleConflict.retreatMode && eachConflict.guardAttack {
+                        eachConflict.defenseApproach.approachSelector!.selected = .On
+                        eachConflict.realAttack = true
+                    } else {
+                        eachConflict.defenseApproach.approachSelector!.selected = .Option
+                    }
                 }
             }
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)

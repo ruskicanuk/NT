@@ -273,8 +273,14 @@ class Order {
                     if startLocaleReserve != nil && startLocaleReserve!.name == "201" {
                         each.turnEnteredMap = manager!.turn
                     }
-                    //each.freeMove = baseGroup!.command.freeMove
-                    //each.turnEnteredMap = baseGroup!.command.turnEnteredMap
+                    
+                    if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation {
+                        reverseCode = 2
+                        for eachUnit in baseGroup!.units {
+                            if !eachUnit.repeatMove {reverseCode = 1; break}
+                        }
+                        if reverseCode == 1 {baseGroup!.SetGroupProperty("repeatMove", onOff: true)}
+                    }
                     
                     // Movement from or to an approach
                     if (startLocation[0].locationType == .Approach || endLocation.locationType == .Approach) == true {each.finishedMove = true} 
@@ -330,6 +336,10 @@ class Order {
         case (true, .Move):
         
             let moveToLocation = startLocation[0]
+            
+            if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && reverseCode == 1 {
+                baseGroup!.SetGroupProperty("repeatMove", onOff: false)
+            }
 
             // Add the detached units back to the base command
             if !newCommands.isEmpty {
@@ -475,7 +485,7 @@ class Order {
                     reverseCode = 2
                     theConflict!.parentGroupConflict!.mustRetreat = true
                 }
-
+                
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
                 startLocaleReserve!.UpdateReserveState()
@@ -749,7 +759,7 @@ class Order {
             
             if playback || !(endLocation is Approach) {break}
             theConflict!.defenseApproach.threatened = false
-            for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = nil}
+            for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = nil; eachUnit.selected = .Normal}
             
             //baseGroup!.SetGroupProperty("hasMoved", onOff: false)
             theConflict!.phantomCorpsOrder = nil

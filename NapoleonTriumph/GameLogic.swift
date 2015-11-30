@@ -671,42 +671,37 @@ func SelectableGroupsForAttack (byRd:Bool) -> [Group]  {
         let selectableUnits:[Unit]
         
         if byRd {
-            selectableUnits = eachCommand.cavUnits.filter{$0.threatenedConflict == nil || $0.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach}
+            selectableUnits = eachCommand.cavPlusLdrUnits.filter{$0.threatenedConflict == nil || $0.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach}
         } else {
-            selectableUnits = eachCommand.nonLeaderUnits.filter{$0.threatenedConflict == nil || $0.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach}
+            selectableUnits = eachCommand.activeUnits.filter{$0.threatenedConflict == nil || $0.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach}
         }
-        let movableSelectableUnits = selectableUnits.filter{!$0.hasMoved || $0.repeatMove}
+        var movableSelectableUnits = selectableUnits.filter{$0.hasMoved == false || $0.repeatMove}
             
         if movableSelectableUnits.isEmpty {return []}
-        //if selectableCavUnits.count > 0 {
-        //    if eachCommand.hasLeader && corpsMovesAvailable && !eachCommand.finishedMove {theCommandGroups += [Group(theCommand: eachCommand, theUnits: selectableCavUnits + [eachCommand.theLeader!])]}
-            //else {theCommandGroups += [Group(theCommand: eachCommand, theUnits: selectableCavUnits)]}
-        //}
+
         // Leader case
         if corpsMovesAvailable && eachCommand.hasLeader && !eachCommand.finishedMove {
             //let availableCavUnits = eachCommand.cavUnits.filter{$0.hasMoved == false}
-            theCommandGroups += [Group(theCommand: eachCommand, theUnits: movableSelectableUnits + [eachCommand.theLeader!])]
+            theCommandGroups += [Group(theCommand: eachCommand, theUnits: movableSelectableUnits)]
         }
         // Ind case (highlight the cav) - algo determines if there are remaining units for any hanging leader
         else if independentMovesAvailable {
-            //let availableCavUnits = eachCommand.cavUnits.filter{$0.hasMoved == false}
-            var unAssignedUnits = 0
+
+            movableSelectableUnits = selectableUnits.filter{$0.unitType != .Ldr}
+            var unAssignedUnits:Bool = false
             if eachCommand.hasLeader {
-                var unAssignedUnits = 0
                 for eachUnit in eachCommand.nonLeaderUnits {
-                    if eachUnit.threatenedConflict != nil {
-                        unAssignedUnits++
+                    if eachUnit.threatenedConflict == nil {
+                        unAssignedUnits = true
                     } else {
-                        if eachUnit.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach && activeConflict!.phantomCorpsOrder! {
-                            unAssignedUnits = 2
-                        } else if eachUnit.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach {
-                            unAssignedUnits++
+                        if activeConflict!.phantomCorpsOrder! || eachUnit.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach {
+                            unAssignedUnits = true
                         }
                     }
                 }
-            } else {unAssignedUnits = 2}
+            } else {unAssignedUnits = true}
             
-            if unAssignedUnits >= 2 {
+            if unAssignedUnits {
                 theCommandGroups += [Group(theCommand: eachCommand, theUnits: movableSelectableUnits)]
             }
         }
@@ -1035,6 +1030,42 @@ func CheckIfSatisfiedFeintOrMoveAfterPreRretreat(retreatMode:Bool, theLocation:L
     else {activeConflict!.defenseApproach.approachSelector!.selected = .Option}
     
     return satisfied
+}
+
+// Function takes an array of units and returns and array of units that should be selected to adjust for leader-abandonment rules
+func AdjustSelectionForLeaderRulesActiveThreat(theUnits:[Unit]) -> [Unit] {
+    
+    // Safety check
+    if activeConflict == nil {return []}
+    if theUnits.isEmpty {return []}
+    let theCommand = theUnits[0].parentCommand!
+    if !theCommand.hasLeader {return theUnits}
+    
+    let theOtherUnits = Array(Set(theCommand.activeUnits).subtract(Set(theUnits)))
+    var leaderSelected:Bool = false
+    var theLeader:Unit?
+    for eachUnit in theUnits {if eachUnit.unitType == .Ldr {theLeader = eachUnit; leaderSelected = true; break}}
+    if !leaderSelected {
+        for eachUnit in theOtherUnits {if eachUnit.unitType == .Ldr {theLeader = eachUnit; leaderSelected = false; break}}
+    }
+    
+    if leaderSelected {
+        if theUnits.count == 1 {theLeader!.selected = .Normal; return []}
+    } else {
+        var alreadyAssignedUnits = 0 // Units which are unassigned (could be assigned to a leader for instance)
+        var leaderAssignedElsewhere = false
+        for eachUnit in theOtherUnits {
+            if eachUnit.unitType != .Ldr && eachUnit.selected == .NotSelectable && eachUnit.threatenedConflict != nil && eachUnit.threatenedConflict!.defenseApproach != activeConflict!.defenseApproach {
+                alreadyAssignedUnits++
+            }
+            else if eachUnit.unitType == .Ldr && eachUnit.selected == .NotSelectable && eachUnit.threatenedConflict != nil && eachUnit.threatenedConflict!.defenseApproach != activeConflict!.defenseApproach {
+                leaderAssignedElsewhere = true
+            }
+        }
+        if leaderAssignedElsewhere {return theUnits}
+        else if theOtherUnits.count - alreadyAssignedUnits <= 1 {theLeader!.selected = .Selected; return theUnits + [theLeader!]}
+    }
+    return theUnits
 }
 
 // MARK: Defense Logic
