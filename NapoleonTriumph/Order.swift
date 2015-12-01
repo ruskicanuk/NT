@@ -31,6 +31,10 @@ class Order {
     var moveCommands:[Int:[Command]] = [:]
     var surrenderDict:[Unit:Int] = [:] // Used for the surrender order
     
+    // Used to store units / approaches when released for a given corpsGroupConflict
+    var unitStorage:[Unit] = []
+    var approachStorage:[Approach] = []
+    
     // Conflict object
     var theConflict:Conflict?
     
@@ -187,6 +191,7 @@ class Order {
         
         // Adds or removes the order arrow as applicable
         OrderArrow(reverse)
+
         
         switch (reverse, order!) {
         
@@ -274,12 +279,21 @@ class Order {
                         each.turnEnteredMap = manager!.turn
                     }
                     
-                    if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation {
-                        reverseCode = 2
-                        for eachUnit in baseGroup!.units {
-                            if !eachUnit.repeatMove {reverseCode = 1; break}
+                    // When the attacker moves into the retreat-area
+                    if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && (moveType == .IndMove || moveType == .CorpsMove) {
+
+                        let theMoveCommand = moveCommandArray[0]
+                        reverseCode = theMoveCommand.repeatMoveNumber
+                        theMoveCommand.repeatMoveNumber = theMoveCommand.moveNumber
+                        
+                        // Releasing committed units
+                        for eachConflict in activeGroupConflict!.conflicts {
+                            for eachUnit in theConflict!.threateningUnits {eachUnit.threatenedConflict = nil}
+                            eachConflict.storedThreateningUnits = eachConflict.threateningUnits
+                            theConflict!.threateningUnits = []
+                            theConflict!.defenseApproach.approachSelector!.selected = .Off
+                            theConflict!.defenseApproach.hidden = true
                         }
-                        if reverseCode == 1 {baseGroup!.SetGroupProperty("repeatMove", onOff: true)}
                     }
                     
                     // Movement from or to an approach
@@ -337,8 +351,19 @@ class Order {
         
             let moveToLocation = startLocation[0]
             
-            if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && reverseCode == 1 {
-                baseGroup!.SetGroupProperty("repeatMove", onOff: false)
+            if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && (moveType == .IndMove || moveType == .CorpsMove) {
+                
+                let theMoveCommand = moveCommands[0]![0]
+                theMoveCommand.repeatMoveNumber = reverseCode
+                
+                // re-committed released units
+                for eachConflict in activeGroupConflict!.conflicts {
+                    for eachUnit in theConflict!.storedThreateningUnits {eachUnit.threatenedConflict = eachConflict}
+                    eachConflict.threateningUnits = eachConflict.storedThreateningUnits
+                    theConflict!.storedThreateningUnits = []
+                    theConflict!.defenseApproach.approachSelector!.selected = .Option
+                    theConflict!.defenseApproach.hidden = false
+                }
             }
 
             // Add the detached units back to the base command
@@ -745,7 +770,10 @@ class Order {
             theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: false)
             theConflict!.defenseApproach.threatened = true
 
-            for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = theConflict!}
+            for eachUnit in baseGroup!.units {
+                eachUnit.threatenedConflict = theConflict!
+                theConflict!.threateningUnits += [eachUnit]
+            }
             
             //baseGroup!.SetGroupProperty("hasMoved", onOff: true)
             if corpsCommand! {manager!.phantomCorpsCommand++; theConflict!.phantomCorpsOrder = true}
@@ -759,7 +787,11 @@ class Order {
             
             if playback || !(endLocation is Approach) {break}
             theConflict!.defenseApproach.threatened = false
-            for eachUnit in baseGroup!.units {eachUnit.threatenedConflict = nil; eachUnit.selected = .Normal}
+            for eachUnit in baseGroup!.units {
+                eachUnit.threatenedConflict = nil
+                eachUnit.selected = .Normal
+                theConflict!.threateningUnits.removeObject(eachUnit)
+            }
             
             //baseGroup!.SetGroupProperty("hasMoved", onOff: false)
             theConflict!.phantomCorpsOrder = nil

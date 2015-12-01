@@ -38,6 +38,8 @@ class Conflict {
     var conflictFinalWinner:Allegience
     var initialResult = 0
     var finalResult = 0
+    var threateningUnits:[Unit] = []
+    var storedThreateningUnits:[Unit] = []
     
     var availableCounterAttackers:GroupSelection? {
         
@@ -601,7 +603,7 @@ class Group: NSObject, NSCoding {
     init(theCommand:Command, theUnits:[Unit]) {
         command = theCommand
         units = theUnits
-        var availableNonLdrUnits = 0
+        //var availableNonLdrUnits = 0
         
         for eachUnit in theUnits {
             
@@ -617,7 +619,7 @@ class Group: NSObject, NSCoding {
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
             if eachUnit.fixed {someUnitsFixed = true}
             if eachUnit.unitType == .Grd {guardInGroup = true}
-            if !eachUnit.repeatMove {mayRepeatMove = false}
+            //if !eachUnit.repeatMove {mayRepeatMove = false}
         }
         
         super.init()
@@ -641,8 +643,6 @@ class Group: NSObject, NSCoding {
             case "assignedInd":
                 if onOff {eachUnit.assigned = "Ind"}
                 else {eachUnit.assigned = "None"}
-                
-            case "repeatMove": eachUnit.repeatMove = onOff
                 
             default: break
             }

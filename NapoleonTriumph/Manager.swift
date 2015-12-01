@@ -331,7 +331,6 @@ class GameManager: NSObject, NSCoding {
                 }
                 CheckForOneBlockCorps(eachCommand)
             }
-            
             RemoveNonMovementArrows()
             ResetManagerState()
         
@@ -358,6 +357,7 @@ class GameManager: NSObject, NSCoding {
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
+                        eachConflict.mustFeint = AdjacentThreatPotentialCheck(eachConflict)
                     }
                 }
             }
@@ -516,6 +516,21 @@ class GameManager: NSObject, NSCoding {
     }
 
     // MARK: Support Functions
+    
+    func PhantomOrderCheck(existingIsCorpsOrder:Bool, addExistingOrderToPool:Bool = true) -> (Bool, Bool) {
+        var corpsPossible = false
+        var indPossible = false
+        var adjustment = 0
+        if addExistingOrderToPool {adjustment = 1}
+        if existingIsCorpsOrder {
+            corpsPossible = corpsCommandsAvail - phantomCorpsCommand + adjustment > 0
+            indPossible = indCommandsAvail - phantomIndCommand > 0
+        } else {
+            corpsPossible = corpsCommandsAvail - phantomCorpsCommand > 0
+            indPossible = indCommandsAvail - phantomIndCommand + adjustment > 0
+        }
+        return (corpsPossible, indPossible)
+    }
     
     func turnID() -> Int {
         

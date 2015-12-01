@@ -187,9 +187,9 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         // Must feint by road options
         if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: false)}
         
-    case 4:
-        // Must feint by road options
-        if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: true)}
+    case 4: break
+        // Disallow rd attacks
+        //if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: true)}
         
     default: break
         
@@ -620,22 +620,19 @@ func CheckEndTurnStatus() -> Bool {
     return endTurnViable
 }
 
-/*
-func AdjacentThreatPotentialCheck (touchedNodePassed:SKNode, commandOrdersAvailable:Bool, independentOrdersAvailable:Bool) -> Bool {
-    guard let approachAttacked = touchedNodePassed as? Approach else {return false}
+func AdjacentThreatPotentialCheck (theConflict:Conflict) -> Bool {
+    let approachAttacked = theConflict.defenseApproach
+    //let (corpsMovesAvailable, independentMovesAvailable) = manager!.PhantomOrderCheck(activeConflict!.phantomCorpsOrder!, addExistingOrderToPool: true)
     
-    for eachCommand in approachAttacked.oppApproach!.occupants {
-        if eachCommand.hasLeader && commandOrdersAvailable {return true}
-        if !eachCommand.hasLeader && independentOrdersAvailable {return true}
+    for eachCommand in approachAttacked.oppApproach!.occupants + approachAttacked.oppApproach!.ownReserve!.occupants {
+        for eachUnit in eachCommand.activeUnits {
+            if eachUnit.threatenedConflict != nil && eachUnit.threatenedConflict!.defenseApproach == theConflict.defenseApproach {
+                return true
+            }
+        }
     }
-    for eachCommand in approachAttacked.oppApproach!.ownReserve!.occupants {
-        if eachCommand.hasLeader && commandOrdersAvailable {return true}
-        if !eachCommand.hasLeader && independentOrdersAvailable {return true}
-    }
-    
     return false
 }
-*/
 
 // MARK: Move After Threat Logic
 
@@ -645,18 +642,8 @@ func SelectableGroupsForAttack (byRd:Bool) -> [Group]  {
     if activeConflict == nil {return []}
     
     var theCommandGroups:[Group] = []
-    var corpsMoves:Int
-    var indMoves:Int
     
-    if activeConflict!.phantomCorpsOrder! {
-        corpsMoves = manager!.corpsCommandsAvail - manager!.phantomCorpsCommand + 1
-        indMoves = manager!.indCommandsAvail - manager!.phantomIndCommand
-    } else {
-        corpsMoves = manager!.corpsCommandsAvail - manager!.phantomCorpsCommand
-        indMoves = manager!.indCommandsAvail - manager!.phantomIndCommand + 1
-    }
-    let corpsMovesAvailable = corpsMoves > 0
-    let independentMovesAvailable = indMoves > 0
+    let (corpsMovesAvailable, independentMovesAvailable) = manager!.PhantomOrderCheck(activeConflict!.phantomCorpsOrder!, addExistingOrderToPool: true)
     
     let potentialAttackers:[Command]
     if byRd {
@@ -675,7 +662,7 @@ func SelectableGroupsForAttack (byRd:Bool) -> [Group]  {
         } else {
             selectableUnits = eachCommand.activeUnits.filter{$0.threatenedConflict == nil || $0.threatenedConflict!.defenseApproach == activeConflict!.defenseApproach}
         }
-        var movableSelectableUnits = selectableUnits.filter{$0.hasMoved == false || $0.repeatMove}
+        var movableSelectableUnits = selectableUnits.filter{$0.hasMoved == false || $0.parentCommand!.repeatMoveNumber > 0}
             
         if movableSelectableUnits.isEmpty {return []}
 

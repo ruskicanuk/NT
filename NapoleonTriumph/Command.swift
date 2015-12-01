@@ -147,7 +147,7 @@ class Command:SKNode {
     
     // Stores the locations moved through (for rd movement)
     var rdMoves:[Location]
-
+    var repeatMoveNumber:Int = 0
     var moveNumber:Int = 0 {
         
         didSet {

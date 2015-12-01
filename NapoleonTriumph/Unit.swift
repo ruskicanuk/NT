@@ -33,7 +33,8 @@ class Unit: SKSpriteNode {
             updateSelectedStatus()
         }
     }
-    var repeatMove:Bool = false // set to true if moved into pre-retreat area
+    //var repeatMove:Bool = false // set to true if moved into pre-retreat area
+    //var repeatMoveNumber:Int = 0
     var startedAsGrd:Bool = false
     
     var alreadyDefended:Bool = false
