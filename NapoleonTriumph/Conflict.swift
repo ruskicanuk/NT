@@ -108,6 +108,7 @@ class Conflict {
         defenseSide = manager!.phasingPlayer.Other()
         conflictInitialWinner = .Neutral
         conflictFinalWinner = .Neutral
+        defenseApproach.threatened = true
         if defenseApproach.wideApproach {wideBattle = true}
         
         for eachCommand in manager!.gameCommands[defenseSide.Other()!]! {
@@ -564,7 +565,8 @@ class Group: NSObject, NSCoding {
     var guardInGroup:Bool = false
     var cavCount:Int = 0
     var nonLdrUnitCount:Int = 0
-    var mayRepeatMove:Bool = true
+    //var mayRepeatMove:Bool = true
+    var groupIsTwoPlusCorps:Bool = false
     
     func encodeWithCoder(aCoder: NSCoder) {
         
@@ -625,6 +627,7 @@ class Group: NSObject, NSCoding {
         super.init()
         
         if nonLdrUnitCount == command.unitCount {fullCommand = true}
+        if nonLdrUnitCount >= 2 {groupIsTwoPlusCorps = true}
     }
     
     func SetGroupProperty(category:String, onOff:Bool) {
@@ -633,14 +636,21 @@ class Group: NSObject, NSCoding {
             switch category {
                 
             case "hasMoved":
+                
                 if onOff {eachUnit.hasMoved = true}
                 else {eachUnit.hasMoved = false}
                 
             case "assignedCorps":
-                if onOff {eachUnit.assigned = "Corps"}
-                else {eachUnit.assigned = "None"}
+                
+                if onOff {
+                    eachUnit.assigned = "Corps"
+                }
+                else {
+                    eachUnit.assigned = "None"
+                }
                 
             case "assignedInd":
+                
                 if onOff {eachUnit.assigned = "Ind"}
                 else {eachUnit.assigned = "None"}
                 

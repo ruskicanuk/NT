@@ -422,7 +422,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 SetupActiveConflict()
                 
             // Case where the approach is selected for movement-purposes
-            } else if activeConflict!.defenseApproach.approachSelector!.selected == .Off && !manager!.groupsSelected.isEmpty {MoveUI(touchedNode!)}
+            } else if touchedApproach.approachSelector!.selected == .Off && !manager!.groupsSelected.isEmpty {MoveUI(touchedNode!)}
 
         // MARK: Pre-retreat or Defend
         
@@ -1006,14 +1006,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
         case .PreRetreatOrFeintMoveOrAttackDeclare:
         
             if activeConflict == nil {break}
-            let endLocation = newOrder.endLocation
+            //let endLocation = newOrder.endLocation
             //let startLocation = newOrder.startLocation[0]
             
             // Select the moving command
             manager!.groupsSelected = [Group(theCommand: newOrder.moveCommands[0]![0], theUnits: manager!.groupsSelected[0].units)]
             
             AttackOrdersAvailable()
-            CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: endLocation)
+            //CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: endLocation)
             undoOrAct = true
             if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
@@ -2413,7 +2413,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                         ResetSelectors()
                         HideRevealedLocations()
                         AttackOrdersAvailable()
-                        CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: manager!.orders.last!.startLocation[0])
+                        //CheckIfSatisfiedFeintOrMoveAfterPreRretreat(activeGroupConflict!.retreatMode, theLocation: manager!.orders.last!.startLocation[0])
                         undoOrAct = true
                         if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
                         

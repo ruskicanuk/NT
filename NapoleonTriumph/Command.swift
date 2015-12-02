@@ -394,8 +394,8 @@ class Command:SKNode {
         
         if !hasLeader {return false}
         var selectables = 0
-        for eachUnit in activeUnits {
-            if eachUnit.selected == .Normal {selectables++}
+        for eachUnit in nonLeaderUnits {
+            if eachUnit.selected == .Normal || eachUnit.selected == .Selected {selectables++}
         }
         return selectables == 1
     }

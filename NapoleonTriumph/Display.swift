@@ -153,6 +153,8 @@ var turnLabel = UILabel()
 var alliedMoraleLabel = UILabel()
 var frenchMoraleLabel = UILabel()
 var playbackStateLabel = UILabel()
+var phatomOrderCorps = UILabel()
+var phamtonOrderInd = UILabel()
 
 var undoButton:UIStateButton!
 var endTurnButton:UIStateButton!
@@ -209,6 +211,16 @@ func setupCommandDashboard() {
     playbackStateLabel.textColor = SKColor.blackColor()
     playbackStateLabel.frame = CGRect(x: 5, y: 110, width: 200, height: 15)
     labelMenu.addSubview(playbackStateLabel)
+    
+    phatomOrderCorps.font = UIFont(name: phatomOrderCorps.font.fontName, size: 12)
+    phatomOrderCorps.textColor = SKColor.blackColor()
+    phatomOrderCorps.frame = CGRect(x: 5, y: 125, width: 200, height: 15)
+    labelMenu.addSubview(phatomOrderCorps)
+    
+    phamtonOrderInd.font = UIFont(name: phamtonOrderInd.font.fontName, size: 12)
+    phamtonOrderInd.textColor = SKColor.blackColor()
+    phamtonOrderInd.frame = CGRect(x: 5, y: 140, width: 200, height: 15)
+    labelMenu.addSubview(phamtonOrderInd)
 
 }
 
@@ -240,6 +252,11 @@ func updateMoraleLabel() {
 
 func updatePlaybackState() {
     playbackStateLabel.text = "Playback: \(manager!.statePointTracker)"
+}
+
+func updatePhantomLabelState() {
+    phatomOrderCorps.text = "Corp Phantoms: \(manager!.phantomCorpsCommand)"
+    phamtonOrderInd.text = "Ind Phantoms: \(manager!.phantomIndCommand)"
 }
 
 

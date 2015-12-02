@@ -169,11 +169,25 @@ class Order {
         // Determine whether to increment / decrement orders available ## replace below with simple button move reset (one for each command)
         if (corpsCommand != nil && order != .Threat) && !playback && !(baseGroup!.command.freeMove && baseGroup!.command.turnEnteredMap == manager!.turn && corpsCommand!) {
             if reverse {
-                if corpsCommand! {manager?.corpsCommandsAvail++}
-                else {manager?.indCommandsAvail++}
+                if corpsCommand! {
+                    manager!.corpsCommandsAvail++
+                }
+                else {
+                    manager!.indCommandsAvail++
+                }
+                if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare {
+                    if theConflict!.phantomCorpsOrder! {manager!.phantomCorpsCommand++} else {manager!.phantomIndCommand++}
+                }
             } else {
-                if corpsCommand! {manager?.corpsCommandsAvail--}
-                else {manager?.indCommandsAvail--}
+                if corpsCommand! {
+                    manager!.corpsCommandsAvail--
+                }
+                else {
+                    manager!.indCommandsAvail--
+                }
+                if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare {
+                    if theConflict!.phantomCorpsOrder! {manager!.phantomCorpsCommand--} else {manager!.phantomIndCommand--}
+                }
             }
         }
         
@@ -279,21 +293,34 @@ class Order {
                         each.turnEnteredMap = manager!.turn
                     }
                     
-                    // When the attacker moves into the retreat-area
-                    if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && (moveType == .IndMove || moveType == .CorpsMove) {
+                    // When the attacker moves into the retreat-area or feint-area
+                    if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation {
 
                         let theMoveCommand = moveCommandArray[0]
-                        reverseCode = theMoveCommand.repeatMoveNumber
-                        theMoveCommand.repeatMoveNumber = theMoveCommand.moveNumber
                         
+                        if (moveType == .IndMove || moveType == .CorpsMove) {
+                            reverseCode = theMoveCommand.repeatMoveNumber
+                            theMoveCommand.repeatMoveNumber = theMoveCommand.moveNumber
+                        } else {
+                            reverseCode = 0
+                        }
+                            
                         // Releasing committed units
                         for eachConflict in activeGroupConflict!.conflicts {
-                            for eachUnit in theConflict!.threateningUnits {eachUnit.threatenedConflict = nil}
+                            for eachUnit in eachConflict.threateningUnits {eachUnit.threatenedConflict = nil}
                             eachConflict.storedThreateningUnits = eachConflict.threateningUnits
-                            theConflict!.threateningUnits = []
-                            theConflict!.defenseApproach.approachSelector!.selected = .Off
-                            theConflict!.defenseApproach.hidden = true
+                            eachConflict.threateningUnits = []
+                            eachConflict.defenseApproach.approachSelector!.selected = .On
+                            eachConflict.defenseApproach.hidden = true
                         }
+                    } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
+                        
+                        for eachUnit in theConflict!.threateningUnits {eachUnit.threatenedConflict = nil}
+                        theConflict!.storedThreateningUnits = theConflict!.threateningUnits
+                        theConflict!.threateningUnits = []
+                        theConflict!.defenseApproach.approachSelector!.selected = .On
+                        theConflict!.defenseApproach.hidden = true
+                        reverseCode = 5
                     }
                     
                     // Movement from or to an approach
@@ -358,12 +385,19 @@ class Order {
                 
                 // re-committed released units
                 for eachConflict in activeGroupConflict!.conflicts {
-                    for eachUnit in theConflict!.storedThreateningUnits {eachUnit.threatenedConflict = eachConflict}
+                    for eachUnit in eachConflict.storedThreateningUnits {eachUnit.threatenedConflict = eachConflict}
                     eachConflict.threateningUnits = eachConflict.storedThreateningUnits
-                    theConflict!.storedThreateningUnits = []
-                    theConflict!.defenseApproach.approachSelector!.selected = .Option
-                    theConflict!.defenseApproach.hidden = false
+                    eachConflict.storedThreateningUnits = []
+                    eachConflict.defenseApproach.approachSelector!.selected = .Option
+                    eachConflict.defenseApproach.hidden = false
                 }
+            } else if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) && reverseCode == 5 {
+                
+                for eachUnit in theConflict!.storedThreateningUnits {eachUnit.threatenedConflict = theConflict!}
+                theConflict!.threateningUnits = theConflict!.storedThreateningUnits
+                theConflict!.storedThreateningUnits = []
+                theConflict!.defenseApproach.approachSelector!.selected = .Option
+                theConflict!.defenseApproach.hidden = false
             }
 
             // Add the detached units back to the base command
@@ -728,7 +762,6 @@ class Order {
             
             }
             
-        // MARK: Must Feint
         /*
         case (false, .FeintThreat):
             
@@ -768,12 +801,20 @@ class Order {
             let attackReserve = attackApproach.ownReserve!
             
             theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: false)
-            theConflict!.defenseApproach.threatened = true
 
-            for eachUnit in baseGroup!.units {
-                eachUnit.threatenedConflict = theConflict!
-                theConflict!.threateningUnits += [eachUnit]
+            var theUnits:[Unit] = []
+            if corpsCommand! && moveType == .CorpsDetach {
+                theUnits = baseGroup!.units + [baseGroup!.command.theLeader!]
+                baseGroup!.command.theLeader!.assigned = "Corps"
+            } else {
+                theUnits = baseGroup!.units
             }
+            
+            for eachUnit in theUnits {
+                eachUnit.threatenedConflict = theConflict!
+                eachUnit.selected = .NotSelectable
+            }
+            theConflict!.threateningUnits = theUnits
             
             //baseGroup!.SetGroupProperty("hasMoved", onOff: true)
             if corpsCommand! {manager!.phantomCorpsCommand++; theConflict!.phantomCorpsOrder = true}
@@ -787,11 +828,20 @@ class Order {
             
             if playback || !(endLocation is Approach) {break}
             theConflict!.defenseApproach.threatened = false
-            for eachUnit in baseGroup!.units {
+            
+            var theUnits:[Unit] = []
+            if corpsCommand! && moveType == .CorpsDetach {
+                theUnits = baseGroup!.units + [baseGroup!.command.theLeader!]
+                baseGroup!.command.theLeader!.assigned = "None"
+            } else {
+                theUnits = baseGroup!.units
+            }
+            
+            for eachUnit in theUnits {
                 eachUnit.threatenedConflict = nil
                 eachUnit.selected = .Normal
-                theConflict!.threateningUnits.removeObject(eachUnit)
             }
+            theConflict!.threateningUnits = []
             
             //baseGroup!.SetGroupProperty("hasMoved", onOff: false)
             theConflict!.phantomCorpsOrder = nil

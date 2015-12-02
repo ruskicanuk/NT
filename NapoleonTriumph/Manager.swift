@@ -282,8 +282,16 @@ class GameManager: NSObject, NSCoding {
     var indCommandsAvail:Int = 0 {
         didSet {updateIndLabel()}
     }
-    var phantomCorpsCommand:Int = 0
-    var phantomIndCommand:Int = 0
+    var phantomCorpsCommand:Int = 0 {
+        didSet {
+            updatePhantomLabelState()
+        }
+    }
+    var phantomIndCommand:Int = 0 {
+        didSet {
+            updatePhantomLabelState()
+        }
+    }
     
     // Morale
     var maxMorale:[Allegience:Int!] = [ .Austrian: 27, .French: 23]
@@ -517,17 +525,17 @@ class GameManager: NSObject, NSCoding {
 
     // MARK: Support Functions
     
-    func PhantomOrderCheck(existingIsCorpsOrder:Bool, addExistingOrderToPool:Bool = true) -> (Bool, Bool) {
-        var corpsPossible = false
-        var indPossible = false
+    func PhantomOrderCheck(existingIsCorpsOrder:Bool, addExistingOrderToPool:Bool = true) -> (Int, Int) {
+        var corpsPossible = 0
+        var indPossible = 0
         var adjustment = 0
         if addExistingOrderToPool {adjustment = 1}
         if existingIsCorpsOrder {
-            corpsPossible = corpsCommandsAvail - phantomCorpsCommand + adjustment > 0
-            indPossible = indCommandsAvail - phantomIndCommand > 0
+            corpsPossible = corpsCommandsAvail - phantomCorpsCommand + adjustment
+            indPossible = indCommandsAvail - phantomIndCommand
         } else {
-            corpsPossible = corpsCommandsAvail - phantomCorpsCommand > 0
-            indPossible = indCommandsAvail - phantomIndCommand + adjustment > 0
+            corpsPossible = corpsCommandsAvail - phantomCorpsCommand
+            indPossible = indCommandsAvail - phantomIndCommand + adjustment
         }
         return (corpsPossible, indPossible)
     }
