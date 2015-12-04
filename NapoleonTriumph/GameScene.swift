@@ -178,11 +178,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             if let possibleTouch = (each as? Command) {if manager!.actingPlayer.Opposite(possibleTouch.commandSide)! {continue}} // Skip touches on non-acting player
             
-            if each is Unit && touchedCount == 2 {
+            /* 
+if each is Unit && touchedCount == 2 {
                 
                 touchedNode = each
                 
-            } else if each is SKShapeNode {
+            } */
+            if each is SKShapeNode {
                 
             } else if each.zPosition > highestMapZ {
                 
@@ -304,9 +306,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let mapLocation = touch.locationInNode(NTMap)
 
         let touchedCount:Int = touch.tapCount
+
         let touchedNodesMap = self.nodesAtPoint(mapLocation)
         let touchedNode:SKNode? = theTouchedNode(touchedNodesMap, mapLocation:mapLocation, touchedCount:touchedCount)
-        
+
         // UndoOrAct allows only approach, reserve touching
         
         if touchedNode == NTMap {
@@ -332,7 +335,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
             DeselectAndReset()
             print("NothingTouch", terminator: "\n")
         }
-        
         // Touch Processing
         switch (manager!.phaseNew, selectionCase) {
         
@@ -350,10 +352,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             // Safety Check
             guard let touchedUnit = touchedNode as? Unit else {break}
-            if touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.selected == .Off || touchedUnit.selected == .NotSelectable {break}
             
+            if touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.selected == .Off || touchedUnit.selected == .NotSelectable {break}
             // Add code eventually to shade out those who already moved (make them non selectable)
-            if MoveGroupUnitSelection(touchedUnit) {MoveOrdersAvailable()}
+            if MoveGroupUnitSelection(touchedUnit, touchedCount: touchedCount) {MoveOrdersAvailable()}
                 
             // Attach scenario
             else if manager!.phaseNew == .Move {
@@ -434,7 +436,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             if touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off || touchedUnit.unitSide != manager!.actingPlayer {break}
             if !activeGroupConflict!.retreatMode && activeConflict!.approachDefended {break}
             
-            DefenseGroupUnitSelection(touchedUnit, retreatMode:(retreatButton.buttonState == .On || retreatButton.buttonState == .Option), theTouchedThreat: activeGroupConflict!)
+            DefenseGroupUnitSelection(touchedUnit, retreatMode:(retreatButton.buttonState == .On || retreatButton.buttonState == .Option), theTouchedThreat: activeGroupConflict!, touchedCount: touchedCount)
             
              manager!.groupsSelected = GroupSelection(theGroups: manager!.groupsSelectable).groups
             
@@ -482,7 +484,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             }
             
             // 1st: Updates which units are selected, 2nd: Updates orders available, 3rd update locations
-            AttackGroupUnitSelection(touchedUnit, realAttack:(manager!.phaseNew == .SelectAttackGroup), theTouchedThreat: activeConflict!)
+            AttackGroupUnitSelection(touchedUnit, realAttack:(manager!.phaseNew == .SelectAttackGroup), theTouchedThreat: activeConflict!, touchedCount: touchedCount)
             AttackOrdersAvailable()
             
             if manager!.groupsSelected.isEmpty && !activeGroupConflict!.retreatMode {commitButton.buttonState = .Option}
@@ -542,7 +544,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             }
             
             // 1st: Updates which units are selected, 2nd: Updates orders available, 3rd update locations
-            AttackGroupUnitSelection(touchedUnit, realAttack:(manager!.phaseNew == .SelectAttackGroup), theTouchedThreat: activeConflict!)
+            AttackGroupUnitSelection(touchedUnit, realAttack:(manager!.phaseNew == .SelectAttackGroup), theTouchedThreat: activeConflict!, touchedCount: touchedCount)
             AttackOrdersAvailable()
             
             //if manager!.phaseNew == .SelectAttackGroup {if ReturnMoveType() != .None {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}}
@@ -1455,7 +1457,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     // MARK: Unit Selection Functions
     
     // Return true if you can run the MoveUnitSelection function (false if you are triggering attach command)
-    func MoveGroupUnitSelection(touchedUnit:Unit) -> Bool {
+    func MoveGroupUnitSelection(touchedUnit:Unit, touchedCount:Int) -> Bool {
         
         var sameCommand:Bool = false
         var touchedLeader:Bool = false
@@ -1496,9 +1498,17 @@ class GameScene: SKScene, NSXMLParserDelegate {
         case (true, _, _, _):
             
             // Leader always deselects whatever is selected then selects all in its command (including self)
-            ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
-            theUnits = theCommand.units.filter{$0.selected == .Normal}
-            for eachUnit in theUnits {eachUnit.selected = .Selected}
+            if touchedCount == 1 {
+                ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
+                theUnits = theCommand.units.filter{$0.selected == .Normal}
+                for eachUnit in theUnits {eachUnit.selected = .Selected}
+            }
+            else if touchedCount == 2 {
+                ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
+                theUnits = [touchedUnit]
+                touchedUnit.selected = .Selected
+            }
+            
         case (false, true, _, _):
             
             // Selected unit (toggle)
@@ -1511,23 +1521,26 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             // New unit in a different group
             ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
-            touchedUnit.selected = .Selected; theUnits = [touchedUnit]
+            touchedUnit.selected = .Selected
+            theUnits = [touchedUnit]
         }
         
         // Case where all but leader is selected
         if theUnits.count == theCommand.activeUnits.count - 1 && theCommand.theLeader?.selected == .Normal {theCommand.theLeader?.selected = .Selected; theUnits += [theCommand.theLeader!]}
         
+        manager!.groupsSelected = [Group(theCommand: theCommand, theUnits: theUnits)]
+        
         // Case where only leader is selected
-        if theUnits == [] || (theUnits.count == 1 && theUnits[0].unitType == .Ldr) {
-            DeselectAndReset()
-        } else {
-            manager!.groupsSelected = [Group(theCommand: theCommand, theUnits: theUnits)]
-        }
+        //if theUnits == [] || (theUnits.count == 1 && theUnits[0].unitType == .Ldr) {
+        //    DeselectAndReset()
+        //} else {
+        //    manager!.groupsSelected = [Group(theCommand: theCommand, theUnits: theUnits)]
+        //}
         return true
     }
     
     // Sets the defense/retreat selection when a threat is made (returns the reserve area of the threat group)
-    func DefenseGroupUnitSelection(touchedUnit:Unit, retreatMode:Bool = false, theTouchedThreat:GroupConflict) -> Reserve? {
+    func DefenseGroupUnitSelection(touchedUnit:Unit, retreatMode:Bool = false, theTouchedThreat:GroupConflict, touchedCount:Int) -> Reserve? {
         
         var theReserve:Reserve!
         
@@ -1553,6 +1566,10 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 let leaderUnits:[Unit] = manager!.groupsSelectable[indexOfCommand].nonLdrUnits
                 for eachUnit in leaderUnits {eachUnit.selected = .Selected} // eachUnit.zPosition = 100
                 if retreatMode {touchedUnit.selected = .Selected}
+                
+                if touchedCount == 2 && retreatMode {
+                    for eachUnit in leaderUnits {eachUnit.selected = .Normal}
+                }
             }
         }
             
@@ -1632,7 +1649,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
     }
     
     // Function updates selectionGroups based on what unit is selected
-    func AttackGroupUnitSelection(touchedUnit:Unit!, realAttack:Bool, theTouchedThreat:Conflict) {
+    func AttackGroupUnitSelection(touchedUnit:Unit!, realAttack:Bool, theTouchedThreat:Conflict, touchedCount:Int) {
         
         var leaderTouched = touchedUnit.unitType == .Ldr
         let unitAlreadySelected = touchedUnit.selected == .Selected
@@ -1681,16 +1698,31 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
             var newGroups:[Group] = [groupTouched!]
             
-            if !manager!.groupsSelected.isEmpty {
+            if touchedCount == 1 {
             
-                for eachGroup in manager!.groupsSelected {
-                    if eachGroup.command != touchedUnit.parentCommand! {
-                        if eachGroup.leaderInGroup && maySelectAnotherCorps && touchedUnit.parentCommand!.currentLocation! == requiredLocation! {newGroups += [eachGroup]}
-                        else {ToggleGroups([eachGroup], makeSelection: .Normal)}
+                if !manager!.groupsSelected.isEmpty {
+                
+                    for eachGroup in manager!.groupsSelected {
+                        if eachGroup.command != touchedUnit.parentCommand! {
+                            if eachGroup.leaderInGroup && maySelectAnotherCorps && touchedUnit.parentCommand!.currentLocation! == requiredLocation! {newGroups += [eachGroup]}
+                            else {ToggleGroups([eachGroup], makeSelection: .Normal)}
+                        }
                     }
                 }
+                    
+                manager!.groupsSelected = newGroups
+                
+            } else if touchedCount == 2 {
+                
+                manager!.groupsSelected.removeObject(groupTouched)
+                ToggleGroups([groupTouched], makeSelection: .Normal)
+                if manager!.groupsSelected.isEmpty {
+                    manager!.groupsSelected = [Group(theCommand: touchedUnit.parentCommand!, theUnits: [touchedUnit])]
+                } else {
+                    manager!.groupsSelected += [Group(theCommand: touchedUnit.parentCommand!, theUnits: [touchedUnit])]
+                }
             }
-            manager!.groupsSelected = newGroups
+            
             ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
             
         case (true, false):

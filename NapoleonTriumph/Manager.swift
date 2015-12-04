@@ -357,7 +357,7 @@ class GameManager: NSObject, NSCoding {
             
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
-                if eachLocaleConflict.retreatMode == true {
+                if eachLocaleConflict.retreatMode {
                     for eachConflict in eachLocaleConflict.conflicts {
                         eachConflict.defenseApproach.hidden = true
                         eachConflict.defenseApproach.approachSelector!.selected = .Off
@@ -365,7 +365,7 @@ class GameManager: NSObject, NSCoding {
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
-                        eachConflict.mustFeint = AdjacentThreatPotentialCheck(eachConflict)
+                        eachConflict.mustFeint = !AdjacentThreatPotentialCheck(eachConflict)
                     }
                 }
             }

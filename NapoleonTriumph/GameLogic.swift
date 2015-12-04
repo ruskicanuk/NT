@@ -287,20 +287,25 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         for eachApproach in enemyOccupiedAttackApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedAttackApproaches.removeObject(eachApproach)}}
         for eachApproach in enemyOccupiedMustFeintApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedMustFeintApproaches.removeObject(eachApproach)}}
         
-        var attackThreats:[Approach] = []
-        var mustFeintThreats:[Approach] = []
-        if groupSelected.nonLdrUnitCount == 1 {
-            attackThreats = enemyOccupiedAttackApproaches
-            mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches)))
-        }
+        //var attackThreats:[Approach] = []
+        //var mustFeintThreats:[Approach] = []
+        
         //for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         
         // Night turn or all general attacks made no attacks allowed
-        if manager!.night || manager!.generalThreatsMade >= 2 {
-            return (adjMoves, [], [])
+        if manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 {
+            if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
+                return ([], [], [])
+            } else {
+                return (adjMoves, [], [])
+            }
+        }
+        
+        let attackThreats = enemyOccupiedAttackApproaches
+        let mustFeintThreats = Array(Set(enemyOccupiedMustFeintApproaches).subtract(Set(enemyOccupiedAttackApproaches)))
         
         // Commit phase or fixed art, only attacks allowed
-        } else if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
+        if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
             return ([],  attackThreats, mustFeintThreats)
             
         // Move phase, both attacks and moves allowed
