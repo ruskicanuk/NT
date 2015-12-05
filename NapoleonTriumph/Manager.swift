@@ -309,6 +309,8 @@ class GameManager: NSObject, NSCoding {
     var guardCommittedCost:Int = 4
     var guardFailedCost:Int = 3
     
+    var staticLocations:[SKNode] = [] // Used to store currently active conflicts
+    
     // MARK: New Phase
     
     // Triggered by conflict commands (eg. moving into an enemy locale)
@@ -319,10 +321,10 @@ class GameManager: NSObject, NSCoding {
         let phaseChange = phaseNew.NextPhase(reverse) // Moves us to the next phase, returns true if need to swith acting player
         if phaseChange {actingPlayer.Switch()}
         RefreshCommands() // Switches block visibility
-        groupsSelected = []
-        groupsSelectable = []
-        revealedLocations = []
-        activeConflict = nil
+        //groupsSelected = []
+        //groupsSelectable = []
+        //revealedLocations = []
+        //activeConflict = nil
         if !orders.isEmpty && phaseNew != .Commit {orders.last!.unDoable = false}
         
         switch phaseNew {
@@ -359,7 +361,9 @@ class GameManager: NSObject, NSCoding {
             for eachLocaleConflict in localeThreats {
                 if eachLocaleConflict.retreatMode {
                     for eachConflict in eachLocaleConflict.conflicts {
-                        eachConflict.defenseApproach.hidden = true
+                        //eachConflict.defenseApproach.hidden = true
+                        RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                        staticLocations.removeObject(eachConflict.defenseApproach)
                         eachConflict.defenseApproach.approachSelector!.selected = .Off
                     }
                 } else {
@@ -380,7 +384,9 @@ class GameManager: NSObject, NSCoding {
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 for eachConflict in eachLocaleConflict.conflicts {
-                    eachConflict.defenseApproach.hidden = false
+                    //eachConflict.defenseApproach.hidden = false
+                    RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                    staticLocations += [eachConflict.defenseApproach]
                     
                     if !eachLocaleConflict.retreatMode && eachConflict.guardAttack {
                         eachConflict.defenseApproach.approachSelector!.selected = .On
@@ -576,7 +582,9 @@ class GameManager: NSObject, NSCoding {
             if orders[index].theConflict != nil {
                 
                 let newConflict = self.orders[index].theConflict
-                newConflict!.defenseApproach.hidden = false
+                //newConflict!.defenseApproach.hidden = false
+                RevealLocation(newConflict!.defenseApproach, toReveal: true)
+                staticLocations += [newConflict!.defenseApproach]
                 newConflict!.defenseApproach.approachSelector!.selected = .Option
                 
                 if theReserveConflicts[newConflict!.defenseReserve] == nil {

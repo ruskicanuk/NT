@@ -311,7 +311,9 @@ class Order {
                             eachConflict.storedThreateningUnits = eachConflict.threateningUnits
                             eachConflict.threateningUnits = []
                             eachConflict.defenseApproach.approachSelector!.selected = .On
-                            eachConflict.defenseApproach.hidden = true
+                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            manager!.staticLocations.removeObject(eachConflict.defenseApproach)
+                            //eachConflict.defenseApproach.hidden = true
                         }
                     } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
                         
@@ -319,7 +321,9 @@ class Order {
                         theConflict!.storedThreateningUnits = theConflict!.threateningUnits
                         theConflict!.threateningUnits = []
                         theConflict!.defenseApproach.approachSelector!.selected = .On
-                        theConflict!.defenseApproach.hidden = true
+                        RevealLocation(theConflict!.defenseApproach, toReveal: false)
+                        manager!.staticLocations.removeObject(theConflict!.defenseApproach)
+                        //theConflict!.defenseApproach.hidden = true
                         reverseCode = 5
                     }
                     
@@ -389,7 +393,9 @@ class Order {
                     eachConflict.threateningUnits = eachConflict.storedThreateningUnits
                     eachConflict.storedThreateningUnits = []
                     eachConflict.defenseApproach.approachSelector!.selected = .Option
-                    eachConflict.defenseApproach.hidden = false
+                    RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                    manager!.staticLocations += [eachConflict.defenseApproach]
+                    //eachConflict.defenseApproach.hidden = false
                 }
             } else if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) && reverseCode == 5 {
                 
@@ -397,7 +403,9 @@ class Order {
                 theConflict!.threateningUnits = theConflict!.storedThreateningUnits
                 theConflict!.storedThreateningUnits = []
                 theConflict!.defenseApproach.approachSelector!.selected = .Option
-                theConflict!.defenseApproach.hidden = false
+                RevealLocation(theConflict!.defenseApproach, toReveal: true)
+                manager!.staticLocations += [theConflict!.defenseApproach]
+                //theConflict!.defenseApproach.hidden = false
             }
 
             // Add the detached units back to the base command

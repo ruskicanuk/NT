@@ -19,6 +19,7 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     
     guard let commandSelected = groupSelected.command else {return (.Off, .Off, .Off, .Off)}
     guard let unitsSelected = groupSelected.units else {return (.Off, .Off, .Off, .Off)}
+    if groupSelected.nonLdrUnitCount == 0 {return (.Off, .Off, .Off, .Off)}
     
     var adjustCorps:Int
     var adjustInd:Int
@@ -37,7 +38,7 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     
     // Check for unique unit combinations (leader assigned or single unassigned unit)
     if groupSelected.command.hasLeader && groupSelected.command.theLeader!.assigned != "None" {corpsOrders = 0}
-    else if groupSelected.command.hasLeader && groupSelected.command.theLeader!.assigned == "None" && groupSelected.command.OneSelectableOnlyWithLeader() {corpsOrders = 0; indOrders = 0}
+    else if groupSelected.command.hasLeader && groupSelected.command.theLeader!.selected != .Selected && groupSelected.command.theLeader!.assigned == "None" && groupSelected.command.OneSelectableOnlyWithLeader() {corpsOrders = 0; indOrders = 0}
 
     var attachMove:SelState = .Off
     var corpsMove:SelState = .Off
@@ -454,12 +455,13 @@ func ReduceStrengthIfRetreat(touchedUnit:Unit, theLocation:Location, theGroupCon
 // Returns whether retreat state is ready (on) or still requires action (option)
 func CheckRetreatViable(retreatGroup:[Group]) -> SelState {
     
-    for eachReserve in manager!.selectionRetreatReserves {eachReserve.hidden = true}
+    for eachReserve in manager!.selectionRetreatReserves {RevealLocation(eachReserve, toReveal: false)}
     let retreatSelection = GroupSelection(theGroups: retreatGroup)
     if retreatSelection.blocksSelected == 0 {return .Option}
     
     // Check if reductions are finished for selected units locations
     for eachGroup in retreatGroup {
+        if eachGroup.nonLdrUnitCount == 0 {return .NotAvail}
         for eachUnit in eachGroup.units {
             if eachUnit.selected == .Selected && activeGroupConflict!.damageDelivered[eachGroup.command.currentLocation!] < activeGroupConflict!.damageRequired[eachGroup.command.currentLocation!] {return .Option}
             if eachUnit.selected == .Selected && activeGroupConflict!.destroyDelivered[eachGroup.command.currentLocation!] < activeGroupConflict!.destroyRequired[eachGroup.command.currentLocation!] {return .Option}
@@ -480,7 +482,7 @@ func CheckRetreatViable(retreatGroup:[Group]) -> SelState {
     // Reveal available retreat reserves
     var returnOn:Bool = false
     manager!.selectionRetreatReserves = Array(Set(adjReservesWithSpace).subtract(Set([attackedReserve])))
-    for eachReserve in manager!.selectionRetreatReserves {eachReserve.hidden = false; returnOn = true}
+    for eachReserve in manager!.selectionRetreatReserves {RevealLocation(eachReserve, toReveal: true); returnOn = true}
 
     if returnOn {return .On} else {return .NotAvail}
 }
@@ -597,7 +599,8 @@ func CheckEndTurnStatus() -> Bool {
                         if eachConflict.defenseApproach.approachSelector!.selected == .Option {
                             if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand--}
                             else {manager!.phantomIndCommand--}
-                            eachConflict.defenseApproach.hidden = true
+                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            //eachConflict.defenseApproach.hidden = true
                             eachConflict.defenseApproach.approachSelector!.selected = .Off
                         }
                     }
@@ -607,7 +610,8 @@ func CheckEndTurnStatus() -> Bool {
                         if eachConflict.defenseApproach.approachSelector!.selected == .Off {
                             if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand++}
                             else {manager!.phantomIndCommand++}
-                            eachConflict.defenseApproach.hidden = false
+                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                            //eachConflict.defenseApproach.hidden = false
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                         }
                     }
@@ -745,6 +749,12 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
     
     // Safety drill
     if groupsSelected.isEmpty {return (.Off, .Off, .Off, .Off)}
+    else {
+        for eachGroup in groupsSelected {
+            if eachGroup.nonLdrUnitCount == 0 {return (.Off, .Off, .Off, .Off)}
+        }
+    }
+    
     if groupsSelected[0].command.moveNumber > 0 {
         switch (groupsSelected[0].command.movedVia) {
             case .CorpsMove: return (.On, .Off, .Off, .Off)
