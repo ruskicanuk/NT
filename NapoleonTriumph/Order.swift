@@ -203,10 +203,6 @@ class Order {
             startLocaleReserve = startApproach?.ownReserve
         }
         
-        // Adds or removes the order arrow as applicable
-        OrderArrow(reverse)
-
-        
         switch (reverse, order!) {
         
         // MARK: Move (Corps, Detach, Ind)
@@ -542,6 +538,7 @@ class Order {
                     eachCommand.currentLocation = moveToLocation
                     moveToLocation.occupants += [eachCommand]
                     startLocation[i].occupants.removeObject(eachCommand)
+                    for eachUnit in eachCommand.activeUnits {eachUnit.selected = .NotSelectable}
                 }
             }
             
@@ -570,6 +567,7 @@ class Order {
                     eachCommand.currentLocation = moveToLocation
                     moveToLocation.occupants += [eachCommand]
                     endLocation.occupants.removeObject(eachCommand)
+                    for eachUnit in eachCommand.activeUnits {eachUnit.selected = .Normal}
                 }
                 
                 // Eliminate the new commands
@@ -808,20 +806,28 @@ class Order {
             let defenseReserve = defenseApproach.ownReserve!
             let attackReserve = attackApproach.ownReserve!
             
-            theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: false)
+            
 
-            var theUnits:[Unit] = []
-            if corpsCommand! && moveType == .CorpsDetach {
-                theUnits = baseGroup!.units + [baseGroup!.command.theLeader!]
-                baseGroup!.command.theLeader!.assigned = "Corps"
-            } else {
-                theUnits = baseGroup!.units
-            }
+            //var theUnits:[Unit] = []
+            //if corpsCommand! && moveType == .CorpsDetach {
+            //    theUnits = baseGroup!.units + [baseGroup!.command.theLeader!]
+            //    baseGroup!.command.theLeader!.assigned = "Corps"
+            //} else {
+            let theUnits = baseGroup!.units
+            //}
+            
+            // Determines whether its a must-feint
+            var mFeint:Bool = false
+            let curLocation = theUnits[0].parentCommand!.currentLocation
+            if (curLocation != attackApproach && curLocation != attackReserve) || theUnits[0].parentCommand!.repeatMoveNumber > 0 {mFeint = true}
+
+            theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: mFeint)
             
             for eachUnit in theUnits {
                 eachUnit.threatenedConflict = theConflict!
                 eachUnit.selected = .NotSelectable
             }
+            
             theConflict!.threateningUnits = theUnits
             
             //baseGroup!.SetGroupProperty("hasMoved", onOff: true)
@@ -1098,7 +1104,7 @@ class Order {
             baseGroup!.command.rdMoves = startLocation
             if baseGroup!.leaderInGroup {baseGroup!.command.movedVia = .CorpsMove} else {baseGroup!.command.movedVia = .IndMove}
             
-        // MARK: Defend
+        // MARK: 0
             
         case (false, .Defend):
             
@@ -1202,6 +1208,9 @@ class Order {
             
         }
         
+        // Adds or removes the order arrow as applicable
+        OrderArrow(reverse)
+        
         return false
     }
     
@@ -1268,16 +1277,21 @@ class Order {
             
             let orderPath = CGPathCreateMutable()
             var strokeColor:SKColor = SKColor()
-            var lineWidth:CGFloat = 2.0
+            var lineWidth:CGFloat = 1.0
             var glowHeight:CGFloat = 1.0
             var zPosition:CGFloat = 1.0
             
             // Draw the path
-            if order == .Move || order == .Attach || order == .Move {
+            if order == .Move {
                 CGPathMoveToPoint(orderPath, nil, baseGroup!.command.currentLocation!.position.x, baseGroup!.command.currentLocation!.position.y)
                 CGPathAddLineToPoint(orderPath, nil, endLocation.position.x, endLocation.position.y)
                 orderArrow = SKShapeNode(path: orderPath)
             
+            } else if order == .Retreat {
+                CGPathMoveToPoint(orderPath, nil, theConflict!.defenseReserve.position.x, theConflict!.defenseReserve.position.y)
+                CGPathAddLineToPoint(orderPath, nil, endLocation.position.x, endLocation.position.y)
+                orderArrow = SKShapeNode(path: orderPath)
+                
             } else if order == .Threat {
                 
                 if let endApproach = endLocation as? Approach {
@@ -1332,19 +1346,41 @@ class Order {
             orderArrow?.userInteractionEnabled = false
             
             if order == .Move {
+
                 
-                strokeColor = SKColor.blueColor()
-                lineWidth = 2.0
+                if baseGroup!.command.commandSide == .French {
+                    strokeColor = SKColor.blueColor()
+                } else {
+                    strokeColor = SKColor.redColor()
+                }
+                lineWidth = 1.0
+                glowHeight = 1.0
+                zPosition = 1
+                
+            } else if order == .Retreat {
+                
+                if theConflict!.defenseSide == .French {
+                    strokeColor = SKColor.blueColor()
+                } else {
+                    strokeColor = SKColor.redColor()
+                }
+                lineWidth = 1.0
                 glowHeight = 1.0
                 zPosition = 1
                 
             } else if order == .Attach {
                 
-                // No arrow
+                // No arrow, maybe do some kind of highlight?
                 
             } else if order == .Threat {
                 
-                strokeColor = SKColor.redColor()
+                // Add code later to convert to red when switching sides (so defender doesn't know) - this is an advanced feature and may not be necessary (maybe its ok if defender knows its coming from a distance)
+                if theConflict!.mustFeint {
+                    strokeColor = SKColor.purpleColor()
+                } else {
+                    strokeColor = SKColor.redColor()
+                }
+                
                 lineWidth = 5.0
                 glowHeight = 3.0
                 zPosition = 1

@@ -369,7 +369,7 @@ class GameManager: NSObject, NSCoding {
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
-                        eachConflict.mustFeint = !AdjacentThreatPotentialCheck(eachConflict)
+                        //eachConflict.mustFeint = !AdjacentThreatPotentialCheck(eachConflict)
                     }
                 }
             }

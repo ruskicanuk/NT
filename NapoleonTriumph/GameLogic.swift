@@ -294,7 +294,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         //for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         
         // Night turn or all general attacks made no attacks allowed
-        if manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 {
+        if manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 || detachOn {
             if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
                 return ([], [], [])
             } else {
@@ -633,6 +633,7 @@ func CheckEndTurnStatus() -> Bool {
     return endTurnViable
 }
 
+/*
 func AdjacentThreatPotentialCheck (theConflict:Conflict) -> Bool {
     //let attackApproach = theConflict.attackApproach
     //let (corpsMovesAvailable, independentMovesAvailable) = manager!.PhantomOrderCheck(activeConflict!.phantomCorpsOrder!, addExistingOrderToPool: true)
@@ -646,6 +647,7 @@ func AdjacentThreatPotentialCheck (theConflict:Conflict) -> Bool {
     }
     return false
 }
+*/
 
 // MARK: Move After Threat Logic
 
