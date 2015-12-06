@@ -289,7 +289,7 @@ class Order {
                         each.turnEnteredMap = manager!.turn
                     }
                     
-                    // When the attacker moves into the retreat-area or feint-area
+                    // When the attacker moves into the retreat-area
                     if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation {
 
                         let theMoveCommand = moveCommandArray[0]
@@ -309,22 +309,22 @@ class Order {
                             eachConflict.defenseApproach.approachSelector!.selected = .On
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
                             manager!.staticLocations.removeObject(eachConflict.defenseApproach)
-                            //eachConflict.defenseApproach.hidden = true
                         }
+                    
+                    // When the attacker moves into the feint-area
                     } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
                         
                         for eachUnit in theConflict!.threateningUnits {eachUnit.threatenedConflict = nil}
                         theConflict!.storedThreateningUnits = theConflict!.threateningUnits
                         theConflict!.threateningUnits = []
                         theConflict!.defenseApproach.approachSelector!.selected = .On
-                        RevealLocation(theConflict!.defenseApproach, toReveal: false)
-                        manager!.staticLocations.removeObject(theConflict!.defenseApproach)
-                        //theConflict!.defenseApproach.hidden = true
+                        //RevealLocation(theConflict!.defenseApproach, toReveal: false)
+                        //manager!.staticLocations.removeObject(theConflict!.defenseApproach)
                         reverseCode = 5
                     }
                     
                     // Movement from or to an approach
-                    if (startLocation[0].locationType == .Approach || endLocation.locationType == .Approach) == true {each.finishedMove = true} 
+                    //if (startLocation[0].locationType == .Approach || endLocation.locationType == .Approach) == true {each.finishedMove = true}
                 }
                 
                 // Add the new commands to their occupants if the base moved (if something was detached in the original location
@@ -399,8 +399,8 @@ class Order {
                 theConflict!.threateningUnits = theConflict!.storedThreateningUnits
                 theConflict!.storedThreateningUnits = []
                 theConflict!.defenseApproach.approachSelector!.selected = .Option
-                RevealLocation(theConflict!.defenseApproach, toReveal: true)
-                manager!.staticLocations += [theConflict!.defenseApproach]
+                //RevealLocation(theConflict!.defenseApproach, toReveal: true)
+                //manager!.staticLocations += [theConflict!.defenseApproach]
                 //theConflict!.defenseApproach.hidden = false
             }
 
@@ -1104,7 +1104,7 @@ class Order {
             baseGroup!.command.rdMoves = startLocation
             if baseGroup!.leaderInGroup {baseGroup!.command.movedVia = .CorpsMove} else {baseGroup!.command.movedVia = .IndMove}
             
-        // MARK: 0
+        // MARK: Defend
             
         case (false, .Defend):
             
@@ -1283,7 +1283,7 @@ class Order {
             
             // Draw the path
             if order == .Move {
-                CGPathMoveToPoint(orderPath, nil, baseGroup!.command.currentLocation!.position.x, baseGroup!.command.currentLocation!.position.y)
+                CGPathMoveToPoint(orderPath, nil, startLocation[0].position.x, startLocation[0].position.y)
                 CGPathAddLineToPoint(orderPath, nil, endLocation.position.x, endLocation.position.y)
                 orderArrow = SKShapeNode(path: orderPath)
             

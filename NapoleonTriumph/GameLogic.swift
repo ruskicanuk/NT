@@ -679,7 +679,7 @@ func SelectableGroupsForAttack (byRd:Bool) -> [Group]  {
         }
         var movableSelectableUnits = selectableUnits.filter{$0.hasMoved == false || $0.parentCommand!.repeatMoveNumber > 0}
             
-        if movableSelectableUnits.isEmpty {return []}
+        if movableSelectableUnits.isEmpty || (movableSelectableUnits.count == 1 && movableSelectableUnits[0].unitType == .Ldr) {continue}
 
         // Leader case
         if corpsMovesAvailable > 0 && eachCommand.hasLeader && !eachCommand.finishedMove {
