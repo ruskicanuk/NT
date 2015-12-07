@@ -626,6 +626,17 @@ func CheckEndTurnStatus() -> Bool {
             }
             
         }
+        
+    case .SelectAttackGroup:
+        
+        for eachLocaleThreat in manager!.localeThreats {
+            for eachConflict in eachLocaleThreat.conflicts {
+                if eachConflict.realAttack {
+                    eachConflict.defenseApproach.approachSelector!.selected == .Option
+                    endTurnViable = false
+                }
+            }
+        }
 
     default: break
         
