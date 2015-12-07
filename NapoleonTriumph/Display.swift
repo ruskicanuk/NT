@@ -39,8 +39,17 @@ let editorPixelWidth:CGFloat = 1267.2
 var activeGroupConflict:GroupConflict?
 var activeConflict:Conflict? {
     didSet {
-        if activeConflict == nil {activeGroupConflict = nil}
-        else {activeGroupConflict = activeConflict!.parentGroupConflict}
+        if activeGroupConflict != nil {
+            for eachConflict in activeGroupConflict!.conflicts {eachConflict.defenseApproach.approachSelector!.toggleSelection()}
+        }
+
+        if activeConflict == nil {
+            activeGroupConflict = nil
+        }
+        else {
+            activeGroupConflict = activeConflict!.parentGroupConflict
+            activeConflict!.defenseApproach.approachSelector!.turnColor("Purple")
+        }
     }
 }
 

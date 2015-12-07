@@ -128,7 +128,22 @@ class SpriteSelector {
             
         }
     }
+    
+    func turnColor(color:String) {
+        
+        if selected != .Option {return}
+        
+        switch color {
+            
+        case "Purple": selectionBox!.strokeColor = SKColor.purpleColor()
+            
+        default: break
+            
+        }
+    }
 }
+
+
 
 /*
 func convertPoint(point: CGPoint) -> (success: Bool, column: Int, row: Int) {

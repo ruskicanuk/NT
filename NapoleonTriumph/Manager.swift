@@ -321,10 +321,7 @@ class GameManager: NSObject, NSCoding {
         let phaseChange = phaseNew.NextPhase(reverse) // Moves us to the next phase, returns true if need to swith acting player
         if phaseChange {actingPlayer.Switch()}
         RefreshCommands() // Switches block visibility
-        //groupsSelected = []
-        //groupsSelectable = []
-        //revealedLocations = []
-        //activeConflict = nil
+
         if !orders.isEmpty && phaseNew != .Commit {orders.last!.unDoable = false}
         
         switch phaseNew {
@@ -355,13 +352,15 @@ class GameManager: NSObject, NSCoding {
             SetupThreats()
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
             
+        // Static: All Groups
+        
         case .SelectDefenseLeading:
             
+            var availableCount = 0
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if eachLocaleConflict.retreatMode {
                     for eachConflict in eachLocaleConflict.conflicts {
-                        //eachConflict.defenseApproach.hidden = true
                         RevealLocation(eachConflict.defenseApproach, toReveal: false)
                         staticLocations.removeObject(eachConflict.defenseApproach)
                         eachConflict.defenseApproach.approachSelector!.selected = .Off
@@ -369,60 +368,191 @@ class GameManager: NSObject, NSCoding {
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
-                        //eachConflict.mustFeint = !AdjacentThreatPotentialCheck(eachConflict)
+                        availableCount++
                     }
                 }
             }
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-
-        case .SelectAttackLeading: break
+            if availableCount == 0 {NewPhase()}
             
-        case .SelectCounterGroup: break
-            
+        // Static: All non-retreats
+        
         case .PreRetreatOrFeintMoveOrAttackDeclare:
+            
+            var availableCount = 0
+            endTurnButton.buttonState = .Off
+            for eachLocaleConflict in localeThreats {
+                if eachLocaleConflict.retreatMode {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                        staticLocations += [eachConflict.defenseApproach]
+                        eachConflict.defenseApproach.approachSelector!.selected = .Option
+                        availableCount++
+                    }
+                } else {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        if eachConflict.guardAttack {
+                            eachConflict.defenseApproach.approachSelector!.selected = .On
+                            eachConflict.realAttack = true
+                        } else {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            availableCount++
+                        }
+                    }
+                }
+            }
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            if availableCount == 0 {NewPhase()}
+        
+        // Static: All conflicts
+        
+        case .SelectAttackGroup:
+            
+            var availableCount = 0
+            endTurnButton.buttonState = .Off
+            for eachLocaleConflict in localeThreats {
+                if eachLocaleConflict.retreatMode {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                        staticLocations.removeObject(eachConflict.defenseApproach)
+                        eachConflict.defenseApproach.approachSelector!.selected = .Off
+                    }
+                } else {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        if eachConflict.realAttack {
+                            //RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                            //staticLocations += [eachConflict.defenseApproach]
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            availableCount++
+                        } else {
+                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            staticLocations.removeObject(eachConflict.defenseApproach)
+                            eachConflict.defenseApproach.approachSelector!.selected = .Off
+                        }
+                    }
+                }
+            }
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            if availableCount == 0 {NewPhase(); NewPhase()}
+            
+        // Static: All real attacks
+        
+        case .SelectAttackLeading:
             
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
-                for eachConflict in eachLocaleConflict.conflicts {
-                    //eachConflict.defenseApproach.hidden = false
-                    RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                    staticLocations += [eachConflict.defenseApproach]
-                    
-                    if !eachLocaleConflict.retreatMode && eachConflict.guardAttack {
-                        eachConflict.defenseApproach.approachSelector!.selected = .On
-                        eachConflict.realAttack = true
-                    } else {
-                        eachConflict.defenseApproach.approachSelector!.selected = .Option
+                if !eachLocaleConflict.retreatMode {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        if eachConflict.realAttack {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                        }
                     }
                 }
             }
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            
+        // Static: All real attacks
+            
+        case .FeintResponse:
+            
+            var availableCount = 0
+            endTurnButton.buttonState = .Off
+            for eachLocaleConflict in localeThreats {
+                if !eachLocaleConflict.retreatMode {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        if eachConflict.realAttack {
+                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            staticLocations.removeObject(eachConflict.defenseApproach)
+                            eachConflict.defenseApproach.approachSelector!.selected = .Off
+                        } else {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                            staticLocations += [eachConflict.defenseApproach]
+                            availableCount++
+                        }
+                    }
+                }
+            }
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            if availableCount == 0 {NewPhase()}
+            
+        // Static: All feints
         
+        case .SelectCounterGroup:
+            
+            var availableCount = 0
+            endTurnButton.buttonState = .Off
+            for eachLocaleConflict in localeThreats {
+                if !eachLocaleConflict.retreatMode {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        if eachConflict.realAttack {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                            staticLocations += [eachConflict.defenseApproach]
+                            availableCount++
+                        } else {
+                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            staticLocations.removeObject(eachConflict.defenseApproach)
+                            eachConflict.defenseApproach.approachSelector!.selected = .Off
+                        }
+                    }
+                }
+            }
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            if availableCount == 0 {NewPhase()}
+            
+        // Static: All real attacks
+            
+        case .PostCombatRetreatAndVictoryResponseMoves:
+            
+            var availableCount = 0
+            endTurnButton.buttonState = .Off
+            for eachLocaleConflict in localeThreats {
+                if !eachLocaleConflict.retreatMode {
+                    for eachConflict in eachLocaleConflict.conflicts {
+                        if eachConflict.realAttack && eachConflict.conflictFinalWinner == .Neutral {
+                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            staticLocations.removeObject(eachConflict.defenseApproach)
+                            eachConflict.defenseApproach.approachSelector!.selected = .Off
+                        } else if eachConflict.realAttack {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            availableCount++
+                        }
+                    }
+                }
+            }
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            if availableCount == 0 {NewPhase()}
+            
+        // Static: All real attacks with winning defender or attacker
+            
             /*
+            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
+            
+            SelectableLeadingGroups(activeGroupConflict!.conflict, thePhase: phaseOld)
+            SelectLeadingUnits(activeGroupConflict!.conflict)
+            
+            
         case .FeintMove:
             
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             SelectableGroupsForFeintDefense(activeGroupConflict!.conflict)
             activeGroupConflict!.conflict.attackApproach.hidden = true
         
-        case .RealAttack:
-            
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
-            
-            SelectableLeadingGroups(activeGroupConflict!.conflict, thePhase: phaseOld)
-            SelectLeadingUnits(activeGroupConflict!.conflict)
-            
         case .DeclaredLeadingD:
             
             // Defense leading units visible to attacker
+            /*
             selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeGroupConflict!.conflict)
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
             ToggleGroups(activeGroupConflict!.conflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
+            */
         
         case .DeclaredAttackers:
             
             // Defense leading units visible to attacker
+            
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
             ToggleGroups(activeGroupConflict!.conflict.attackGroup!.groups, makeSelection: .Normal)
             ToggleGroups(activeGroupConflict!.conflict.defenseGroup!.groups, makeSelection: .NotSelectable)

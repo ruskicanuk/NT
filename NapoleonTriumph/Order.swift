@@ -10,7 +10,7 @@ import SpriteKit
 
 // Stores the kind of order
 enum OrderType {
-    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack, ConfirmAttack
+    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack, ConfirmAttack, AttackGroupDeclare
 }
 
 class Order {
@@ -308,7 +308,7 @@ class Order {
                             eachConflict.threateningUnits = []
                             eachConflict.defenseApproach.approachSelector!.selected = .On
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
-                            manager!.staticLocations.removeObject(eachConflict.defenseApproach)
+                            //manager!.staticLocations.removeObject(eachConflict.defenseApproach)
                         }
                     
                     // When the attacker moves into the feint-area
@@ -318,7 +318,7 @@ class Order {
                         theConflict!.storedThreateningUnits = theConflict!.threateningUnits
                         theConflict!.threateningUnits = []
                         theConflict!.defenseApproach.approachSelector!.selected = .On
-                        //RevealLocation(theConflict!.defenseApproach, toReveal: false)
+                        RevealLocation(theConflict!.defenseApproach, toReveal: false)
                         //manager!.staticLocations.removeObject(theConflict!.defenseApproach)
                         reverseCode = 5
                     }
@@ -378,6 +378,7 @@ class Order {
         
             let moveToLocation = startLocation[0]
             
+            // Undoing a move into defense reserve
             if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && (moveType == .IndMove || moveType == .CorpsMove) {
                 
                 let theMoveCommand = moveCommands[0]![0]
@@ -389,8 +390,8 @@ class Order {
                     eachConflict.threateningUnits = eachConflict.storedThreateningUnits
                     eachConflict.storedThreateningUnits = []
                     eachConflict.defenseApproach.approachSelector!.selected = .Option
+                    //manager!.staticLocations += [eachConflict.defenseApproach]
                     RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                    manager!.staticLocations += [eachConflict.defenseApproach]
                     //eachConflict.defenseApproach.hidden = false
                 }
             } else if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) && reverseCode == 5 {
@@ -399,7 +400,7 @@ class Order {
                 theConflict!.threateningUnits = theConflict!.storedThreateningUnits
                 theConflict!.storedThreateningUnits = []
                 theConflict!.defenseApproach.approachSelector!.selected = .Option
-                //RevealLocation(theConflict!.defenseApproach, toReveal: true)
+                RevealLocation(theConflict!.defenseApproach, toReveal: true)
                 //manager!.staticLocations += [theConflict!.defenseApproach]
                 //theConflict!.defenseApproach.hidden = false
             }
@@ -1205,6 +1206,34 @@ class Order {
         case (true, .ConfirmAttack):
             theConflict!.realAttack = false
             theConflict!.defenseApproach.approachSelector!.selected = .Option
+            
+        // MARK: Declare Attack Group
+            
+        case (false, .AttackGroupDeclare):
+            
+            theConflict!.attackGroup = GroupSelection(theGroups: manager!.groupsSelected)
+            if theConflict!.guardAttack {theConflict!.SetGuardAttackGroup()}
+            theConflict!.attackMoveType = ReturnMoveType()
+            
+            // Determine battle width
+            let initialDefenseSelection = theConflict!.defenseLeadingUnits!.blocksSelected
+            theConflict!.counterAttackLeadingUnits = theConflict!.defenseLeadingUnits // Store for reversing
+            theConflict!.defenseLeadingUnits = GroupSelection(theGroups: theConflict!.defenseLeadingUnits!.groups)
+            
+            if theConflict!.defenseLeadingUnits!.blocksSelected == 2 {theConflict!.wideBattle = true}
+            else if initialDefenseSelection == 2 {theConflict!.wideBattle = false}
+            else if theConflict!.defenseApproach.wideApproach {theConflict!.wideBattle = true}
+            else {theConflict!.wideBattle = false}
+            
+            theConflict!.counterAttackGroup = GroupSelection(theGroups: theConflict!.availableCounterAttackers!.groups, selectedOnly:false)
+            
+        case (true, .AttackGroupDeclare):
+            
+            theConflict!.attackGroup = nil
+            theConflict!.guardAttackGroup = nil
+            theConflict!.attackMoveType = nil
+            theConflict!.defenseLeadingUnits = theConflict!.counterAttackLeadingUnits
+            theConflict!.counterAttackLeadingUnits = nil
             
         }
         

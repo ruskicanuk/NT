@@ -425,7 +425,7 @@ if each is Unit && touchedCount == 2 {
             
         // MARK: Conflict Touch
             
-        case (.RetreatOrDefenseSelection, approachName), (.SelectDefenseLeading, approachName), (.SelectAttackLeading, approachName), (.SelectCounterGroup, approachName), (.PreRetreatOrFeintMoveOrAttackDeclare, approachName):
+        case (.RetreatOrDefenseSelection, approachName), (.SelectDefenseLeading, approachName), (.SelectAttackLeading, approachName), (.SelectCounterGroup, approachName), (.PreRetreatOrFeintMoveOrAttackDeclare, approachName), (.SelectAttackGroup, approachName):
             
             // Safety check
             guard let touchedApproach = touchedNode as? Approach else {break}
@@ -502,14 +502,16 @@ if each is Unit && touchedCount == 2 {
         
         // MARK: Move after Pre-retreat, Feint-move & Attack-declaration Touch
         
-        case (.PreRetreatOrFeintMoveOrAttackDeclare, unitName):
+        case (.PreRetreatOrFeintMoveOrAttackDeclare, unitName), (.SelectAttackGroup, unitName):
 
             // Safety checks
             if activeConflict == nil || activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
             ResetState(false, groupsSelectable: false, hideRevealed: true, orderSelectors: false, otherSelectors: false)
             guard let touchedUnit = touchedNode as? Unit else {break}
-            if touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off || touchedUnit.fixed {break}
+            if touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off {break}
+            if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && touchedUnit.fixed {break}
             
+            // When touching the opposing side's selected unit
             if touchedUnit.parentCommand!.commandSide.Opposite(manager!.actingPlayer)! {
                 ToggleBattleWidthUnitSelection(touchedUnit, theThreat: activeConflict!)
                 break
@@ -521,7 +523,6 @@ if each is Unit && touchedCount == 2 {
             
             if manager!.groupsSelected.isEmpty && !activeGroupConflict!.retreatMode {commitButton.buttonState = .Option}
             else {commitButton.buttonState = .Off}
-            //if manager!.phaseNew == .SelectAttackGroup {if ReturnMoveType() != .None {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}}
             
         case (.PreRetreatOrFeintMoveOrAttackDeclare, mapName):
             
@@ -529,11 +530,9 @@ if each is Unit && touchedCount == 2 {
             if activeConflict == nil || activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
             ResetState(true, groupsSelectable: false, hideRevealed: true, orderSelectors: true, otherSelectors: true)
             
-            //ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
-            //manager!.groupsSelected = []
-            //HideAllRevealedLocations()
-            
-            if activeGroupConflict!.retreatMode {commitButton.buttonState = .Off}
+            // Setup buttons
+            if activeGroupConflict!.retreatMode || activeConflict!.mustFeint {commitButton.buttonState = .Off}
+            else if activeConflict!.guardAttack {guardButton.buttonState = .On; commitButton.buttonState = .Option}
             else {commitButton.buttonState = .Option}
             
         case (.PreRetreatOrFeintMoveOrAttackDeclare, reserveName):
@@ -563,7 +562,7 @@ if each is Unit && touchedCount == 2 {
             (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
             
         // MARK: Declare Attack Groups
-        
+        /*
         case (.SelectAttackGroup, unitName):
             
             // Safety checks
@@ -580,7 +579,7 @@ if each is Unit && touchedCount == 2 {
             // 1st: Updates which units are selected, 2nd: Updates orders available, 3rd update locations
             AttackGroupUnitSelection(touchedUnit, realAttack:(manager!.phaseNew == .SelectAttackGroup), theTouchedThreat: activeConflict!, touchedCount: touchedCount)
             AttackOrdersAvailable()
-            
+        */
             //if manager!.phaseNew == .SelectAttackGroup {if ReturnMoveType() != .None {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}}
             
 
@@ -935,7 +934,18 @@ if each is Unit && touchedCount == 2 {
         
         // Function determines what retreat mode we are in (defense only, retreat only, etc)
         switch manager!.phaseNew {
-         
+            
+        case .RetreatOrDefenseSelection:
+            
+            if activeConflict!.defenseGroup != nil && !activeGroupConflict!.retreatMode {
+                ToggleGroups(activeConflict!.defenseGroup!.groups, makeSelection: .Selected)
+                manager!.groupsSelected = activeConflict!.defenseGroup!.groups
+            }
+            if activeConflict!.defenseApproach.approachSelector!.selected == .On {break} // Already defended
+            
+            RetreatPreparation()
+            //ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+            
         case .SelectDefenseLeading:
             
             if activeConflict!.defenseLeadingUnits == nil {
@@ -949,9 +959,31 @@ if each is Unit && touchedCount == 2 {
             if CheckEndTurnStatus() {endTurnButton.buttonState = .On}
             else if activeConflict!.defenseLeadingSet {endTurnButton.buttonState = .Off}
             else {endTurnButton.buttonState = .Option}
+        
+        case .PreRetreatOrFeintMoveOrAttackDeclare:
+            
+            if activeConflict!.defenseApproach.approachSelector!.selected == .On {break} // Already committed approach or made feint-move
+            
+            // Setup buttons
+            if activeGroupConflict!.retreatMode || activeConflict!.mustFeint {commitButton.buttonState = .Off}
+            else if activeConflict!.guardAttack {guardButton.buttonState = .On; commitButton.buttonState = .Option}
+            else {commitButton.buttonState = .Option}
+            
+            manager!.groupsSelectableByRd = SelectableGroupsForAttack(true)
+            manager!.groupsSelectableAdjacent = SelectableGroupsForAttack(false)
+            manager!.groupsSelectable = manager!.groupsSelectableByRd + manager!.groupsSelectableAdjacent
+            ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+            
+        case .SelectAttackGroup:
+            
+            if activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
+            
+            manager!.groupsSelectable = SelectableGroupsForAttack(false)
+            ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+            ToggleGroups(activeConflict!.defenseLeadingUnits!.groups, makeSelection: .Selected)
             
         case .SelectAttackLeading:
-
+            
             if activeConflict!.attackLeadingUnits == nil {
                 (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
                 SelectLeadingUnits(activeConflict!)
@@ -964,8 +996,16 @@ if each is Unit && touchedCount == 2 {
             else if activeConflict!.attackLeadingSet {endTurnButton.buttonState = .Off}
             else {endTurnButton.buttonState = .Option}
             
-        case .SelectCounterGroup:
+        case .FeintResponse, .PostCombatRetreatAndVictoryResponseMoves:
+        
+            if activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
+            
+            manager!.groupsSelectable = SelectableGroupsForFeintDefense(activeConflict!)
+            ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+            //ToggleGroups(activeConflict!.defenseLeadingUnits!.groups, makeSelection: .Selected)
 
+        case .SelectCounterGroup:
+            
             if activeConflict!.counterAttackLeadingUnits == nil {
                 (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(activeConflict!, thePhase: manager!.phaseNew)
                 SelectLeadingUnits(activeConflict!)
@@ -978,30 +1018,7 @@ if each is Unit && touchedCount == 2 {
             else if activeConflict!.counterAttackLeadingSet {endTurnButton.buttonState = .Off}
             else {endTurnButton.buttonState = .Option}
             
-        case .RetreatOrDefenseSelection:
-            
-            if activeConflict!.defenseGroup != nil && !activeGroupConflict!.retreatMode {
-                ToggleGroups(activeConflict!.defenseGroup!.groups, makeSelection: .Selected)
-                manager!.groupsSelected = activeConflict!.defenseGroup!.groups
-            }
-            if activeConflict!.defenseApproach.approachSelector!.selected == .On {break} // Already defended
-            
-            RetreatPreparation()
-            //ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
-        
-        case .PreRetreatOrFeintMoveOrAttackDeclare:
-            
-            if activeConflict!.defenseApproach.approachSelector!.selected == .On {break} // Already committed approach or made feint-move
-            
-            //AdjacentThreatPotentialCheck(activeConflict!)
-            if activeGroupConflict!.retreatMode || activeConflict!.mustFeint {commitButton.buttonState = .Off}
-            else if activeConflict!.guardAttack {commitButton.buttonState = .On}
-            else {commitButton.buttonState = .Option}
-            
-            manager!.groupsSelectableByRd = SelectableGroupsForAttack(true)
-            manager!.groupsSelectableAdjacent = SelectableGroupsForAttack(false)
-            manager!.groupsSelectable = manager!.groupsSelectableByRd + manager!.groupsSelectableAdjacent
-            ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+        //case .PostCombatRetreatAndVictoryResponseMoves: break
             
         default: break
             
@@ -1828,36 +1845,6 @@ if each is Unit && touchedCount == 2 {
         }
     }
     
-    func ToggleBattleWidthUnitSelection(touchedUnit:Unit!, theThreat:Conflict) {
-        
-        let unitSelectedAlready = touchedUnit.selected == .Selected
-        
-        var unitsSelected = 0
-        var theUnselectedUnit:Unit?
-        for eachGroup in theThreat.defenseLeadingUnits!.groups {
-            for eachUnit in eachGroup.units {
-                if eachUnit.selected == .Selected {unitsSelected++}
-                else {theUnselectedUnit = eachUnit}
-            }
-        }
-        
-        switch (unitsSelected, unitSelectedAlready) {
-            
-        case (1, true):
-            if theUnselectedUnit != nil {
-                touchedUnit.selected = .Normal
-                theUnselectedUnit!.selected = .Selected
-            }
-            
-        case (1, false): touchedUnit.selected = .Selected
-            
-        case (2, _): touchedUnit.selected = .Normal
-            
-        default: break
-            
-        }
-    }
-    
     func SetupMoveOrdersAvailable() {
         
         HideAllLocations(false)
@@ -2023,7 +2010,7 @@ if each is Unit && touchedCount == 2 {
     
     func retreatTrigger() {
         
-        if statePoint != .Front || manager!.phaseNew != .RetreatOrDefenseSelection || undoOrAct || terrainButton.buttonState == .On {return}
+        if statePoint != .Front || undoOrAct || terrainButton.buttonState == .On || manager!.phaseNew != .RetreatOrDefenseSelection {return}
         
         ToggleGroups(manager!.groupsSelectable, makeSelection: .NotSelectable)
     
@@ -2057,7 +2044,7 @@ if each is Unit && touchedCount == 2 {
     
     func commitTrigger() {
         
-        if statePoint != .Front || undoOrAct || terrainButton.buttonState == .On {return}
+        if statePoint != .Front || undoOrAct || terrainButton.buttonState == .On || manager!.phaseNew != .PreRetreatOrFeintMoveOrAttackDeclare {return}
     
         if commitButton.buttonState == .Option {
             commitButton.buttonState = .On
@@ -2073,7 +2060,7 @@ if each is Unit && touchedCount == 2 {
     
     func guardAttackTrigger() {
         
-        if statePoint != .Front || !(manager!.phaseNew != .Move && manager!.phaseNew != .Commit) || undoOrAct || terrainButton.buttonState == .On {return}
+        if statePoint != .Front || undoOrAct || terrainButton.buttonState == .On || !(manager!.phaseNew != .Move && manager!.phaseNew != .Commit) {return}
         
         if guardButton.buttonState == .Option {guardButton.buttonState = .On}
         else if guardButton.buttonState == .On {guardButton.buttonState = .Option}
@@ -2109,7 +2096,7 @@ if each is Unit && touchedCount == 2 {
             //if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
         // Defender confirming their leading units
-        case .RetreatOrDefenseSelection, .SelectDefenseLeading, .SelectAttackLeading, .SelectCounterGroup, .PreRetreatOrFeintMoveOrAttackDeclare:
+        case .RetreatOrDefenseSelection, .SelectDefenseLeading, .SelectAttackLeading, .SelectCounterGroup, .PreRetreatOrFeintMoveOrAttackDeclare, .SelectAttackGroup:
         
             var theOrder:OrderType?
             
@@ -2118,6 +2105,7 @@ if each is Unit && touchedCount == 2 {
                 case .SelectDefenseLeading: theOrder = .LeadingDefense
                 case .SelectAttackLeading: theOrder = .LeadingAttack
                 case .SelectCounterGroup: theOrder = .LeadingCounterAttack
+                case .SelectAttackGroup: theOrder = .AttackGroupDeclare
 
             default: break
             }
@@ -2379,7 +2367,6 @@ if each is Unit && touchedCount == 2 {
                     ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
                     ResetState(true, groupsSelectable: false, hideRevealed: false, orderSelectors: false, otherSelectors: false)
                 }
-                //if !undoOrAct {endTurnButton.buttonState = .On}
                 
             case .Commit:
                 
@@ -2393,27 +2380,25 @@ if each is Unit && touchedCount == 2 {
                 
                 theOrder.ExecuteOrder(true, playback: false)
                 
+                theOrder.theConflict!.defenseApproach.approachSelector!.selected = .Option
                 ResetActiveConflict(theOrder.theConflict!)
                 activeConflict = theOrder.theConflict!
-                activeConflict!.defenseApproach.approachSelector!.selected = .Option
-                
                 SetupActiveConflict()
                 
                 if activeConflict!.guardAttack {guardButton.buttonState = .On} else {guardButton.buttonState = .Off}
                 if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
                 
-            case .SelectDefenseLeading, .SelectAttackLeading, .SelectCounterGroup:
+            case .SelectDefenseLeading, .SelectAttackLeading, .SelectCounterGroup, .SelectAttackGroup:
                 
                 theOrder.ExecuteOrder(true, playback: false)
 
+                theOrder.theConflict!.defenseApproach.approachSelector!.selected = .Option
                 ResetActiveConflict(theOrder.theConflict!)
                 activeConflict = theOrder.theConflict!
-                activeConflict!.defenseApproach.approachSelector!.selected = .Option
-                
                 SetupActiveConflict()
 
                 if activeConflict!.guardAttack {guardButton.buttonState = .On} else {guardButton.buttonState = .Off}
-                endTurnButton.buttonState = .Option
+                if manager!.phaseNew == .SelectAttackGroup {endTurnButton.buttonState = .Off} else {endTurnButton.buttonState = .Option}
                 
             case .PreRetreatOrFeintMoveOrAttackDeclare:
             
@@ -2421,38 +2406,38 @@ if each is Unit && touchedCount == 2 {
                     
                 case .Move:
                     
-                    // This mess determines whether the next two orders are the same command (re-select if so)
                     theOrder.ExecuteOrder(true)
 
                     let moveFromBase = theOrder.baseGroup!.command.moveNumber - theOrder.baseGroup!.command.repeatMoveNumber
                     
                     if moveFromBase > 0 {
+                        
                         manager!.groupsSelected = [theOrder.baseGroup!]
                         ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
                         
                         AttackOrdersAvailable()
-                        undoOrAct = true
-                        if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
                         
+                        undoOrAct = true
+
                     } else {
                         
-                        undoOrAct = false
-                        
+                        theOrder.theConflict!.defenseApproach.approachSelector!.selected = .Option
                         ResetActiveConflict(theOrder.theConflict!)
                         activeConflict = theOrder.theConflict!
                         SetupActiveConflict()
                         
-                        activeConflict!.defenseApproach.approachSelector!.selected = .Option
+                        undoOrAct = false
+
                     }
+                    if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
                     
                 case .ConfirmAttack:
                     
+                    theOrder.theConflict!.defenseApproach.approachSelector!.selected = .Option
                     ResetActiveConflict(theOrder.theConflict!)
                     activeConflict = theOrder.theConflict!
                     SetupActiveConflict()
-                    
-                    activeConflict!.defenseApproach.approachSelector!.selected = .Option
-                    
+
                     endTurnButton.buttonState = .Off
                     commitButton.buttonState = .Option
                 
@@ -2643,7 +2628,7 @@ func ResetState(groupselected:Bool = false, groupsSelectable:Bool = false, hideR
         (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState) = (.Off, .Off, .Off, .Off)
     }
     if otherSelectors {
-        (guardButton.buttonState, retreatButton.buttonState, commitButton.buttonState, terrainButton.buttonState) = (.Off, .Off, .Off, .Off)
+        (guardButton.buttonState, retreatButton.buttonState, commitButton.buttonState) = (.Off, .Off, .Off)
     }
 }
 

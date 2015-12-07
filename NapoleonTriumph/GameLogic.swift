@@ -630,6 +630,7 @@ func CheckEndTurnStatus() -> Bool {
     default: break
         
     }
+    if activeConflict != nil {activeConflict!.defenseApproach.approachSelector!.turnColor("Purple")}
     return endTurnViable
 }
 
@@ -1090,11 +1091,13 @@ func AdjustSelectionForLeaderRulesActiveThreat(theUnits:[Unit]) -> [Unit] {
 
 // MARK: Defense Logic
 
-func SelectableGroupsForFeintDefense (theThreat:Conflict) {
+func SelectableGroupsForFeintDefense(theThreat:Conflict) -> [Group] {
     
     // Safety drill
-    if theThreat.defenseGroup!.groups.isEmpty {return}
-    ToggleGroups(GroupsIncludeLeaders(theThreat.defenseGroup!.groups), makeSelection: .Normal)
+    if theThreat.defenseGroup!.groups.isEmpty {return []}
+    return GroupsIncludeLeaders(theThreat.defenseGroup!.groups)
+    
+    //ToggleGroups(GroupsIncludeLeaders(theThreat.defenseGroup!.groups), makeSelection: .Normal)
 }
 
 // Order to defend
@@ -1308,6 +1311,36 @@ func ToggleGroups(theGroups:[Group], makeSelection:SelectType = .Normal) {
 func ActivateDetached(theReserve:Reserve, theGroups:[Group], makeSelection:SelectType = .Normal) {
     for eachGroup in theGroups {
         if !eachGroup.command.hasLeader && eachGroup.command.currentLocation == theReserve {ToggleGroups([eachGroup], makeSelection: makeSelection)}
+    }
+}
+
+func ToggleBattleWidthUnitSelection(touchedUnit:Unit!, theThreat:Conflict) {
+    
+    let unitSelectedAlready = touchedUnit.selected == .Selected
+    
+    var unitsSelected = 0
+    var theUnselectedUnit:Unit?
+    for eachGroup in theThreat.defenseLeadingUnits!.groups {
+        for eachUnit in eachGroup.units {
+            if eachUnit.selected == .Selected {unitsSelected++}
+            else {theUnselectedUnit = eachUnit}
+        }
+    }
+    
+    switch (unitsSelected, unitSelectedAlready) {
+        
+    case (1, true):
+        if theUnselectedUnit != nil {
+            touchedUnit.selected = .Normal
+            theUnselectedUnit!.selected = .Selected
+        }
+        
+    case (1, false): touchedUnit.selected = .Selected
+        
+    case (2, _): touchedUnit.selected = .Normal
+        
+    default: break
+        
     }
 }
 
