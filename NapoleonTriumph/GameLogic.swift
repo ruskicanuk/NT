@@ -583,9 +583,9 @@ func CheckEndTurnStatus() -> Bool {
         for eachLocaleThreat in manager!.localeThreats {
             if eachLocaleThreat.retreatMode {continue}
             for eachConflict in eachLocaleThreat.conflicts {
-                
-                if eachConflict.defenseApproach.approachSelector!.selected != .On {
+                if eachConflict.defenseApproach.approachSelector!.selected == .Option {
                     endTurnViable = false
+                    break
                 }
             }
         }
@@ -593,47 +593,45 @@ func CheckEndTurnStatus() -> Bool {
     case .PreRetreatOrFeintMoveOrAttackDeclare:
         
         for eachLocaleThreat in manager!.localeThreats {
-            if eachLocaleThreat.retreatMode {
-                if eachLocaleThreat.defenseReserve.localeControl == eachLocaleThreat.conflicts[0].defenseSide.Other() {
-                    for eachConflict in eachLocaleThreat.conflicts {
-                        if eachConflict.defenseApproach.approachSelector!.selected == .Option {
-                            if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand--}
-                            else {manager!.phantomIndCommand--}
-                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
-                            //eachConflict.defenseApproach.hidden = true
-                            eachConflict.defenseApproach.approachSelector!.selected = .Off
-                        }
-                    }
-                } else {
+            for eachConflict in eachLocaleThreat.conflicts {
+                if eachConflict.defenseApproach.approachSelector!.selected == .Option {
                     endTurnViable = false
-                    for eachConflict in eachLocaleThreat.conflicts {
-                        if eachConflict.defenseApproach.approachSelector!.selected == .Off {
-                            if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand++}
-                            else {manager!.phantomIndCommand++}
-                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                            //eachConflict.defenseApproach.hidden = false
-                            eachConflict.defenseApproach.approachSelector!.selected = .Option
-                        }
-                    }
-                }
-                
-            } else {
-                for eachConflict in eachLocaleThreat.conflicts {
-                    if eachConflict.defenseApproach.approachSelector!.selected != .On {
-                        endTurnViable = false
-                    }
+                    break
                 }
             }
-            
         }
         
     case .SelectAttackGroup:
         
         for eachLocaleThreat in manager!.localeThreats {
             for eachConflict in eachLocaleThreat.conflicts {
-                if eachConflict.realAttack {
-                    eachConflict.defenseApproach.approachSelector!.selected == .Option
+                if eachConflict.realAttack && eachConflict.defenseApproach.approachSelector!.selected == .Option {
                     endTurnViable = false
+                    break
+                }
+            }
+        }
+        
+    case .FeintResponse:
+        
+        for eachLocaleThreat in manager!.localeThreats {
+            if eachLocaleThreat.retreatMode {continue}
+            for eachConflict in eachLocaleThreat.conflicts {
+                if !eachConflict.realAttack && eachConflict.defenseApproach.approachSelector!.selected == .Option {
+                    endTurnViable = false
+                    break
+                }
+            }
+        }
+        
+    case .PostCombatRetreatAndVictoryResponseMoves:
+        
+        for eachLocaleThreat in manager!.localeThreats {
+            if eachLocaleThreat.retreatMode {continue}
+            for eachConflict in eachLocaleThreat.conflicts {
+                if eachConflict.realAttack && eachConflict.defenseApproach.approachSelector!.selected == .Option {
+                    endTurnViable = false
+                    break
                 }
             }
         }

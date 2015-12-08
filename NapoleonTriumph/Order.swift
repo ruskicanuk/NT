@@ -120,6 +120,7 @@ class Order {
     init(feintSelection:GroupSelection, touchedApproachFromView:Approach, orderFromView: OrderType) {
         order = orderFromView
         groupSelection = feintSelection
+        theConflict = activeConflict!
         
         var theLocations:[Location] = []
         if groupSelection != nil {for eachGroup in groupSelection!.groups {theLocations += [eachGroup.command.currentLocation!]}}
@@ -302,17 +303,21 @@ class Order {
                         }
                             
                         // Releasing committed units
-                        for eachConflict in activeGroupConflict!.conflicts {
+                        for eachConflict in theConflict!.parentGroupConflict!.conflicts {
                             for eachUnit in eachConflict.threateningUnits {eachUnit.threatenedConflict = nil}
                             eachConflict.storedThreateningUnits = eachConflict.threateningUnits
                             eachConflict.threateningUnits = []
-                            eachConflict.defenseApproach.approachSelector!.selected = .On
+                            eachConflict.defenseApproach.approachSelector!.selected = .Off
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            if eachConflict.defenseApproach != theConflict!.defenseApproach {
+                                if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand--}
+                                else {manager!.phantomIndCommand--}
+                            }
                             //manager!.staticLocations.removeObject(eachConflict.defenseApproach)
                         }
                     
                     // When the attacker moves into the feint-area
-                    } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
+                    } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && theConflict!.defenseApproach.approachSelector!.selected == .Option && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
                         
                         for eachUnit in theConflict!.threateningUnits {eachUnit.threatenedConflict = nil}
                         theConflict!.storedThreateningUnits = theConflict!.threateningUnits
@@ -392,7 +397,10 @@ class Order {
                     eachConflict.defenseApproach.approachSelector!.selected = .Option
                     //manager!.staticLocations += [eachConflict.defenseApproach]
                     RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                    //eachConflict.defenseApproach.hidden = false
+                    if eachConflict.defenseApproach != theConflict!.defenseApproach {
+                        if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand++}
+                        else {manager!.phantomIndCommand++}
+                    }
                 }
             } else if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) && reverseCode == 5 {
                 
@@ -673,9 +681,9 @@ class Order {
             }
             
             if !playback {
-                //theGroupConflict?.retreatOrders++
-                //theGroupConflict?.mustRetreat = true
-                //manager!.ResetRetreatDefenseSelection()
+                RevealLocation(theConflict!.defenseApproach, toReveal: false)
+                ToggleCommands(theConflict!.defenseApproach.occupants + theConflict!.defenseReserve.occupants, makeSelection: .NotSelectable)
+                theConflict!.defenseApproach.approachSelector!.selected == .On
                 
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
@@ -714,13 +722,14 @@ class Order {
             // May need to release the must-retreat condition
             if !playback {
                 
-                //theGroupConflict?.retreatOrders--
-                //if theGroupConflict?.retreatOrders == 0 {theGroupConflict?.mustRetreat = false}
-                //manager!.ResetRetreatDefenseSelection()
-                
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
                 startLocaleReserve!.UpdateReserveState()
+                
+                //RevealLocation(theConflict!.defenseApproach, toReveal: true)
+                //manager!.groupsSelectable = SelectableGroupsForFeintDefense(theConflict!)
+                //ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+                //theConflict!.defenseApproach.approachSelector!.selected = .Option
             }
             
         // MARK: Attach

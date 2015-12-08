@@ -464,6 +464,7 @@ class GameManager: NSObject, NSCoding {
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
                             staticLocations.removeObject(eachConflict.defenseApproach)
                             eachConflict.defenseApproach.approachSelector!.selected = .Off
+                            eachConflict.counterAttackLeadingUnits = nil
                         } else {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             RevealLocation(eachConflict.defenseApproach, toReveal: true)
