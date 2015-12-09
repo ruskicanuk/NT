@@ -1098,6 +1098,24 @@ func AdjustSelectionForLeaderRulesActiveThreat(theUnits:[Unit]) -> [Unit] {
     return theUnits
 }
 
+// MARK: Battle Logic
+
+func InitialBattleProcessing(theConflict:Conflict) {
+    ToggleGroups(theConflict.attackLeadingUnits!.groups, makeSelection: .NotSelectable)
+    ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .NotSelectable)
+    
+    // INITIAL RESULT
+    let newOrder = Order(passedConflict: theConflict, orderFromView: .InitialBattle)
+    newOrder.ExecuteOrder()
+    newOrder.unDoable = false // Can't undo initial result
+    manager!.orders += [newOrder]
+
+}
+
+func FinalBattleProcessing(theConflict:Conflict) {
+    
+}
+
 // MARK: Defense Logic
 
 func SelectableGroupsForFeintDefense(theThreat:Conflict) -> [Group] {

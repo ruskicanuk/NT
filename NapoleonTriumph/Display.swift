@@ -45,10 +45,14 @@ var activeConflict:Conflict? {
 
         if activeConflict == nil {
             activeGroupConflict = nil
+            battleMenu.hidden = true
         }
         else {
             activeGroupConflict = activeConflict!.parentGroupConflict
             activeConflict!.defenseApproach.approachSelector!.turnColor("Purple")
+            
+            battleMenu.hidden = false
+            updateBattleLabel(activeConflict!, initial: manager!.phaseNew == .SelectCounterGroup)
         }
     }
 }
@@ -162,8 +166,9 @@ var turnLabel = UILabel()
 var alliedMoraleLabel = UILabel()
 var frenchMoraleLabel = UILabel()
 var playbackStateLabel = UILabel()
-var phatomOrderCorps = UILabel()
-var phamtonOrderInd = UILabel()
+var phantomOrderCorps = UILabel()
+var phantomOrderInd = UILabel()
+var battleResult = UILabel()
 
 var undoButton:UIStateButton!
 var endTurnButton:UIStateButton!
@@ -221,19 +226,33 @@ func setupCommandDashboard() {
     playbackStateLabel.frame = CGRect(x: 5, y: 110, width: 200, height: 15)
     labelMenu.addSubview(playbackStateLabel)
     
-    phatomOrderCorps.font = UIFont(name: phatomOrderCorps.font.fontName, size: 12)
-    phatomOrderCorps.textColor = SKColor.blackColor()
-    phatomOrderCorps.frame = CGRect(x: 5, y: 125, width: 200, height: 15)
-    labelMenu.addSubview(phatomOrderCorps)
+    phantomOrderCorps.font = UIFont(name: phantomOrderCorps.font.fontName, size: 12)
+    phantomOrderCorps.textColor = SKColor.blackColor()
+    phantomOrderCorps.frame = CGRect(x: 5, y: 125, width: 200, height: 15)
+    labelMenu.addSubview(phantomOrderCorps)
     
-    phamtonOrderInd.font = UIFont(name: phamtonOrderInd.font.fontName, size: 12)
-    phamtonOrderInd.textColor = SKColor.blackColor()
-    phamtonOrderInd.frame = CGRect(x: 5, y: 140, width: 200, height: 15)
-    labelMenu.addSubview(phamtonOrderInd)
+    phantomOrderInd.font = UIFont(name: phantomOrderInd.font.fontName, size: 12)
+    phantomOrderInd.textColor = SKColor.blackColor()
+    phantomOrderInd.frame = CGRect(x: 5, y: 140, width: 200, height: 15)
+    labelMenu.addSubview(phantomOrderInd)
+    
+    battleResult.font = UIFont(name: battleResult.font.fontName, size: 12)
+    battleResult.textColor = SKColor.blackColor()
+    battleResult.frame = CGRect(x: 5, y: 5, width: 100, height: 15)
+    battleMenu.addSubview(battleResult)
 
 }
 
 // Refreshes the labels on the labelMenu
+func updateBattleLabel(theConflict:Conflict, initial:Bool) {
+    if !theConflict.realAttack {battleResult.text = ""; return}
+    if initial {
+        battleResult.text = "Current: \(theConflict.initialResult)"
+    } else {
+        battleResult.text = "Current: \(theConflict.finalResult)"
+    }
+}
+
 func updateCommandLabel() {
     commandLabel.text = "Corps Commands: \(manager!.corpsCommandsAvail)"
 }
@@ -264,8 +283,8 @@ func updatePlaybackState() {
 }
 
 func updatePhantomLabelState() {
-    phatomOrderCorps.text = "Corp Phantoms: \(manager!.phantomCorpsCommand)"
-    phamtonOrderInd.text = "Ind Phantoms: \(manager!.phantomIndCommand)"
+    phantomOrderCorps.text = "Corp Phantoms: \(manager!.phantomCorpsCommand)"
+    phantomOrderInd.text = "Ind Phantoms: \(manager!.phantomIndCommand)"
 }
 
 

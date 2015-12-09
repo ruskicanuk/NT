@@ -157,6 +157,14 @@ class Order {
         endLocation = theConflict!.defenseApproach!
     }
     
+    // Reduce order (Initial battle, Final battle)
+    init(passedConflict:Conflict, orderFromView: OrderType) {
+        order = orderFromView
+        theConflict = passedConflict
+        startLocation = [theConflict!.attackReserve!]
+        endLocation = theConflict!.defenseApproach!
+    }
+    
     // MARK: Order Functions
     
     func ExecuteOrder(reverse:Bool = false, playback:Bool = false) -> Bool { // Returns true if the reserve area is overloaded, otherwise false
@@ -682,8 +690,8 @@ class Order {
             
             if !playback {
                 RevealLocation(theConflict!.defenseApproach, toReveal: false)
-                ToggleCommands(theConflict!.defenseApproach.occupants + theConflict!.defenseReserve.occupants, makeSelection: .NotSelectable)
-                theConflict!.defenseApproach.approachSelector!.selected == .On
+                //ToggleCommands(theConflict!.defenseApproach.occupants + theConflict!.defenseReserve.occupants, makeSelection: .NotSelectable)
+                theConflict!.defenseApproach.approachSelector!.selected = .On
                 
                 // Update reserves
                 endLocaleReserve!.UpdateReserveState()
@@ -726,7 +734,7 @@ class Order {
                 endLocaleReserve!.UpdateReserveState()
                 startLocaleReserve!.UpdateReserveState()
                 
-                //RevealLocation(theConflict!.defenseApproach, toReveal: true)
+                RevealLocation(theConflict!.defenseApproach, toReveal: true)
                 //manager!.groupsSelectable = SelectableGroupsForFeintDefense(theConflict!)
                 //ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
                 //theConflict!.defenseApproach.approachSelector!.selected = .Option
@@ -1393,7 +1401,7 @@ class Order {
                 }
                 lineWidth = 1.0
                 glowHeight = 1.0
-                zPosition = 1
+                zPosition = 1.0
                 
             } else if order == .Retreat {
                 
@@ -1404,7 +1412,7 @@ class Order {
                 }
                 lineWidth = 1.0
                 glowHeight = 1.0
-                zPosition = 1
+                zPosition = 1.0
                 
             } else if order == .Attach {
                 
@@ -1421,35 +1429,39 @@ class Order {
                 
                 lineWidth = 5.0
                 glowHeight = 3.0
-                zPosition = 1
+                zPosition = 1.0
                 
             } else if order == .Defend {
                     
                     strokeColor = SKColor.purpleColor()
-                    lineWidth = 2.0
+                    lineWidth = 1.0
                     glowHeight = 1.0
-                    zPosition = 1
+                    zPosition = 1.0
                 
             } else if order == .LeadingDefense {
                 
                 strokeColor = SKColor.purpleColor()
-                lineWidth = 5.0
-                glowHeight = 3.0
-                zPosition = 1
+                lineWidth = 4.0
+                glowHeight = 2.0
+                zPosition = 2.0
                 
             } else if order == .Feint {
                 
-                strokeColor = SKColor.blueColor()
-                lineWidth = 4.0
-                glowHeight = 2.0
-                zPosition = 1
+                if theConflict!.defenseSide == .French {
+                    strokeColor = SKColor.blueColor()
+                } else {
+                    strokeColor = SKColor.redColor()
+                }
+                lineWidth = 1.0
+                glowHeight = 1.0
+                zPosition = 1.0
                 
             } else if order == .ConfirmAttack {
                 
                 strokeColor = SKColor.purpleColor()
                 lineWidth = 7.0
-                glowHeight = 2.0
-                zPosition = 1
+                glowHeight = 3.0
+                zPosition = 3.0
                 
             }
             

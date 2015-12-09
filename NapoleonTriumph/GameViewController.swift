@@ -16,6 +16,7 @@ var gameScene:GameScene!
 let baseMenu = UIView.init()
 let largeMenu = UIView.init()
 let labelMenu = UIView.init()
+let battleMenu = UIView.init()
 
 //var scene:GameScene!
 var scene:MenuView!
@@ -99,11 +100,19 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
         
     // Large menu button setup
     labelMenu.multipleTouchEnabled = false
-    labelMenu.userInteractionEnabled = true
+    labelMenu.userInteractionEnabled = false
     labelMenu.frame = CGRectMake(650, 500, self.view.frame.size.width / 4, self.view.frame.size.height / 5)
     labelMenu.backgroundColor = UIColor.whiteColor()
     labelMenu.hidden = false
     self.view.addSubview(labelMenu)
+        
+    // Large menu button setup
+    battleMenu.multipleTouchEnabled = false
+    battleMenu.userInteractionEnabled = false
+    battleMenu.frame = CGRectMake(650, 300, self.view.frame.size.width / 6, self.view.frame.size.height / 6)
+    battleMenu.backgroundColor = UIColor.whiteColor()
+    battleMenu.hidden = true
+    self.view.addSubview(battleMenu)
 
     //let popMenuImage = UIImage.init(named: "Menu")!
     //let popButton:UIButton = UIButton.init(frame: CGRectMake(0, self.view.frame.size.height / 4 - popMenuImage.size.height, popMenuImage.size.width, popMenuImage.size.height))

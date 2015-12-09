@@ -491,6 +491,10 @@ class GameManager: NSObject, NSCoding {
                             RevealLocation(eachConflict.defenseApproach, toReveal: true)
                             staticLocations += [eachConflict.defenseApproach]
                             availableCount++
+                            
+                            InitialBattleProcessing(eachConflict)
+                            //InitialBattleUI(eachConflict)
+                            
                         } else {
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
                             staticLocations.removeObject(eachConflict.defenseApproach)
