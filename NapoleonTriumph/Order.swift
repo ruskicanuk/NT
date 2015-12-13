@@ -10,7 +10,7 @@ import SpriteKit
 
 // Stores the kind of order
 enum OrderType {
-    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, SecondMove, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack, ConfirmAttack, AttackGroupDeclare
+    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack, ConfirmAttack, AttackGroupDeclare
 }
 
 class Order {
@@ -755,33 +755,6 @@ class Order {
             
             }
             
-        /*
-        case (false, .FeintThreat):
-            
-            if (endLocation is Approach) {
-                
-                if playback {break}
-                let defenseApproach = (endLocation as! Approach)
-                let attackApproach = defenseApproach.oppApproach!
-                let defenseReserve = defenseApproach.ownReserve!
-                let attackReserve = attackApproach.ownReserve!
-                
-                //print(defenseReserve)
-                // Change this architecture later to add individual conflict
-                theConflict = Conflict(aReserve: attackReserve, dReserve: defenseReserve, aApproach: attackApproach, dApproach: defenseApproach, mFeint: true)
-            }
-            
-            print("Must Feint order", terminator: "")
-        
-        case (true, .FeintThreat):
-            
-            if playback {break}
-            //manager!.NewPhase(2, reverse: true, playback: playback)
-
-            print("Must Feint order rescinded", terminator: "")
-
-            */
-            
         // MARK: Threat
             
         case (false, .Threat):
@@ -928,8 +901,10 @@ class Order {
                         theConflict!.parentGroupConflict!.mustRetreat = true
                     }
                     
-                    // Morale reduction
-                    manager!.ReduceMorale(1, side: theSide, mayDemoralize: true)
+                    // Reduce morale if its not a battle-reduction
+                    if !battleReduction! {
+                        manager!.ReduceMorale(1, side: theSide, mayDemoralize: true)
+                    }
                 }
                 
                 swappedUnit!.decrementStrength()
@@ -972,8 +947,9 @@ class Order {
                         theConflict!.parentGroupConflict!.mustRetreat = false
                     }
                     
-                    // Morale reduction
-                    manager!.ReduceMorale(-1, side: theSide, mayDemoralize: true)
+                    if !battleReduction! {
+                        manager!.ReduceMorale(-1, side: theSide, mayDemoralize: true)
+                    }
                 }
             }
             
@@ -1059,7 +1035,12 @@ class Order {
             
         case (false, .FinalBattle):
             if !playback {
-                //theGroupConflict!.SetupRetreatRequirements() <-- This should be done only in the case of attacker victory
+                
+                if theConflict!.attackMoveType == .IndMove {
+                    manager!.indCommandsAvail -= theConflict!.attackGroup!.groups.count
+                } else {
+                    manager!.corpsCommandsAvail -= theConflict!.attackGroup!.groups.count
+                }
                 theConflict!.ApplyCounterLosses()
                 theConflict!.FinalResult()
             }
@@ -1067,9 +1048,8 @@ class Order {
             
         case (true, .FinalBattle):
             break
-            
-        // MARK: Second Move
-            
+
+        /*
         case (false, .SecondMove):
             
             if playback {break}
@@ -1090,6 +1070,7 @@ class Order {
             baseGroup!.command.moveNumber = reverseCode
             baseGroup!.command.rdMoves = startLocation
             if baseGroup!.leaderInGroup {baseGroup!.command.movedVia = .CorpsMove} else {baseGroup!.command.movedVia = .IndMove}
+        */
             
         // MARK: Defend
             
@@ -1103,7 +1084,6 @@ class Order {
             theConflict!.parentGroupConflict!.defendedApproaches += [theConflict!.defenseApproach]
             defenseSelection.SetGroupSelectionPropertyUnitsHaveDefended(true, approachDefended: theConflict!.defenseApproach)
             
-            //theConflict!.parentGroupConflict!.defenseOrders++
             theConflict!.approachDefended = true
             if  theConflict != nil && !theConflict!.parentGroupConflict!.mustDefend {
                 reverseCode = 2

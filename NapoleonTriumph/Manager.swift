@@ -336,10 +336,11 @@ class GameManager: NSObject, NSCoding {
                 }
                 CheckForOneBlockCorps(eachCommand)
             }
+            
             RemoveNonMovementArrows()
             ResetConflictsState()
+            RefreshCommands() // Switches block visibility
             endTurnButton.buttonState = .On
-            HideAllLocations(true)
         
         case .Commit:
             
@@ -541,7 +542,6 @@ class GameManager: NSObject, NSCoding {
                                 
                                 // Skip where defenders in the approach
                                 } else {
-                                    //SelectableGroupsForFeintDefense(theConflict)
                                     
                                     // Double check that defenders remain to move into position (otherwise skip to Move)
                                     let doubleCheckExistance = GroupSelection(theGroups: eachConflict.defenseGroup!.groups, selectedOnly: false)
@@ -561,6 +561,7 @@ class GameManager: NSObject, NSCoding {
                                 
                                 eachConflict.parentGroupConflict!.retreatMode = true
                                 eachConflict.parentGroupConflict!.mustRetreat = true
+                                eachConflict.parentGroupConflict!.mustDefend = false
                                 
                                 eachConflict.defenseApproach.approachSelector!.selected = .Option
                                 availableCount++
@@ -654,7 +655,17 @@ class GameManager: NSObject, NSCoding {
         // Reset conflict-related attributes
         for eachLocaleThreat in localeThreats {
             for eachConflict in eachLocaleThreat.conflicts {
+                
+                if eachConflict.realAttack && eachConflict.conflictFinalWinner == eachConflict.defenseSide.Other() {
+                    PostBattleMove(eachConflict, artAttack: false)
+                }
+                
+                for eachUnit in eachConflict.threateningUnits {
+                    eachUnit.threatenedConflict = nil
+                    eachUnit.assigned = "None"
+                }
                 eachConflict.defenseApproach.threatened = false
+                eachConflict.threateningUnits = []
                 eachConflict.defenseApproach.approachSelector!.selected = .Off
                 eachConflict.defenseApproach.zPosition = 200
             }

@@ -88,7 +88,7 @@ enum Allegience {
         else {return true}
     }
     
-    mutating func Switch () {
+    mutating func Switch() {
         
         if self == .French {self = .Austrian}
         else if self == .Austrian {self = .French}
@@ -169,6 +169,7 @@ var playbackStateLabel = UILabel()
 var phantomOrderCorps = UILabel()
 var phantomOrderInd = UILabel()
 var battleResult = UILabel()
+var battleWinner = UILabel()
 
 var undoButton:UIStateButton!
 var endTurnButton:UIStateButton!
@@ -240,6 +241,11 @@ func setupCommandDashboard() {
     battleResult.textColor = SKColor.blackColor()
     battleResult.frame = CGRect(x: 5, y: 5, width: 100, height: 15)
     battleMenu.addSubview(battleResult)
+    
+    battleWinner.font = UIFont(name: battleWinner.font.fontName, size: 12)
+    battleWinner.textColor = SKColor.blackColor()
+    battleWinner.frame = CGRect(x: 5, y: 20, width: 100, height: 15)
+    battleMenu.addSubview(battleWinner)
 
 }
 
@@ -247,9 +253,11 @@ func setupCommandDashboard() {
 func updateBattleLabel(theConflict:Conflict, initial:Bool) {
     if !theConflict.realAttack {battleResult.text = ""; return}
     if initial {
-        battleResult.text = "Current: \(theConflict.initialResult)"
+        battleResult.text = "Initial Result: \(theConflict.initialResult)"
+        battleWinner.text = "Winner: \(theConflict.conflictInitialWinner)"
     } else {
-        battleResult.text = "Current: \(theConflict.finalResult)"
+        battleResult.text = "Final Result: \(theConflict.finalResult)"
+        battleWinner.text = "Winner: \(theConflict.conflictFinalWinner)"
     }
 }
 

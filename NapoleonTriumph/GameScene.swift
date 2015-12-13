@@ -635,7 +635,7 @@ if each is Unit && touchedCount == 2 {
             
             // Safety drill
             if activeConflict == nil || activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
-            ResetState(false, groupsSelectable: false, hideRevealed: true, orderSelectors: false, otherSelectors: true)
+            ResetState(false, groupsSelectable: false, hideRevealed: true, orderSelectors: false, otherSelectors: false)
             guard let touchedUnit = touchedNode as? Unit else {break}
             if touchedUnit.selected == .NotSelectable || touchedUnit.selected == .Off || touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.fixed {break}
             
@@ -677,7 +677,7 @@ if each is Unit && touchedCount == 2 {
         case (.PostCombatRetreatAndVictoryResponseMoves, mapName):
             
             if activeConflict == nil || activeConflict!.defenseApproach.approachSelector!.selected == .On {break}
-            ResetState(true, groupsSelectable: false, hideRevealed: true, orderSelectors: false, otherSelectors: true)
+            ResetState(true, groupsSelectable: false, hideRevealed: true, orderSelectors: false, otherSelectors: false)
             
             if activeConflict!.parentGroupConflict!.retreatMode {
                 retreatButton.buttonState = .Option
@@ -2241,20 +2241,6 @@ func ResetState(groupselected:Bool = false, groupsSelectable:Bool = false, hideR
         (guardButton.buttonState, retreatButton.buttonState, commitButton.buttonState) = (.Off, .Off, .Off)
     }
 }
-
-/*
-func ResetSelectors() {
-    
-    corpsMoveButton.buttonState = .Off
-    independentButton.buttonState = .Off
-    corpsDetachButton.buttonState = .Off
-    corpsAttachButton.buttonState = .Off
-    
-    retreatButton.buttonState = .Off
-    guardButton.buttonState = .Off
-    //endTurnButton.buttonState = .Off
-}
-*/
 
 func ReturnMoveType () -> MoveType {
     if corpsMoveButton.buttonState == .On {return .CorpsMove}

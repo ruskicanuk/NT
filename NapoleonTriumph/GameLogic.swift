@@ -990,9 +990,6 @@ func PostBattleMove(theConflict:Conflict, artAttack:Bool = false) {
             }
         }
     }
-    //manager!.NewPhase(false, playback: false)
-    //endTurnButton.buttonState = .Option
-    //retreatButton.buttonState = .Off
 }
 
 // MARK: Defense Logic
@@ -1432,11 +1429,24 @@ func CheckEndTurnStatus() -> Bool {
     case .PostCombatRetreatAndVictoryResponseMoves:
         
         for eachLocaleThreat in manager!.localeThreats {
-            if eachLocaleThreat.retreatMode {continue}
-            for eachConflict in eachLocaleThreat.conflicts {
-                if eachConflict.realAttack && eachConflict.defenseApproach.approachSelector!.selected == .Option {
+            
+            if eachLocaleThreat.retreatMode {
+                if eachLocaleThreat.defenseReserve.currentFill > 0 {
                     endTurnViable = false
-                    break
+                    for eachConflict in eachLocaleThreat.conflicts {
+                        eachConflict.defenseApproach.approachSelector!.selected = .Option
+                    }
+                } else {
+                    for eachConflict in eachLocaleThreat.conflicts {
+                        eachConflict.defenseApproach.approachSelector!.selected = .On
+                    }
+                }
+            } else {
+
+                for eachConflict in eachLocaleThreat.conflicts {
+                    if eachConflict.defenseApproach.approachSelector!.selected == .Option {
+                        endTurnViable = false
+                    }
                 }
             }
         }

@@ -215,9 +215,6 @@ class Conflict {
         
         let counterLead = counterAttackLeadingUnits!
         finalResult = initialResult - counterLead.groupSelectionStrength
-
-        print("Initial Result: \(initialResult)")
-        print("Final Result: \(finalResult)")
         
         if conflictInitialWinner == .Neutral {conflictFinalWinner = .Neutral}
         else if finalResult > 0 {conflictFinalWinner = defenseSide.Other()!}
@@ -246,11 +243,14 @@ class Conflict {
         // Check for leader deaths (can only die in battle, retreat reductions and surrender)
         for eachGroup in attackGroup!.groups {
             
-            //for eachUnit in eachGroup.units {eachUnit.hasMoved = true}
+            for eachUnit in eachGroup.units {eachUnit.hasMoved = true}
+            
             if !eachGroup.leaderInGroup {continue}
             
             var totalUnitStrength = 0
-            for eachUnit in eachGroup.units {totalUnitStrength += eachUnit.unitStrength}
+            for eachUnit in eachGroup.units {
+                totalUnitStrength += eachUnit.unitStrength
+            }
             
             // Destroy the leader
             if totalUnitStrength == 1 { // Leader only

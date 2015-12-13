@@ -188,7 +188,6 @@ class Unit: SKSpriteNode {
         }
         
         unitCode = Double(unitCodeSide)+Double(unitCodeType)+Double(unitStrength)+unitCodeLdr
-        
     }
     
     // Increase or decrease unit strength, return true if adding strength and its artillery

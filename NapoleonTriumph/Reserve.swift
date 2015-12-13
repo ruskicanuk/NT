@@ -91,7 +91,7 @@ class Reserve:Location {
         
         // Rd Rules
         containsAdjacent2PlusCorps = .Neutral
-        has2PlusCorpsPassed = false
+        //has2PlusCorpsPassed = has2PlusCorpsPassed
         haveCommandsEntered = false
         numberCommandsEntered = 0
 
