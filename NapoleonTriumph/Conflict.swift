@@ -177,7 +177,7 @@ class Conflict {
         }
         
         if !artLead {defenseStrength = defenseLead.groupSelectionStrength} else {defenseStrength = 0}
-        if guardAttack {defenseStrength -= defenseLead.blocksSelected}
+        if guardAttack {defenseStrength -= defenseLead.notThreeStrUnits}
         
         initialResult = attackStrength - defenseStrength
         
@@ -201,7 +201,7 @@ class Conflict {
         
         for eachGroup in counterLead.groups {
             for eachUnit in eachGroup.units {
-                let newOrder = Order(theUnit: eachUnit, orderFromView: .Reduce, battleReduce: true)
+                let newOrder = Order(passedConflict: self, theUnit: eachUnit, orderFromView: .Reduce, battleReduce: true)
                 newOrder.ExecuteOrder()
                 manager!.orders += [newOrder]
             }
@@ -398,14 +398,16 @@ class Conflict {
     }
     
     func BattleReductions(unitsToReduce:[Unit]) {
-        for eachUnit in unitsToReduce {
-        let newOrder = Order(theUnit: eachUnit, orderFromView: .Reduce, battleReduce: true)
-        newOrder.ExecuteOrder()
-        manager!.orders += [newOrder]
         
+        for eachUnit in unitsToReduce {
+            
+            let newOrder = Order(passedConflict: self, theUnit: eachUnit, orderFromView: .Reduce, battleReduce: true)
+            newOrder.ExecuteOrder()
+            manager!.orders += [newOrder]
+            
             // Destroy leader case
             if eachUnit.parentCommand!.activeUnits.count == 1 && eachUnit.parentCommand!.hasLeader {
-                let newOrder = Order(theUnit: eachUnit.parentCommand!.theLeader!, orderFromView: .Reduce, battleReduce: true)
+                let newOrder = Order(passedConflict: self, theUnit: eachUnit.parentCommand!.theLeader!, orderFromView: .Reduce, battleReduce: true)
                 newOrder.ExecuteOrder()
                 manager!.orders += [newOrder]
             }
@@ -669,6 +671,7 @@ class GroupSelection {
     var anyOneStrengthUnits = false
     
     var blocksSelected = 0
+    var notThreeStrUnits = 0
     
     var containsInfOrGuard = false
     var containsTwoOrThreeStrCav = false
@@ -708,7 +711,8 @@ class GroupSelection {
                     if eachUnit.unitType == .Ldr {containsLeader = true} // Increment group selection size
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
-
+                    if eachUnit.unitStrength < 3 {notThreeStrUnits++}
+                    
                 }  
             }
             

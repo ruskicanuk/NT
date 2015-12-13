@@ -316,20 +316,18 @@ class GameManager: NSObject, NSCoding {
     // Triggered by conflict commands (eg. moving into an enemy locale)
     func NewPhase(reverse:Bool = false, playback:Bool = false) -> String {
 
+        var availableCount = 0
+        var theSingleConflict:Conflict?
+        
         // Increments phase if we aren't in play-back mode
         if playback {return "Playback"}
         let phaseChange = phaseNew.NextPhase(reverse) // Moves us to the next phase, returns true if need to swith acting player
         if phaseChange {actingPlayer.Switch()}
         RefreshCommands() // Switches block visibility
 
-        if !orders.isEmpty && phaseNew != .Commit {orders.last!.unDoable = false}
-        
         switch phaseNew {
         
         case .Move:
-            
-            endTurnButton.buttonState = .On
-            HideAllLocations(true)
             
             // Updates the selected status of the game commands generally after a battle and ensures 1-block corps are handled
             for eachCommand in gameCommands[actingPlayer]! {
@@ -339,7 +337,9 @@ class GameManager: NSObject, NSCoding {
                 CheckForOneBlockCorps(eachCommand)
             }
             RemoveNonMovementArrows()
-            ResetManagerState()
+            ResetConflictsState()
+            endTurnButton.buttonState = .On
+            HideAllLocations(true)
         
         case .Commit:
             
@@ -350,13 +350,20 @@ class GameManager: NSObject, NSCoding {
             endTurnButton.buttonState = .Off
             generalThreatsMade++
             SetupThreats()
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            //ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+            
+            availableCount = 2
+            if localeThreats.count == 1 {
+                if localeThreats[0].conflicts.count == 1 {
+                    theSingleConflict = localeThreats[0].conflicts[0]
+                    availableCount = 1
+                }
+            }
             
         // Static: All Groups
         
         case .SelectDefenseLeading:
             
-            var availableCount = 0
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if eachLocaleConflict.retreatMode {
@@ -369,17 +376,15 @@ class GameManager: NSObject, NSCoding {
                     for eachConflict in eachLocaleConflict.conflicts {
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
                         availableCount++
+                        theSingleConflict = eachConflict
                     }
                 }
             }
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-            if availableCount == 0 {NewPhase()}
-            
+
         // Static: All non-retreats
         
         case .PreRetreatOrFeintMoveOrAttackDeclare:
             
-            var availableCount = 0
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if eachLocaleConflict.retreatMode {
@@ -388,6 +393,7 @@ class GameManager: NSObject, NSCoding {
                         staticLocations += [eachConflict.defenseApproach]
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
                         availableCount++
+                        theSingleConflict = eachConflict
                     }
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
@@ -397,18 +403,16 @@ class GameManager: NSObject, NSCoding {
                         } else {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
+                            theSingleConflict = eachConflict
                         }
                     }
                 }
             }
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-            if availableCount == 0 {NewPhase()}
         
         // Static: All conflicts
         
         case .SelectAttackGroup:
             
-            var availableCount = 0
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if eachLocaleConflict.retreatMode {
@@ -424,6 +428,7 @@ class GameManager: NSObject, NSCoding {
                             //staticLocations += [eachConflict.defenseApproach]
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
+                            theSingleConflict = eachConflict
                         } else {
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
                             staticLocations.removeObject(eachConflict.defenseApproach)
@@ -432,8 +437,6 @@ class GameManager: NSObject, NSCoding {
                     }
                 }
             }
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-            if availableCount == 0 {NewPhase(); NewPhase()}
             
         // Static: All real attacks
         
@@ -445,17 +448,17 @@ class GameManager: NSObject, NSCoding {
                     for eachConflict in eachLocaleConflict.conflicts {
                         if eachConflict.realAttack {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            availableCount++
+                            theSingleConflict = eachConflict
                         }
                     }
                 }
             }
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
             
         // Static: All real attacks
             
         case .FeintResponse:
             
-            var availableCount = 0
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if !eachLocaleConflict.retreatMode {
@@ -470,18 +473,16 @@ class GameManager: NSObject, NSCoding {
                             RevealLocation(eachConflict.defenseApproach, toReveal: true)
                             staticLocations += [eachConflict.defenseApproach]
                             availableCount++
+                            theSingleConflict = eachConflict
                         }
                     }
                 }
             }
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-            if availableCount == 0 {NewPhase()}
             
         // Static: All feints
         
         case .SelectCounterGroup:
             
-            var availableCount = 0
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if !eachLocaleConflict.retreatMode {
@@ -491,9 +492,9 @@ class GameManager: NSObject, NSCoding {
                             RevealLocation(eachConflict.defenseApproach, toReveal: true)
                             staticLocations += [eachConflict.defenseApproach]
                             availableCount++
+                            theSingleConflict = eachConflict
                             
                             InitialBattleProcessing(eachConflict)
-                            //InitialBattleUI(eachConflict)
                             
                         } else {
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
@@ -503,92 +504,94 @@ class GameManager: NSObject, NSCoding {
                     }
                 }
             }
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-            if availableCount == 0 {NewPhase()}
             
         // Static: All real attacks
             
         case .PostCombatRetreatAndVictoryResponseMoves:
             
-            var availableCount = 0
             endTurnButton.buttonState = .Off
             for eachLocaleConflict in localeThreats {
                 if !eachLocaleConflict.retreatMode {
+                    
                     for eachConflict in eachLocaleConflict.conflicts {
-                        if eachConflict.realAttack && eachConflict.conflictFinalWinner == .Neutral {
-                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
-                            staticLocations.removeObject(eachConflict.defenseApproach)
-                            eachConflict.defenseApproach.approachSelector!.selected = .Off
-                        } else if eachConflict.realAttack {
-                            eachConflict.defenseApproach.approachSelector!.selected = .Option
-                            availableCount++
+                        
+                        if eachConflict.realAttack {
+                            
+                            FinalBattleProcessing(eachConflict)
+                        
+                            if eachConflict.conflictFinalWinner == .Neutral {
+                                
+                                PostBattleMove(eachConflict, artAttack: true)
+                                
+                                RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                                staticLocations.removeObject(eachConflict.defenseApproach)
+                                eachConflict.defenseApproach.approachSelector!.selected = .Off
+
+                            // Defender wins
+                            } else if eachConflict.conflictFinalWinner == eachConflict.defenseSide {
+                                
+                                ProcessDefenderWin(eachConflict)
+                                
+                                // Skip where defenders in the approach
+                                if eachConflict.approachConflict {
+
+                                    RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                                    manager!.staticLocations.removeObject(eachConflict.defenseApproach)
+                                    eachConflict.defenseApproach.approachSelector!.selected = .Off
+                                
+                                // Skip where defenders in the approach
+                                } else {
+                                    //SelectableGroupsForFeintDefense(theConflict)
+                                    
+                                    // Double check that defenders remain to move into position (otherwise skip to Move)
+                                    let doubleCheckExistance = GroupSelection(theGroups: eachConflict.defenseGroup!.groups, selectedOnly: false)
+                                    if doubleCheckExistance.groupSelectionStrength <= 0 {
+                                        RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                                        manager!.staticLocations.removeObject(eachConflict.defenseApproach)
+                                        eachConflict.defenseApproach.approachSelector!.selected = .Off
+                                    } else {
+                                        availableCount++
+                                        theSingleConflict = eachConflict
+                                        eachConflict.defenseApproach.approachSelector!.selected = .Option
+                                    }
+                                }
+                                
+                            // Attacker wins
+                            } else {
+                                
+                                eachConflict.parentGroupConflict!.retreatMode = true
+                                eachConflict.parentGroupConflict!.mustRetreat = true
+                                
+                                eachConflict.defenseApproach.approachSelector!.selected = .Option
+                                availableCount++
+                                theSingleConflict = eachConflict
+                            }
                         }
                     }
                 }
             }
+            
+        // Static: All non-art battles
+        
+        default: break
+            
+        }
+
+        // If there is one and only one conflict then select it, if there is zero then skip to next phase
+        if phaseNew != .Move && phaseNew != .Commit {
+            
             ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
             if availableCount == 0 {NewPhase()}
-            
-        // Static: All real attacks with winning defender or attacker
-            
-            /*
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
-            
-            SelectableLeadingGroups(activeGroupConflict!.conflict, thePhase: phaseOld)
-            SelectLeadingUnits(activeGroupConflict!.conflict)
-            
-            
-        case .FeintMove:
-            
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
-            SelectableGroupsForFeintDefense(activeGroupConflict!.conflict)
-            activeGroupConflict!.conflict.attackApproach.hidden = true
-        
-        case .DeclaredLeadingD:
-            
-            // Defense leading units visible to attacker
-            /*
-            selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(activeGroupConflict!.conflict)
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
-            ToggleGroups(selectableAttackAdjacentGroups, makeSelection: .Normal)
-            ToggleGroups(activeGroupConflict!.conflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
-            */
-        
-        case .DeclaredAttackers:
-            
-            // Defense leading units visible to attacker
-            
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
-            ToggleGroups(activeGroupConflict!.conflict.attackGroup!.groups, makeSelection: .Normal)
-            ToggleGroups(activeGroupConflict!.conflict.defenseGroup!.groups, makeSelection: .NotSelectable)
-            ToggleGroups(activeGroupConflict!.conflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
-            
-            SelectableLeadingGroups(activeGroupConflict!.conflict, thePhase: phaseOld)
-            SelectLeadingUnits(activeGroupConflict!.conflict)
-            
-        case .DeclaredLeadingA:
-            
-            // Attack leading units visible to defender
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .Off)
-            ToggleGroups(activeGroupConflict!.conflict.attackLeadingUnits!.groups, makeSelection: .Selected)
-            
-            if activeGroupConflict!.conflict.mayCounterAttack {
-                ToggleGroups(activeGroupConflict!.conflict.counterAttackGroup!.groups, makeSelection: .Normal)
-                SelectLeadingUnits(activeGroupConflict!.conflict)
+            else if availableCount == 1 && theSingleConflict != nil {
+                if activeConflict != nil {ResetActiveConflict(activeConflict!)}
+                activeConflict = theSingleConflict!
+                SetupActiveConflict()
             }
-            
-        case .RetreatAfterCombat: break
-            
-        case .PostVictoryFeintMove:
-            
-            //ToggleCommands(gameCommands[actingPlayer]!, makeSelectable: false)
-            ToggleGroups(GroupsIncludeLeaders(activeGroupConflict!.conflict.defenseGroup!.groups), makeSelection: .Normal)
-            
         }
-        */
-        default: "Test"
-            
-        }
+        
+        // Ensure last order is undoable unless in commit-phase
+        if !orders.isEmpty && phaseNew != .Commit {orders.last!.unDoable = false}
+        
         return "Normal"
     }
     
@@ -596,15 +599,13 @@ class GameManager: NSObject, NSCoding {
     
     func NewTurn() {
         
-        // Save the previous phasing player's orders
+        // Save the orders
         orderHistory[orderHistoryTurn] = orders
         for each in orders {each.orderArrow?.removeFromParent()}
         orders = []
-        groupsSelected = []
-        groupsSelectable = []
-        activeConflict = nil
-        endTurnButton.buttonState = .On
         
+        ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: true, otherSelectors: true)
+
         // Set turn and commands available
         if phasingPlayer != player1 {
             turn++
@@ -636,11 +637,10 @@ class GameManager: NSObject, NSCoding {
                     eachUnit.alreadyDefended = false // ; eachUnit.hasMoved = false this is set with observer
                 }
             }
+            for eachApproach in approaches {eachApproach.mayArtAttack = true; eachApproach.mayNormalAttack = true}
         }
-        
-        // Reset game-state
-        for eachApproach in approaches {eachApproach.mayArtAttack = true; eachApproach.mayNormalAttack = true}
-        ResetManagerState()
+        ResetConflictsState()
+        generalThreatsMade = 0
         
         // Always switch side, phasing and acting player
         if orders.last != nil {orders.last?.unDoable = false}
@@ -649,19 +649,25 @@ class GameManager: NSObject, NSCoding {
         RefreshCommands()
     }
     
-    func ResetManagerState() {
+    func ResetConflictsState() {
 
         // Reset conflict-related attributes
         for eachLocaleThreat in localeThreats {
             for eachConflict in eachLocaleThreat.conflicts {
                 eachConflict.defenseApproach.threatened = false
+                eachConflict.defenseApproach.approachSelector!.selected = .Off
+                eachConflict.defenseApproach.zPosition = 200
             }
         }
-        generalThreatsMade = 0
+        activeConflict = nil
+        endTurnButton.buttonState = .On
+        
         phantomCorpsCommand = 0
         phantomIndCommand = 0
         selectionRetreatReserves = []
         localeThreats = []
+        staticLocations = []
+        HideAllLocations(true)
     }
 
     // MARK: Support Functions
@@ -783,7 +789,7 @@ class GameManager: NSObject, NSCoding {
     }
     */
     
-    func PostBattleRetreatOrSurrender() -> String {
+    //func PostBattleRetreatOrSurrender() -> String {
             
         // Determine selectable retreat groups (everything in the locale)
         ///selectableRetreatGroups = SelectableGroupsForRetreat(activeGroupConflict!.conflict)
@@ -796,8 +802,8 @@ class GameManager: NSObject, NSCoding {
         ///else if selectableRetreatGroups.isEmpty {return "TurnOnSkip"}
         ///else {activeGroupConflict!.retreatMode = true; ToggleGroups(selectableRetreatGroups, makeSelection: .Normal); return "TurnOnRetreat"}
         
-        return "ReplaceThis"
-    }
+    //    return "ReplaceThis"
+    //}
     
     // Returns true if game-end demoralization victory
     func ReduceMorale(losses:Int, side:Allegience, mayDemoralize:Bool) -> Bool {

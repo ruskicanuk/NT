@@ -224,6 +224,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
     
     } while selectionsAvailable
     
+    (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(theConflict, thePhase: manager!.phaseNew)
 }
 
 // MARK: Variable AI

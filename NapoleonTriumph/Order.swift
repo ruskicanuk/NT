@@ -102,12 +102,12 @@ class Order {
         corpsCommand = corpsOrder
     }
     
-    // Initiate order (Retreat)
-    init(retreatSelection:GroupSelection, touchedReserveFromView:Location, orderFromView: OrderType) {
+    // Initiate order (Retreat, Feint)
+    init(passedConflict:Conflict, theGroupSelection:GroupSelection, touchedReserveFromView:Location, orderFromView: OrderType) {
         
         order = orderFromView
-        groupSelection = retreatSelection
-        theConflict = activeConflict!
+        groupSelection = theGroupSelection
+        theConflict = passedConflict
         
         var theLocations:[Location] = []
         if groupSelection != nil {for eachGroup in groupSelection!.groups {theLocations += [eachGroup.command.currentLocation!]}}
@@ -116,48 +116,17 @@ class Order {
         endLocation = touchedReserveFromView
     }
     
-    // Initiate order (Feint)
-    init(feintSelection:GroupSelection, touchedApproachFromView:Approach, orderFromView: OrderType) {
-        order = orderFromView
-        groupSelection = feintSelection
-        theConflict = activeConflict!
-        
-        var theLocations:[Location] = []
-        if groupSelection != nil {for eachGroup in groupSelection!.groups {theLocations += [eachGroup.command.currentLocation!]}}
-        
-        startLocation = theLocations
-        endLocation = touchedApproachFromView
-    }
-    
     // Reduce order (Reduce)
-    init(theUnit:Unit, orderFromView: OrderType, battleReduce:Bool = false) {
+    init(passedConflict:Conflict, theUnit:Unit, orderFromView: OrderType, battleReduce:Bool = false) {
         order = orderFromView
-        theConflict = activeConflict!
+        theConflict = passedConflict
         startLocation = [theUnit.parentCommand!.currentLocation!]
         endLocation = theUnit.parentCommand!.currentLocation!
         battleReduction = battleReduce
         swappedUnit = theUnit
     }
-    
-    // Initiate order (SecondMove)
-    init(groupFromView:Group, orderFromView:OrderType) {
-        
-        baseGroup = groupFromView
-        order = orderFromView
-        
-        startLocation = [baseGroup!.command.currentLocation!]
-        endLocation = baseGroup!.command.currentLocation!
-    }
-    
-    // Reduce order (Surrender, Initial battle, Final battle, Defense)
-    init(orderFromView: OrderType) {
-        order = orderFromView
-        theConflict = activeConflict!
-        startLocation = [theConflict!.attackReserve!]
-        endLocation = theConflict!.defenseApproach!
-    }
-    
-    // Reduce order (Initial battle, Final battle)
+
+    // Reduce order (Leading, AttackGroup, Surrender, Defense, Initial battle, Final battle)
     init(passedConflict:Conflict, orderFromView: OrderType) {
         order = orderFromView
         theConflict = passedConflict
