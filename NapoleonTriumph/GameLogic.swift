@@ -115,7 +115,7 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
 // Returns true (if road move), first array are viable "peaceful" moves, second array are viable "attack" moves
 func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState, SelState, SelState), undoOrAct:Bool = false) -> ([Location], [Approach], [Approach]) {
     
-    // Safety Check
+    // Safety Check 
     guard let commandSelected = groupSelected.command else {return ([], [], [])}
     if groupSelected.nonLdrUnitCount == 0 {return ([], [], [])}
     if commandSelected.currentLocationType == .Start {return ([], [], [])}
@@ -275,7 +275,9 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
             for each in mustFeintThreats {RevealLocation(each); each.zPosition = 200}
             return (rdMoves, [], mustFeintThreats)
 
-        } else {return (rdMoves, [], [])}
+        } else {
+            return (rdMoves, [], [])
+        }
         
     } else {
         
@@ -287,11 +289,6 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         // Remove approaches already attacked by normal attack
         for eachApproach in enemyOccupiedAttackApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedAttackApproaches.removeObject(eachApproach)}}
         for eachApproach in enemyOccupiedMustFeintApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedMustFeintApproaches.removeObject(eachApproach)}}
-        
-        //var attackThreats:[Approach] = []
-        //var mustFeintThreats:[Approach] = []
-        
-        //for each in (adjMoves + attackThreats + mustFeintThreats) {each.hidden = false; each.zPosition = 200}
         
         // Night turn or all general attacks made no attacks allowed
         if manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 || detachOn {
@@ -966,10 +963,14 @@ func ProcessDefenderWin(theConflict:Conflict) {
 func PostBattleMove(theConflict:Conflict, artAttack:Bool = false) {
     
     let moveToNode:SKNode!
+    let continuePossible = !theConflict.parentGroupConflict!.someEmbattledAttackersWon
+    
     if artAttack {
         moveToNode = theConflict.attackApproach
     }
-    else {
+    else if continuePossible {
+        moveToNode = theConflict.defenseReserve
+    } else {
         moveToNode = theConflict.defenseReserve
         theConflict.defenseReserve.has2PlusCorpsPassed = true // This ensures that the locale is blocked to all further movement
     }
@@ -985,8 +986,14 @@ func PostBattleMove(theConflict:Conflict, artAttack:Bool = false) {
         // Sets the moved commands to "finished moved"
         for (_, eachCommandArray) in newOrder.moveCommands {
             for eachCommand in eachCommandArray {
+                
                 eachCommand.movedVia = theConflict.attackMoveType!
-                eachCommand.finishedMove = true
+                
+                if continuePossible && (newOrder.moveType == .IndMove || newOrder.moveType == .CorpsMove) {
+                    eachCommand.repeatMoveNumber = eachCommand.moveNumber
+                } else {
+                    eachCommand.finishedMove = true
+                }
             }
         }
     }
@@ -1377,7 +1384,6 @@ func CheckEndTurnStatus() -> Bool {
                     }
                 }
             }
-            
         }
         
     case .SelectDefenseLeading, .SelectAttackLeading, .SelectCounterGroup:
@@ -1407,7 +1413,7 @@ func CheckEndTurnStatus() -> Bool {
         
         for eachLocaleThreat in manager!.localeThreats {
             for eachConflict in eachLocaleThreat.conflicts {
-                if eachConflict.realAttack && eachConflict.defenseApproach.approachSelector!.selected == .Option {
+                if (eachConflict.realAttack || !eachConflict.approachDefended) && eachConflict.defenseApproach.approachSelector!.selected == .Option {
                     endTurnViable = false
                     break
                 }

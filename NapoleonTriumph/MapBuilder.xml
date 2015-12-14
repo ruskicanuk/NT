@@ -10,7 +10,7 @@
   <object id="8" type="Approach" x="494" y="356" z="200" zRot="220" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="16" ownReserve="3" adjacentReserve="7"/>
   <object id="9" type="Approach" x="507" y="310" z="200" zRot="-46" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="7" ownReserve="4" adjacentReserve="3"/>
   <object id="10" type="Approach" x="557" y="344" z="200" zRot="-55" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="17" ownReserve="4" adjacentReserve="7"/>
-  <object id="11" type="Approach" x="578" y="401" z="200" zRot="21" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="18" ownReserve="5" adjacentReserve="3"/>
+  <object id="11" type="Approach" x="578" y="401" z="200" zRot="21" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="18" ownReserve="5" adjacentReserve="7"/>
   <object id="12" type="Approach" x="561" y="463" z="200" zRot="21" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="13" ownReserve="5" adjacentReserve="6"/>
   <object id="13" type="Approach" x="546" y="460" z="200" zRot="-171" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="12" ownReserve="6" adjacentReserve="5"/>
   <object id="14" type="Approach" x="532" y="444" z="200" zRot="65" inf="false" cav="false" art="false" obs="false" hill="false" wide="false" oppositeApproach="19" ownReserve="6" adjacentReserve="7"/>

@@ -297,7 +297,6 @@ if each is Unit && touchedCount == 2 {
             let mapLocation = touch.locationInNode(NTMap)
             let yRequiredForSwipe:CGFloat = mapScaleFactor*20.0
             
-            //print("mapLocationX: \(mapLocation.x), mapLocationY: \(mapLocation.y), swipeStartPointX: \(swipeStartPoint!.x), swipeStartPointY: \(swipeStartPoint!.y), yRequiredForSwipe: \(yRequiredForSwipe)")
             if swipeStartPoint != nil {
 
                 if (mapLocation.y - swipeStartPoint!.y) > yRequiredForSwipe || (mapLocation.x - swipeStartPoint!.x) > yRequiredForSwipe {
@@ -1688,6 +1687,7 @@ if each is Unit && touchedCount == 2 {
         // Pre-game phase
         case .Setup, .Move:
             
+            undoOrAct = false
             manager!.NewTurn()
             
         // Finished assigning threats
@@ -1695,9 +1695,8 @@ if each is Unit && touchedCount == 2 {
             
             if activeConflict != nil {ResetActiveConflict(activeConflict!)}
             ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: true, otherSelectors: true)
+            undoOrAct = false
             manager!.NewPhase()
-            
-            //if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
             
         // Defender confirming their leading units
         case .RetreatOrDefenseSelection, .SelectDefenseLeading, .SelectAttackLeading, .SelectCounterGroup, .PreRetreatOrFeintMoveOrAttackDeclare, .SelectAttackGroup:
@@ -1735,211 +1734,12 @@ if each is Unit && touchedCount == 2 {
                 
                 if activeConflict != nil {ResetActiveConflict(activeConflict!)}
                 ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: true, otherSelectors: true)
+                undoOrAct = false
                 manager!.NewPhase()
             }
         }
     }
 
-                // Continue-attack mode
-                /*
-                if manager!.repeatAttackGroup != nil {
-                    if CheckTurnEndViableInCommitMode(theGroupThreat.conflict, endLocation:manager!.repeatAttackGroup!.command.currentLocation!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-                    //manager!.RemoveArrows()
-                    manager!.groupsSelected = [manager!.repeatAttackGroup!]
-                    ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
-                    AttackOrdersAvailable()
-                    undoOrAct = true
-                }
-
-                
-                // Guard-threat mode
-                if !theGroupThreat.retreatMode && guardButton.buttonState == .On {
-                    
-                    theGroupThreat.conflict.guardAttack = true
-                    
-                    // Captures the guard-threat case (no feint option)
-                    manager!.NewPhase(1, reverse: false, playback: false)
-                    
-                    // Initial selection
-                    // SelectableLeadingGroups(theGroupThreat.conflict, thePhase: manager!.phaseNew)
-                    endTurnButton.buttonState = .On // Always can end turn when selecting leading units
-                }
-                
-                guardButton.buttonState = .Off
-                */
-       /*
-            // Must-feint attacker confirming their feint move against a stalwart defender
-        case .StoodAgainstFeintThreat:
-            
-            manager!.NewPhase(1, reverse: false, playback: false)
-            //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-            //SelectableGroupsForFeintDefense(activeGroupConflict!.conflict)
-            
-            if CheckTurnEndViableInDefenseMode(activeGroupConflict!.conflict) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-            undoOrAct = false
-            ResetSelectors()
-            
-            // May-fight attacker confirming their feint move or real attack against a stalwart defender
-        case .StoodAgainstNormalThreat:
-            
-            if commitButton.buttonState == .On {
-                commitButton.buttonState = .Off
-                manager!.NewPhase(1, reverse: false, playback: false)
-                endTurnButton.buttonState = .On // Always can end turn when selecting leading units
-                
-            } else { // Feint case
-                
-                manager!.NewPhase(2, reverse: false, playback: false)
-                
-                if CheckTurnEndViableInDefenseMode(activeGroupConflict!.conflict) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-            }
-            
-            undoOrAct = false
-            ResetSelectors()
-            
-            // Attacker confirming their move, or starting a new threat, against a retreating defender
-        case .RetreatedBeforeCombat:
-            
-            if manager!.orders.last?.order == .FeintThreat {
-                
-                let theCode = manager!.NewPhase(2, reverse: false, playback: false)
-                //manager!.activeGroupConflict = manager!.reserveThreats[0]
-                
-                if theCode == "TurnOnRetreat" {
-                    retreatButton.buttonState = .Option
-                }
-                else if theCode == "TurnOnSurrender" {
-                    let newOrder = Order(passedGroupConflict: activeGroupConflict!, orderFromView: .Surrender)
-                    newOrder.ExecuteOrder()
-                    newOrder.unDoable = false // Can't undo surrender
-                    manager!.orders += [newOrder]
-                    retreatButton.buttonState = .Option
-                }
-                else {
-                    if activeGroupConflict!.mustDefend {retreatButton.buttonState = .Off}
-                    else {retreatButton.buttonState = .Possible}
-                }
-                
-                if CheckTurnEndViableInRetreatOrDefendMode(activeGroupConflict!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-                
-            } else {
-                
-                DeselectAndReset()
-                manager!.NewPhase(1, reverse: false, playback: false)
-                endTurnButton.buttonState = .Option
-                
-            }
-            
-            undoOrAct = false
-            ResetSelectors()
-            
-            // Defender confirming their leading units
-        case .RealAttack:
-            
-            // Safety check
-            //guard let theConflict = manager!.activeGroupConflict?.conflict! else {break}
-            
-            manager!.NewPhase(1, reverse: false, playback: false)
-            
-            endTurnButton.buttonState = .Off
-            //manager!.selectableAttackAdjacentGroups = SelectableGroupsForAttackAdjacent(theConflict)
-            
-            //ToggleCommands(manager!.gameCommands[manager!.actingPlayer]!, makeSelectable: false)
-            
-            //ToggleGroups(manager!.selectableAttackAdjacentGroups, makeSelection: .Normal)
-            //ToggleGroups(theConflict.defenseLeadingUnits!.groups, makeSelection: .Selected)
-            
-            // Defender confirming their feint-response (after a feint-threat or won battle)
-        case .FeintMove, .PostVictoryFeintMove:
-            
-            manager!.NewPhase(1, reverse: false, playback: false)
-            endTurnButton.buttonState = .Option
-            
-            // Attacker confirming their attack move declaration
-        case .DeclaredLeadingD:
-            
-            // Safety check
-            guard let theConflict = manager!.activeGroupConflict?.conflict! else {break}
-            
-            // Sets the attack group, updates defense leading units, whether its a wide attack, available counter-attackers and attack move type
-            theConflict.attackGroup = GroupSelection(theGroups: manager!.groupsSelected)
-            if theConflict.guardAttack {theConflict.SetGuardAttackGroup()}
-            theConflict.attackMoveType = ReturnMoveType()
-            
-            // Determine battle width
-            let initialDefenseSelection = theConflict.defenseLeadingUnits!.blocksSelected
-            theConflict.defenseLeadingUnits = GroupSelection(theGroups: theConflict.defenseLeadingUnits!.groups)
-            if theConflict.defenseLeadingUnits?.blocksSelected == 2 {theConflict.wideBattle = true}
-            else if initialDefenseSelection == 2 {theConflict.wideBattle = false}
-            else if theConflict.defenseApproach.wideApproach {theConflict.wideBattle = true}
-            else {theConflict.wideBattle = false}
-            
-            theConflict.counterAttackGroup = GroupSelection(theGroups: theConflict.availableCounterAttackers!.groups, selectedOnly:false)
-            
-            manager!.NewPhase(1, reverse: false, playback: false)
-            
-            // Attacker confirming their leading units
-        case .DeclaredAttackers:
-            
-            // Safety check
-            guard let theConflict = manager!.activeGroupConflict?.conflict! else {break}
-            
-            // Use up orders and update moved status for attack groups
-            let numberOfCommands = theConflict.attackGroup!.groups.count
-            if independentButton.buttonState == .On {
-                manager!.indCommandsAvail -= numberOfCommands
-                
-                // Set each independent move status to has moved
-                for eachGroup in theConflict.attackGroup!.groups {eachGroup.units[0].hasMoved = true}
-            
-            } else if corpsDetachButton.buttonState == .On {
-                manager!.corpsCommandsAvail -= numberOfCommands
-                
-                // set command to having acted and units moving as having moved
-                theConflict.attackGroup!.groups[0].command.movedVia = .CorpsActed
-                for each in theConflict.attackGroup!.groups[0].units {each.hasMoved = true}
-            
-            } else if corpsMoveButton.buttonState == .On {
-                
-                // Command has moved and accompanying units too
-                for eachGroup in theConflict.attackGroup!.groups {
-                    eachGroup.command.hasMoved = true
-                    for eachUnit in eachGroup.units {eachUnit.hasMoved = true}
-                }
-            
-            }
-            
-            ResetSelectors()
-            
-            // INITIAL RESULT
-            let newOrder = Order(passedGroupConflict: activeGroupConflict!, orderFromView: .InitialBattle)
-            newOrder.ExecuteOrder()
-            newOrder.unDoable = false // Can't undo initial result
-            manager!.orders += [newOrder]
-            
-            manager!.NewPhase(1, reverse: false, playback: false)
-            
-            if !theConflict.mayCounterAttack {
-                theConflict.counterAttackLeadingUnits = GroupSelection(theGroups: [])
-                ProcessBattle()
-            }
-            
-            // Defender confirming their counter-attack leading units
-        case .DeclaredLeadingA:
-            
-            ProcessBattle()
-            
-            // Defender confirming their retreat move after a lost battle
-        case .RetreatAfterCombat:
-            
-            // Safety check
-            //guard let theConflict = manager!.activeGroupConflict?.conflict! else {break}
-            
-            PostBattleMove()
-            
-            */
-
-    
     // MARK: Undo
     
     func undoTrigger() {
@@ -2063,76 +1863,6 @@ if each is Unit && touchedCount == 2 {
     }
 }
 
-            /*
-                
-            case .NormalThreat, .FeintThreat, .RetreatAfterCombat:
-                
-                manager!.orders.last!.ExecuteOrder(true)
-                
-                if manager!.activeGroupConflict != nil {
-                    
-                    if manager!.phaseNew == .RetreatAfterCombat {manager!.PostBattleRetreatOrSurrender()}
-                    else {manager!.ResetRetreatDefenseSelection()}
-                    if CheckTurnEndViableInRetreatOrDefendMode(activeGroupConflict!) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-                }
-                
-            case .StoodAgainstFeintThreat, .StoodAgainstNormalThreat, .RetreatedBeforeCombat:
-                
-                guard let theThreat = manager!.activeGroupConflict?.conflict else {break}
-                let endLocation = manager!.orders.last!.endLocation
-                let startLocation = manager!.orders.last!.startLocation[0]
-                
-                if let theGroup = manager!.orders.last?.baseGroup {manager!.groupsSelected = [theGroup]}
-                manager!.orders.last!.ExecuteOrder(true)
-                
-                // This eliminates the repeat attack the appropriate undo
-                if endLocation is Reserve && startLocation is Reserve && manager!.repeatAttackGroup != nil {
-                    if (endLocation as! Reserve) == theThreat.defenseReserve && (startLocation as! Reserve) == theThreat.attackReserve && manager!.repeatAttackMoveNumber == manager!.groupsSelected[0].command.moveNumber {
-                        manager!.repeatAttackGroup = nil; manager!.repeatAttackMoveNumber = nil
-                    }
-                }
-                
-                if manager!.groupsSelected[0].command.moveNumber == 0 { // Move number 0 plus undo always start
-                    undoOrAct = false
-                    endTurnButton.buttonState = .Off
-                    if manager!.phaseNew == .StoodAgainstNormalThreat {commitButton.buttonState = .Option}
-                    DeselectAndReset()
-                } else {
-                    ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
-                    if CheckTurnEndViableInCommitMode(theThreat, endLocation:startLocation) {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
-                }
-                AttackOrdersAvailable()
-                
-            case .FeintMove, .PostVictoryFeintMove:
-                
-                manager!.orders.last!.ExecuteOrder(true)
-                
-                if manager!.activeGroupConflict != nil {
-                    
-                    ToggleCommands(activeGroupConflict!.conflict.defenseGroup!.groups.map{return $0.command}, makeSelection: .Off)
-                    
-                    SelectableGroupsForFeintDefense(activeGroupConflict!.conflict)
-                    
-                    activeGroupConflict!.conflict.defenseApproach.hidden = true
-                    endTurnButton.buttonState = .Off
-                }
-                
-            case .DeclaredAttackers:
-                
-                manager!.activeGroupConflict?.conflict.attackGroup = nil
-                manager!.activeGroupConflict?.conflict.attackMoveType = nil
-                manager!.NewPhase(1, reverse: true, playback: false)
-                break
-
-
-                
-            default: break
-            }
-        
-            manager!.orders.removeLast()
-
-*/
-
 // MARK: Support (Hiding)
 
 func HideAllCommands (hide:Bool) {
@@ -2209,19 +1939,6 @@ func HideAllSelectors (hide:Bool) {
 }
 
 // MARK: Support (Other)
-
-/*
-func DeselectAndReset() {
-    
-    ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
-    manager!.groupsSelected = []
-    
-    HideAllRevealedLocations()
-    ResetSwipeQueue()
-    
-    (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState) = (.Off, .Off, .Off, .Off)
-}
-*/
 
 func ResetState(groupselected:Bool = false, groupsSelectable:Bool = false, hideRevealed:Bool = false, orderSelectors:Bool = false, otherSelectors: Bool = false) {
     

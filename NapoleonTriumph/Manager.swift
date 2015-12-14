@@ -375,9 +375,20 @@ class GameManager: NSObject, NSCoding {
                     }
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
-                        eachConflict.defenseApproach.approachSelector!.selected = .Option
-                        availableCount++
-                        theSingleConflict = eachConflict
+                        if !eachConflict.approachDefended {
+
+                            eachConflict.defenseGroup = GroupSelection(theGroups: [])
+                            eachConflict.defenseLeadingUnits = GroupSelection(theGroups: [])
+                            
+                            //RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                            //staticLocations.removeObject(eachConflict.defenseApproach)
+                            eachConflict.defenseApproach.approachSelector!.selected = .On
+                            
+                        } else {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            availableCount++
+                            theSingleConflict = eachConflict
+                        }
                     }
                 }
             }
@@ -401,6 +412,8 @@ class GameManager: NSObject, NSCoding {
                         if eachConflict.guardAttack {
                             eachConflict.defenseApproach.approachSelector!.selected = .On
                             eachConflict.realAttack = true
+                        } else if !eachConflict.approachDefended {
+                            eachConflict.defenseApproach.approachSelector!.selected = .On
                         } else {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
@@ -424,13 +437,14 @@ class GameManager: NSObject, NSCoding {
                     }
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
-                        if eachConflict.realAttack {
+                        if eachConflict.realAttack || !eachConflict.approachDefended {
                             //RevealLocation(eachConflict.defenseApproach, toReveal: true)
                             //staticLocations += [eachConflict.defenseApproach]
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
                             theSingleConflict = eachConflict
-                        } else {
+                        }
+                        else {
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
                             staticLocations.removeObject(eachConflict.defenseApproach)
                             eachConflict.defenseApproach.approachSelector!.selected = .Off
@@ -451,6 +465,9 @@ class GameManager: NSObject, NSCoding {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
                             theSingleConflict = eachConflict
+                        } else if !eachConflict.approachDefended {
+                            eachConflict.attackLeadingUnits = GroupSelection(theGroups: [])
+                            eachConflict.defenseApproach.approachSelector!.selected = .On
                         }
                     }
                 }
@@ -464,7 +481,7 @@ class GameManager: NSObject, NSCoding {
             for eachLocaleConflict in localeThreats {
                 if !eachLocaleConflict.retreatMode {
                     for eachConflict in eachLocaleConflict.conflicts {
-                        if eachConflict.realAttack {
+                        if eachConflict.realAttack || !eachConflict.approachDefended {
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
                             staticLocations.removeObject(eachConflict.defenseApproach)
                             eachConflict.defenseApproach.approachSelector!.selected = .Off
@@ -489,13 +506,23 @@ class GameManager: NSObject, NSCoding {
                 if !eachLocaleConflict.retreatMode {
                     for eachConflict in eachLocaleConflict.conflicts {
                         if eachConflict.realAttack {
-                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            
                             RevealLocation(eachConflict.defenseApproach, toReveal: true)
                             staticLocations += [eachConflict.defenseApproach]
+                            InitialBattleProcessing(eachConflict)
+                            
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
                             theSingleConflict = eachConflict
                             
+                        } else if !eachConflict.approachDefended {
+                            
+                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                            staticLocations += [eachConflict.defenseApproach]
                             InitialBattleProcessing(eachConflict)
+                            eachConflict.counterAttackLeadingUnits = GroupSelection(theGroups: [])
+                            
+                            eachConflict.defenseApproach.approachSelector!.selected = .On
                             
                         } else {
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
@@ -516,7 +543,7 @@ class GameManager: NSObject, NSCoding {
                     
                     for eachConflict in eachLocaleConflict.conflicts {
                         
-                        if eachConflict.realAttack {
+                        if eachConflict.realAttack || !eachConflict.approachDefended {
                             
                             FinalBattleProcessing(eachConflict)
                         
@@ -558,6 +585,8 @@ class GameManager: NSObject, NSCoding {
                                 
                             // Attacker wins
                             } else {
+                                
+                                if eachConflict.approachDefended {eachConflict.parentGroupConflict!.someEmbattledAttackersWon = true}
                                 
                                 eachConflict.parentGroupConflict!.retreatMode = true
                                 eachConflict.parentGroupConflict!.mustRetreat = true
@@ -656,7 +685,7 @@ class GameManager: NSObject, NSCoding {
         for eachLocaleThreat in localeThreats {
             for eachConflict in eachLocaleThreat.conflicts {
                 
-                if eachConflict.realAttack && eachConflict.conflictFinalWinner == eachConflict.defenseSide.Other() {
+                if (eachConflict.realAttack || !eachConflict.approachDefended) && eachConflict.conflictFinalWinner == eachConflict.defenseSide.Other() {
                     PostBattleMove(eachConflict, artAttack: false)
                 }
                 

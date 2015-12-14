@@ -118,6 +118,10 @@ class Conflict {
         }
     }
     
+    deinit {
+        print("DEINIT Conflict")
+    }
+    
     // Returns the road paths for a command to the conflict area (nil if no such road)
     func RdCommandPathToConflict (pCommand:Command) -> [Reserve] {
         guard let commandReserve = pCommand.currentLocation as? Reserve else {return []}
@@ -431,6 +435,7 @@ class GroupConflict {
     var mustRetreat:Bool = false
     var mustDefend:Bool = false
     var retreatMode:Bool = false
+    var someEmbattledAttackersWon:Bool = false
     
     // Used to store number of orders for the purposes of releasing the mustRetreat / mustDefend condition when un-doing
     //var retreatOrders:Int = 0

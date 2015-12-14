@@ -54,6 +54,7 @@ class Order {
     var reduceLeaderReduction:Unit?
     var moveBase:[Bool] = [] // Is the base group the moving group?
     var reverseCode:Int = 1 // Used to store various scenarios that you might want to unwind in reverse (attach only)
+    var reverseString:String = ""
     
     var reverseCavCommit = (false, 0) // Used to store whether the order contained a cav commit and, if so, how much morale it reduced
     var reverseGrdCommit = (false, 0) // Used to store whether the order contained a grd commit and, if so, how much morale it reduced
@@ -281,7 +282,11 @@ class Order {
                             
                         // Releasing committed units
                         for eachConflict in theConflict!.parentGroupConflict!.conflicts {
-                            for eachUnit in eachConflict.threateningUnits {eachUnit.threatenedConflict = nil}
+                            for eachUnit in eachConflict.threateningUnits {
+                                eachUnit.threatenedConflict = nil
+                                reverseString = eachUnit.assigned
+                                eachUnit.assigned = "None"
+                            }
                             eachConflict.storedThreateningUnits = eachConflict.threateningUnits
                             eachConflict.threateningUnits = []
                             eachConflict.defenseApproach.approachSelector!.selected = .Off
@@ -296,13 +301,18 @@ class Order {
                     // When the attacker moves into the feint-area
                     } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && theConflict!.defenseApproach.approachSelector!.selected == .Option && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
                         
-                        for eachUnit in theConflict!.threateningUnits {eachUnit.threatenedConflict = nil}
+                        for eachUnit in theConflict!.threateningUnits {
+                            eachUnit.threatenedConflict = nil
+                            reverseString = eachUnit.assigned
+                            eachUnit.assigned = "None"
+                        }
                         theConflict!.storedThreateningUnits = theConflict!.threateningUnits
                         theConflict!.threateningUnits = []
                         theConflict!.defenseApproach.approachSelector!.selected = .On
                         RevealLocation(theConflict!.defenseApproach, toReveal: false)
                         //manager!.staticLocations.removeObject(theConflict!.defenseApproach)
                         reverseCode = 5
+                    
                     }
                     
                     // Movement from or to an approach
@@ -368,7 +378,10 @@ class Order {
                 
                 // re-committed released units
                 for eachConflict in activeGroupConflict!.conflicts {
-                    for eachUnit in eachConflict.storedThreateningUnits {eachUnit.threatenedConflict = eachConflict}
+                    for eachUnit in eachConflict.storedThreateningUnits {
+                        eachUnit.threatenedConflict = eachConflict
+                        eachUnit.assigned = reverseString
+                    }
                     eachConflict.threateningUnits = eachConflict.storedThreateningUnits
                     eachConflict.storedThreateningUnits = []
                     eachConflict.defenseApproach.approachSelector!.selected = .Option
@@ -381,7 +394,10 @@ class Order {
                 }
             } else if !playback && manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) && reverseCode == 5 {
                 
-                for eachUnit in theConflict!.storedThreateningUnits {eachUnit.threatenedConflict = theConflict!}
+                for eachUnit in theConflict!.storedThreateningUnits {
+                    eachUnit.threatenedConflict = theConflict!
+                    eachUnit.assigned = reverseString
+                }
                 theConflict!.threateningUnits = theConflict!.storedThreateningUnits
                 theConflict!.storedThreateningUnits = []
                 theConflict!.defenseApproach.approachSelector!.selected = .Option
@@ -787,6 +803,9 @@ class Order {
                 eachUnit.threatenedConflict = theConflict!
                 eachUnit.selected = .NotSelectable
             }
+            // Assigned the units in the group
+            if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: true)}
+            else {baseGroup!.SetGroupProperty("assignedInd", onOff: true)}
             
             theConflict!.threateningUnits = theUnits
             
@@ -794,10 +813,6 @@ class Order {
             if corpsCommand! {manager!.phantomCorpsCommand++; theConflict!.phantomCorpsOrder = true}
             else {manager!.phantomIndCommand++; theConflict!.phantomCorpsOrder = false}
             
-            // Assigned the units in the group
-            if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: true)}
-            else {baseGroup!.SetGroupProperty("assignedInd", onOff: true)}
-        
         case (true, .Threat):
             
             if playback || !(endLocation is Approach) {break}
@@ -813,6 +828,7 @@ class Order {
             
             for eachUnit in theUnits {
                 eachUnit.threatenedConflict = nil
+                eachUnit.assigned = "None"
                 eachUnit.selected = .Normal
             }
             theConflict!.threateningUnits = []
@@ -823,8 +839,8 @@ class Order {
             else {manager!.phantomIndCommand--}
             
             // Unassign the units in the group
-            if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: false)}
-            else {baseGroup!.SetGroupProperty("assignedInd", onOff: false)}
+            //if corpsCommand! {baseGroup!.SetGroupProperty("assignedCorps", onOff: false)}
+            //else {baseGroup!.SetGroupProperty("assignedInd", onOff: false)}
 
             theConflict = nil
             

@@ -251,7 +251,10 @@ func setupCommandDashboard() {
 
 // Refreshes the labels on the labelMenu
 func updateBattleLabel(theConflict:Conflict, initial:Bool) {
-    if !theConflict.realAttack {battleResult.text = ""; return}
+    if !theConflict.realAttack {
+        battleResult.text = ""
+        battleWinner.text = ""
+        return}
     if initial {
         battleResult.text = "Initial Result: \(theConflict.initialResult)"
         battleWinner.text = "Winner: \(theConflict.conflictInitialWinner)"
