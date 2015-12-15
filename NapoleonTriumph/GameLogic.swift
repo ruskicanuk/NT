@@ -142,6 +142,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         reinforcement = (commandSelected.currentLocation as! Reserve).offMap
     }
     let moveNumber = commandSelected.moveNumber
+    let relativeRepeatNumber = commandSelected.moveNumber - commandSelected.repeatMoveNumber
     
     // Set the Scenario
     // 1 = Any move from Approach
@@ -159,6 +160,10 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     else if moveNumber > 0 && unitSize == 1 {scenario = 5}
     else if moveNumber > 0 && unitSize == 2 {scenario = 6}
     else {return ([], [], [])}
+    
+    // Ensures that reinforcements are in rd-move mode
+    if reinforcement && scenario == 3 {scenario = 5}
+    else if reinforcement && scenario == 4 {scenario = 6}
     
     var currentReserve:Reserve?
     var currentApproach:Approach?
@@ -192,14 +197,15 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         // Disallow rd attacks
         //if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: true)}
         
+    case 5:
+        // Must feint by road options
+        if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: false)}
+        
     default: break
         
     }
     
-    // Ensures that reinforcements are in rd-move mode
-    if reinforcement && scenario == 3 {scenario = 5}
-    else if reinforcement && scenario == 4 {scenario = 6}
-    
+    // Load rd-move options
     if scenario == 5 || scenario == 6 {
         
         let (theReserves, _, theRdBlock) = GroupMayMoveByRd(groupSelected)
@@ -244,9 +250,9 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         }
     }
     
+    // Allows Cav to move into the approach of a moved-into locale
     if !rdBlock && !(scenario == 1) && (scenario == 5 || (scenario == 6 && !(currentReserve!.containsAdjacent2PlusCorps == manager?.actingPlayer.Other()))) && !currentReserve!.offMap {
         
-        // Allows Cav to move into the approach of a moved-into locale
         if groupSelected.allCav && !undoOrAct {
             if let reserve1 = commandSelected.rdMoves[moveNumber-1] as? Reserve {
                 if let reserve2 = commandSelected.rdMoves[moveNumber] as? Reserve {
@@ -267,12 +273,12 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         }
         
         let rdMoves = rdAvailableReserves as [Location] + rdAvailableApproaches as [Location]
-        for each in rdMoves {RevealLocation(each); each.zPosition = 200}
+        for each in rdMoves {RevealLocation(each)}
         
-        if reinforcement {
+        if (reinforcement || relativeRepeatNumber == 0) && !(manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 || detachOn) {
         
             let mustFeintThreats = enemyOccupiedMustFeintApproaches
-            for each in mustFeintThreats {RevealLocation(each); each.zPosition = 200}
+            for each in mustFeintThreats {RevealLocation(each)}
             return (rdMoves, [], mustFeintThreats)
 
         } else {
@@ -1440,7 +1446,11 @@ func CheckEndTurnStatus() -> Bool {
                 if eachLocaleThreat.defenseReserve.currentFill > 0 {
                     endTurnViable = false
                     for eachConflict in eachLocaleThreat.conflicts {
-                        eachConflict.defenseApproach.approachSelector!.selected = .Option
+                        if eachConflict.realAttack {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                        } else {
+                            eachConflict.defenseApproach.approachSelector!.selected = .Off
+                        }
                     }
                 } else {
                     for eachConflict in eachLocaleThreat.conflicts {

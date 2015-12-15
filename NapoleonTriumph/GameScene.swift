@@ -1168,7 +1168,7 @@ if each is Unit && touchedCount == 2 {
         if theUnits.count == 0 {unitsSelected = false}
         
         // If the command is in repeat attack mode, any touch is treated like a leader touch
-        if theCommand.moveNumber > 0 {touchedLeader = true}
+        if theCommand.moveNumber > 0 && theCommand.hasLeader {touchedLeader = true}
         
         switch (touchedLeader, selectedUnit, sameCommand, unitsSelected) {
             
@@ -1359,7 +1359,7 @@ if each is Unit && touchedCount == 2 {
         var theUnits:[Unit] = []
         
         // If the command is in repeat attack mode, any touch is treated like a leader touch
-        if groupTouched.command.repeatMoveNumber > 0 {leaderTouched = true}
+        if groupTouched.command.moveNumber > 0 && groupTouched.command.hasLeader {leaderTouched = true}
         
         // Feint or advance after retreat (adjacent groups + rd groups)
         switch (unitAlreadySelected, leaderTouched) {
