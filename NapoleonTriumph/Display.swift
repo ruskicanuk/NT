@@ -183,6 +183,7 @@ var independentButton:UIStateButton!
 var retreatButton:UIStateButton!
 var commitButton:UIStateButton!
 var guardButton:UIStateButton!
+var repeatAttackButton:UIStateButton!
 
 // Set up the labels on the labelMenu
 func setupCommandDashboard() {

@@ -740,8 +740,14 @@ class GameManager: NSObject, NSCoding {
     func RefreshCommands() {
         
         for eachCommand in gameCommands[manager!.actingPlayer]! {
-            for eachUnit in eachCommand.activeUnits {
-                eachUnit.selected = .Normal
+            if eachCommand.turnMayEnterMap >= turn {
+                for eachUnit in eachCommand.activeUnits {
+                    eachUnit.selected = .Normal
+                }
+            } else {
+                for eachUnit in eachCommand.activeUnits {
+                    eachUnit.selected = .NotSelectable
+                }
             }
         }
         

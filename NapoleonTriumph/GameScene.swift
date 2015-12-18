@@ -383,7 +383,14 @@ if each is Unit && touchedCount == 2 {
             
             if touchedUnit.unitSide != manager!.actingPlayer || touchedUnit.selected == .Off || touchedUnit.selected == .NotSelectable {break}
 
-            if MoveGroupUnitSelection(touchedUnit, touchedCount: touchedCount) {MoveOrdersAvailable()}
+            if MoveGroupUnitSelection(touchedUnit, touchedCount: touchedCount) {
+                MoveOrdersAvailable()
+                if !manager!.groupsSelected.isEmpty && manager!.groupsSelected[0].command.turnEnteredMap == manager!.turn && manager!.groupsSelected[0].fullCommand && manager!.groupsSelected[0].command.moveNumber > 0 && !manager!.groupsSelected[0].command.secondMoveUsed {
+                    repeatAttackButton.buttonState = .On
+                } else {
+                    repeatAttackButton.buttonState = .Off
+                }
+            }
                 
             // Attach scenario
             else if manager!.phaseNew == .Move {
@@ -917,6 +924,12 @@ if each is Unit && touchedCount == 2 {
             
                 newCommand.currentLocation?.occupants.removeObject(newCommand)
                 newCommand.currentLocation = manager!.reserves.filter { $0.name == newCommand.locID }.first
+                
+                // Setup turn units may enter map
+                let currentReserve = newCommand.currentLocation as! Reserve
+                if currentReserve.offMap && newCommand.hasLeader && newCommand.theLeader!.unitCode == 251.1 {newCommand.turnMayEnterMap = 2}
+                else if currentReserve.offMap && newCommand.hasLeader && newCommand.theLeader!.unitCode == 251.2 {newCommand.turnMayEnterMap = 6}
+                
                 newCommand.moveNumber = 0
                 
             } else if newCommand.loc == "Approach" {
@@ -1086,6 +1099,14 @@ if each is Unit && touchedCount == 2 {
         guardButton.setImage(guardAttackImage, forState: UIControlState.Normal)
         guardButton.addTarget(self, action:"guardAttackTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(guardButton)
+        
+        topPosition += guardAttackImage.size.height*mapScaleFactor + 5*mapScaleFactor
+        
+        let repeatAttackImage = UIImage.init(named: "start")!
+        repeatAttackButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, repeatAttackImage.size.width*mapScaleFactor, repeatAttackImage.size.height*mapScaleFactor))
+        repeatAttackButton.setImage(repeatAttackImage, forState: UIControlState.Normal)
+        repeatAttackButton.addTarget(self, action:"repeatAttackTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        baseMenu.addSubview(repeatAttackButton)
     }
     
     // Setup approaches
@@ -1675,6 +1696,17 @@ if each is Unit && touchedCount == 2 {
         
     }
     
+    func repeatAttackTrigger() {
+        
+        if repeatAttackButton.buttonState == .On {
+            repeatAttackButton.buttonState = .Off
+            
+            let newOrder = Order(groupFromView: manager!.groupsSelected[0], orderFromView: .RepeatMove)
+            newOrder.ExecuteOrder()
+            manager!.orders += [newOrder]
+        }
+    }
+    
     // MARK: End Turn
     
     func endTurnTrigger() {
@@ -1766,7 +1798,7 @@ if each is Unit && touchedCount == 2 {
                     MoveOrdersAvailable()
                 } else {
                     ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
-                    ResetState(true, groupsSelectable: false, hideRevealed: false, orderSelectors: false, otherSelectors: false)
+                    ResetState(true, groupsSelectable: false, hideRevealed: true, orderSelectors: true, otherSelectors: true)
                 }
                 
             case .Commit:
@@ -1955,7 +1987,7 @@ func ResetState(groupselected:Bool = false, groupsSelectable:Bool = false, hideR
         (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState) = (.Off, .Off, .Off, .Off)
     }
     if otherSelectors {
-        (guardButton.buttonState, retreatButton.buttonState, commitButton.buttonState) = (.Off, .Off, .Off)
+        (guardButton.buttonState, retreatButton.buttonState, commitButton.buttonState, repeatAttackButton.buttonState) = (.Off, .Off, .Off, .Off)
     }
 }
 

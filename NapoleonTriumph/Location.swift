@@ -11,7 +11,7 @@ import SpriteKit
 // Used by reserve, approach and start locations
 enum LocationType {
     
-    case Reserve, Approach, Start, Heaven, AustrianBase, FrenchBase
+    case Reserve, Approach, Start, Heaven
     
 }
 

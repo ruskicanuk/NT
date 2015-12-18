@@ -14,7 +14,7 @@ class Reserve:Location {
     
     // Attributes of the reserve area
     let capacity:Int!
-    let offMap:Bool!
+    var offMap:Bool = false
     
     var ownApproaches:[Approach] = []
     var adjReserves:[Reserve] = []
@@ -135,7 +135,7 @@ class Reserve:Location {
             
             if eachReserveCommand.commandSide == .Austrian {localeControl = .Austrian} else {localeControl = .French}
             if eachReserveCommand.isTwoPlusCorps {has2PlusCorps = eachReserveCommand.commandSide}
-            if eachReserveCommand.moveNumber > 0 {haveCommandsEntered = true; commandsEntered += [eachReserveCommand]; numberCommandsEntered++}
+            if eachReserveCommand.moveNumber > 0 || eachReserveCommand.secondMoveUsed {haveCommandsEntered = true; commandsEntered += [eachReserveCommand]; numberCommandsEntered++}
             //if eachReserveCommand.hasLeader {eachReserveCommand.theLeader!.updateSelectedStatus()}
                 //== true {commandsEntered++}
         }
@@ -145,7 +145,7 @@ class Reserve:Location {
         
         // "Memory" of which commands have entered (two plus corps entry trips the rd blockage rules)
         for eachCommandEntered in commandsEntered {
-            if eachCommandEntered.moveNumber == 0 {commandsEntered.removeObject(eachCommandEntered)}
+            if eachCommandEntered.moveNumber == 0 && !eachCommandEntered.secondMoveUsed {commandsEntered.removeObject(eachCommandEntered)}
             if eachCommandEntered.moveNumber >= 2 {if eachCommandEntered.isTwoPlusCorps {has2PlusCorpsPassed = true}}
         }
 

@@ -25,8 +25,8 @@ class Command:SKNode {
     //var secondMoveAvailable = false
     var secondMoveUsed = false
     var turnMayEnterMap = -1
-    var turnEnteredMap = -1
-    var freeMove = false
+    var turnEnteredMap = -2
+    var freeCorpsMove = false
 
     // Used to store units available to defend
     var availableToDefend:[Unit] {

@@ -70,7 +70,7 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     }
     
     // Off map cannot detach or attach
-    if commandSelected.currentLocationType == .Reserve && (commandSelected.currentLocation! as! Reserve).offMap! {detachMove = .Off; attachMove = .Off}
+    if commandSelected.currentLocationType == .Reserve && (commandSelected.currentLocation! as! Reserve).offMap {detachMove = .Off; attachMove = .Off}
     
     // Has moved case - in which case either independent move / corps move again (or attach if there is a viable attach)
     if commandSelected.hasMoved {
@@ -635,17 +635,17 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
     
     // Deals with reinforcement free-moves
     var freeCorps = 0
-    var freeInd = 0
+    //var freeInd = 0
     for eachGroup in groupsSelected {
-        if eachGroup.command.freeMove && eachGroup.command.turnEnteredMap == manager!.turn && eachGroup.command.moveNumber == 0 {
+        if eachGroup.command.freeCorpsMove && eachGroup.command.turnEnteredMap == manager!.turn && eachGroup.command.moveNumber == 0 {
             if eachGroup.leaderInGroup {freeCorps++}
-            if eachGroup.nonLdrUnitCount == 1 && eachGroup.command.activeUnits.count != 2 {freeInd++}
+            //if eachGroup.nonLdrUnitCount == 1 && eachGroup.command.activeUnits.count != 2 {freeInd++}
         }
     }
     var (corpsOrders, indOrders) = manager!.PhantomOrderCheck(theConflict.phantomCorpsOrder!, addExistingOrderToPool: true)
     
     corpsOrders += freeCorps
-    indOrders += freeInd
+    //indOrders += freeInd
     
     if groupsSelected.count > 1 { // Attack mode, multi selections
         

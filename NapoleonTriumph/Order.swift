@@ -10,7 +10,7 @@ import SpriteKit
 
 // Stores the kind of order
 enum OrderType {
-    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack, ConfirmAttack, AttackGroupDeclare
+    case Move, Attach, Threat, Reduce, Surrender, Retreat, Feint, InitialBattle, FinalBattle, Defend, LeadingDefense, LeadingAttack, LeadingCounterAttack, ConfirmAttack, AttackGroupDeclare, RepeatMove
 }
 
 class Order {
@@ -135,6 +135,14 @@ class Order {
         endLocation = theConflict!.defenseApproach!
     }
     
+    // Reduce order (Repeat Move)
+    init(groupFromView:Group, orderFromView: OrderType) {
+        order = orderFromView
+        baseGroup = groupFromView
+        startLocation = []
+        endLocation = baseGroup!.command.currentLocation!
+    }
+    
     // MARK: Order Functions
     
     func ExecuteOrder(reverse:Bool = false, playback:Bool = false) -> Bool { // Returns true if the reserve area is overloaded, otherwise false
@@ -146,7 +154,7 @@ class Order {
         let startApproach:Approach?
         
         // Determine whether to increment / decrement orders available ## replace below with simple button move reset (one for each command)
-        if (corpsCommand != nil && order != .Threat) && !playback && !(baseGroup!.command.freeMove && baseGroup!.command.turnEnteredMap == manager!.turn && corpsCommand!) {
+        if (corpsCommand != nil && order != .Threat) && !playback && !(baseGroup!.command.freeCorpsMove && baseGroup!.command.turnEnteredMap == manager!.turn && corpsCommand!) {
             if reverse {
                 if corpsCommand! {
                     manager!.corpsCommandsAvail++
@@ -1065,8 +1073,9 @@ class Order {
         case (true, .FinalBattle):
             break
 
-        /*
-        case (false, .SecondMove):
+        // MARK: Repeat Move
+        
+        case (false, .RepeatMove):
             
             if playback {break}
             
@@ -1075,18 +1084,17 @@ class Order {
             baseGroup!.command.moveNumber = 0
             baseGroup!.command.movedVia = .None
             baseGroup!.command.secondMoveUsed = true
-            baseGroup!.command.freeMove = true
+            baseGroup!.command.freeCorpsMove = true
                 
-        case (true, .SecondMove):
+        case (true, .RepeatMove):
             
             if playback {break}
             
-            baseGroup!.command.freeMove = false
+            baseGroup!.command.freeCorpsMove = false
             baseGroup!.command.secondMoveUsed = false
             baseGroup!.command.moveNumber = reverseCode
             baseGroup!.command.rdMoves = startLocation
             if baseGroup!.leaderInGroup {baseGroup!.command.movedVia = .CorpsMove} else {baseGroup!.command.movedVia = .IndMove}
-        */
             
         // MARK: Defend
             

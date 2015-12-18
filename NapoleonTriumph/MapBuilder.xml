@@ -59,7 +59,7 @@
      <object id="18" type="Command" units="233.0" corps="false" x="520" y="300" z="0" zRot="0" loc="none" locID="none"/>
      <object id="19" type="Command" units="223.0 222.0 221.0 251.1" corps="true" x="580" y="200" z="0" zRot="0" loc="Reserve" locID="4"/>
      <object id="99" type="Command" units="223.0 222.0 221.0 251.1" corps="true" x="580" y="200" z="0" zRot="0" loc="Reserve" locID="201"/>
-     <object id="100" type="Command" units="223.0 222.0 221.0 251.1" corps="true" x="580" y="200" z="0" zRot="0" loc="Reserve" locID="201"/>
+     <object id="100" type="Command" units="223.0 222.0 221.0 251.2" corps="true" x="580" y="200" z="0" zRot="0" loc="Reserve" locID="201"/>
      <object id="101" type="Command" units="121.0 123.0 133.0 143.0 143.0 133.0 151.2" corps="true" x="580" y="200" z="0" zRot="0" loc="Reserve" locID="200"/>
  </objectgroup>
  </map>
