@@ -55,6 +55,7 @@ class GameSetup: SKScene {
         for touch: AnyObject in touches {
             let location = touch.locationInNode(self)
             if singlePlayerNew.containsPoint(location) {
+                
                 //Single Player new button pressed. Start game play
                 startGame()
             }
@@ -63,15 +64,13 @@ class GameSetup: SKScene {
                 //Multiplayer new button pressed
                 startGame()
             }
-            
         }
     }
+    
     private func startGame() {
         gameScene = GameScene(size: view!.bounds.size)
         let transition = SKTransition.fadeWithDuration(0.15)
         view!.presentScene(gameScene, transition: transition)
         gameScene.scaleMode = .AspectFill
-    }
-
-    
+    }  
 }

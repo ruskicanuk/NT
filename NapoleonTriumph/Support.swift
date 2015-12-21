@@ -88,40 +88,31 @@ class SpriteSelector {
         }
         
         if selected == .On {
-            //selectionBox = SKShapeNode(rect: parent!.calculateAccumulatedFrame())
-            //selectionBox = SKShapeNode(circleOfRadius: 100.0)
-            //selectionBox!.position = parent!.position
+
             selectionBox!.strokeColor = SKColor.greenColor()
             selectionBox!.lineWidth = 3.0
             selectionBox!.glowWidth = 1.0
             selectionBox!.userInteractionEnabled = false
-            //selectionBox!.lineCap = .Square
             selectionBox!.zPosition = 3000
             
             if drawOnNode != nil {drawOnNode?.addChild(selectionBox!)}
             
         } else if selected == .Option {
             
-            //selectionBox = SKShapeNode(rect: parent!.calculateAccumulatedFrame())
-            //selectionBox!.position = parent!.position
             selectionBox!.strokeColor = SKColor.blueColor()
             selectionBox!.lineWidth = 3.0
             selectionBox!.glowWidth = 1.0
             selectionBox!.userInteractionEnabled = false
-            //selectionBox!.lineCap = .Square
             selectionBox!.zPosition = 3000
             
             if drawOnNode != nil {drawOnNode?.addChild(selectionBox!)}
             
         } else if selected == .Normal {
             
-            //selectionBox = SKShapeNode(rect: parent!.calculateAccumulatedFrame())
-            //selectionBox!.position = parent!.position
             selectionBox!.strokeColor = SKColor.redColor()
             selectionBox!.lineWidth = 3.0
             selectionBox!.glowWidth = 1.0
             selectionBox!.userInteractionEnabled = false
-            //selectionBox!.lineCap = .Square
             selectionBox!.zPosition = 3000
             
             if drawOnNode != nil {drawOnNode?.addChild(selectionBox!)}
@@ -142,19 +133,3 @@ class SpriteSelector {
         }
     }
 }
-
-
-
-/*
-func convertPoint(point: CGPoint) -> (success: Bool, column: Int, row: Int) {
-/*
-if point.x >= 0 && point.x < CGFloat(NumColumns)*mapScaleFactor &&
-point.y >= 0 && point.y < CGFloat(NumRows)*mapScaleFactor {
-return (true, Int(point.x / TileWidth), Int(point.y / TileHeight))
-} else {
-return (false, 0, 0)  // invalid location
-}
-*/
-return (true, 1, 1)
-}
-*/

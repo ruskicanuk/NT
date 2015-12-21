@@ -6,8 +6,6 @@
 //  Copyright © 2015 Justin Anderson. All rights reserved.
 //
 
-//import Foundation
-
 import SpriteKit
 
 class Reserve:Location {
@@ -27,26 +25,17 @@ class Reserve:Location {
 
     var commandsEntered:[Command] = []
     
-    var defendersAvailable:Int {
-        var defenderBlockCount:Int = 0
-        for eachCommand in occupants {
-            for eachUnit in eachCommand.units {
-                if eachUnit.alreadyDefended == false && eachUnit.unitType != .Ldr {defenderBlockCount++}
-            }
-        }
-        return defenderBlockCount
-    }
-    
     // Reserve state variables
     var currentFill:Int = 0 // Current number of units in the locale
     var availableSpace:Int {return (capacity - currentFill)}
     var localeControl:Allegience = .Neutral // Which side controls the locale
     var has2PlusCorps:Allegience = .Neutral // Whether the locale has a 2-Plus Corps (neutral means no)
     
-    // RD RULES
+    // Road Rules
     var containsAdjacent2PlusCorps:Allegience = .Neutral // Whether an adjacent locale has a 2-Plus Corps (neutral means no) RD RULE #3
     var has2PlusCorpsPassed:Bool = false // Whether a 2-Plus Corps has passed through RD RULE #2
     var haveCommandsEntered:Bool = false // Whether any units in the reserve entered during the turn RD RULE #1
+    var unitsEnteredPostBattle:Bool = false
     var numberCommandsEntered:Int = 0
     
     required init(coder aDecoder: NSCoder) {
@@ -91,7 +80,7 @@ class Reserve:Location {
         
         // Rd Rules
         containsAdjacent2PlusCorps = .Neutral
-        //has2PlusCorpsPassed = has2PlusCorpsPassed
+        if unitsEnteredPostBattle {has2PlusCorpsPassed = true} else {has2PlusCorpsPassed = false}
         haveCommandsEntered = false
         numberCommandsEntered = 0
 
@@ -129,15 +118,12 @@ class Reserve:Location {
             }
             
         }
-        
-        numberCommandsEntered = 0
+
         for eachReserveCommand in self.occupants {
             
             if eachReserveCommand.commandSide == .Austrian {localeControl = .Austrian} else {localeControl = .French}
             if eachReserveCommand.isTwoPlusCorps {has2PlusCorps = eachReserveCommand.commandSide}
             if eachReserveCommand.moveNumber > 0 || eachReserveCommand.secondMoveUsed {haveCommandsEntered = true; commandsEntered += [eachReserveCommand]; numberCommandsEntered++}
-            //if eachReserveCommand.hasLeader {eachReserveCommand.theLeader!.updateSelectedStatus()}
-                //== true {commandsEntered++}
         }
         
         // Eliminate duplicates
@@ -152,12 +138,25 @@ class Reserve:Location {
         currentFill = (self.occupantCount + countApproachUnits)
     }
     
+    func defendersAvailable(theApproach:Approach? = nil) -> Int {
+        var defenderBlockCount:Int = 0
+        for eachCommand in occupants {
+            var theUnits = []
+            if theApproach == nil {
+                theUnits = eachCommand.availableToDefend()
+            } else {
+                theUnits = eachCommand.availableToDefend(theApproach!)
+            }
+            defenderBlockCount += theUnits.count
+        }
+        return defenderBlockCount
+    }
+    
     func ResetReserveState () {
         has2PlusCorpsPassed = false
+        unitsEnteredPostBattle = false
         commandsEntered = []
         haveCommandsEntered = false
         numberCommandsEntered = 0
-        //defendersAvailable = false
     }
-    
 }

@@ -27,17 +27,7 @@ class Command:SKNode {
     var turnMayEnterMap = -1
     var turnEnteredMap = -2
     var freeCorpsMove = false
-
-    // Used to store units available to defend
-    var availableToDefend:[Unit] {
-        var theUnits:[Unit] = []
-        for eachUnit in activeUnits {
-            if eachUnit.alreadyDefended == false && eachUnit.unitType != .Ldr {theUnits += [eachUnit]}
-        }
-        return theUnits
-    }
     
-    //var attackingUnits:[Unit] = []
     // Set to true when command can make no more moves during the round
     var finishedMove:Bool = false {
         didSet {
@@ -61,7 +51,6 @@ class Command:SKNode {
             if movedVia == .CorpsDetach {hasMoved = true; finishedMove = true; activeUnits[0].hasMoved = true}
             
             // Units did not move
-            //if movedVia == .CorpsAttach {}
             if movedVia == .CorpsActed {hasMoved = true; finishedMove = true} // Used for the command doing the attaching or detaching
         }
     }
@@ -156,13 +145,10 @@ class Command:SKNode {
                 
             case 0:
                 rdMoves = [currentLocation!]
-                //hasMoved = false
             case 1:
-                if rdMoves.count == 1 {rdMoves += [currentLocation!]} else {rdMoves.removeAtIndex(2)}
-                //hasMoved = true
+                if rdMoves.count == 1 {rdMoves += [currentLocation!]} else if rdMoves.count == 3 {rdMoves.removeAtIndex(2)}
             case 2:
-                if rdMoves.count == 2 {rdMoves += [currentLocation!]} else {rdMoves.removeAtIndex(3)}
-                //hasMoved = true
+                if rdMoves.count == 2 {rdMoves += [currentLocation!]} else if rdMoves.count == 4 {rdMoves.removeAtIndex(3)}
             case 3:
                 if rdMoves.count == 3 {rdMoves += [currentLocation!]}
             default:
@@ -184,7 +170,6 @@ class Command:SKNode {
     var isNonViableLocation:Bool {
         
         if self.currentLocationType == .Start {return false} else {return true}
-        //return (!self.currentLocation!.isStartLocation)
     }
 
     // MARK: Initializers
@@ -235,15 +220,10 @@ class Command:SKNode {
         for each in unitsAsArrayDouble {createUnit(each)}
         
         //Make new location for the command (no reserve or approach)
-        
         currentLocation = Location(nodePosition: self.position, nodeRotation: self.zRotation)
         currentLocationType = .Start
         
         self.parent?.addChild(currentLocation!)
-        //currentLocation?.occupants += [self]
-        
-        //selector = SpriteSelector(parentNode: self as SKNode, initialSelection: .Off, theCoordinateSystem: self as SKNode, passDrawType: "Command")
-        
     }
     
     //For creating detached units
@@ -275,10 +255,6 @@ class Command:SKNode {
             self.unitsUpkeep() // Doesn't seem to call it in an init...
             oldCommand.units.removeObject(each)
         }
-       
-        //currentLocation?.occupants += [self]
-        //selector = SpriteSelector(parentNode: self as SKNode, initialSelection: .Off, theCoordinateSystem: self as SKNode, passDrawType: "Command")
-
     }
     
     deinit {
@@ -363,6 +339,18 @@ class Command:SKNode {
         if reshuffle {self.currentLocation?.reShuffleLocation()}
     }
     
+    // Used to store units available to defend
+    func availableToDefend(theApproach:Approach? = nil) -> [Unit] {
+        var theUnits:[Unit] = []
+        for eachUnit in activeUnits {
+            var sameApproach = false
+            if theApproach != nil && eachUnit.approachDefended != nil && eachUnit.approachDefended == theApproach {sameApproach = true}
+            
+            if (eachUnit.approachDefended == nil || sameApproach) && eachUnit.unitType != .Ldr {theUnits += [eachUnit]}
+        }
+        return theUnits
+    }
+    
     // MARK: Highlight (indicate that the command is highlighted)
     
     func passUnitTo(unitToPass: Unit, recievingCommand:Command) {
@@ -399,5 +387,4 @@ class Command:SKNode {
         }
         return selectables == 1
     }
-    
 }

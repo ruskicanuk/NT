@@ -41,7 +41,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     super.viewDidLoad()
         
     //NSNotificationCenter.defaultCenter().addObserver(self, selector: "hideMenu", name: HIDEMENU, object: nil)
-    //NSNotificationCenter.defaultCenter().addObserver(self, selector: "showMenu", name: SHOWMENU, object: nil)
 
     /*
 
@@ -90,15 +89,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     self.view.addSubview(baseMenu)
         
     // Large menu button setup
-    //largeMenu.multipleTouchEnabled = true
-    //largeMenu.exclusiveTouch = true
-    //largeMenu.userInteractionEnabled = true
-    //largeMenu.frame = CGRectMake(150 + baseMenu.frame.width, 300, self.view.frame.size.width / 5, self.view.frame.size.height / 4)
-    //largeMenu.backgroundColor = UIColor.blackColor()
-    //largeMenu.hidden = true
-    //self.view.addSubview(largeMenu)
-        
-    // Large menu button setup
     labelMenu.multipleTouchEnabled = false
     labelMenu.userInteractionEnabled = false
     labelMenu.frame = CGRectMake(650, 500, self.view.frame.size.width / 4, self.view.frame.size.height / 5)
@@ -114,12 +104,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     battleMenu.hidden = true
     self.view.addSubview(battleMenu)
 
-    //let popMenuImage = UIImage.init(named: "Menu")!
-    //let popButton:UIButton = UIButton.init(frame: CGRectMake(0, self.view.frame.size.height / 4 - popMenuImage.size.height, popMenuImage.size.width, popMenuImage.size.height))
-    //popButton.setImage(popMenuImage, forState: UIControlState.Normal)
-    //popButton.addTarget(self, action:"popOutMenuTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
-    //baseMenu.addSubview(popButton)
-    
     // TODO: Put constraints so player can not drag the menu off-map
     setupGestures()
 

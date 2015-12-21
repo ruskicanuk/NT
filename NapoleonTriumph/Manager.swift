@@ -6,7 +6,6 @@
 //  Copyright © 2015 Justin Anderson. All rights reserved.
 //
 
-//import Foundation
 import SpriteKit
 
 // MARK: New Phase
@@ -76,6 +75,7 @@ class GameManager: NSObject, NSCoding {
     required init(coder aDecoder: NSCoder) {
 
         super.init()
+        
         //Retrive GameCommands
         let auCommand = aDecoder.decodeObjectForKey("auCommands") as! [Command]
         let frCommand = aDecoder.decodeObjectForKey("frCommands") as! [Command]
@@ -102,21 +102,9 @@ class GameManager: NSObject, NSCoding {
         let frLeaderAndBattle = aDecoder.decodeObjectForKey("frLeaderAndBattle") as! [Int]
         priorityLeaderAndBattle[PriorityLossesAu] = auLeaderAndBattle
         priorityLeaderAndBattle[PriorityLossesFr] = frLeaderAndBattle
-        //
-        
-        //selectableDefenseGroups = aDecoder.decodeObjectForKey("selectableDefenseGroups") as! [Group]
-        //selectableRetreatGroups = aDecoder.decodeObjectForKey("selectableRetreatGroups") as! [Group]
-        //selectableAttackGroups = aDecoder.decodeObjectForKey("selectableAttackGroups") as! [Group]
-        //selectableAttackByRoadGroups = aDecoder.decodeObjectForKey("selectableAttackByRoadGroups") as! [Group]
-        //selectableAttackAdjacentGroups = aDecoder.decodeObjectForKey("selectableAttackAdjacentGroups") as! [Group]
-        //currentGroupsSelected = aDecoder.decodeObjectForKey("currentGroupsSelected") as! [Group]
-        //repeatAttackGroup = aDecoder.decodeObjectForKey("repeatAttackGroup") as? Group
-
-        //repeatAttackMoveNumber = aDecoder.decodeIntegerForKey("repeatAttackMoveNumber")
         
         activeGroupConflict = aDecoder.decodeObjectForKey("activeGroupConflict") as? GroupConflict
         
-     
         approaches = aDecoder.decodeObjectForKey("approaches") as! [NapoleonTriumph.Approach]
 
         reserves = aDecoder.decodeObjectForKey("reserves") as! [NapoleonTriumph.Reserve]
@@ -124,13 +112,10 @@ class GameManager: NSObject, NSCoding {
         orders = aDecoder.decodeObjectForKey("orders") as! [NapoleonTriumph.Order]
 
         orderHistory = aDecoder.decodeObjectForKey("orderHistory") as! [Int : [Order]]
-
         
         player1 = self.getAllegience(aDecoder.decodeObjectForKey("player1") as! String)
 
-
         player1CorpsCommands = aDecoder.decodeIntegerForKey("player1CorpsCommands")
-
         
         player1IndCommands = aDecoder.decodeIntegerForKey("player1IndCommands")
 
@@ -151,27 +136,14 @@ class GameManager: NSObject, NSCoding {
         turn = aDecoder.decodeIntegerForKey("turn")
 
         night = aDecoder.decodeBoolForKey("night")
-        
-        //phaseOld = self.getGamephase(aDecoder.decodeObjectForKey("phaseOld") as! String)
 
         corpsCommandsAvail = aDecoder.decodeIntegerForKey("corpsCommandsAvail")
 
         indCommandsAvail = aDecoder.decodeIntegerForKey("indCommandsAvail")
 
-        //commandLabel = aDecoder.decodeObjectForKey("commandLabel") as! SKLabelNode
-        //indLabel = aDecoder.decodeObjectForKey("indLabel") as! SKLabelNode
-        //phasingLabel = aDecoder.decodeObjectForKey("phasingLabel") as! SKLabelNode
-        //actingLabel = aDecoder.decodeObjectForKey("actingLabel") as! SKLabelNode
-        //turnLabel = aDecoder.decodeObjectForKey("turnLabel") as! SKLabelNode
-        //alliedMoraleLabel = aDecoder.decodeObjectForKey("alliedMoraleLabel") as! SKLabelNode
-        //frenchMoraleLabel = aDecoder.decodeObjectForKey("frenchMoraleLabel") as! SKLabelNode
-        
         morale[.French]! = aDecoder.decodeIntegerForKey("morF")
 
         morale[.Austrian]! = aDecoder.decodeIntegerForKey("morA")
-
-        frReinforcements = aDecoder.decodeBoolForKey("frReinforcements")
-        
 
         heavyCavCommited[.French] = aDecoder.decodeBoolForKey("frheavyCavCommited")
 
@@ -186,12 +158,7 @@ class GameManager: NSObject, NSCoding {
         guardFailed[.French] = aDecoder.decodeBoolForKey("frguardFailed")
         
         guardFailed[.Austrian] = aDecoder.decodeBoolForKey("auguardFailed")
-        
-        heavyCavCommittedCost = aDecoder.decodeIntegerForKey("heavyCavCommittedCost")
 
-        guardCommittedCost = aDecoder.decodeIntegerForKey("guardCommittedCost")
-
-        //drawOnNode = aDecoder.decodeObjectForKey("drawOnNode") as? SKNode
     }
     
     override init() {
@@ -299,16 +266,16 @@ class GameManager: NSObject, NSCoding {
         didSet{updateMoraleLabel()}
     }
     
-    var frReinforcements:Bool = false
-    
+    var frReinforcementsCalled:Bool = false
     var heavyCavCommited:[Allegience:Bool] = [ .Austrian: false, .French: false]
     var guardCommitted:[Allegience:Bool] = [ .Austrian: false, .French: false]
     var guardFailed:[Allegience:Bool] = [ .Austrian: false, .French: false]
     
-    var heavyCavCommittedCost:Int = 2
-    var guardCommittedCost:Int = 4
-    var guardFailedCost:Int = 3
-    
+    let heavyCavCommittedCost:Int = 2
+    let guardCommittedCost:Int = 4
+    let guardFailedCost:Int = 3
+    let frCalledReinforcementMoraleCost:Int = -4
+        
     var staticLocations:[SKNode] = [] // Used to store currently active conflicts
     
     // MARK: New Phase
@@ -339,7 +306,6 @@ class GameManager: NSObject, NSCoding {
             
             RemoveNonMovementArrows()
             ResetConflictsState()
-            RefreshCommands() // Switches block visibility
             endTurnButton.buttonState = .On
         
         case .Commit:
@@ -351,7 +317,6 @@ class GameManager: NSObject, NSCoding {
             endTurnButton.buttonState = .Off
             generalThreatsMade++
             SetupThreats()
-            //ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
             
             availableCount = 2
             if localeThreats.count == 1 {
@@ -376,15 +341,13 @@ class GameManager: NSObject, NSCoding {
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
                         if !eachConflict.approachDefended {
-
+                            
                             eachConflict.defenseGroup = GroupSelection(theGroups: [])
                             eachConflict.defenseLeadingUnits = GroupSelection(theGroups: [])
-                            
-                            //RevealLocation(eachConflict.defenseApproach, toReveal: false)
-                            //staticLocations.removeObject(eachConflict.defenseApproach)
                             eachConflict.defenseApproach.approachSelector!.selected = .On
                             
                         } else {
+                            
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
                             theSingleConflict = eachConflict
@@ -438,13 +401,13 @@ class GameManager: NSObject, NSCoding {
                 } else {
                     for eachConflict in eachLocaleConflict.conflicts {
                         if eachConflict.realAttack || !eachConflict.approachDefended {
-                            //RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                            //staticLocations += [eachConflict.defenseApproach]
+
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             availableCount++
                             theSingleConflict = eachConflict
                         }
                         else {
+                            
                             RevealLocation(eachConflict.defenseApproach, toReveal: false)
                             staticLocations.removeObject(eachConflict.defenseApproach)
                             eachConflict.defenseApproach.approachSelector!.selected = .Off
@@ -507,13 +470,18 @@ class GameManager: NSObject, NSCoding {
                     for eachConflict in eachLocaleConflict.conflicts {
                         if eachConflict.realAttack {
                             
-                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                            staticLocations += [eachConflict.defenseApproach]
                             InitialBattleProcessing(eachConflict)
                             
-                            eachConflict.defenseApproach.approachSelector!.selected = .Option
-                            availableCount++
-                            theSingleConflict = eachConflict
+                            // Only allow for counter-attack if its
+                            if eachConflict.mayCounterAttack {
+                                RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                                staticLocations += [eachConflict.defenseApproach]
+                                eachConflict.defenseApproach.approachSelector!.selected = .Option
+                                availableCount++
+                                theSingleConflict = eachConflict
+                            } else {
+                                eachConflict.counterAttackLeadingUnits = GroupSelection(theGroups: [])
+                            }
                             
                         } else if !eachConflict.approachDefended {
                             
@@ -664,7 +632,7 @@ class GameManager: NSObject, NSCoding {
                 eachCommand.movedVia = .None
                 for eachUnit in eachCommand.activeUnits {
                     eachUnit.wasInBattle = false
-                    eachUnit.alreadyDefended = false // ; eachUnit.hasMoved = false this is set with observer
+                    eachUnit.approachDefended = nil
                 }
             }
             for eachApproach in approaches {eachApproach.mayArtAttack = true; eachApproach.mayNormalAttack = true}
@@ -740,7 +708,7 @@ class GameManager: NSObject, NSCoding {
     func RefreshCommands() {
         
         for eachCommand in gameCommands[manager!.actingPlayer]! {
-            if eachCommand.turnMayEnterMap >= turn {
+            if turn >= eachCommand.turnMayEnterMap {
                 for eachUnit in eachCommand.activeUnits {
                     eachUnit.selected = .Normal
                 }
@@ -766,7 +734,7 @@ class GameManager: NSObject, NSCoding {
         
         while index >= 0 {
         
-            if orders[index].theConflict != nil {
+            if orders[index].theConflict != nil && !(orders[index].order! != .Threat) {
                 
                 let newConflict = self.orders[index].theConflict
                 //newConflict!.defenseApproach.hidden = false
@@ -790,66 +758,6 @@ class GameManager: NSObject, NSCoding {
         }
     
     }
-
-
-    // Returns retreat mode (for the retreat selector)
-    /*
-    func ResetRetreatDefenseSelection () -> String {
-        
-        //for eachGroup in reserveThreats {
-        ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-        
-        // Determine selectable defend groups (those which can defend)
-        ///selectableDefenseGroups = SelectableGroupsForDefense(activeGroupConflict!.conflict)
-        
-        // Determine selectable retreat groups (everything in the locale)
-        ///selectableRetreatGroups = SelectableGroupsForRetreat(activeGroupConflict!.conflict) // Get this to return available reserves
-        
-        // Determines whether there is a forced retreat condition
-        //(activeGroupConflict!.mustRetreat, activeGroupConflict!.mustDefend) = CheckForcedRetreatOrDefend(activeGroupConflict!)
-
-        // Surrender Case
-        if activeGroupConflict!.mustRetreat == true && activeGroupConflict!.mustDefend == true {activeGroupConflict!.retreatMode = true; return "TurnOnSurrender"}
-        
-        // If not surrender case and must retreat is on
-        if activeGroupConflict!.mustRetreat {activeGroupConflict!.retreatMode = true}
-        
-        // After we finish all threats for a reserve, set the available move-to locations and toggle selectable groups on
-        if !activeGroupConflict!.retreatMode { // All threats for a given reserve must be in the same initial threat-mode
-            
-            // Turns on the selectable units
-            ///ToggleGroups(selectableDefenseGroups, makeSelection: .Normal)
-            
-            // Ensure each attack threat is visible (normally this is set automatically when defense mode is set)
-            //for eachThreat in eachGroup.conflicts {eachThreat.defenseApproach.hidden = false}
-            
-            return "TurnOnFeint"
-            
-        } else {
-            
-            // Turns on the selectable units
-            ///ToggleGroups(selectableRetreatGroups, makeSelection: .Normal)
-            
-            return "TurnOnRetreat"
-        }
-    }
-    */
-    
-    //func PostBattleRetreatOrSurrender() -> String {
-            
-        // Determine selectable retreat groups (everything in the locale)
-        ///selectableRetreatGroups = SelectableGroupsForRetreat(activeGroupConflict!.conflict)
-        
-        // Determines whether there is a forced retreat condition
-        //let (_, mustDefend) = CheckForcedRetreatOrDefend(activeGroupConflict!)
-        
-        // Surrender Case
-        ///if mustDefend == true {return "TurnOnSurrender"}
-        ///else if selectableRetreatGroups.isEmpty {return "TurnOnSkip"}
-        ///else {activeGroupConflict!.retreatMode = true; ToggleGroups(selectableRetreatGroups, makeSelection: .Normal); return "TurnOnRetreat"}
-        
-    //    return "ReplaceThis"
-    //}
     
     // Returns true if game-end demoralization victory
     func ReduceMorale(losses:Int, side:Allegience, mayDemoralize:Bool) -> Bool {
@@ -920,7 +828,6 @@ class GameManager: NSObject, NSCoding {
         let frCommands = gameCommands[playerFr]!
         aCoder.encodeObject(auCommands, forKey: "auCommands")
         aCoder.encodeObject(frCommands, forKey: "frCommands")
-        //
         
         //Save priorityLosses
         let PriorityLossesAu:Allegience = .Austrian
@@ -929,7 +836,6 @@ class GameManager: NSObject, NSCoding {
         let frLosses = priorityLosses[PriorityLossesFr]!
         aCoder.encodeObject(auLosses, forKey: "auLosses")
         aCoder.encodeObject(frLosses, forKey: "frLosses")
-        //
         
         //Save priorityLeaderAndBattle
         let priorityLeaderAndBattleAu:Allegience = .Austrian
@@ -938,20 +844,6 @@ class GameManager: NSObject, NSCoding {
         let frLeaderAndBattle = priorityLeaderAndBattle[priorityLeaderAndBattleFr]!
         aCoder.encodeObject(auLeaderAndBattle, forKey: "auLeaderAndBattle")
         aCoder.encodeObject(frLeaderAndBattle, forKey: "frLeaderAndBattle")
-        //
-        
-        
-        //aCoder.encodeObject(selectableDefenseGroups, forKey: "selectableDefenseGroups")
-        //aCoder.encodeObject(selectableRetreatGroups, forKey: "selectableRetreatGroups")
-        //aCoder.encodeObject(selectableAttackGroups, forKey: "selectableAttackGroups")
-        //aCoder.encodeObject(selectableAttackByRoadGroups, forKey: "selectableAttackByRoadGroups")
-        //aCoder.encodeObject(selectableAttackAdjacentGroups, forKey: "selectableAttackAdjacentGroups")
-        
-        //aCoder.encodeObject(currentGroupsSelected, forKey: "currentGroupsSelected")
-        
-        //aCoder.encodeObject(repeatAttackGroup, forKey: "repeatAttackGroup")
-        
-        //aCoder.encodeInteger(repeatAttackMoveNumber!, forKey: "repeatAttackMoveNumber")
         
         aCoder.encodeObject(activeGroupConflict, forKey: "activeGroupConflict")
         
@@ -987,8 +879,6 @@ class GameManager: NSObject, NSCoding {
         
         aCoder.encodeBool(night, forKey: "night")
         
-        //aCoder.encodeObject(phaseOld.ID, forKey: "phaseOld")
-        
         aCoder.encodeInteger(corpsCommandsAvail, forKey: "corpsCommandsAvail")
         
         aCoder.encodeInteger(indCommandsAvail, forKey: "indCommandsAvail")
@@ -1009,8 +899,6 @@ class GameManager: NSObject, NSCoding {
         
         aCoder.encodeInteger(morale[.Austrian]!, forKey: "morA")
         
-        aCoder.encodeBool(frReinforcements, forKey: "frReinforcements")
-        
         aCoder.encodeBool(heavyCavCommited[.French]!, forKey: "frheavyCavCommited")
         
         aCoder.encodeBool(heavyCavCommited[.Austrian]!, forKey: "auheavyCavCommited")
@@ -1028,8 +916,6 @@ class GameManager: NSObject, NSCoding {
         aCoder.encodeInteger(guardCommittedCost, forKey: "guardCommittedCost")
         
         aCoder.encodeInteger(guardFailedCost, forKey: "guardFailedCost")
-        
-        //aCoder.encodeObject(drawOnNode, forKey: "drawOnNode")
         
     }
     

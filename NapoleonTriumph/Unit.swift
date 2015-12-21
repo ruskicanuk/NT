@@ -6,7 +6,6 @@
 //  Copyright © 2015 Justin Anderson. All rights reserved.
 //
 
-//import Foundation
 import SpriteKit
 
 //Unit naming convention: 3-digit code: 1st: 1/2 Austrian/French, 2nd: 1/2/3/4/5 Art/Cav/Inf/Guard/Leader, 3rd: 0/1/2/3 Strength
@@ -33,19 +32,14 @@ class Unit: SKSpriteNode {
             updateSelectedStatus()
         }
     }
-    //var repeatMove:Bool = false // set to true if moved into pre-retreat area
-    //var repeatMoveNumber:Int = 0
     var startedAsGrd:Bool = false
     
-    var alreadyDefended:Bool = false
     var approachDefended:Approach?
     var wasInBattle:Bool = false
     var parentCommand:Command?
     var threatenedConflict:Conflict?
     
     var assigned:String = "None" // "Corps" "Ind"
-    
-    //Add a converter from the current properties to unitCode and from unitCode to set the properties
     
     // MARK: Initializers
     
@@ -64,7 +58,6 @@ class Unit: SKSpriteNode {
         
         parentCommand = pCommand
         setPropertiesWithUnitCode()
-        if unitType == .Ldr {alreadyDefended = true}
         
     }
     
@@ -78,14 +71,23 @@ class Unit: SKSpriteNode {
         
         if manager!.phaseNew == .Setup || manager!.phaseNew == .Move || manager!.phaseNew == .Commit {
             
-        let repeatMovePossible = parentCommand!.moveNumber == parentCommand!.repeatMoveNumber
+            if selected == .Off {return}
             
-            if ((hasMoved && !repeatMovePossible) || threatenedConflict != nil) && selected == .Normal {
+            // For post-attack repeat moves
+            let repeatMovePossible = parentCommand!.moveNumber == parentCommand!.repeatMoveNumber && parentCommand!.moveNumber > 0
+            
+            // For french-reinforcements which may have a second attack
+            let frReinforcement  = parentCommand!.turnEnteredMap == manager!.turn && !parentCommand!.secondMoveUsed
+            
+            // For french-reinforcements which have yet to arrive
+            let hasArrived = manager!.turn >= parentCommand!.turnMayEnterMap
+
+            if ((hasMoved && !repeatMovePossible) || threatenedConflict != nil || !hasArrived) && !frReinforcement && selected == .Normal {
                 selected = .NotSelectable
             }
-            else if !((hasMoved && !repeatMovePossible) || threatenedConflict != nil) && selected == .NotSelectable {
+            else if (!((hasMoved && !repeatMovePossible) || threatenedConflict != nil || !hasArrived) || frReinforcement) && selected == .NotSelectable {
                 selected = .Normal
-            } // Undo-case
+            }
         }
     }
     
@@ -162,7 +164,6 @@ class Unit: SKSpriteNode {
         }
         
         unitStrength = theCodeArray[2]!
-        
     }
     
     func setCodewithProperties () {
@@ -194,7 +195,7 @@ class Unit: SKSpriteNode {
     
     // Increase or decrease unit strength, return true if adding strength and its artillery
     func decrementStrength(reduce:Bool = true) {
-        //let theParent = self.parent as? Command
+        
         if reduce {
             unitCode--
             unitStrength--
@@ -206,9 +207,7 @@ class Unit: SKSpriteNode {
             unitStrength++
             if startedAsGrd && unitStrength == 3 {unitType = .Grd; unitCode += 10}
         }
-        
         self.updateUnitTexture()
         parentCommand!.unitsUpkeep(false)
-        //if unitType == .Art {return true} else {return false}
     }
 }

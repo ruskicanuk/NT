@@ -9,7 +9,6 @@
 //This file shows menu of the game.
 
 import SpriteKit
-//import Foundation
 import UIKit
 
 class MenuView: SKScene {
@@ -84,9 +83,6 @@ class MenuView: SKScene {
         //        view.addGestureRecognizer(swipeDown)
         loadMenu()
         startGame()
-        //return // #### REMOVE LATER, to speed up testing ####
-        //NSNotificationCenter.defaultCenter().postNotificationName(HIDEMENU, object: nil)
-
     }
     
     //this will load menu buttons

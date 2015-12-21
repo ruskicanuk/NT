@@ -96,11 +96,6 @@ class Location:SKSpriteNode {
         self.position = CGPoint(x: x, y: y)
     }
     
-    deinit {
-        
-        //print("De-initializing location")
-    }
-    
     func reShuffleLocation() {
         
         var extraRotation:CGFloat = 0
@@ -113,12 +108,6 @@ class Location:SKSpriteNode {
         var leftSideCommands:Int = 0
         var rightSideCommands:Int = 0
         var sideLeft:Bool = true // Which side to draw on
-        
-        // Eliminate zero-unit commands from the occupants
-        //for each in self.occupants {
-        //    if each.unitCount == 0 {self.occupants.removeObject(each)}
-        //    //else {each.activeUnits.sortInPlace({$0.unitCode > $1.unitCode})}
-        //}
         
         if self.locationType == .Approach {
             

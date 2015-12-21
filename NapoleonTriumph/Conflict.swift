@@ -14,7 +14,6 @@ class Conflict {
     let defenseApproach:Approach!
     let attackApproach:Approach!
     
-    //var threatenGroup:Group?
     var defenseGroup:GroupSelection?
     var attackGroup:GroupSelection?
     var guardAttackGroup:GroupSelection?
@@ -438,7 +437,6 @@ class GroupConflict {
     var someEmbattledAttackersWon:Bool = false
     
     // Used to store number of orders for the purposes of releasing the mustRetreat / mustDefend condition when un-doing
-    //var retreatOrders:Int = 0
     var defenseOrders:Int = 0
     
     var twoPlusCorps:Bool = false
@@ -572,7 +570,6 @@ class Group: NSObject, NSCoding {
     var guardInGroup:Bool = false
     var cavCount:Int = 0
     var nonLdrUnitCount:Int = 0
-    //var mayRepeatMove:Bool = true
     var groupIsTwoPlusCorps:Bool = false
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -596,7 +593,6 @@ class Group: NSObject, NSCoding {
 
         command = aDecoder.decodeObjectForKey("command") as! Command
         units = aDecoder.decodeObjectForKey("units") as! [Unit]!
-//        nonLdrUnits = aDecoder.decodeObjectForKey("nonLdrUnits") as! [Unit]!
         artOnly=aDecoder.decodeBoolForKey("artOnly")
         leaderUnit=aDecoder.decodeObjectForKey("leaderUnit") as? Unit
         fullCommand=aDecoder.decodeBoolForKey("fullCommand")
@@ -612,7 +608,6 @@ class Group: NSObject, NSCoding {
     init(theCommand:Command, theUnits:[Unit]) {
         command = theCommand
         units = theUnits
-        //var availableNonLdrUnits = 0
         
         for eachUnit in theUnits {
             
@@ -628,7 +623,6 @@ class Group: NSObject, NSCoding {
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
             if eachUnit.fixed {someUnitsFixed = true}
             if eachUnit.unitType == .Grd {guardInGroup = true}
-            //if !eachUnit.repeatMove {mayRepeatMove = false}
         }
         
         super.init()
@@ -735,8 +729,8 @@ class GroupSelection {
     func SetGroupSelectionPropertyUnitsHaveDefended(onOff:Bool, approachDefended: Approach) {
         for eachGroup in self.groups {
             for eachUnit in eachGroup.units {
-                if onOff {eachUnit.alreadyDefended = true; eachUnit.approachDefended = approachDefended}
-                else {eachUnit.alreadyDefended = false; eachUnit.approachDefended = nil}
+                if onOff {eachUnit.approachDefended = approachDefended}
+                else {eachUnit.approachDefended = nil}
             }
         }
     }
