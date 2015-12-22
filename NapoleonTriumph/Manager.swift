@@ -95,7 +95,6 @@ class GameManager: NSObject, NSCoding {
         
         priorityLosses[PriorityLossesAu] = auLosses
         priorityLosses[PriorityLossesFr] = frLosses
-        //
         
         //Retrive priorityLeaderAndBattle
         let auLeaderAndBattle = aDecoder.decodeObjectForKey("auLeaderAndBattle") as! [Int]
@@ -306,6 +305,7 @@ class GameManager: NSObject, NSCoding {
             
             RemoveNonMovementArrows()
             ResetConflictsState()
+            RefreshCommands() // Requires a second refresh
             endTurnButton.buttonState = .On
         
         case .Commit:
@@ -318,11 +318,12 @@ class GameManager: NSObject, NSCoding {
             generalThreatsMade++
             SetupThreats()
             
-            availableCount = 2
-            if localeThreats.count == 1 {
-                if localeThreats[0].conflicts.count == 1 {
-                    theSingleConflict = localeThreats[0].conflicts[0]
-                    availableCount = 1
+            for eachLocaleConflict in localeThreats {
+                for eachConflict in eachLocaleConflict.conflicts {
+                    if !eachConflict.approachConflict {
+                        availableCount++
+                        theSingleConflict = eachConflict
+                    }
                 }
             }
             
@@ -455,6 +456,9 @@ class GameManager: NSObject, NSCoding {
                             staticLocations += [eachConflict.defenseApproach]
                             availableCount++
                             theSingleConflict = eachConflict
+                            
+                            eachConflict.defenseApproach.mayNormalAttack = false
+                            eachConflict.defenseApproach.mayArtAttack = false
                         }
                     }
                 }
@@ -471,11 +475,11 @@ class GameManager: NSObject, NSCoding {
                         if eachConflict.realAttack {
                             
                             InitialBattleProcessing(eachConflict)
+                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                            staticLocations += [eachConflict.defenseApproach]
                             
                             // Only allow for counter-attack if its
                             if eachConflict.mayCounterAttack {
-                                RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                                staticLocations += [eachConflict.defenseApproach]
                                 eachConflict.defenseApproach.approachSelector!.selected = .Option
                                 availableCount++
                                 theSingleConflict = eachConflict
@@ -635,7 +639,9 @@ class GameManager: NSObject, NSCoding {
                     eachUnit.approachDefended = nil
                 }
             }
-            for eachApproach in approaches {eachApproach.mayArtAttack = true; eachApproach.mayNormalAttack = true}
+            for eachApproach in approaches {eachApproach.mayArtAttack = true
+                eachApproach.mayNormalAttack = true
+            }
         }
         ResetConflictsState()
         generalThreatsMade = 0
@@ -737,7 +743,7 @@ class GameManager: NSObject, NSCoding {
             if orders[index].theConflict != nil && !(orders[index].order! != .Threat) {
                 
                 let newConflict = self.orders[index].theConflict
-                //newConflict!.defenseApproach.hidden = false
+
                 RevealLocation(newConflict!.defenseApproach, toReveal: true)
                 staticLocations += [newConflict!.defenseApproach]
                 newConflict!.defenseApproach.approachSelector!.selected = .Option

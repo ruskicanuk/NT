@@ -332,11 +332,11 @@ func SelectableGroupsForDefense (theConflict:Conflict) -> [Group] {
     
     var theCommandGroups:[Group] = []
 
-    if (theConflict.defenseApproach.occupantCount > 0) || !(theConflict.defenseReserve.defendersAvailable(theConflict.defenseApproach) > 0) {return theCommandGroups}
+    if (theConflict.defenseApproach.occupantCount > 0) || !(theConflict.defenseReserve.defendersAvailable(theConflict.parentGroupConflict!) > 0) {return theCommandGroups}
     
     for eachReserveOccupant in theConflict.defenseReserve.occupants {
         
-        let potDefenders = eachReserveOccupant.availableToDefend(theConflict.defenseApproach)
+        let potDefenders = eachReserveOccupant.conflictAvailableToDefend(theConflict)
         if potDefenders.count > 0 {
 
             // Commanded units
@@ -448,13 +448,14 @@ func ConflictSelectDuringDefensePhase() -> String {
         if eachReserve.availableSpace > 0 && eachReserve.localeControl != manager!.phasingPlayer && activeConflict!.attackReserve != eachReserve {spaceAvailable = true; break}
     }
     
-    let noDefendersAvailable = activeConflict!.defenseReserve.defendersAvailable(activeConflict!.defenseApproach) < 1
+    let noDefendersAvailable = activeConflict!.defenseReserve.defendersAvailable(activeGroupConflict!) < 1
+    let unDefendedApproaches = activeGroupConflict!.unresolvedApproaches.count > 0
 
     // No space available case
     if !spaceAvailable {
         
         // No space, must-retreat (no-one to defend with)
-        if noDefendersAvailable {
+        if (noDefendersAvailable && unDefendedApproaches) {
             activeGroupConflict!.retreatMode = true
             activeGroupConflict!.mustRetreat = true
             return "TurnOnSurrender"
@@ -469,7 +470,7 @@ func ConflictSelectDuringDefensePhase() -> String {
     }
 
     // Retreat command was given and space exists
-    if activeGroupConflict!.mustRetreat || noDefendersAvailable {
+    if activeGroupConflict!.mustRetreat || (noDefendersAvailable && unDefendedApproaches) {
         activeGroupConflict!.retreatMode = true
         activeGroupConflict!.mustRetreat = true
         return "TurnOnRetreatOnly"
@@ -482,7 +483,7 @@ func ConflictSelectDuringDefensePhase() -> String {
 func RetreatPreparation() {
     
     ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: true, otherSelectors: false)
-    //var retreatCode = 1
+
     switch ConflictSelectDuringDefensePhase() {
         
     case "TurnOnDefendOnly":
@@ -592,16 +593,40 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
     }
     
     if groupsSelected[0].command.moveNumber > 0 {
-        switch (groupsSelected[0].command.movedVia) {
+        if groupsSelected[0].command.moveNumber - groupsSelected[0].command.repeatMoveNumber == 0 {
+            switch (groupsSelected[0].command.movedVia) {
             case .CorpsMove: return (.On, .Off, .Off, .Off)
             case .IndMove: return (.Off, .Off, .Off, .On)
             default: return (.Off, .Off, .Off, .Off)
+            }
+        } else {
+            switch (groupsSelected[0].command.movedVia) {
+            case .CorpsMove: return (.NotAvail, .Off, .Off, .Off)
+            case .IndMove: return (.Off, .Off, .Off, .NotAvail)
+            default: return (.Off, .Off, .Off, .Off)
+            }
         }
     }
     
     var corpsMove:SelState = .On
     var detachMove:SelState = .On
     var independent:SelState = .On
+    
+    // Determine if the defense reserve is large enough to hold all the potential attackers
+    var potAttackers = 0
+    for eachGroup in groupsSelected {
+        potAttackers += eachGroup.nonLdrUnitCount
+    }
+    for eachConflict in theConflict.parentGroupConflict!.conflicts {
+        if eachConflict.attackGroup != nil {
+            potAttackers += eachConflict.attackGroup!.nonLeaderBlocksSelected
+        }
+    }
+    if potAttackers > theConflict.defenseReserve.capacity {
+        corpsMove = .NotAvail
+        detachMove = .NotAvail
+        independent = .NotAvail
+    }
     
     if groupsSelected[0].command.finishedMove {
         corpsMove = .Off
@@ -1155,6 +1180,9 @@ func SetupActiveConflict() {
         
         RetreatPreparation()
         
+        if CheckEndTurnStatus() {endTurnButton.buttonState = .On}
+        else {endTurnButton.buttonState = .Off}
+        
     case .SelectDefenseLeading:
         
         if activeConflict!.defenseLeadingUnits == nil {
@@ -1166,7 +1194,7 @@ func SetupActiveConflict() {
         }
         
         if CheckEndTurnStatus() {endTurnButton.buttonState = .On}
-        else if activeConflict!.defenseLeadingSet {endTurnButton.buttonState = .Off}
+        else if activeConflict!.defenseLeadingUnits != nil {endTurnButton.buttonState = .Off}
         else {endTurnButton.buttonState = .Option}
         
     case .PreRetreatOrFeintMoveOrAttackDeclare:
@@ -1202,7 +1230,7 @@ func SetupActiveConflict() {
         }
         
         if CheckEndTurnStatus() {endTurnButton.buttonState = .On}
-        else if activeConflict!.attackLeadingSet {endTurnButton.buttonState = .Off}
+        else if activeConflict!.attackLeadingUnits != nil {endTurnButton.buttonState = .Off}
         else {endTurnButton.buttonState = .Option}
         
     case .FeintResponse:
@@ -1227,7 +1255,7 @@ func SetupActiveConflict() {
         }
         
         if CheckEndTurnStatus() {endTurnButton.buttonState = .On}
-        else if activeConflict!.counterAttackLeadingSet {endTurnButton.buttonState = .Off}
+        else if activeConflict!.counterAttackLeadingUnits != nil {endTurnButton.buttonState = .Off}
         else {endTurnButton.buttonState = .Option}
         
     case .PostCombatRetreatAndVictoryResponseMoves:
@@ -1276,7 +1304,7 @@ func CheckEndTurnStatus() -> Bool {
                     }
                 }
             } else {
-                if eachLocaleThreat.unresolvedApproaches.count > 0 && eachLocaleThreat.defenseReserve.defendersAvailable() > 0 {
+                if eachLocaleThreat.unresolvedApproaches.count > 0 && eachLocaleThreat.defenseReserve.defendersAvailable(eachLocaleThreat) > 0 {
                     endTurnViable = false
                 }
                 for eachConflict in eachLocaleThreat.conflicts {
@@ -1517,7 +1545,7 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
                 // Found a potential enemy to rd feint
                 if let attackToApproach = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i]) {
                 
-                    if (eachPath[i-1].currentFill + theGroup.nonLdrUnitCount > eachPath[i-1].capacity && eachPath[i].defendersAvailable() > 0) {break}
+                    if (eachPath[i-1].currentFill + theGroup.nonLdrUnitCount > eachPath[i-1].capacity && eachPath[i].defendersAvailable(nil) > 0) {break}
                     if attackToApproach.1.occupantCount > 0 || attackToApproach.1.threatened {break}
                     targetApproaches += [attackToApproach.1]
                 }

@@ -26,9 +26,6 @@ class Conflict {
     var attackLeadingUnits:GroupSelection?
     var counterAttackLeadingUnits:GroupSelection?
     
-    var defenseLeadingSet:Bool = false
-    var attackLeadingSet:Bool = false
-    var counterAttackLeadingSet:Bool = false
     var realAttack:Bool = false
     var phantomCorpsOrder:Bool?
     
@@ -670,6 +667,7 @@ class GroupSelection {
     var anyOneStrengthUnits = false
     
     var blocksSelected = 0
+    var nonLeaderBlocksSelected = 0
     var notThreeStrUnits = 0
     
     var containsInfOrGuard = false
@@ -707,7 +705,7 @@ class GroupSelection {
                     if eachUnit.unitType == .Grd {containsGuard = true}
                     theUnits += [eachUnit] // Add to units
                     blocksSelected++
-                    if eachUnit.unitType == .Ldr {containsLeader = true} // Increment group selection size
+                    if eachUnit.unitType == .Ldr {containsLeader = true} else {nonLeaderBlocksSelected++}
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
                     if eachUnit.unitStrength < 3 {notThreeStrUnits++}

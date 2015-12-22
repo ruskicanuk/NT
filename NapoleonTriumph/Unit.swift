@@ -69,6 +69,15 @@ class Unit: SKSpriteNode {
     
     func updateSelectedStatus() {
         
+        // For french-reinforcements which have yet to arrive
+        let hasArrived = manager!.turn >= parentCommand!.turnMayEnterMap
+        
+        if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare {
+            if !hasArrived && selected == .Normal {
+                selected = .NotSelectable
+            }
+        }
+        
         if manager!.phaseNew == .Setup || manager!.phaseNew == .Move || manager!.phaseNew == .Commit {
             
             if selected == .Off {return}
@@ -78,9 +87,6 @@ class Unit: SKSpriteNode {
             
             // For french-reinforcements which may have a second attack
             let frReinforcement  = parentCommand!.turnEnteredMap == manager!.turn && !parentCommand!.secondMoveUsed
-            
-            // For french-reinforcements which have yet to arrive
-            let hasArrived = manager!.turn >= parentCommand!.turnMayEnterMap
 
             if ((hasMoved && !repeatMovePossible) || threatenedConflict != nil || !hasArrived) && !frReinforcement && selected == .Normal {
                 selected = .NotSelectable

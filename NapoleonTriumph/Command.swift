@@ -340,13 +340,36 @@ class Command:SKNode {
     }
     
     // Used to store units available to defend
-    func availableToDefend(theApproach:Approach? = nil) -> [Unit] {
+    func availableToDefend(theLocaleThreat:GroupConflict?) -> [Unit] {
         var theUnits:[Unit] = []
+        var theDefenseApproaches:[Approach] = []
+        if theLocaleThreat != nil {theDefenseApproaches = theLocaleThreat!.unresolvedApproaches}
         for eachUnit in activeUnits {
-            var sameApproach = false
-            if theApproach != nil && eachUnit.approachDefended != nil && eachUnit.approachDefended == theApproach {sameApproach = true}
+
+            // Determine if a unit is assigned to one of the unresolved approaches
+            var assignedDefenseApproachInList = false
+            if eachUnit.approachDefended != nil {
+                assignedDefenseApproachInList = theDefenseApproaches.filter{$0 == eachUnit.approachDefended!}.count > 0
+            }
             
-            if (eachUnit.approachDefended == nil || sameApproach) && eachUnit.unitType != .Ldr {theUnits += [eachUnit]}
+            if (eachUnit.approachDefended == nil || assignedDefenseApproachInList) && eachUnit.unitType != .Ldr {theUnits += [eachUnit]}
+        }
+        return theUnits
+    }
+    
+    // Used to store units available to defend
+    func conflictAvailableToDefend(theConflict:Conflict) -> [Unit] {
+        var theUnits:[Unit] = []
+
+        for eachUnit in activeUnits {
+            
+            // Determine if a unit is assigned to one of the unresolved approaches
+            var assignedDefenseApproachInList = false
+            if eachUnit.approachDefended != nil {
+                assignedDefenseApproachInList = theConflict.defenseApproach == eachUnit.approachDefended!
+            }
+            
+            if (eachUnit.approachDefended == nil || assignedDefenseApproachInList) && eachUnit.unitType != .Ldr {theUnits += [eachUnit]}
         }
         return theUnits
     }

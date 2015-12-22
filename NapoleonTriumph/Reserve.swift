@@ -138,15 +138,16 @@ class Reserve:Location {
         currentFill = (self.occupantCount + countApproachUnits)
     }
     
-    func defendersAvailable(theApproach:Approach? = nil) -> Int {
+    func defendersAvailable(theLocaleThreat:GroupConflict?) -> Int {
         var defenderBlockCount:Int = 0
         for eachCommand in occupants {
-            var theUnits = []
-            if theApproach == nil {
-                theUnits = eachCommand.availableToDefend()
+            var theUnits:[Unit] = []
+            if theLocaleThreat == nil {
+                theUnits = eachCommand.availableToDefend(nil)
             } else {
-                theUnits = eachCommand.availableToDefend(theApproach!)
+                theUnits = eachCommand.availableToDefend(theLocaleThreat)
             }
+            
             defenderBlockCount += theUnits.count
         }
         return defenderBlockCount

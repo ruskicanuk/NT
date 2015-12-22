@@ -20,11 +20,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     var statePoint:ReviewState = .Front {
         didSet {
-            updatePlaybackState() // Label
             if statePoint == .Front {
                 manager!.RemoveNonMovementArrows()
             }
             manager!.statePointTracker = statePoint // Stores current state
+            updatePlaybackState() // Label
         }
     }
     
@@ -225,19 +225,18 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Find the touched nodes
         let touch = touches.first as UITouch!
         let mapLocation:CGPoint? = touch.locationInNode(NTMap)
-        let acceptableDistance:CGFloat = mapScaleFactor*50
+        //let acceptableDistance:CGFloat = mapScaleFactor*50
         if mapLocation == nil {return Void()}
         let touchedNodesMap = self.nodesAtPoint(mapLocation!)
 
         if newSwipeQueue {
-            for eachCommand in manager!.gameCommands[manager!.actingPlayer]! {
-                
-                let distanceFromCommandSelected = DistanceBetweenTwoCGPoints(eachCommand.position, Position2: mapLocation!)
+            //for eachCommand in manager!.gameCommands[manager!.actingPlayer]! {
+                //let distanceFromCommandSelected = DistanceBetweenTwoCGPoints(eachCommand.position, Position2: mapLocation!)
                 //if distanceFromCommandSelected < acceptableDistance {
                 //TODO: Find the solution for below 2 commented lines
                 //swipeQueue += [eachCommand]
                 //}
-            }
+            //}
             swipeQueueIndex = 0
             newSwipeQueue = false
         }
@@ -763,27 +762,29 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case (.Back, true):
             
-            if manager!.orderHistoryTurn == 1 || fastFwdIndex == manager!.orderHistory[manager!.orderHistoryTurn-1]!.endIndex {fastFwdIndex = 0; statePoint = .Middle; disableTouches = false}
-            else {
+            if manager!.orderHistoryTurn == 1 || fastFwdIndex == manager!.orderHistory[manager!.orderHistoryTurn-1]!.endIndex {
+                fastFwdIndex = 0
+                statePoint = .Middle
+                disableTouches = false
+            } else {
                 let historicalOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!
-
-                undoOrAct = historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
-                
+                historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
                 fastFwdIndex++
             }
             
         case (.Middle, true):
         
-            if fastFwdIndex == manager!.orders.endIndex {fastFwdIndex = 0; statePoint = .Front; disableTouches = false}
-            else {
+            if fastFwdIndex == manager!.orders.endIndex {
+                fastFwdIndex = 0
+                statePoint = .Front
+                disableTouches = false
+            } else {
                 let historicalOrders = manager!.orders
-                undoOrAct = historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
-                if undoOrAct && (fastFwdIndex == manager!.orders.endIndex-1) {
-                    //DeselectAndReset()
-                    fastFwdExecuted = 0
-                    disableTouches = true
-                } //else {DeselectAndReset()}
-                
+                historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
+                //if undoOrAct && (fastFwdIndex == manager!.orders.endIndex-1) {
+                //    fastFwdExecuted = 0
+                //    disableTouches = true
+                //}
                 fastFwdIndex++
             }
         
@@ -1495,31 +1496,32 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func fastFwdTrigger() {
     
-        if statePoint == .Middle || undoOrAct || terrainButton.buttonState == .On {
+        if terrainButton.buttonState == .On || undoOrAct {return}
         
-        // Remove order arrows from previous turn
-        if manager!.orderHistoryTurn > 1 && manager!.orderHistory[manager!.orderHistoryTurn-1] != nil {
-        for eachOrder in manager!.orderHistory[manager!.orderHistoryTurn-1]! {eachOrder.orderArrow?.removeFromParent()}
-        }
+        if statePoint == .Middle {
         
-        disableTouches = true
-        selectedStatePoint = .Front
-        
+            // Remove order arrows from previous turn
+            if manager!.orderHistoryTurn > 1 && manager!.orderHistory[manager!.orderHistoryTurn-1] != nil {
+                for eachOrder in manager!.orderHistory[manager!.orderHistoryTurn-1]! {eachOrder.orderArrow?.removeFromParent()}
+            }
+            
+            disableTouches = true
+            selectedStatePoint = .Front
+            
         } else if statePoint == .Back {
-        
-        disableTouches = true
-        selectedStatePoint = .Middle
+            
+            disableTouches = true
+            selectedStatePoint = .Middle
         }
-        
     }
     
     func rewindTrigger() {
-    
-        // Rewind to the end of the current turn
-        if statePoint == .Front || undoOrAct || terrainButton.buttonState == .On {
         
-            undoOrAct = false
-            
+        if terrainButton.buttonState == .On || undoOrAct {return}
+        
+        // Rewind to the end of the current turn
+        if statePoint == .Front {
+
             for var rewindIndex = manager!.orders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
                 manager!.orders[rewindIndex].ExecuteOrder(true, playback: true)
             }
@@ -1531,12 +1533,14 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
             let historicalOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!
             undoOrAct = false
+            
             for var rewindIndex = historicalOrders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
-            historicalOrders[rewindIndex].ExecuteOrder(true, playback: true)
+                historicalOrders[rewindIndex].ExecuteOrder(true, playback: true)
             }
+            
             selectedStatePoint = .Back
             statePoint = .Back
-            }
+        }
     }
     
     func corpsDetachTrigger() {
@@ -1822,8 +1826,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 activeConflict = theOrder.theConflict!
                 SetupActiveConflict()
                 
-                endTurnButton.buttonState = .Off
-                
+                if CheckEndTurnStatus() {endTurnButton.buttonState = .On}
+                else {endTurnButton.buttonState = .Off}
             }
             manager!.orders.removeLast()
         }
