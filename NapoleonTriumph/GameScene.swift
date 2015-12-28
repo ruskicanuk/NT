@@ -20,8 +20,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     var statePoint:ReviewState = .Front {
         didSet {
+            var relevantOrders:[Order] = []
             if statePoint == .Front {
-                manager!.RemoveNonMovementArrows()
+                if manager!.orders.count > 0 {relevantOrders = manager!.orders}
+                manager!.RemoveNonMovementArrows(relevantOrders)
+            } else if statePoint == .Middle {
+                if manager!.orderHistoryTurn > 1 {relevantOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!}
+                manager!.RemoveNonMovementArrows(relevantOrders)
             }
             manager!.statePointTracker = statePoint // Stores current state
             updatePlaybackState() // Label
@@ -128,7 +133,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Save loader
         let sManager = StateManager()
         
-        if(sManager.games.count>0)
+        if sManager.games.count > 0
         {
             manager = sManager.games.first
         }
@@ -769,6 +774,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             } else {
                 let historicalOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!
                 historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
+                
                 fastFwdIndex++
             }
             
@@ -781,10 +787,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             } else {
                 let historicalOrders = manager!.orders
                 historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
-                //if undoOrAct && (fastFwdIndex == manager!.orders.endIndex-1) {
-                //    fastFwdExecuted = 0
-                //    disableTouches = true
-                //}
+
                 fastFwdIndex++
             }
         
@@ -802,7 +805,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Holding down functionality
         if touchStartTime != nil {
             let touchHoldTime = CFAbsoluteTimeGetCurrent() - touchStartTime!
-            if touchHoldTime > 1.0 {HoldTouch(); touchStartTime = nil; holdNode = nil}
+            if touchHoldTime > 1.0 {
+                HoldTouch()
+                touchStartTime = nil
+                holdNode = nil
+            }
         }
         
         // Playback functionality (a little fidgety but it works...)

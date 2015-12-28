@@ -303,7 +303,7 @@ class GameManager: NSObject, NSCoding {
                 CheckForOneBlockCorps(eachCommand)
             }
             
-            RemoveNonMovementArrows()
+            RemoveNonMovementArrows(orders)
             ResetConflictsState()
             RefreshCommands() // Requires a second refresh
             endTurnButton.buttonState = .On
@@ -780,8 +780,8 @@ class GameManager: NSObject, NSCoding {
         if morale[side] > 0 {return false} else {return true}
     }
     
-    func RemoveNonMovementArrows() {
-        for each in orders {
+    func RemoveNonMovementArrows(theOrders:[Order]) {
+        for each in theOrders {
             if each.order != .Move && each.order != .Retreat && each.order != .Feint {each.orderArrow?.removeFromParent()}
         }
     }

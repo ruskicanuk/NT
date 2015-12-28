@@ -36,9 +36,11 @@ func OrdersAvailableOnMove (groupSelected:Group, ordersLeft:(Int, Int) = (1,1)) 
     var indOrders = ordersLeft.1 - adjustInd
     
     // Check for unique unit combinations (leader assigned or single unassigned unit)
-    if groupSelected.command.hasLeader && groupSelected.command.theLeader!.assigned != "None" {corpsOrders = 0}
-    else if groupSelected.command.hasLeader && groupSelected.command.theLeader!.selected != .Selected && groupSelected.command.theLeader!.assigned == "None" && groupSelected.command.OneSelectableOnlyWithLeader() {corpsOrders = 0; indOrders = 0}
-
+    if groupSelected.command.hasLeader {
+        if groupSelected.command.theLeader!.assigned != "None" || groupSelected.command.finishedMove {corpsOrders = 0}
+        else if groupSelected.command.theLeader!.selected != .Selected && groupSelected.command.theLeader!.assigned == "None" && groupSelected.command.OneSelectableOnlyWithLeader() {corpsOrders = 0; indOrders = 0}
+    }
+    
     var attachMove:SelState = .Off
     var corpsMove:SelState = .Off
     var detachMove:SelState = .Off
@@ -616,6 +618,12 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
     var potAttackers = 0
     for eachGroup in groupsSelected {
         potAttackers += eachGroup.nonLdrUnitCount
+        
+        // Check if the commander is finished its move
+        if eachGroup.command.hasLeader && eachGroup.command.finishedMove {
+            corpsMove = .NotAvail
+            detachMove = .NotAvail
+        }
     }
     for eachConflict in theConflict.parentGroupConflict!.conflicts {
         if eachConflict.attackGroup != nil {

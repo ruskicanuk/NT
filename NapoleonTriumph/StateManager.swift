@@ -9,17 +9,18 @@ import UIKit
 
 class StateManager {
 
-    var games:Array<GameManager> = []
+    var games:[GameManager] = []
 
     init()
     {
-        let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        let paths:NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
         let documentsDirectory = paths[0] as! String
         let path = (documentsDirectory as NSString).stringByAppendingPathComponent("games.plist")
         let fileManager = NSFileManager.defaultManager()
         
         // check if file exists
         if !fileManager.fileExistsAtPath(path) {
+            
             // create an empty file if it doesn't exist
             if let bundle = NSBundle.mainBundle().pathForResource("default", ofType: "plist") {
 
@@ -41,6 +42,7 @@ class StateManager {
     }
     
     func save() {
+        
         // find the save directory our app has permission to use, and save the serialized version of self.scores - the HighScores array.
         let saveData = NSKeyedArchiver.archivedDataWithRootObject(self.games);
         let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true) as NSArray;
