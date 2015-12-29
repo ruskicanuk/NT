@@ -584,22 +584,22 @@ class Group: NSObject, NSCoding {
         aCoder.encodeInteger(cavCount, forKey: "cavCount")
         aCoder.encodeInteger(nonLdrUnitCount, forKey: "nonLdrUnitCount")
         
-        }
+    }
     
     required init(coder aDecoder: NSCoder) {
 
         command = aDecoder.decodeObjectForKey("command") as! Command
         units = aDecoder.decodeObjectForKey("units") as! [Unit]!
-        artOnly=aDecoder.decodeBoolForKey("artOnly")
-        leaderUnit=aDecoder.decodeObjectForKey("leaderUnit") as? Unit
-        fullCommand=aDecoder.decodeBoolForKey("fullCommand")
-        leaderInGroup=aDecoder.decodeBoolForKey("leaderInGroup")
-        allCav=aDecoder.decodeBoolForKey("allCav")
-        allGuard=aDecoder.decodeBoolForKey("allGuard")
-        someUnitsHaveMoved=aDecoder.decodeBoolForKey("someUnitsHaveMoved")
-        guardInGroup=aDecoder.decodeBoolForKey("guardInGroup")
-        cavCount=aDecoder.decodeIntegerForKey("cavCount")
-        nonLdrUnitCount=aDecoder.decodeIntegerForKey("nonLdrUnitCount")
+        artOnly = aDecoder.decodeBoolForKey("artOnly")
+        leaderUnit = aDecoder.decodeObjectForKey("leaderUnit") as? Unit
+        fullCommand = aDecoder.decodeBoolForKey("fullCommand")
+        leaderInGroup = aDecoder.decodeBoolForKey("leaderInGroup")
+        allCav = aDecoder.decodeBoolForKey("allCav")
+        allGuard = aDecoder.decodeBoolForKey("allGuard")
+        someUnitsHaveMoved = aDecoder.decodeBoolForKey("someUnitsHaveMoved")
+        guardInGroup = aDecoder.decodeBoolForKey("guardInGroup")
+        cavCount = aDecoder.decodeIntegerForKey("cavCount")
+        nonLdrUnitCount = aDecoder.decodeIntegerForKey("nonLdrUnitCount")
     }
 
     init(theCommand:Command, theUnits:[Unit]) {

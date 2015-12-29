@@ -56,9 +56,6 @@ var activeConflict:Conflict? {
     }
 }
 
-var revealedLocations:[SKNode] = []
-var hiddenLocations:[SKNode] = []
-
 // MARK: Global Enums
 
 enum ReviewState {case Front, Middle, Back}
@@ -169,6 +166,7 @@ var phantomOrderCorps = UILabel()
 var phantomOrderInd = UILabel()
 var battleResult = UILabel()
 var battleWinner = UILabel()
+var blocks = UIImage()
 
 var undoButton:UIStateButton!
 var endTurnButton:UIStateButton!
@@ -246,7 +244,7 @@ func setupCommandDashboard() {
     battleWinner.textColor = SKColor.blackColor()
     battleWinner.frame = CGRect(x: 5, y: 20, width: 100, height: 15)
     battleMenu.addSubview(battleWinner)
-
+    
 }
 
 // Refreshes the labels on the labelMenu

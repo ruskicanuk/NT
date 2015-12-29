@@ -7,7 +7,6 @@
 //
 
 import SpriteKit
-//import Foundation
 import UIKit
 
 class GameSetup: SKScene {

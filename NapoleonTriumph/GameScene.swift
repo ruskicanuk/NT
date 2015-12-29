@@ -21,11 +21,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
     var statePoint:ReviewState = .Front {
         didSet {
             var relevantOrders:[Order] = []
-            if statePoint == .Front {
+            if statePoint == .Front && manager!.phaseNew == .Move {
                 if manager!.orders.count > 0 {relevantOrders = manager!.orders}
                 manager!.RemoveNonMovementArrows(relevantOrders)
-            } else if statePoint == .Middle {
-                if manager!.orderHistoryTurn > 1 {relevantOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!}
+            } else if statePoint == .Middle && manager!.phaseNew == .Move {
+                if manager!.orderHistoryIndex > 0 {relevantOrders = manager!.orderHistory[manager!.orderHistoryIndex-1]!}
                 manager!.RemoveNonMovementArrows(relevantOrders)
             }
             manager!.statePointTracker = statePoint // Stores current state
@@ -292,6 +292,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         
         // Exit if in rewind mode
         if statePoint != .Front {return Void()}
+        if manager!.phaseNew == .Commit && manager!.gameMode == "Traditional" {return Void()}
         
         touchStartTime = nil
         holdNode = nil
@@ -767,12 +768,12 @@ class GameScene: SKScene, NSXMLParserDelegate {
             
         case (.Back, true):
             
-            if manager!.orderHistoryTurn == 1 || fastFwdIndex == manager!.orderHistory[manager!.orderHistoryTurn-1]!.endIndex {
+            if manager!.orderHistoryIndex == 0 || fastFwdIndex == manager!.orderHistory[manager!.orderHistoryIndex-1]!.endIndex {
                 fastFwdIndex = 0
                 statePoint = .Middle
                 disableTouches = false
             } else {
-                let historicalOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!
+                let historicalOrders = manager!.orderHistory[manager!.orderHistoryIndex-1]!
                 historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
                 
                 fastFwdIndex++
@@ -1508,8 +1509,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
         if statePoint == .Middle {
         
             // Remove order arrows from previous turn
-            if manager!.orderHistoryTurn > 1 && manager!.orderHistory[manager!.orderHistoryTurn-1] != nil {
-                for eachOrder in manager!.orderHistory[manager!.orderHistoryTurn-1]! {eachOrder.orderArrow?.removeFromParent()}
+            if manager!.orderHistoryIndex > 1 && manager!.orderHistory[manager!.orderHistoryIndex-1] != nil {
+                for eachOrder in manager!.orderHistory[manager!.orderHistoryIndex-1]! {eachOrder.orderArrow?.removeFromParent()}
             }
             
             disableTouches = true
@@ -1536,9 +1537,9 @@ class GameScene: SKScene, NSXMLParserDelegate {
             selectedStatePoint = .Middle
             statePoint = .Middle
         
-        } else if statePoint == .Middle && manager!.orderHistoryTurn > 1 && manager!.orderHistory[manager!.orderHistoryTurn-1] != nil { // Not the first turn and exists orders in the previous turn
+        } else if statePoint == .Middle && manager!.orderHistoryIndex > 1 && manager!.orderHistory[manager!.orderHistoryIndex-1] != nil { // Not the first turn and exists orders in the previous turn
         
-            let historicalOrders = manager!.orderHistory[manager!.orderHistoryTurn-1]!
+            let historicalOrders = manager!.orderHistory[manager!.orderHistoryIndex-1]!
             undoOrAct = false
             
             for var rewindIndex = historicalOrders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
@@ -1851,17 +1852,17 @@ func HideAllCommands (hide:Bool) {
 func RevealLocation(toStore:SKNode, toReveal:Bool = true) {
     
     if toReveal {
-        if hiddenLocations.contains(toStore) {
+        if manager!.hiddenLocations.contains(toStore) {
             toStore.hidden = false
-            revealedLocations += [toStore]
-            hiddenLocations.removeObject(toStore)
+            manager!.revealedLocations += [toStore]
+            manager!.hiddenLocations.removeObject(toStore)
         }
         
     } else {
-        if revealedLocations.contains(toStore) {
+        if manager!.revealedLocations.contains(toStore) {
             toStore.hidden = true
-            hiddenLocations += [toStore]
-            revealedLocations.removeObject(toStore)
+            manager!.hiddenLocations += [toStore]
+            manager!.revealedLocations.removeObject(toStore)
         }
     }
 }
@@ -1869,39 +1870,39 @@ func RevealLocation(toStore:SKNode, toReveal:Bool = true) {
 func HideAllRevealedLocations(hide:Bool = true) {
     
     if hide {
-        for eachNode in Set(revealedLocations).subtract(Set(manager!.staticLocations)) {
+        for eachNode in Set(manager!.revealedLocations).subtract(Set(manager!.staticLocations)) {
             eachNode.hidden = true
-            hiddenLocations += [eachNode]
+            manager!.hiddenLocations += [eachNode]
             eachNode.zPosition = 200
         }
-        revealedLocations = manager!.staticLocations
+        manager!.revealedLocations = manager!.staticLocations
     } else {
-        for eachNode in hiddenLocations {
+        for eachNode in manager!.hiddenLocations {
             eachNode.hidden = false
-            revealedLocations += [eachNode]
+            manager!.revealedLocations += [eachNode]
         }
-        hiddenLocations = []
+        manager!.hiddenLocations = []
     }
 }
 
 func HideAllLocations(hide:Bool) {
     
-    revealedLocations = []
-    hiddenLocations = []
+    manager!.revealedLocations = []
+    manager!.hiddenLocations = []
     manager!.staticLocations = []
     for each in manager!.reserves as [SKNode] + manager!.approaches as [SKNode] {
         each.hidden = hide
         if hide {
-            hiddenLocations += [each]
+            manager!.hiddenLocations += [each]
         } else {
-            revealedLocations += [each]
+            manager!.revealedLocations += [each]
         }
     }
 }
 
 func TempHideAllRevealedLocations(hide:Bool) {
     
-    for each in revealedLocations {each.hidden = hide}
+    for each in manager!.revealedLocations {each.hidden = hide}
 }
 
 func HideAllOrderArrows (hide:Bool) {
