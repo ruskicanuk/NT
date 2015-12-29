@@ -178,8 +178,6 @@ func closeMenu() {
     largeMenu.hidden = true
 }
     
-/*
-
 //MARK: ScrollView Delegate
 internal func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
     return self.scalingView
@@ -233,8 +231,6 @@ if dragGesture.state == .Began || dragGesture.state == .Changed {
     dragGesture.setTranslation(CGPointZero, inView: dragGesture.view)
     }
 }
-
-*/
 
 override func shouldAutorotate() -> Bool {
     return true
