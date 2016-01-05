@@ -147,6 +147,8 @@ class Order {
     
     func ExecuteOrder(reverse:Bool = false, playback:Bool = false) -> Bool { // Returns true if the reserve area is overloaded, otherwise false
         
+        var overloaded:Bool = false
+        
         // Type-casting to get reserve locales
         var endLocaleReserve:Reserve?
         var startLocaleReserve:Reserve?
@@ -358,7 +360,7 @@ class Order {
                 if startLocation[0].locationType != .Start {for each in startLocaleReserve!.adjReserves {each.UpdateReserveState()}; startLocaleReserve!.UpdateReserveState()}
                 
                 // If we are over capacity, return true
-                if endLocaleReserve != nil {if endLocaleReserve!.currentFill > endLocaleReserve!.capacity {return true}}
+                if endLocaleReserve != nil {if endLocaleReserve!.currentFill > endLocaleReserve!.capacity {overloaded = true}}
                 
             } else { // playback start
                 
@@ -448,7 +450,7 @@ class Order {
                 if startLocation[0].locationType != .Start {for each in startLocaleReserve!.adjReserves {each.UpdateReserveState()}; startLocaleReserve!.UpdateReserveState()}
                 
                 // If we are over capacity, return true
-                if startLocaleReserve != nil {if startLocaleReserve!.currentFill > startLocaleReserve!.capacity {return true}}
+                if startLocaleReserve != nil {if startLocaleReserve!.currentFill > startLocaleReserve!.capacity { overloaded = true}}
         
             } else { // playback start
                 
@@ -1174,7 +1176,7 @@ class Order {
         // Adds or removes the order arrow as applicable
         OrderArrow(reverse)
         
-        return false
+        return overloaded
     }
     
     // MARK: Support Functions
@@ -1304,7 +1306,7 @@ class Order {
             
             orderArrow!.removeFromParent()
             
-            // Add the arrow
+        // Add the arrow
         } else if NTMap != nil {
             
             let orderPath = CGPathCreateMutable()

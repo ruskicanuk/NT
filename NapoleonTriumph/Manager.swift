@@ -157,9 +157,9 @@ class GameManager: NSObject, NSCoding {
     var gameMode:String = "Normal" // Normal = simultaneous attacks, Traditional = infinite single-threats
     var generalThreatsPossible:Int = 2
     var maxMorale:[Allegience:Int!] = [ .Austrian: 27, .French: 23]
-    var multiPlayerMatch:Bool = true
+    var multiPlayerMatch:Bool = false
     var frAI:Bool = false
-    var auAI:Bool = false
+    var auAI:Bool = true
     
     // Game Variables
     
@@ -259,6 +259,7 @@ class GameManager: NSObject, NSCoding {
         if playback {return "Playback"}
         let phaseChange = phaseNew.NextPhase(reverse) // Moves us to the next phase, returns true if need to swith acting player
         if phaseChange {actingPlayer.Switch()}
+    
         RefreshCommands() // Switches block visibility
 
         switch phaseNew {
@@ -275,7 +276,7 @@ class GameManager: NSObject, NSCoding {
             
             RemoveNonMovementArrows(orders)
             ResetConflictsState()
-            RefreshCommands() // Requires a second refresh
+            RefreshCommands()
             endTurnButton.buttonState = .On
         
         case .Commit:
@@ -549,16 +550,28 @@ class GameManager: NSObject, NSCoding {
             
         }
 
-        // If there is one and only one conflict then select it, if there is zero then skip to next phase
-        if phaseNew != .Move && phaseNew != .Commit {
+        if HumanPlayer(actingPlayer) {
             
-            ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
-            if availableCount == 0 {NewPhase()}
-            else if availableCount == 1 && theSingleConflict != nil {
-                if activeConflict != nil {ResetActiveConflict(activeConflict!)}
-                activeConflict = theSingleConflict!
-                SetupActiveConflict()
+            aiThinkingStartTime = nil
+            aiThinking = false
+            
+            // If there is one and only one conflict then select it, if there is zero then skip to next phase
+            if phaseNew != .Move && phaseNew != .Commit {
+                
+                ToggleCommands(gameCommands[actingPlayer]!, makeSelection: .NotSelectable)
+                if availableCount == 0 {NewPhase()}
+                else if availableCount == 1 && theSingleConflict != nil {
+                    if activeConflict != nil {ResetActiveConflict(activeConflict!)}
+                    activeConflict = theSingleConflict!
+                    SetupActiveConflict()
+                }
             }
+            
+        } else {
+            
+            aiThinkingStartTime = CFAbsoluteTimeGetCurrent()
+            aiThinking = true
+            
         }
         
         // Ensure last order is undoable unless in commit-phase
@@ -622,6 +635,16 @@ class GameManager: NSObject, NSCoding {
         phasingPlayer.Switch()
         actingPlayer.Switch()
         RefreshCommands()
+        
+        if HumanPlayer(actingPlayer) {
+            aiThinkingStartTime = nil
+            aiThinking = false
+        } else {
+            aiThinkingStartTime = CFAbsoluteTimeGetCurrent()
+            aiThinking = true
+        }
+        
+        // Turn on AI if its not a human player
     }
     
     func ResetConflictsState() {
@@ -684,24 +707,36 @@ class GameManager: NSObject, NSCoding {
     // Sets acting player commands to normal, non-acting to off
     func RefreshCommands() {
         
-        for eachCommand in gameCommands[manager!.actingPlayer]! {
-            if turn >= eachCommand.turnMayEnterMap {
-                for eachUnit in eachCommand.activeUnits {
-                    eachUnit.selected = .Normal
+        if HumanPlayer(actingPlayer) {
+            
+            for eachCommand in gameCommands[manager!.actingPlayer]! {
+                if turn >= eachCommand.turnMayEnterMap {
+                    for eachUnit in eachCommand.activeUnits {
+                        eachUnit.selected = .Normal
+                    }
+                } else {
+                    for eachUnit in eachCommand.activeUnits {
+                        eachUnit.selected = .NotSelectable
+                    }
                 }
-            } else {
+            }
+            
+            for eachCommand in gameCommands[manager!.actingPlayer.Other()!]! {
+                for eachUnit in eachCommand.activeUnits {
+                    eachUnit.selected = .Off
+                }
+            }
+            
+        } else {
+    
+            for eachCommand in gameCommands[manager!.actingPlayer.Other()!]! {
                 for eachUnit in eachCommand.activeUnits {
                     eachUnit.selected = .NotSelectable
                 }
             }
         }
-        
-        for eachCommand in gameCommands[manager!.actingPlayer.Other()!]! {
-            for eachUnit in eachCommand.activeUnits {
-                eachUnit.selected = .Off
-            }
-        }
     }
+
     
     // Populations the reserve threats
     func SetupThreats() {
@@ -795,6 +830,16 @@ class GameManager: NSObject, NSCoding {
         case "PostCombatRetreatAndVictoryResponseMoves": return .PostCombatRetreatAndVictoryResponseMoves
         default: return .Move
         }
+    }
+    
+    func HumanPlayer(player:Allegience) -> Bool {
+        if player == .French && frAI {
+            return false
+        }
+        else if player == .Austrian && auAI {
+            return false
+        }
+        return true
     }
     
     // MARK: Encoder / Decoder

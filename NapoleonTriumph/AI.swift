@@ -6,6 +6,80 @@
 //  Copyright © 2015 Justin Anderson. All rights reserved.
 //
 
+/*
+
+***Strategic Goals***
+
+OUTPUT:
+-Reduce morale
+-Preserve morale
+-Capture stars
+-Defend stars
+-Organized advance
+-Organized defense
+
+INPUT:
+-Game turn
+-Morale
+
+***Attributes***
+
+OUTPUT:
+-Commands (size, narrow/wide inf attack, cav attack, art attack, defense, counter)
+-Battle lines (line nodes, node exposure)
+-Stars (ownership, distance, supply path
+-Opportunistic locales (non cav exposed to retreat, losing a battle or a feint)
+
+INPUT:
+-Commands
+-Stars
+
+***Roles***
+
+OUTPUT:
+-Harasser
+-Screener
+-Goal
+-Support
+-Organize
+
+INPUT:
+-Strategic goals
+-Attributes
+
+***Assignments***
+
+OUTPUT:
+-Move
+-Attack
+-Attach
+-Hold
+-Act priority
+-Move priority
+
+INPUT:
+-Strategic goals
+-Roles
+
+***Order***
+
+OUTPUT:
+-Command/Unit to
+
+INPUT:
+-Assignments
+
+***Battle***
+
+OUTPUT:
+-Feint/real (Attacker)
+-Feint response (Defender)
+
+INPUT:
+-Assignments
+
+*/
+
 import SpriteKit
 
 // MARK: Auto AI
@@ -227,5 +301,131 @@ func SelectLeadingUnits(theConflict:Conflict) {
     (manager!.groupsSelected, manager!.groupsSelectable) = SelectableLeadingGroups(theConflict, thePhase: manager!.phaseNew)
 }
 
-// MARK: Variable AI
+// MARK: AI Engine
 
+class AI {
+    
+    // Overall Strategic Objective
+    enum StrategicGoal {case ReduceMorale, PreserveMorale, CaptureStars, DefendStars, OrganizedAdvance, OrganizedDefense}
+    
+    // Role for each individual group
+    enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
+    
+    var aiCommands:[Command] = []
+    var enemyCommands:[Command] = []
+    
+    let side:Allegience
+    var armyGoal:StrategicGoal?
+    var groupRoles:[Group:GroupRole] = [:]
+    var ownArmyStrength:Int = 0
+    var enemyArmyStrength:Int = 0
+    
+    // Stars
+    //var proximateStars
+    //var defendedStars
+    
+    // Lines
+    // Use pre-defined lines based on game condition and side
+    
+    //var relativeMorale:Int
+    
+    init(passedSide:Allegience) {
+        side = passedSide
+    }
+    
+    func aiUpdateStrategicGoal() {
+        
+        switch (manager!.frReinforcementsCalled, side) {
+            
+        case (true, .Austrian): armyGoal = .ReduceMorale
+            
+        case (false, .Austrian): armyGoal = .ReduceMorale
+            
+        case (true, .French): armyGoal = .ReduceMorale
+            
+        case (false, .French): armyGoal = .ReduceMorale
+            
+        default: break
+            
+        }
+    }
+    
+    func aiUpdateAttributes() {
+        
+        // Army Strength
+        for eachCommand in aiCommands {
+            ownArmyStrength += eachCommand.unitsTotalStrength
+        }
+        for eachCommand in enemyCommands {
+            enemyArmyStrength += eachCommand.unitsTotalStrength
+        }
+    }
+    
+    func aiUpdateStrategicLine() {
+        
+        switch (manager!.frReinforcementsCalled, side) {
+            
+        case (true, .Austrian): break
+            
+        case (false, .Austrian): break
+            
+        case (true, .French): break
+            
+        case (false, .French): break
+            
+        default: break
+            
+        }
+    }
+    
+    func aiGroupAssignments() {
+        
+    }
+    
+    func aiUpdateCommands() {
+        
+        aiCommands = manager!.gameCommands[side]!
+        enemyCommands = manager!.gameCommands[side.Other()!]!
+    }
+    
+    // Returns the supply paths possible between the star-location and
+    func SupplyPaths() {
+        
+    }
+    
+    // Process AI thinking, returns false if no action taken (time to end AI's turn), returns true if action taken which means more thinking will be done
+    func AIEngine() -> Bool {
+        
+        switch manager!.phaseNew {
+            
+        case .Setup: return false
+        
+        case .Move:
+            
+            for eachCommand in aiCommands {
+                if eachCommand.unitCount == 3 && eachCommand.moveNumber < 1 {
+                    manager!.groupsSelected = [Group(theCommand: eachCommand, theUnits: eachCommand.units)]
+                    break
+                }
+            }
+            
+            (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState) = OrdersAvailableOnMove(manager!.groupsSelected[0], ordersLeft: ((manager!.corpsCommandsAvail), (manager!.indCommandsAvail)))
+                
+            // Setup the swipe queue for the selected command
+            (adjMoves, attackThreats, mustFeintThreats) = MoveLocationsAvailable(manager!.groupsSelected[0], selectors: (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState), undoOrAct:undoOrAct)
+            
+            var moveToLocation:Location?
+            if adjMoves.count > 0 {
+                moveToLocation = adjMoves[0]
+                MoveUI(moveToLocation!)
+                return true
+            }
+            
+        default: break
+            
+        }
+        
+        return false
+    }
+
+}

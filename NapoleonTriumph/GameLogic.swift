@@ -193,7 +193,9 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
             
             // This checks if it is likely and end-rd move
             for eachReservePath in currentReserve!.rdReserves {
-                if eachReservePath.contains(eachAdjReserve) && moveNumber < eachReservePath.count-2 {finalReserveMoves += [eachAdjReserve]}
+                if eachReservePath.contains(eachAdjReserve) && moveNumber < eachReservePath.count-2 {
+                    finalReserveMoves += [eachAdjReserve]
+                }
             }
             
             if !eachAdjReserve.has2PlusCorpsPassed {adjAvailableReserves += [eachAdjReserve]}
@@ -244,9 +246,8 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
                 for eachApproach in eachReserve.ownApproaches {rdAvailableApproaches.removeObject(eachApproach)}
             }
         }
-        
+
         let rdMoves = rdAvailableReserves as [Location] + rdAvailableApproaches as [Location]
-        
         
         if (reinforcement || relativeRepeatNumber == 0) && !(manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 || detachOn) {
         
@@ -269,7 +270,11 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     } else {
         
         // Remove adjacent reserves that would go beyond capacity with the move if it's the last move of the command / units
-        for eachReserve in Array(Set(finalReserveMoves).intersect(Set(adjAvailableReserves))) {if (groupSelected.nonLdrUnitCount + eachReserve.currentFill) > eachReserve.capacity {adjAvailableReserves.removeObject(eachReserve)}}
+        for eachReserve in Array(Set(finalReserveMoves).intersect(Set(adjAvailableReserves))) {
+            if (groupSelected.nonLdrUnitCount + eachReserve.currentFill) > eachReserve.capacity {
+                adjAvailableReserves.removeObject(eachReserve)
+            }
+        }
         
         let adjMoves = adjAvailableReserves as [Location] + adjAvailableApproaches as [Location]
         

@@ -12,12 +12,16 @@ class Reserve:Location {
     
     // Attributes of the reserve area
     let capacity:Int!
+    let blueStar:Bool!
+    let redStar:Bool!
+    let greenStar:Bool!
+    let blackStar:Bool!
+    
     var offMap:Bool = false
     
     var ownApproaches:[Approach] = []
     var adjReserves:[Reserve] = []
     var rdReserves:[[Reserve]] = []
-    
     
     let ownApproachesName:[String]
     let adjReservesName:[String]
@@ -46,6 +50,18 @@ class Reserve:Location {
         
         let theCapacity:String = theDict["size"] as AnyObject? as! String
         capacity = Int(theCapacity)!
+        
+        let blueStarStr:NSString = theDict["blueStar"] as AnyObject? as! NSString
+        blueStar = blueStarStr.boolValue
+        
+        let greenStarStr:NSString = theDict["greenStar"] as AnyObject? as! NSString
+        greenStar = greenStarStr.boolValue
+        
+        let blackStarStr:NSString = theDict["blackStar"] as AnyObject? as! NSString
+        blackStar = blackStarStr.boolValue
+        
+        let redStarStr:NSString = theDict["redStar"] as AnyObject? as! NSString
+        redStar = redStarStr.boolValue
         
         let theApproaches:String = theDict["approaches"] as AnyObject? as! String
         ownApproachesName = (theApproaches.characters).split{$0 == " "}.map(String.init)

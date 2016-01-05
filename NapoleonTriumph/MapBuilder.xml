@@ -25,16 +25,16 @@
   <object id="23" type="Approach" x="604" y="420" z="200" zRot="146" inf="false" cav="false" art="false" obs="false" hill="false" wide="true" oppositeApproach="22" ownReserve="5" adjacentReserve="8"/>
  </objectgroup>
  <objectgroup name="Reserve Group">
-     <object id="1" type="Reserve" x="439" y="451" z="200" zRot="0" approaches="1 2" adjReserves="2 7" rdReserves="1 2 1|1 7 6|1 7 4|1 7 3" size="12"/>
-     <object id="2" type="Reserve" x="433" y="382" z="200" zRot="0" approaches="3 4" adjReserves="1 3" rdReserves="2 1 7|2 3 7" size="6"/>
-     <object id="3" type="Reserve" x="478" y="340" z="200" zRot="0" approaches="5 7 8" adjReserves="2 7 4" rdReserves="3 2 3|3 7 4|3 7 1|3 7 6|3 2 200" size="6"/>
-     <object id="4" type="Reserve" x="575" y="298" z="200" zRot="0" approaches="9 10 20" adjReserves="3 7 8" rdReserves="4 7 3|4 7 1|4 7 6|4 8 5" size="20"/>
-     <object id="5" type="Reserve" x="589" y="439" z="200" zRot="0" approaches="11 12 23" adjReserves="6 7 8" rdReserves="5 6 7|5 8 4" size="16"/>
-     <object id="6" type="Reserve" x="535" y="458" z="200" zRot="0" approaches="13 14" adjReserves="5 7" rdReserves="6 7 3|6 7 1|6 7 4|6 5 8|6 5 201" size="4"/>
-     <object id="7" type="Reserve" x="527" y="395" z="200" zRot="0" approaches="15 16 17 18 19" adjReserves="1 3 4 5 6" rdReserves="7 1 2|7 3 2|7 6 5|7 4 8|7 3 200|7 4 201" size="9"/>
-     <object id="8" type="Reserve" x="652" y="391" z="200" zRot="0" approaches="21 22" adjReserves="5 4" rdReserves="8 4 7||8 5 6" size="20"/>
-     <object id="200" type="Reserve" x="652" y="100" z="200" zRot="0" approaches="" adjReserves="2 3" rdReserves="200 2 3||200 3 7" size="100"/>
-     <object id="201" type="Reserve" x="652" y="600" z="200" zRot="0" approaches="" adjReserves="5 4" rdReserves="201 5 6||201 4 7" size="100"/>
+     <object id="1" type="Reserve" x="439" y="451" z="200" zRot="0" approaches="1 2" adjReserves="2 7" rdReserves="1 2 1|1 7 6|1 7 4|1 7 3" size="12" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="2" type="Reserve" x="433" y="382" z="200" zRot="0" approaches="3 4" adjReserves="1 3" rdReserves="2 1 7|2 3 7" size="6" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="3" type="Reserve" x="478" y="340" z="200" zRot="0" approaches="5 7 8" adjReserves="2 7 4" rdReserves="3 2 3|3 7 4|3 7 1|3 7 6|3 2 200" size="6" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="4" type="Reserve" x="575" y="298" z="200" zRot="0" approaches="9 10 20" adjReserves="3 7 8" rdReserves="4 7 3|4 7 1|4 7 6|4 8 5" size="20" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="5" type="Reserve" x="589" y="439" z="200" zRot="0" approaches="11 12 23" adjReserves="6 7 8" rdReserves="5 6 7|5 8 4" size="16" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="6" type="Reserve" x="535" y="458" z="200" zRot="0" approaches="13 14" adjReserves="5 7" rdReserves="6 7 3|6 7 1|6 7 4|6 5 8|6 5 201" size="4" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="7" type="Reserve" x="527" y="395" z="200" zRot="0" approaches="15 16 17 18 19" adjReserves="1 3 4 5 6" rdReserves="7 1 2|7 3 2|7 6 5|7 4 8|7 3 200|7 4 201" size="9" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="8" type="Reserve" x="652" y="391" z="200" zRot="0" approaches="21 22" adjReserves="5 4" rdReserves="8 4 7||8 5 6" size="20" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="200" type="Reserve" x="652" y="100" z="200" zRot="0" approaches="" adjReserves="2 3" rdReserves="200 2 3||200 3 7" size="100" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
+     <object id="201" type="Reserve" x="652" y="600" z="200" zRot="0" approaches="" adjReserves="5 4" rdReserves="201 5 6||201 4 7" size="100" blueStar="false" redStar="false" blackStar="false" greenStar="false"/>
  </objectgroup>
  <objectgroup name="Command Group">
      <object id="1" type="Command" units="111.0 121.0 133.0 151.1" corps="true" x="200" y="200" z="0" zRot="0" loc="Approach" locID="4"/>
