@@ -306,7 +306,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
 class AI {
     
     // Overall Strategic Objective
-    enum StrategicGoal {case ReduceMorale, PreserveMorale, CaptureStars, DefendStars, OrganizedAdvance, OrganizedDefense}
+    enum StrategicGoal {case ReduceMorale, PreserveMorale, CaptureStars, DefendStars, LineManeuvers}
     
     // Role for each individual group
     enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
@@ -314,9 +314,20 @@ class AI {
     var aiCommands:[Command] = []
     var enemyCommands:[Command] = []
     
+    // Attributes
+    var aiAdjToEnemyCommands:[Command] = []
+    var aiRdAttackPossibleCommands:[Command] = []
+    var aiNoAttackPossibleCommands:[Command] = []
+    
+    var aiInfAttackStrength:[Command:Int] = [:]
+    var aiCavAttackStrength:[Command:Int] = [:]
+    var aiArtAttackStrength:[Command:Int] = [:]
+    var aiGrdAttackStrength:[Command:Int] = [:]
+    
+    
     let side:Allegience
-    var armyGoal:StrategicGoal?
-    var groupRoles:[Group:GroupRole] = [:]
+    var armyGoal:StrategicGoal
+    var aiGroups:[Group:GroupRole] = [:]
     var ownArmyStrength:Int = 0
     var enemyArmyStrength:Int = 0
     
@@ -331,6 +342,7 @@ class AI {
     
     init(passedSide:Allegience) {
         side = passedSide
+        armyGoal = .LineManeuvers
     }
     
     func aiUpdateStrategicGoal() {
@@ -359,6 +371,44 @@ class AI {
         for eachCommand in enemyCommands {
             enemyArmyStrength += eachCommand.unitsTotalStrength
         }
+        
+        // Code for finding opportunities to win battles, force retreats, etc
+    }
+    
+    func aiGroupRoles() {
+        
+        for eachCommand in aiCommands {
+            
+            switch (armyGoal, side) {
+                
+            case (.ReduceMorale, .Austrian): break
+                
+                
+                
+            case (.ReduceMorale, .French): break
+                
+            case (.PreserveMorale, _): break
+                
+            case (.CaptureStars, .Austrian): break
+                
+            case (.DefendStars, .Austrian): break
+                
+            case (.CaptureStars, .French): break
+                
+            case (.DefendStars, .French): break
+                
+            case (.LineManeuvers, .Austrian): break
+                
+            case (.LineManeuvers, .French): break
+                
+            default: break
+                
+            }
+        }
+    }
+    
+    func GroupRoles(theCommand:Command) {
+        
     }
     
     func aiUpdateStrategicLine() {
