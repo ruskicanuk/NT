@@ -10,6 +10,7 @@ import SpriteKit
 import Foundation
 
 var manager:GameManager?
+
 var ai:[Allegience:AI] = [:]
 
 // Available locations
@@ -35,9 +36,17 @@ var aiThinking:Bool = false
 var aiTurn:Bool = false
 var aiThinkingStartTime:CFTimeInterval?
 
+var zoomedMode:Bool = false {
+    didSet {
+        updateZoomLevel()
+    }
+}
+
 class GameScene: SKScene, NSXMLParserDelegate {
     
     // MARK: Main Properties
+    
+    var viewController:GameViewController!
     
     // Playback properties
     var selectedStatePoint:ReviewState = .Front
@@ -306,8 +315,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
         // Exit if in rewind mode
-        if statePoint != .Front || aiThinking || aiTurn {return Void()}
-        if manager!.phaseNew == .Commit && manager!.gameMode == "Traditional" {return Void()}
+        if statePoint != .Front || aiThinking || aiTurn {return}
+        if manager!.phaseNew == .Commit && manager!.gameMode == "Traditional" {return}
         
         touchStartTime = nil
         holdNode = nil
@@ -320,13 +329,13 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let touchedCount:Int = touch.tapCount
 
         let touchedNodesMap = self.nodesAtPoint(mapLocation)
-        let touchedNode:SKNode? = theTouchedNode(touchedNodesMap, mapLocation:mapLocation, touchedCount:touchedCount)
+        var touchedNode:SKNode? = theTouchedNode(touchedNodesMap, mapLocation:mapLocation, touchedCount:touchedCount)
 
         // UndoOrAct allows only approach, reserve touching
         
         if touchedNode == NTMap {
             print("MapTouch", terminator: "\n")
-            if undoOrAct {return Void()}
+            if undoOrAct {return}
             selectionCase = mapName
         } else if touchedNode is Approach {
             print("ApproachTouch", terminator: "\n")
@@ -336,17 +345,39 @@ class GameScene: SKScene, NSXMLParserDelegate {
             selectionCase = reserveName
         } else if touchedNode is Command {
             print("CommandTouch Units: \((touchedNode as! Command).units.count) Active Units: \((touchedNode as! Command).activeUnits.count)", terminator: "\n")
-            if undoOrAct {return Void()}
+            if undoOrAct {return}
             selectionCase = mapName
         } else if touchedNode is Unit {
             print("UnitTouch", terminator: "\n")
-            if undoOrAct {return Void()}
+            if undoOrAct {return}
             selectionCase = unitName
         } else {
-            if undoOrAct {return Void()}
+            if undoOrAct {return}
             ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: true, otherSelectors: true)
             print("NothingTouch", terminator: "\n")
         }
+        
+        // This makes selection the same as touching the leader in zoomed out mode
+        if selectionCase == mapName && touchedCount == 2 {
+            let touchLocation = touch.locationInView(view!)
+            viewController.zoomToPoint(touchLocation, zoomLevel: 3.1)
+            //viewController.setZoomScale(4.1, animated: true)
+            return
+        } else if !zoomedMode && selectionCase == unitName {
+            
+            let touchedUnit = touchedNode as? Unit
+            
+            if touchedUnit != nil && touchedUnit!.unitType != .Ldr && touchedUnit!.parentCommand!.hasLeader && touchedUnit!.parentCommand!.theLeader!.selected != .NotSelectable && touchedUnit!.parentCommand!.theLeader!.selected != .Off {
+                touchedNode = touchedUnit!.parentCommand!.theLeader!
+            } else if touchedUnit != nil && touchedUnit!.unitType != .Ldr && touchedUnit!.parentCommand!.hasLeader && (touchedUnit!.parentCommand!.theLeader!.selected == .NotSelectable || touchedUnit!.parentCommand!.theLeader!.selected == .Off) {
+                return
+            }
+        }
+        
+        if !zoomedMode && touchedCount >= 2 {
+            return
+        }
+        
         // Touch Processing
         switch (manager!.phaseNew, selectionCase) {
         
@@ -401,13 +432,15 @@ class GameScene: SKScene, NSXMLParserDelegate {
             guard let touchedApproach = touchedNode as? Approach else {break}
             
             if !manager!.groupsSelected.isEmpty && manager!.groupsSelected.count == 1 {
-                if attackThreats.contains(touchedApproach) || mustFeintThreats.contains(touchedApproach) {
-                    
-                    AttackThreatUI(touchedNode!)
+                if attackThreats.contains(touchedApproach) {
+                    AttackThreatUI(touchedNode!, mustFeint: false)
                     if manager!.phaseNew == .Move {manager!.NewPhase()}
                     ResetState(true, groupsSelectable: false, hideRevealed: true, orderSelectors: true, otherSelectors: true)
-                }
-                else {
+                } else if mustFeintThreats.contains(touchedApproach) {
+                    AttackThreatUI(touchedNode!, mustFeint: true)
+                    if manager!.phaseNew == .Move {manager!.NewPhase()}
+                    ResetState(true, groupsSelectable: false, hideRevealed: true, orderSelectors: true, otherSelectors: true)
+                } else {
                     ResetState(false, groupsSelectable: false, hideRevealed: true, orderSelectors: false, otherSelectors: true)
                     MoveUI(touchedNode!)
                 }
@@ -824,6 +857,19 @@ class GameScene: SKScene, NSXMLParserDelegate {
         }
     }
     
+    /*
+    private func openSelectScene() {
+
+        let viewSize = CGSize(width: view!.bounds.size.width/2, height: view!.bounds.size.width/2)
+        let selectScene = SelectScene(size: viewSize)
+        let transition = SKTransition.fadeWithDuration(0.4)
+        
+        selectView.hidden = false
+        selectView.presentScene(selectScene, transition: transition)
+        //selectScene.scaleMode = .AspectFill
+    }
+    */
+    
     // Setup map
     func setupMap () -> CGFloat {
         
@@ -878,7 +924,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         baseMenu.addSubview(undoButton)
         
         topPosition += 0
-        rightPosition = undoImage.size.width*mapScaleFactor + 5*mapScaleFactor
+        rightPosition = undoImage.size.width*mapScaleFactor + 10*mapScaleFactor
 
         let endTurnImage = UIImage.init(named: "blue_marker")!
         endTurnButton = UIStateButton.init(initialState: .Option, theRect: CGRectMake(rightPosition, topPosition, endTurnImage.size.width*mapScaleFactor, endTurnImage.size.height*mapScaleFactor))
@@ -886,7 +932,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         endTurnButton.addTarget(self, action:"endTurnTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(endTurnButton)
         
-        topPosition += endTurnImage.size.height*mapScaleFactor + 5*mapScaleFactor
+        topPosition += endTurnImage.size.height*mapScaleFactor + 10*mapScaleFactor
         rightPosition = 5*mapScaleFactor
         
         let terrainImage = UIImage.init(named: "FRback")!
@@ -895,44 +941,44 @@ class GameScene: SKScene, NSXMLParserDelegate {
         terrainButton.addTarget(self, action:"hideTerrainTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(terrainButton)
         
-        topPosition += terrainImage.size.height*mapScaleFactor + 5*mapScaleFactor
+        topPosition += terrainImage.size.height*mapScaleFactor + 10*mapScaleFactor
         rightPosition = 5*mapScaleFactor
         
         let rewindImage = UIImage.init(named: "icon_red_down")!
-        rewindButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, rewindImage.size.width*mapScaleFactor, rewindImage.size.height*mapScaleFactor))
+        rewindButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, rewindImage.size.width*2*mapScaleFactor, rewindImage.size.height*2*mapScaleFactor))
         rewindButton.setImage(rewindImage, forState: UIControlState.Normal)
         rewindButton.addTarget(self, action:"rewindTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         rewindButton.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2))
         baseMenu.addSubview(rewindButton)
         
         topPosition += 0
-        rightPosition = rewindImage.size.width*mapScaleFactor + 5*mapScaleFactor
+        rightPosition = rewindImage.size.width*2*mapScaleFactor + 1*mapScaleFactor
         
         let fastFwdImage = UIImage.init(named: "icon_blue_down")!
-        fastfwdButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, fastFwdImage.size.width*mapScaleFactor, fastFwdImage.size.height*mapScaleFactor))
+        fastfwdButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, fastFwdImage.size.width*2*mapScaleFactor, fastFwdImage.size.height*2*mapScaleFactor))
         fastfwdButton.setImage(fastFwdImage, forState: UIControlState.Normal)
         fastfwdButton.addTarget(self, action:"fastFwdTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         fastfwdButton.transform = CGAffineTransformMakeRotation(CGFloat(-M_PI_2))
         baseMenu.addSubview(fastfwdButton)
         
-        topPosition += rewindImage.size.height*mapScaleFactor + 5*mapScaleFactor
+        topPosition += rewindImage.size.height*2*mapScaleFactor + 1*mapScaleFactor
         rightPosition = 5*mapScaleFactor
         
         let corpsMoveImage = UIImage.init(named: "corps_move_mark")!
-        corpsMoveButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsMoveImage.size.width*mapScaleFactor, corpsMoveImage.size.height*mapScaleFactor))
+        corpsMoveButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsMoveImage.size.width*2*mapScaleFactor, corpsMoveImage.size.height*2*mapScaleFactor))
         corpsMoveButton.setImage(corpsMoveImage, forState: UIControlState.Normal)
         corpsMoveButton.addTarget(self, action:"corpsMoveTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(corpsMoveButton)
         
-        rightPosition += corpsMoveImage.size.width*mapScaleFactor + 5*mapScaleFactor
+        rightPosition += corpsMoveImage.size.width*2*mapScaleFactor + 5*mapScaleFactor
         
         let corpsDetachImage = UIImage.init(named: "corps_detach_mark")!
-        corpsDetachButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsDetachImage.size.width*mapScaleFactor, corpsDetachImage.size.height*mapScaleFactor))
+        corpsDetachButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsDetachImage.size.width*2*mapScaleFactor, corpsDetachImage.size.height*2*mapScaleFactor))
         corpsDetachButton.setImage(corpsDetachImage, forState: UIControlState.Normal)
         corpsDetachButton.addTarget(self, action:"corpsDetachTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(corpsDetachButton)
         
-        rightPosition += corpsDetachImage.size.width*mapScaleFactor + 5*mapScaleFactor
+        rightPosition += corpsDetachImage.size.width*2*mapScaleFactor + 5*mapScaleFactor
         
         let corpsAttachImage = UIImage.init(named: "corps_attach_mark")!
         corpsAttachButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsAttachImage.size.width*mapScaleFactor, corpsAttachImage.size.height*mapScaleFactor))
@@ -948,24 +994,24 @@ class GameScene: SKScene, NSXMLParserDelegate {
         independentButton.addTarget(self, action:"independentMoveTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(independentButton)
         
-        topPosition += independentImage.size.height*mapScaleFactor + 5*mapScaleFactor
+        topPosition += independentImage.size.height*mapScaleFactor + 10*mapScaleFactor
         rightPosition = 5*mapScaleFactor
         
         let retreatImage = UIImage.init(named: "AustrianFlag")!
-        retreatButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, retreatImage.size.width*mapScaleFactor, retreatImage.size.height*mapScaleFactor))
+        retreatButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, retreatImage.size.width*2*mapScaleFactor, retreatImage.size.height*2*mapScaleFactor))
         retreatButton.setImage(retreatImage, forState: UIControlState.Normal)
         retreatButton.addTarget(self, action:"retreatTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(retreatButton)
         
-        rightPosition = retreatImage.size.width*mapScaleFactor + 5*mapScaleFactor
+        rightPosition = retreatImage.size.width*2*mapScaleFactor + 10*mapScaleFactor
         
         let commitImage = UIImage.init(named: "Commit")!
-        commitButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, commitImage.size.width*mapScaleFactor, commitImage.size.height*mapScaleFactor))
+        commitButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, commitImage.size.width*2*mapScaleFactor, commitImage.size.height*2*mapScaleFactor))
         commitButton.setImage(commitImage, forState: UIControlState.Normal)
         commitButton.addTarget(self, action:"commitTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(commitButton)
         
-        topPosition += commitImage.size.height*mapScaleFactor + 5*mapScaleFactor
+        topPosition += commitImage.size.height*2*mapScaleFactor + 10*mapScaleFactor
         rightPosition = 5*mapScaleFactor
         
         let guardAttackImage = UIImage.init(named: "FRINFEL3")!
@@ -974,7 +1020,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         guardButton.addTarget(self, action:"guardAttackTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(guardButton)
         
-        topPosition += guardAttackImage.size.height*mapScaleFactor + 5*mapScaleFactor
+        topPosition += guardAttackImage.size.height*mapScaleFactor + 10*mapScaleFactor
         
         let repeatAttackImage = UIImage.init(named: "Vandamme")!
         repeatAttackButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, repeatAttackImage.size.width*mapScaleFactor, repeatAttackImage.size.height*mapScaleFactor))
@@ -982,7 +1028,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         repeatAttackButton.addTarget(self, action:"repeatAttackTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(repeatAttackButton)
     }
-    
+        
     // Setup approaches
     func linkApproaches () {
         
@@ -1350,28 +1396,33 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 switch theOrder.order! {
                     
                 case .Move:
-                    
+
                     theOrder.ExecuteOrder(true)
                     ResetState(true, groupsSelectable: false, hideRevealed: true, orderSelectors: true, otherSelectors: true)
 
                     let moveFromBase = theOrder.baseGroup!.command.moveNumber - theOrder.baseGroup!.command.repeatMoveNumber
                     
+                    theOrder.theConflict!.defenseApproach.approachSelector!.selected = .Option
+                    RevealLocation(theOrder.theConflict!.defenseApproach, toReveal: true)
+                    
+                    if activeConflict != nil {ResetActiveConflict(activeConflict!)}
+                    activeConflict = theOrder.theConflict!
+                    SetupActiveConflict()
+                    
                     if moveFromBase > 0 {
+
+                        if theOrder.endLocation.locationType == .Approach {
+                            theOrder.theConflict!.defenseApproach.approachSelector!.selected = .On
+                        }
                         
                         manager!.groupsSelected = [theOrder.baseGroup!]
                         ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
                         
-                        AttackOrdersAvailable()
-                        
                         undoOrAct = true
+                        AttackOrdersAvailable()
 
                     } else {
-                        
-                        theOrder.theConflict!.defenseApproach.approachSelector!.selected = .Option
-                        ResetActiveConflict(theOrder.theConflict!)
-                        activeConflict = theOrder.theConflict!
-                        SetupActiveConflict()
-                        
+
                         undoOrAct = false
 
                     }

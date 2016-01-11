@@ -125,8 +125,6 @@ class Command:SKNode {
                 currentLocationType = .Approach
             } else if currentLocation is Reserve {
                 currentLocationType = .Reserve
-            } else {
-                currentLocationType = .Start
             }
         }
     }
@@ -255,6 +253,23 @@ class Command:SKNode {
             self.unitsUpkeep() // Doesn't seem to call it in an init...
             oldCommand.units.removeObject(each)
         }
+    }
+    
+    //For creating commands in the selection and battle windows
+    init (creatingUnits:[Unit]) {
+        
+        loc = ""
+        locID = ""
+        self.rdMoves = []
+        super.init()
+                
+        currentLocation = Location(nodePosition: self.position, nodeRotation: self.zRotation)
+        currentLocationType = .Window
+        
+        for each in creatingUnits {
+            createUnit(each.unitCode)
+        }
+        self.unitsUpkeep()
     }
     
     deinit {

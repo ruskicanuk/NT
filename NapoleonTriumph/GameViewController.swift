@@ -13,19 +13,23 @@ import SpriteKit
 //let SHOWMENU: String = "showmenu"
 
 var gameScene:GameScene!
+var menuScene:MainMenuScene!
+//var attachScene:SelectScene!
+
 let baseMenu = UIView.init()
 let largeMenu = UIView.init()
 let labelMenu = UIView.init()
 let battleMenu = UIView.init()
+//let selectView = SKView.init()
 
 //var scene:GameScene!
-var scene:MenuView!
+
 var delegate:AppDelegate!
 
 class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate {
 
     var scalingView: UIView!
-    var scrollview: UIScrollView!
+    var scrollView: UIScrollView!
     var skView:SKView!
     var scale:Float = 1.0
     
@@ -38,6 +42,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
 
     //MARK: View Hiearchy
     override func viewDidLoad() {
+        
     super.viewDidLoad()
         
     //NSNotificationCenter.defaultCenter().addObserver(self, selector: "hideMenu", name: HIDEMENU, object: nil)
@@ -61,21 +66,24 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     // Code for dragging and panning
 
     scalingView = SKView(frame: self.view.frame)
-    scrollview = UIScrollView(frame: self.view.frame)
-    scrollview.delegate = self
-    scrollview.addSubview(scalingView)
-    self.view.addSubview(scrollview)
+    scrollView = UIScrollView(frame: self.view.frame)
+    scrollView.delegate = self
+    scrollView.addSubview(scalingView)
+    self.view.addSubview(scrollView)
 
     skView = scalingView as! SKView
-    scene = MenuView(size: skView.bounds.size)
-    scene.viewController = self
+    
+    // Initialize MainMenuScene
+    menuScene = MainMenuScene(size: skView.bounds.size)
+    menuScene.viewController = self // Allows access to the view controller
+        
     skView.ignoresSiblingOrder = true
-    skView.presentScene(scene)
+    skView.presentScene(menuScene)
 
-    scrollview.maximumZoomScale = 4.0
-    scrollview.minimumZoomScale = 1.0
-    scrollview.bounces = false
-    scrollview.bouncesZoom = false
+    scrollView.maximumZoomScale = 6.0
+    scrollView.minimumZoomScale = 1.0
+    scrollView.bounces = false
+    scrollView.bouncesZoom = false
 
     delegate = UIApplication.sharedApplication().delegate as! AppDelegate
 
@@ -83,7 +91,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     baseMenu.multipleTouchEnabled = true
     baseMenu.exclusiveTouch = true
     baseMenu.userInteractionEnabled = true
-    baseMenu.frame = CGRectMake(150, 300, self.view.frame.size.width / 10, self.view.frame.size.height / 4)
+    baseMenu.frame = CGRectMake(150, 300, self.view.frame.size.width / 8, self.view.frame.size.height / 3)
     baseMenu.backgroundColor = UIColor.darkGrayColor()
     baseMenu.hidden = false
     self.view.addSubview(baseMenu)
@@ -91,7 +99,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     // Large menu button setup
     labelMenu.multipleTouchEnabled = false
     labelMenu.userInteractionEnabled = false
-    labelMenu.frame = CGRectMake(650, 500, self.view.frame.size.width / 4, self.view.frame.size.height / 5)
+    labelMenu.frame = CGRectMake(650, 500, self.view.frame.size.width / 4, self.view.frame.size.height / 4)
     labelMenu.backgroundColor = UIColor.whiteColor()
     labelMenu.hidden = false
     self.view.addSubview(labelMenu)
@@ -103,87 +111,151 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     battleMenu.backgroundColor = UIColor.whiteColor()
     battleMenu.hidden = true
     self.view.addSubview(battleMenu)
+        
+    // Large menu button setup
+    //selectView.multipleTouchEnabled = false
+    //selectView.userInteractionEnabled = false
+    //selectView.frame = CGRectMake(650, 300, self.view.frame.size.width / 6, self.view.frame.size.height / 6)
+    //selectView.backgroundColor = UIColor.whiteColor()
+    //selectView.hidden = true
+    //self.view.addSubview(selectView)
 
     // TODO: Put constraints so player can not drag the menu off-map
     setupGestures()
 
-}
+    }
     
-func setupGestures() {
-    let pan = UIPanGestureRecognizer(target:self, action:"pan:")
-    pan.maximumNumberOfTouches = 1
-    pan.minimumNumberOfTouches = 1
-    self.view.addGestureRecognizer(pan)
-}
+    func setupGestures() {
+        let pan = UIPanGestureRecognizer(target:self, action:"pan:")
+        pan.maximumNumberOfTouches = 1
+        pan.minimumNumberOfTouches = 1
+        self.view.addGestureRecognizer(pan)
+    }
 
-func pan(rec:UIPanGestureRecognizer) {
+    func pan(rec:UIPanGestureRecognizer) {
     
-    let p:CGPoint = rec.locationInView(self.view)
-    var center:CGPoint = CGPointZero
-    
-    switch rec.state {
-    case .Began:
-        print("began")
-        selectedView = view.hitTest(p, withEvent: nil)
-        if selectedView != nil {
-            self.view.bringSubviewToFront(selectedView!)
-        }
+        let p:CGPoint = rec.locationInView(self.view)
+        var center:CGPoint = CGPointZero
         
-    case .Changed:
-        if let subview = selectedView {
-            center = subview.center
-            let distance = sqrt(pow((center.x - p.x), 2.0) + pow((center.y - p.y), 2.0))
-            print("distance \(distance)")
+        switch rec.state {
+        case .Began:
+            print("began")
+            selectedView = view.hitTest(p, withEvent: nil)
+            if selectedView != nil {
+                self.view.bringSubviewToFront(selectedView!)
+            }
             
-            if subview == labelMenu || subview == baseMenu {
-                if distance > threshold {
-                    if shouldDragX {
-                        subview.center.x = p.x - (p.x % snapX)
-                    }
-                    if shouldDragY {
-                        subview.center.y = p.y - (p.y % snapY)
+        case .Changed:
+            if let subview = selectedView {
+                center = subview.center
+                let distance = sqrt(pow((center.x - p.x), 2.0) + pow((center.y - p.y), 2.0))
+                print("distance \(distance)")
+                
+                if subview == labelMenu || subview == baseMenu {
+                    if distance > threshold {
+                        if shouldDragX {
+                            subview.center.x = p.x - (p.x % snapX)
+                        }
+                        if shouldDragY {
+                            subview.center.y = p.y - (p.y % snapY)
+                        }
                     }
                 }
             }
-        }
-        
-    case .Ended:
-        print("ended")
-        if let subview = selectedView {
-            if subview == labelMenu {
-                // do whatever
+            
+        case .Ended:
+            print("ended")
+            if let subview = selectedView {
+                if subview == labelMenu {
+                    // do whatever
+                }
             }
+            selectedView = nil
+            
+        case .Possible:
+            print("possible")
+        case .Cancelled:
+            print("cancelled")
+        case .Failed:
+            print("failed")
         }
-        selectedView = nil
-        
-    case .Possible:
-        print("possible")
-    case .Cancelled:
-        print("cancelled")
-    case .Failed:
-        print("failed")
     }
-}
 
-func popOutMenuTrigger() {
-    if largeMenu.hidden {openMenu()}
-    else {closeMenu()}
-}
+    func popOutMenuTrigger() {
+        if largeMenu.hidden {openMenu()}
+        else {closeMenu()}
+    }
 
-func openMenu() {
-    largeMenu.hidden = false
-}
+    func openMenu() {
+        largeMenu.hidden = false
+    }
 
-func closeMenu() {
-    largeMenu.hidden = true
-}
+    func closeMenu() {
+        largeMenu.hidden = true
+    }
+        
+    //MARK: scrollView Delegate
+        
+    internal func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+        return self.scalingView
+    }
+        
+    internal func scrollViewDidEndZooming(scrollView: UIScrollView, withView view: UIView?, atScale scale: CGFloat) {
+        if scale >= 3.0 {
+            zoomedMode = true
+        } else {
+            zoomedMode = false
+        }
+    }
     
-//MARK: ScrollView Delegate
-internal func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
-    return self.scalingView
-}
+    /*
+    func setZoomScale(scale: CGFloat, animated: Bool) {
+        
+        //scrollView.minimumZoomScale = min(widthScale, heightScale)
+        scrollView.zoomScale = scale
+    }
+    */
+    
+    func zoomToPoint(thePoint:CGPoint, zoomLevel:CGFloat) {
+        //if (self.scrollView!.zoomScale == self.scrollView!.minimumZoomScale) {
+        
+        let center = thePoint
+        let scrollViewSize = scrollView!.bounds.size
+        let w = scrollViewSize.width / zoomLevel
+        let h = scrollViewSize.height / zoomLevel
+        let x = center.x - (w / 2.0)
+        let y = center.y - (h / 2.0)
+        let zoomRect = CGRectMake(x, y, w, h)
+        self.scrollView!.zoomToRect(zoomRect, animated: true)
+        //} else {
+        //    self.scrollView!.setZoomScale(self.scrollView!.minimumZoomScale, animated: true)
+        //}
+    }
+    
+    func centerScrollViewContents(theFrame:CGRect) {
+        let boundsSize = scrollView.bounds.size
+        var contentsFrame = theFrame
+        
+        if contentsFrame.size.width < boundsSize.width {
+            contentsFrame.origin.x = (boundsSize.width - contentsFrame.size.width) / 2.0
+        } else {
+            contentsFrame.origin.x = 0.0
+        }
+        
+        if contentsFrame.size.height < boundsSize.height {
+            contentsFrame.origin.y = (boundsSize.height - contentsFrame.size.height) / 2.0
+        } else {
+            contentsFrame.origin.y = 0.0
+        }
+        
+        //imageView.frame = contentsFrame
+    }
+    
+    
 
-func pinched(pinchGesture : UIPinchGestureRecognizer) {
+    /*
+
+    func pinched(pinchGesture : UIPinchGestureRecognizer) {
 
     switch pinchGesture.state {
 
@@ -210,6 +282,7 @@ func pinched(pinchGesture : UIPinchGestureRecognizer) {
     }
 }
 
+
 func dragged(dragGesture: UIPanGestureRecognizer) {
 
 if dragGesture.state == .Began || dragGesture.state == .Changed {
@@ -231,6 +304,8 @@ if dragGesture.state == .Began || dragGesture.state == .Changed {
     dragGesture.setTranslation(CGPointZero, inView: dragGesture.view)
     }
 }
+
+*/
 
 override func shouldAutorotate() -> Bool {
     return true

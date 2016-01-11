@@ -22,8 +22,8 @@ class BattleLine {
 // Tracks a path between two points and the attributes of that path
 class Pathway {
 
-    var startReserve:Reserve
-    var endReserve:Reserve
+    //var startReserve:Reserve
+    //var endReserve:Reserve
     
     // Shortest road path
     var shortestRdPath:[Reserve] = []

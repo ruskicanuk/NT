@@ -9,7 +9,7 @@
 import SpriteKit
 import UIKit
 
-class GameSetup: SKScene {
+class SetupScene: SKScene {
 
     let singlePlayer = SKSpriteNode(imageNamed: "singleplayer")
     let multiPlayer = SKSpriteNode(imageNamed: "multiplayer")
@@ -21,11 +21,11 @@ class GameSetup: SKScene {
     let multiPlayerLoad = SKSpriteNode(imageNamed: "loadgame")
 
     var buttonSpacing:CGFloat = 50
+    var viewController:GameViewController!
     
     override func didMoveToView(view: SKView) {
     
         /* Setup your scene here */
-        
         loadButtons()
         startGame() // #### REMOVE LATER, to speed up testing ####
     }
@@ -47,7 +47,6 @@ class GameSetup: SKScene {
         self.addChild(singlePlayerLoad)
         multiPlayerLoad.position = CGPointMake(CGRectGetMidX(self.frame) + 3 * buttonSpacing, CGRectGetMidY(self.frame) - 40)
         self.addChild(multiPlayerLoad)
-        
     }
     
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -68,6 +67,8 @@ class GameSetup: SKScene {
     
     private func startGame() {
         gameScene = GameScene(size: view!.bounds.size)
+        gameScene.viewController = viewController
+        
         let transition = SKTransition.fadeWithDuration(0.15)
         view!.presentScene(gameScene, transition: transition)
         gameScene.scaleMode = .AspectFill

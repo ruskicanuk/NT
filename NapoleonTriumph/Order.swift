@@ -53,7 +53,7 @@ class Order {
     var battleReduction:Bool?
     var reduceLeaderReduction:Unit?
     var moveBase:[Bool] = [] // Is the base group the moving group?
-    var reverseCode:Int = 1 // Used to store various scenarios that you might want to unwind in reverse (attach only)
+    var reverseCode:Int = 0 // Used to store various scenarios that you might want to unwind in reverse (attach only)
     var reverseCode2:Int = 0
     var reverseString:String = ""
     
@@ -296,48 +296,54 @@ class Order {
                     }
                     
                     // When the attacker moves into the retreat-area
-                    if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation {
-
+                    if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil {
+                        
                         let theMoveCommand = moveCommandArray[0]
                         
-                        if (moveType == .IndMove || moveType == .CorpsMove) {
-                            reverseCode = theMoveCommand.repeatMoveNumber
-                            theMoveCommand.repeatMoveNumber = theMoveCommand.moveNumber
-                        } else {
-                            reverseCode = 0
-                        }
+                        if theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation {
+
+                            if (moveType == .IndMove || moveType == .CorpsMove) {
+                                reverseCode = theMoveCommand.repeatMoveNumber
+                                theMoveCommand.repeatMoveNumber = theMoveCommand.moveNumber
+                            } else {
+                                reverseCode = 0 // Detach attack
+                            }
                             
-                        // Releasing committed units
-                        for eachConflict in theConflict!.parentGroupConflict!.conflicts {
-                            for eachUnit in eachConflict.threateningUnits {
+                            // Releasing committed units
+                            for eachConflict in theConflict!.parentGroupConflict!.conflicts {
+                                for eachUnit in eachConflict.threateningUnits {
+                                    eachUnit.threatenedConflict = nil
+                                    reverseString = eachUnit.assigned
+                                    eachUnit.assigned = "None"
+                                }
+                                eachConflict.storedThreateningUnits = eachConflict.threateningUnits
+                                eachConflict.threateningUnits = []
+                                eachConflict.defenseApproach.approachSelector!.selected = .Off
+                                RevealLocation(eachConflict.defenseApproach, toReveal: false)
+                                if eachConflict.defenseApproach != theConflict!.defenseApproach {
+                                    if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand--}
+                                    else {manager!.phantomIndCommand--}
+                                }
+                            }
+                        
+                        // When the attacker moves into the feint-area
+                        } else if !theConflict!.parentGroupConflict!.retreatMode && theConflict!.defenseApproach.approachSelector!.selected == .Option && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
+                            
+                            reverseCode = theMoveCommand.repeatMoveNumber
+                            
+                            for eachUnit in theConflict!.threateningUnits {
                                 eachUnit.threatenedConflict = nil
                                 reverseString = eachUnit.assigned
                                 eachUnit.assigned = "None"
                             }
-                            eachConflict.storedThreateningUnits = eachConflict.threateningUnits
-                            eachConflict.threateningUnits = []
-                            eachConflict.defenseApproach.approachSelector!.selected = .Off
-                            RevealLocation(eachConflict.defenseApproach, toReveal: false)
-                            if eachConflict.defenseApproach != theConflict!.defenseApproach {
-                                if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand--}
-                                else {manager!.phantomIndCommand--}
-                            }
-                        }
-                    
-                    // When the attacker moves into the feint-area
-                    } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && theConflict!.defenseApproach.approachSelector!.selected == .Option && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) {
+                            theConflict!.storedThreateningUnits = theConflict!.threateningUnits
+                            theConflict!.threateningUnits = []
+                            theConflict!.defenseApproach.approachSelector!.selected = .On
+                            RevealLocation(theConflict!.defenseApproach, toReveal: false)
+                            reverseCode2 = 5
                         
-                        for eachUnit in theConflict!.threateningUnits {
-                            eachUnit.threatenedConflict = nil
-                            reverseString = eachUnit.assigned
-                            eachUnit.assigned = "None"
                         }
-                        theConflict!.storedThreateningUnits = theConflict!.threateningUnits
-                        theConflict!.threateningUnits = []
-                        theConflict!.defenseApproach.approachSelector!.selected = .On
-                        RevealLocation(theConflict!.defenseApproach, toReveal: false)
-                        reverseCode = 5
-                    
+                        
                     }
                 }
                 
@@ -393,37 +399,50 @@ class Order {
                     }
                 }
                 
-                // Undoing a move into defense reserve
-                if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && (moveType == .IndMove || moveType == .CorpsMove) {
+                // Undoing a move into defense reserve or fulfilling a feint attack
+                if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil {
                     
                     let theMoveCommand = moveCommands[0]![0]
                     theMoveCommand.repeatMoveNumber = reverseCode
                     
-                    // re-committed released units
-                    for eachConflict in activeGroupConflict!.conflicts {
-                        for eachUnit in eachConflict.storedThreateningUnits {
-                            eachUnit.threatenedConflict = eachConflict
+                    if theMoveCommand.moveNumber - theMoveCommand.repeatMoveNumber > 1 {
+                        overloaded = true
+                    } else {
+                        overloaded = false
+                    }
+                    
+                    // Retreat
+                    if theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation && (moveType == .IndMove || moveType == .CorpsMove) {
+                        
+                        // re-committed released units
+                        for eachConflict in activeGroupConflict!.conflicts {
+                            for eachUnit in eachConflict.storedThreateningUnits {
+                                eachUnit.threatenedConflict = eachConflict
+                                eachUnit.assigned = reverseString
+                            }
+                            eachConflict.threateningUnits = eachConflict.storedThreateningUnits
+                            eachConflict.storedThreateningUnits = []
+                            eachConflict.defenseApproach.approachSelector!.selected = .Option
+                            RevealLocation(eachConflict.defenseApproach, toReveal: true)
+                            if eachConflict.defenseApproach != theConflict!.defenseApproach {
+                                if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand++}
+                                else {manager!.phantomIndCommand++}
+                            }
+                        }
+                        
+                    // Feint
+                    } else if !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) && reverseCode2 == 5 {
+                        
+                        for eachUnit in theConflict!.storedThreateningUnits {
+                            eachUnit.threatenedConflict = theConflict!
                             eachUnit.assigned = reverseString
                         }
-                        eachConflict.threateningUnits = eachConflict.storedThreateningUnits
-                        eachConflict.storedThreateningUnits = []
-                        eachConflict.defenseApproach.approachSelector!.selected = .Option
-                        RevealLocation(eachConflict.defenseApproach, toReveal: true)
-                        if eachConflict.defenseApproach != theConflict!.defenseApproach {
-                            if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand++}
-                            else {manager!.phantomIndCommand++}
-                        }
+                        theConflict!.threateningUnits = theConflict!.storedThreateningUnits
+                        theConflict!.storedThreateningUnits = []
+                        theConflict!.defenseApproach.approachSelector!.selected = .Option
+                        RevealLocation(theConflict!.defenseApproach, toReveal: true)
                     }
-                } else if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare && theConflict != nil && !theConflict!.parentGroupConflict!.retreatMode && ((theConflict!.attackReserve as Location) == endLocation || (theConflict!.attackApproach as Location) == endLocation) && reverseCode == 5 {
                     
-                    for eachUnit in theConflict!.storedThreateningUnits {
-                        eachUnit.threatenedConflict = theConflict!
-                        eachUnit.assigned = reverseString
-                    }
-                    theConflict!.threateningUnits = theConflict!.storedThreateningUnits
-                    theConflict!.storedThreateningUnits = []
-                    theConflict!.defenseApproach.approachSelector!.selected = .Option
-                    RevealLocation(theConflict!.defenseApproach, toReveal: true)
                 }
             
                 for eachCommand in moveCommands[0]! {

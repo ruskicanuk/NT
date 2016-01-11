@@ -557,6 +557,7 @@ class Group: NSObject, NSCoding {
         return strength
     }
     var artOnly:Bool = true
+    var artExists:Bool = true
     var leaderUnit:Unit?
     var fullCommand:Bool = false
     var leaderInGroup:Bool = false
@@ -568,13 +569,14 @@ class Group: NSObject, NSCoding {
     var cavCount:Int = 0
     var nonLdrUnitCount:Int = 0
     var groupIsTwoPlusCorps:Bool = false
+    //var cavUnits:[Unit] = []
     
     func encodeWithCoder(aCoder: NSCoder) {
         
         aCoder.encodeObject(command, forKey: "command")
         aCoder.encodeObject(units, forKey: "units")
         aCoder.encodeBool(artOnly, forKey: "artOnly")
-        aCoder.encodeBool(artOnly, forKey: "artOnly")
+        aCoder.encodeBool(artExists, forKey: "artExists")
         aCoder.encodeBool(fullCommand, forKey: "fullCommand")
         aCoder.encodeBool(leaderInGroup, forKey: "leaderInGroup")
         aCoder.encodeBool(allCav, forKey: "allCav")
@@ -590,7 +592,9 @@ class Group: NSObject, NSCoding {
 
         command = aDecoder.decodeObjectForKey("command") as! Command
         units = aDecoder.decodeObjectForKey("units") as! [Unit]!
+        //cavUnits = aDecoder.decodeObjectForKey("units") as! [Unit]! // JA added
         artOnly = aDecoder.decodeBoolForKey("artOnly")
+        artExists = aDecoder.decodeBoolForKey("artExists")
         leaderUnit = aDecoder.decodeObjectForKey("leaderUnit") as? Unit
         fullCommand = aDecoder.decodeBoolForKey("fullCommand")
         leaderInGroup = aDecoder.decodeBoolForKey("leaderInGroup")
@@ -613,7 +617,7 @@ class Group: NSObject, NSCoding {
                 leaderUnit = eachUnit
             }
             else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false; allGuard = false}
-            else if eachUnit.unitType == .Art {nonLdrUnitCount++; allCav = false; allGuard = false}
+            else if eachUnit.unitType == .Art {nonLdrUnitCount++; allCav = false; allGuard = false; artExists = true}
             else if eachUnit.unitType == .Grd {nonLdrUnitCount++; artOnly = false; allCav = false}
             else {nonLdrUnitCount++; artOnly = false; allCav = false; allGuard = false}
             

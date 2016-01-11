@@ -11,7 +11,7 @@
 import SpriteKit
 import UIKit
 
-class MenuView: SKScene {
+class MainMenuScene: SKScene {
     
     //This is a start game button.
     let startButton = SKSpriteNode(imageNamed:"start")
@@ -37,6 +37,7 @@ class MenuView: SKScene {
     
     //buttonSpacing must be <150 so that it will show properly in iPhone 4s also
     
+    /*
     func pinched(sender:UIPinchGestureRecognizer){
         print("pinched \(sender)")
         // the line below scales the entire scene
@@ -48,6 +49,7 @@ class MenuView: SKScene {
         let zoomBoard = SKAction.scaleBy(sender.scale, duration: 0)
         board.runAction(zoomBoard)
     }
+    */
     
     // line below scales just the SKSpriteNode
     func swipedUp(sender:UISwipeGestureRecognizer){
@@ -82,7 +84,7 @@ class MenuView: SKScene {
         //        swipeDown.direction = .Down
         //        view.addGestureRecognizer(swipeDown)
         loadMenu()
-        startGame()
+        openSetupScene()
     }
     
     //this will load menu buttons
@@ -121,13 +123,12 @@ class MenuView: SKScene {
         self.addChild(settingButton)
     }
     
-    
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         for touch: AnyObject in touches {
             let location = touch.locationInNode(self)
             if startButton.containsPoint(location) {
                 //Start button pressed. Start game play
-                startGame()
+                openSetupScene()
             }
             else if leftButton.containsPoint(location)
             {
@@ -154,16 +155,17 @@ class MenuView: SKScene {
     
     private func openHowToPlay()
     {
-        
         let controller:HowToPlayViewController = HowToPlayViewController()
         let navigationController:UINavigationController = UINavigationController.init(rootViewController: controller)
         viewController.presentViewController(navigationController, animated: true, completion: nil)
     }
     
-    private func startGame() {
-        let gameScene = GameSetup(size: view!.bounds.size)
+    private func openSetupScene() {
+        let setupScene = SetupScene(size: view!.bounds.size)
+        setupScene.viewController = viewController
+        
         let transition = SKTransition.fadeWithDuration(0.15)
-        view!.presentScene(gameScene, transition: transition)
-        gameScene.scaleMode = .AspectFill
+        view!.presentScene(setupScene, transition: transition)
+        setupScene.scaleMode = .AspectFill
     }
 }

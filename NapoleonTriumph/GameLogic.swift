@@ -163,13 +163,14 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     case 2:
         break // Handled below
         
-    case 3:
+    case 3: // 1-unit case
         // Must feint by road options
         if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: false)}
         
-    case 4: break
+    case 4: //multi-unit case, no movement
+        if groupSelected.cavCount > 0 {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: false)}
 
-    case 5:
+    case 5: // 1-unit case
         // Must feint by road options
         if groupSelected.allCav {enemyOccupiedMustFeintApproaches = EnemyRdTargets(groupSelected, twoPlusCorps: false)}
         
@@ -225,7 +226,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     }
     
     // Allows Cav to move into the approach of a moved-into locale
-    if !rdBlock && !(scenario == 1) && (scenario == 5 || (scenario == 6 && !(currentReserve!.containsAdjacent2PlusCorps == manager?.actingPlayer.Other()))) && !currentReserve!.offMap {
+    if !rdBlock && !(scenario == 1) && (scenario == 5 || (scenario == 6 && !manager!.actingPlayer.ContainsEnemy(currentReserve!.containsAdjacent2PlusCorps) ) ) && !currentReserve!.offMap {
         
         if groupSelected.allCav && !undoOrAct {
             if let reserve1 = commandSelected.rdMoves[moveNumber-1] as? Reserve {
@@ -240,6 +241,7 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
     if moveNumber > 0 || reinforcement {
         
         // Remove adjacent reserves that would go beyond capacity with the move if it's the last move of the command / units (approaches too)
+        // Replaced "groupSelected.nonLdrUnitCount" with "1"
         for eachReserve in Array(Set(finalReserveMoves).intersect(Set(rdAvailableReserves))) {
             if (groupSelected.nonLdrUnitCount + eachReserve.currentFill) > eachReserve.capacity {
                 rdAvailableReserves.removeObject(eachReserve)
@@ -249,7 +251,8 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
 
         let rdMoves = rdAvailableReserves as [Location] + rdAvailableApproaches as [Location]
         
-        if (reinforcement || relativeRepeatNumber == 0) && !(manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 || detachOn) {
+        // removed "groupSelected.nonLdrUnitCount > 1"
+        if (reinforcement || relativeRepeatNumber == 0) && !(manager!.night || manager!.generalThreatsMade >= 2 || detachOn) {
         
             let mustFeintThreats = enemyOccupiedMustFeintApproaches
             
@@ -283,7 +286,8 @@ func MoveLocationsAvailable (groupSelected:Group, selectors:(SelState, SelState,
         for eachApproach in enemyOccupiedMustFeintApproaches {if !eachApproach.mayNormalAttack {enemyOccupiedMustFeintApproaches.removeObject(eachApproach)}}
         
         // Night turn or all general attacks made no attacks allowed
-        if manager!.night || manager!.generalThreatsMade >= 2 || groupSelected.nonLdrUnitCount > 1 || detachOn {
+        // removed "groupSelected.nonLdrUnitCount > 1"
+        if manager!.night || manager!.generalThreatsMade >= 2 || detachOn {
             if manager!.phaseNew == .Commit || groupSelected.someUnitsFixed {
                 return ([], [], [])
             } else {
@@ -326,7 +330,7 @@ func CheckIfViableAttach(groupSelected:Group, touchedUnit:Unit?) -> Bool {
 
 func CheckIfGuardAttackViable(theGroup:Group, theApproach:Approach) -> Bool {
     
-    if !theGroup.allGuard {return false}
+    if !theGroup.guardInGroup {return false}
     if theApproach.obstructedApproach {return false}
     if manager!.guardFailed[manager!.actingPlayer]! {return false}
     return true
@@ -600,7 +604,7 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
     }
     
     if groupsSelected[0].command.moveNumber > 0 {
-        if groupsSelected[0].command.moveNumber - groupsSelected[0].command.repeatMoveNumber == 0 {
+        if groupsSelected[0].command.moveNumber - groupsSelected[0].command.repeatMoveNumber == 0 || undoOrAct {
             switch (groupsSelected[0].command.movedVia) {
             case .CorpsMove: return (.On, .Off, .Off, .Off)
             case .IndMove: return (.Off, .Off, .Off, .On)
@@ -699,7 +703,7 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
             case (true, false):
                 
                 var rdBlocked = true
-                if !adjacentLocation {rdBlocked = AttackByRdPossible(theConflict.RdCommandPathToConflict(theGroup.command), twoPlusCorps: true)}
+                if !adjacentLocation {rdBlocked = !AttackByRdPossible(theConflict.RdCommandPathToConflict(theGroup.command), twoPlusCorps: true)}
                 
                 if !rdBlocked {return (corpsMove, .Off, .Off, .Off)}
                 else {return (.Off, .Off, .Off, .Off)}
@@ -715,7 +719,7 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
         } else {
             
             var rdBlocked = true
-            if !adjacentLocation {rdBlocked = AttackByRdPossible(theConflict.RdCommandPathToConflict(theGroup.command), twoPlusCorps: false)}
+            if !adjacentLocation {rdBlocked = !AttackByRdPossible(theConflict.RdCommandPathToConflict(theGroup.command), twoPlusCorps: false)}
             
             if theGroup.fullCommand {return (.Off, .Off, .Off, independent)}
             
@@ -792,13 +796,14 @@ func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState,
         
     case (false, _):
         
-        if theGroup.groupIsTwoPlusCorps {return []}
         let thePath:[Reserve]!
         if realMoveNumber == 0 {
             thePath = theConflict.potentialRdAttackers[theGroup.command]!
             theConflict.rdAttackerPath = thePath
         }
         else {thePath = theConflict.rdAttackerPath}
+        
+        if !AttackByRdPossible(thePath, twoPlusCorps: theGroup.groupIsTwoPlusCorps) {return []}
         
         let theEnd = thePath.count - 1
         var theMoveOptions:[SKNode] = []
@@ -826,22 +831,25 @@ func AttackMoveLocationsAvailable(theGroup:Group, selectors:(SelState, SelState,
 func AttackByRdPossible(thePath:[Reserve], twoPlusCorps:Bool) -> Bool {
 
     if thePath.isEmpty {return false}
-    var rdBlocked = false
+    var rdNotBlocked = true
     
     for var i = 1; i < thePath.count-1; i++ {
         
         if twoPlusCorps {  // Removes ability of 2+ corps to attack by rd (unique to app)
-            return false
+            if thePath[i].has2PlusCorpsPassed || thePath[i].haveCommandsEntered || manager!.actingPlayer.ContainsEnemy(thePath[i].containsAdjacent2PlusCorps) || thePath[i].localeControl == manager!.actingPlayer.Other() {
+                rdNotBlocked = false
+                break
+            }
         } else {
-            if thePath[i].has2PlusCorpsPassed || thePath[i].localeControl == thePath.last?.localeControl {
-                rdBlocked = true
+            if thePath[i].has2PlusCorpsPassed || thePath[i].localeControl == manager!.actingPlayer.Other() {
+                rdNotBlocked = false
                 break
             }
         }
 
     }
     
-    return rdBlocked
+    return rdNotBlocked
 }
 
 // Function takes an array of units and returns and array of units that should be selected to adjust for leader-abandonment rules
@@ -1556,15 +1564,16 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
             if eachPath[i].localeControl == manager!.actingPlayer.Other() {
                 
                 // Found a potential enemy to rd feint
+                // removed "theGroup.nonLdrUnitCount" and replaced with "1" as the test is whether 1 unit can enter
                 if let attackToApproach = ApproachesFromReserves(eachPath[i-1], reserve2: eachPath[i]) {
                 
-                    if (eachPath[i-1].currentFill + theGroup.nonLdrUnitCount > eachPath[i-1].capacity && eachPath[i].defendersAvailable(nil) > 0) {break}
+                    if (eachPath[i-1].currentFill + 1 > eachPath[i-1].capacity && eachPath[i].defendersAvailable(nil) > 0) {break}
                     if attackToApproach.1.occupantCount > 0 || attackToApproach.1.threatened {break}
                     targetApproaches += [attackToApproach.1]
                 }
                 break // Must break after finding an enemy (path can't go any further)
                 
-            } else if (!twoPlusCorps && eachPath[i].has2PlusCorpsPassed) || (twoPlusCorps && (eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || eachPath[i].containsAdjacent2PlusCorps == manager?.actingPlayer.Other())) {break}
+            } else if (!twoPlusCorps && eachPath[i].has2PlusCorpsPassed) || (twoPlusCorps && (eachPath[i].has2PlusCorpsPassed || eachPath[i].haveCommandsEntered || manager!.actingPlayer.ContainsEnemy(eachPath[i].containsAdjacent2PlusCorps) ) ) {break}
             
         }
     }

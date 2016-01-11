@@ -48,8 +48,9 @@ func MoveUI(touchedNodeFromView:SKNode) {
         
         manager!.groupsSelected = [Group(theCommand: newOrder.moveCommands[0]![0], theUnits: manager!.groupsSelected[0].units)]
         
-        AttackOrdersAvailable()
         undoOrAct = true
+        AttackOrdersAvailable()
+        
         if CheckEndTurnStatus() {endTurnButton.buttonState = .On} else {endTurnButton.buttonState = .Off}
         
     default: break
@@ -58,10 +59,65 @@ func MoveUI(touchedNodeFromView:SKNode) {
 }
 
 // Order to threaten (may later attack or feint)
-func AttackThreatUI(touchedNodeFromView:SKNode) {
+func AttackThreatUI(touchedNodeFromView:SKNode, mustFeint:Bool) {
+    
+    var theGroup = manager!.groupsSelected[0]
+    // Logic to determine which unit in the groups selected is making the threat
+    if theGroup.nonLdrUnitCount > 1 {
+        
+        var theThreatUnit = theGroup.nonLdrUnits[0]
+        
+        let guardThreat = guardButton.buttonState == .On
+        let artThreat = theGroup.artExists && theGroup.command.currentLocationType == .Approach && !((theGroup.command.currentLocation as! Approach).oppApproach!.occupantCount > 0 && (theGroup.command.currentLocation as! Approach).oppApproach!.artApproach) && !guardThreat
+        let mixedGroup = (theGroup.nonLdrUnits.count != theGroup.cavCount) && !guardThreat && !artThreat
+        
+        // Guard select
+        if guardThreat {
+            for eachUnit in theGroup.nonLdrUnits {
+                if eachUnit.unitType == .Grd {
+                    theThreatUnit = eachUnit
+                    break
+                }
+            }
+            
+        // Art select
+        } else if artThreat {
+            for eachUnit in theGroup.nonLdrUnits {
+                if eachUnit.unitType == .Art {
+                    theThreatUnit = eachUnit
+                    break
+                }
+            }
+            
+        // Strongest cav, or if none, strongest other unit
+        } else {
+            
+            for eachUnit in theGroup.nonLdrUnits {
+                if theThreatUnit.unitType == .Cav {
+                    if eachUnit.unitType == .Cav && eachUnit.unitStrength > theThreatUnit.unitStrength {
+                        theThreatUnit = eachUnit
+                    }
+                } else {
+                    if eachUnit.unitType == .Cav {
+                        theThreatUnit = eachUnit
+                    } else if eachUnit.unitStrength > theThreatUnit.unitStrength {
+                        theThreatUnit = eachUnit
+                    }
+                }
+            }
+        }
+        
+        // This switches us from a corps threat to an ind threat
+        if (mixedGroup || (theGroup.allCav && theGroup.nonLdrUnitCount > 2)) && mustFeint && manager!.indCommandsAvail - manager!.phantomIndCommand > 0 {
+            independentButton.buttonState = .On
+            theGroup = Group(theCommand: theGroup.command, theUnits: [theThreatUnit])
+        } else {
+            theGroup = Group(theCommand: theGroup.command, theUnits: [theThreatUnit] + [theGroup.leaderUnit!])
+        }
+    }
     
     // Create an order, execute and deselect everything
-    let newOrder = Order(groupFromView: manager!.groupsSelected[0], touchedNodeFromView: touchedNodeFromView, orderFromView: .Threat, corpsOrder: independentButton.buttonState != .On, moveTypePassed: ReturnMoveType())
+    let newOrder = Order(groupFromView: theGroup, touchedNodeFromView: touchedNodeFromView, orderFromView: .Threat, corpsOrder: independentButton.buttonState != .On, moveTypePassed: ReturnMoveType())
     
     newOrder.ExecuteOrder()
     manager!.orders += [newOrder]
@@ -160,6 +216,7 @@ func MoveGroupUnitSelection(touchedUnit:Unit, touchedCount:Int) -> Bool {
             for eachUnit in theUnits {eachUnit.selected = .Selected}
         }
         else if touchedCount == 2 {
+            
             ToggleGroups(manager!.groupsSelected, makeSelection: .Normal)
             theUnits = [touchedUnit]
             touchedUnit.selected = .Selected

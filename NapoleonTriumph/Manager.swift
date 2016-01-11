@@ -159,7 +159,7 @@ class GameManager: NSObject, NSCoding {
     var maxMorale:[Allegience:Int!] = [ .Austrian: 27, .French: 23]
     var multiPlayerMatch:Bool = false
     var frAI:Bool = false
-    var auAI:Bool = true
+    var auAI:Bool = false
     
     // Game Variables
     

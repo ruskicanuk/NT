@@ -8,6 +8,15 @@
 
 /*
 
+Rule Changes:
+(1) Simultaneous battles [print game: reveal viable threat]
+(2) Cannot Rd-attack with 2+ corps (ie. if defender defends then only 1-block cav can rd-feint)
+(3) If defender retreats b4 combat, attacker moves as if there is no defender was there - eg. a 2+ corps with all inf could rd-move into the battle area as long as other restrictions were restricted (adjacent 2+ enemy corps for instance) (in print game must show that had capacity to threaten a stalwart defender)
+
+*/
+
+/*
+
 ***Strategic Goals***
 
 OUTPUT:

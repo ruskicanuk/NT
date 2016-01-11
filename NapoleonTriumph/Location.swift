@@ -8,11 +8,9 @@
 
 import SpriteKit
 
-// Used by reserve, approach and start locations
+// Used by reserve, approach and start locations AND for commands' location
 enum LocationType {
-    
-    case Reserve, Approach, Start, Heaven
-    
+    case Reserve, Approach, Start, Heaven, Window
 }
 
 class Location:SKSpriteNode {

@@ -21,14 +21,14 @@ Locations: 200
 
 var mapScaleFactor:CGFloat = 1.0
 
-let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 242.0:"FRINF2", 241.0:"FRINF1", 251.1:"St Hilaire", 251.2:"Vandamme"]
+let imageNamesNormal = [133.0:"AUINF3", 132.0:"AUINF2", 131.0:"AUINF1", 123.0:"AUCAV3", 122.0:"AUCAV2", 121.0:"AUCAV1", 111.0:"AUART1", 143.0:"AUINFEL3", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 151.4:"Kollowrath", 233.0:"FRINF3", 232.0:"FRINF2", 231.0:"FRINF1", 223.0:"FRCAV3", 222.0:"FRCAV2", 221.0:"FRCAV1", 211.0:"FRART1", 243.0:"FRINFEL3", 242.0:"FRINF2", 241.0:"FRINF1", 251.1:"St Hilaire", 251.2:"Vandamme", 251.3:"Bessieres", 251.4:"Legrand", 251.5:"Lannes"]
 
-let imageNamesSelected = [133.0:"AUINF3 Selected", 132.0:"AUINF2 Selected", 131.0:"AUINF1 Selected", 123.0:"AUCAV3 Selected", 122.0:"AUCAV2 Selected", 121.0:"AUCAV1 Selected", 111.0:"AUART1 Selected", 143.0:"AUINFEL3 Selected", 151.1:"Bagration Selected", 151.2:"Dokhturov Selected", 151.3:"Constantine Selected", 233.0:"FRINF3 Selected", 232.0:"FRINF2 Selected", 231.0:"FRINF1 Selected", 223.0:"FRCAV3 Selected", 222.0:"FRCAV2 Selected", 221.0:"FRCAV1 Selected", 211.0:"FRART1 Selected", 243.0:"FRINFEL3 Selected", 251.1:"St Hilaire Selected", 251.2:"Vandamme Selected"]
+let imageNamesSelected = [133.0:"AUINF3 Selected", 132.0:"AUINF2 Selected", 131.0:"AUINF1 Selected", 123.0:"AUCAV3 Selected", 122.0:"AUCAV2 Selected", 121.0:"AUCAV1 Selected", 111.0:"AUART1 Selected", 143.0:"AUINFEL3 Selected", 151.1:"Bagration Selected", 151.2:"Dokhturov Selected", 151.3:"Constantine Selected", 151.4:"Kollowrath Selected", 233.0:"FRINF3 Selected", 232.0:"FRINF2 Selected", 231.0:"FRINF1 Selected", 223.0:"FRCAV3 Selected", 222.0:"FRCAV2 Selected", 221.0:"FRCAV1 Selected", 211.0:"FRART1 Selected", 243.0:"FRINFEL3 Selected", 251.1:"St Hilaire Selected", 251.2:"Vandamme Selected", 251.3:"Bessieres Selected", 251.4:"Legrand Selected", 251.5:"Lannes Selected"]
 
-let imageNamesGreyedOut = [133.0:"AUINF3 Greyed", 132.0:"AUINF2 Greyed", 131.0:"AUINF1 Greyed", 123.0:"AUCAV3 Greyed", 122.0:"AUCAV2 Greyed", 121.0:"AUCAV1 Greyed", 111.0:"AUART1 Greyed", 143.0:"AUINFEL3 Greyed", 151.1:"Bagration Greyed", 151.2:"Dokhturov Greyed", 151.3:"Constantine Greyed", 233.0:"FRINF3 Greyed", 232.0:"FRINF2 Greyed", 231.0:"FRINF1 Greyed", 223.0:"FRCAV3 Greyed", 222.0:"FRCAV2 Greyed", 221.0:"FRCAV1 Greyed", 211.0:"FRART1 Greyed", 243.0:"FRINFEL3 Greyed", 251.1:"St Hilaire Greyed", 251.2:"Vandamme Greyed"]
+let imageNamesGreyedOut = [133.0:"AUINF3 Greyed", 132.0:"AUINF2 Greyed", 131.0:"AUINF1 Greyed", 123.0:"AUCAV3 Greyed", 122.0:"AUCAV2 Greyed", 121.0:"AUCAV1 Greyed", 111.0:"AUART1 Greyed", 143.0:"AUINFEL3 Greyed", 151.1:"Bagration Greyed", 151.2:"Dokhturov Greyed", 151.3:"Constantine Greyed", 151.4:"Kollowrath Greyed", 233.0:"FRINF3 Greyed", 232.0:"FRINF2 Greyed", 231.0:"FRINF1 Greyed", 223.0:"FRCAV3 Greyed", 222.0:"FRCAV2 Greyed", 221.0:"FRCAV1 Greyed", 211.0:"FRART1 Greyed", 243.0:"FRINFEL3 Greyed", 251.1:"St Hilaire Greyed", 251.2:"Vandamme Greyed", 251.3:"Bessieres Greyed", 251.4:"Legrand Greyed", 251.5:"Lannes Greyed"]
 
 // Split this into "Off" and "Greyed out"
-let imageNamesOff = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme"]
+let imageNamesOff = [133.0:"AUback", 132.0:"AUback", 131.0:"AUback", 123.0:"AUback", 122.0:"AUback", 121.0:"AUback", 111.0:"AUback", 143.0:"AUback", 151.1:"Bagration", 151.2:"Dokhturov", 151.3:"Constantine", 151.4:"Kollowrath", 233.0:"FRback", 232.0:"FRback", 231.0:"FRback", 223.0:"FRback", 222.0:"FRback", 221.0:"FRback", 211.0:"FRback", 243.0:"FRback", 242.0:"FRback", 241.0:"FRback", 251.1:"St Hilaire", 251.2:"Vandamme", 251.3:"Bessieres", 251.4:"Legrand", 251.5:"Lannes"]
 
 let unitHeight:CGFloat = 9.5/1.5
 let unitWidth:CGFloat = 56/1.5
@@ -164,6 +164,7 @@ var frenchMoraleLabel = UILabel()
 var playbackStateLabel = UILabel()
 var phantomOrderCorps = UILabel()
 var phantomOrderInd = UILabel()
+var zoomLabel = UILabel()
 var battleResult = UILabel()
 var battleWinner = UILabel()
 var blocks = UIImage()
@@ -235,6 +236,11 @@ func setupCommandDashboard() {
     phantomOrderInd.frame = CGRect(x: 5, y: 140, width: 200, height: 15)
     labelMenu.addSubview(phantomOrderInd)
     
+    zoomLabel.font = UIFont(name: zoomLabel.font.fontName, size: 12)
+    zoomLabel.textColor = SKColor.blackColor()
+    zoomLabel.frame = CGRect(x: 5, y: 155, width: 200, height: 15)
+    labelMenu.addSubview(zoomLabel)
+    
     battleResult.font = UIFont(name: battleResult.font.fontName, size: 12)
     battleResult.textColor = SKColor.blackColor()
     battleResult.frame = CGRect(x: 5, y: 5, width: 100, height: 15)
@@ -296,4 +302,6 @@ func updatePhantomLabelState() {
     phantomOrderInd.text = "Ind Phantoms: \(manager!.phantomIndCommand)"
 }
 
-
+func updateZoomLevel() {
+    zoomLabel.text = "Unit Selection: \(zoomedMode)"
+}
