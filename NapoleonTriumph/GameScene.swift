@@ -1183,9 +1183,11 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     func retreatTrigger() {
         
-        if statePoint != .Front || undoOrAct || terrainButton.buttonState == .On || manager!.phaseNew != .RetreatOrDefenseSelection || disableTouches || aiThinking || aiTurn {return}
+        if statePoint != .Front || (activeConflict != nil && activeConflict!.defenseApproach.approachSelector!.selected == .On) || undoOrAct || terrainButton.buttonState == .On || manager!.phaseNew != .RetreatOrDefenseSelection || disableTouches || aiThinking || aiTurn {return}
         
-        ToggleGroups(manager!.groupsSelectable, makeSelection: .NotSelectable)
+        var allUnitsSelectable = false
+        let alreadySelected = manager!.groupsSelected
+        ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: false, otherSelectors: false)
     
         // In retreat mode, not flagged as must retreat, no reductions made
         if activeGroupConflict!.retreatMode && !activeGroupConflict!.mustRetreat {
@@ -1206,9 +1208,28 @@ class GameScene: SKScene, NSXMLParserDelegate {
             endTurnButton.buttonState = .Off
  
             manager!.groupsSelectable = SelectableGroupsForRetreat(activeConflict!)
+            
+            // Code to see if all units selected are within the selectable group
+            allUnitsSelectable = true
+            /*
+            for eachGroup in alreadySelected {
+                let matchingUnitsRequired = eachGroup.units.count
+                var matchingUnits = 0
+                for eachGroupSelected in manager!.groupsSelectable {
+                    let inCommon = Array(Set(eachGroup.units).intersect(Set(eachGroupSelected.units)))
+                    matchingUnits += inCommon.count
+                }
+                if matchingUnits != matchingUnitsRequired {allUnitsSelectable = false}
+            }
+            */
         }
         
-         ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+        ToggleGroups(manager!.groupsSelectable, makeSelection: .Normal)
+        if allUnitsSelectable {
+            manager!.groupsSelected = alreadySelected
+            ToggleGroups(manager!.groupsSelected, makeSelection: .Selected)
+            retreatButton.buttonState = CheckRetreatViable(manager!.groupsSelected)
+        }
     }
     
     func commitTrigger() {

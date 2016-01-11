@@ -302,11 +302,11 @@ class Order {
                         
                         if theConflict!.parentGroupConflict!.retreatMode && (theConflict!.defenseReserve as Location) == endLocation {
 
-                            if (moveType == .IndMove || moveType == .CorpsMove) {
+                            // Ind move or corps move AND not a 2-plus corps moving adjacent to enemy 2-plus corps
+                            if (moveType == .IndMove || moveType == .CorpsMove) && !(theMoveCommand.unitCount > 1 && manager!.actingPlayer.ContainsEnemy((endLocation as! Reserve).containsAdjacent2PlusCorps)) {
+                                
                                 reverseCode = theMoveCommand.repeatMoveNumber
                                 theMoveCommand.repeatMoveNumber = theMoveCommand.moveNumber
-                            } else {
-                                reverseCode = 0 // Detach attack
                             }
                             
                             // Releasing committed units
