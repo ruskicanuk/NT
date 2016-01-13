@@ -250,7 +250,6 @@ func setupCommandDashboard() {
     battleWinner.textColor = SKColor.blackColor()
     battleWinner.frame = CGRect(x: 5, y: 20, width: 100, height: 15)
     battleMenu.addSubview(battleWinner)
-    
 }
 
 // Refreshes the labels on the labelMenu

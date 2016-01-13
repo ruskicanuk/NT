@@ -112,6 +112,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
     battleMenu.hidden = true
     self.view.addSubview(battleMenu)
         
+    labelMenu.hidden = true
+    baseMenu.hidden = true
+
+        
     // Large menu button setup
     //selectView.multipleTouchEnabled = false
     //selectView.userInteractionEnabled = false

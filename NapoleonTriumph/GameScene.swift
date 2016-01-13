@@ -140,7 +140,6 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     override func didMoveToView(view: SKView) {
         
-        //Build map and menu
         mapScaleFactor = setupMap()
         setupMenu()
         setupCommandDashboard()
@@ -156,6 +155,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         {
             // Setup game-manager
             manager = GameManager()
+            chooseAI()
         }
         
         // Initialize AI
@@ -186,6 +186,27 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // ### Remove later
         manager!.NewTurn()
         manager!.NewTurn()
+    }
+    
+    func chooseAI() {
+        
+        if frenchAIChoice.buttonState == .On {
+            manager!.frAI = true
+            manager!.auAI = false
+            manager!.multiPlayerMatch = false
+        } else if austrianAIChoice.buttonState == .On {
+            manager!.frAI = false
+            manager!.auAI = true
+            manager!.multiPlayerMatch = false
+        } else if bothAIChoice.buttonState == .On {
+            manager!.frAI = true
+            manager!.auAI = true
+            manager!.multiPlayerMatch = false
+        } else if noAIChoice.buttonState == .On {
+            manager!.frAI = false
+            manager!.auAI = false
+            manager!.multiPlayerMatch = true
+        }
     }
     
     // MARK: TouchedNode and HoldNode
@@ -913,6 +934,15 @@ class GameScene: SKScene, NSXMLParserDelegate {
     
     // Setup menu
     func setupMenu () {
+        
+        // ### Temporary until UI dev phase
+        labelMenu.hidden = false
+        baseMenu.hidden = false
+        frenchAIChoice.hidden = true
+        austrianAIChoice.hidden = true
+        noAIChoice.hidden = true
+        bothAIChoice.hidden = true
+        // ###
         
         var topPosition:CGFloat = 5*mapScaleFactor
         var rightPosition:CGFloat = 5*mapScaleFactor
