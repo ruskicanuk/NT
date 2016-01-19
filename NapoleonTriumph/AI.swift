@@ -320,7 +320,9 @@ class AI {
     // Role for each individual group
     enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
     
-    var aiCommands:[Command] = []
+    var aiLocales:[AILocale] = []
+    
+    var ownCommands:[Command] = []
     var enemyCommands:[Command] = []
     
     // Attributes
@@ -352,6 +354,14 @@ class AI {
     init(passedSide:Allegience) {
         side = passedSide
         armyGoal = .LineManeuvers
+        
+        // Initialize the locales
+        for eachReserve in manager!.reserves {
+            let newAILocale = AILocale(passedReserve: eachReserve)
+            aiLocales += [newAILocale]
+            newAILocale.updateCurrentThreats()
+            newAILocale.updateNextTurnThreats()
+        }
     }
     
     func aiUpdateStrategicGoal() {
@@ -374,7 +384,7 @@ class AI {
     func aiUpdateAttributes() {
         
         // Army Strength
-        for eachCommand in aiCommands {
+        for eachCommand in ownCommands {
             ownArmyStrength += eachCommand.unitsTotalStrength
         }
         for eachCommand in enemyCommands {
@@ -386,7 +396,7 @@ class AI {
     
     func aiGroupRoles() {
         
-        for eachCommand in aiCommands {
+        for eachCommand in ownCommands {
             
             switch (armyGoal, side) {
                 
@@ -441,7 +451,7 @@ class AI {
     
     func aiUpdateCommands() {
         
-        aiCommands = manager!.gameCommands[side]!
+        ownCommands = manager!.gameCommands[side]!
         enemyCommands = manager!.gameCommands[side.Other()!]!
     }
     
@@ -453,6 +463,21 @@ class AI {
     // Process AI thinking, returns false if no action taken (time to end AI's turn), returns true if action taken which means more thinking will be done
     func AIEngine() -> Bool {
         
+        // Refresh the AI Locales
+        for localeAI in aiLocales {
+            localeAI.updateCurrentThreats()
+            localeAI.updateNextTurnThreats()
+        }
+        
+        // Create new AI Commands
+        var aiCommands:[AICommand] = []
+        for eachCommand in ownCommands {
+            if eachCommand.currentLocationType == .Start {continue}
+            let newAICommand = AICommand(passedCommand: eachCommand)
+            aiCommands += [newAICommand]
+            newAICommand.updateCurrentThreats()
+        }
+        
         switch manager!.phaseNew {
             
         case .Setup: return false
@@ -460,8 +485,8 @@ class AI {
         case .Move:
             
             for eachCommand in aiCommands {
-                if eachCommand.unitCount == 3 && eachCommand.moveNumber < 1 {
-                    manager!.groupsSelected = [Group(theCommand: eachCommand, theUnits: eachCommand.units)]
+                if eachCommand.command!.unitCount == 3 && eachCommand.command!.moveNumber < 1 {
+                    manager!.groupsSelected = [Group(theCommand: eachCommand.command!, theUnits: eachCommand.command!.units)]
                     break
                 }
             }

@@ -16,6 +16,7 @@ class AIEntity {
     var reserve:Reserve
     var command:Command?
     var approaches:[Approach] = []
+    var commandOnApproach:Bool = false
     
     // Threats
     var adjThreats:[Approach:[Command]] = [:]
@@ -33,12 +34,10 @@ class AIEntity {
     func updateCurrentThreats() {
         
         var theApproaches:[Approach] = []
-        var commandOnApproach:Bool = false
-        
+
         // Checks if entity is a command on the approach (more limited options)
-        if command != nil && command!.currentLocationType == .Approach {
+        if command != nil && commandOnApproach {
             theApproaches = [command!.currentLocation! as! Approach]
-            commandOnApproach = true
         } else {
             theApproaches = approaches
         }
@@ -194,14 +193,26 @@ class AILocale:AIEntity {
     }
 }
 
-// Inhereits from command - these are AI commands identifiying threats / opportunities around them
+// Inherits from command - these are AI commands identifiying threats / opportunities around them
 class AICommand:AIEntity {
     
-    init(passedReserve:Reserve, passedCommand:Command) {
-        super.init(passedReserve: passedReserve)
+    init(passedCommand:Command) {
+        
+        var theReserve:Reserve
+        var approachCommand:Bool = false
+        
+        if passedCommand.currentLocationType == .Reserve {
+            theReserve = passedCommand.currentLocation! as! Reserve
+        } else {
+            theReserve = (passedCommand.currentLocation! as! Approach).ownReserve!
+            approachCommand = true
+        }
+        
+        super.init(passedReserve: theReserve)
         self.command = passedCommand
+        self.commandOnApproach = approachCommand
+        
     }
-    
 }
 
 // Tracks attributes about a group of Nodes
