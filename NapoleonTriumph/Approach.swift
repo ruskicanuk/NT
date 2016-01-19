@@ -41,9 +41,8 @@ class Approach:Location {
     }
     
     override init (theDict:Dictionary<NSObject, AnyObject>, scaleFactor:CGFloat, reserveLocation:Bool) {
-    
         let theInf:NSString = theDict["inf"] as AnyObject? as! NSString
-        infApproach = theInf.boolValue
+        infApproach = theInf.boolValue    
         
         let theCav:NSString = theDict["cav"] as AnyObject? as! NSString
         cavApproach = theCav.boolValue

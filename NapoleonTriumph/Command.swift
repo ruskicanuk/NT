@@ -73,6 +73,7 @@ class Command:SKNode {
         }
         return totalStrength
     }
+    
     var nonLeaderUnits:[Unit] {
         var theUnits:[Unit] = []
         for eachUnit in activeUnits {

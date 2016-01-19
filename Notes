@@ -6,3 +6,57 @@ ToDo:
 (2) Please setup the save-game functionality (manager class). Ideally, the game is saved automatically just like in Desert Fox without the user ever having to actually save the game. <Pls test to make identical to Desert Fox functionality!>
 (3) Game Center. Related to #2 above is to setup the game-center functionality identical to the Desert Fox functionality. There should also be the auto-load feature that desert fox has. For instance, when you open the app, it automatically loads the game so you don't have to click on anything.
 (4) UI testing. I'd like to setup UI testing but I am struggling a bit with it. I'd like to use it as I need to start testing my game logic more rigorously. Please setup a very simple UI test that I can then use as a template for testing.
+
+
+ShortCut Keys
+
+GENERAL
+Key combination	Action
+Shift[⇧] + Command[⌘] + N	Create new project
+Tab	Cycle through screen controls
+Shift[⇧] + Tab	Cycle through screen controls backwards
+Command[⌘] + N	Create new file
+Shift[⇧] + Command[⌘] + O	Open file quickly
+Command[⌘] + 0	Toggle navigator
+Shift[⇧] + Command[⌘] + Y	Toggle debug area
+Option[⌥] + Command[⌘] + 0	Toggle utlities area
+
+PROJECT NAVIGATION
+Key combination	Action
+Command[⌘] + F	Find in currently open file
+Shift[⇧] + Command[⌘] + F	Find in current project/workspace
+Command[⌘] + ‘/”	Go to next/previous issue
+Command[⌘] + L	Go to line
+Command[⌘] + T	Open a new tab with current tab’s contents
+Command[⌘] + [/]	Open next/previous tab
+Command[⌘] + W	Close current tab (window)
+Command[⌘] + 1..8	Select navigation panels (Project, Symbol, Find, Issue, Test, Debug, Breakpoint, Report)
+Shift[⇧] + Command[⌘] + J	Select current file in project navigator
+Option[⌥] + Command[⌘] + N	Create new group in project navigator
+
+CODE EDITOR
+Key combination	Action
+Control[⌃] + 6	Quickly find a method in currently open file
+Option[⌥] + Left/Right Arrow	Go to the beginning/end of a current word
+Command[⌘] + Left/Right Arrow	Go to the beginning/end of a current line
+Command[⌘] + Up/Down Arrow	Go to the beginning/end of a current file
+Control[⌃] + Up/Down Arrow	Scroll page up/down
+Control[⌃] + Command[⌘] + Left/Right Arrow	Open previous/next file in opened file history
+Control[⌃] + Command[⌘] + Up/Down Arrow	Cycle through modules associated files (header, implementation, etc.)
+Command[⌘] + Z	Undo last action
+Shift[⇧] + Command[⌘] + Z	Redo last action
+Option[⌥] + Command[⌘] + ]/[	Move current line down/up
+Control[⌃] + Command[⌘] + E	Rename current entity in scope
+
+PRODUCT BUILDER
+Key combination	Action
+Command[⌘] + B	Build
+Command[⌘] + R	Build and run
+Command[⌘] + .	Stop current task (building, cleaning, etc.)
+Shift[⇧] + Command[⌘] + K	Clean current target
+
+DEBUGGING
+Key combination	Action
+Command[⌘] + K	Clear output console
+Command[⌘] + \	Toggle breakpoint on current line
+Command[⌘] + Y	Toggle project’s breakpoints

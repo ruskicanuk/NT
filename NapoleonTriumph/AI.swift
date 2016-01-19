@@ -392,8 +392,6 @@ class AI {
                 
             case (.ReduceMorale, .Austrian): break
                 
-                
-                
             case (.ReduceMorale, .French): break
                 
             case (.PreserveMorale, _): break
