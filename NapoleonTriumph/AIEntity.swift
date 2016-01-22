@@ -13,8 +13,9 @@ import SpriteKit
 class AIEntity {
     
     var control:Allegience
-    var reserve:Reserve
-    var command:Command?
+    var reserve:Reserve?
+    //var command:Command?
+    //var unit:Unit?
     var approaches:[Approach] = []
     var commandOnApproach:Bool = false
     
@@ -25,19 +26,21 @@ class AIEntity {
     
     init(passedReserve:Reserve) {
         reserve = passedReserve
-        if reserve.ownApproaches.count > 0 {
-            approaches = reserve.ownApproaches
+        if reserve!.ownApproaches.count > 0 {
+            approaches = reserve!.ownApproaches
         }
-        control = reserve.localeControl
+        control = reserve!.localeControl
     }
     
-    func updateCurrentThreats() {
+    func updateCurrentThreats(theCommand:Command? = nil) {
+        
+        if reserve == nil {return} // Catch accidental units coming here
         
         var theApproaches:[Approach] = []
 
         // Checks if entity is a command on the approach (more limited options)
-        if command != nil && commandOnApproach {
-            theApproaches = [command!.currentLocation! as! Approach]
+        if theCommand != nil && commandOnApproach {
+            theApproaches = [theCommand!.currentLocation! as! Approach]
         } else {
             theApproaches = approaches
         }
@@ -47,12 +50,12 @@ class AIEntity {
             
             let oppReserve = eachApproach.oppApproach!.ownReserve!
             
-            let mayPassThruEnemy:Bool = command == nil
+            let mayPassThruEnemy:Bool = theCommand == nil
             
-            let mayPassThruFriendly:Bool = command != nil
+            let mayPassThruFriendly:Bool = theCommand != nil
 
-            let adjEnemyOccupied = oppReserve.localeControl.Other() == reserve.localeControl
-            let adjFriendlyOccupied = oppReserve.localeControl == reserve.localeControl
+            let adjEnemyOccupied = oppReserve.localeControl.Other() == reserve!.localeControl
+            let adjFriendlyOccupied = oppReserve.localeControl == reserve!.localeControl
             
             var blocked = false
               
@@ -72,7 +75,7 @@ class AIEntity {
             
             // Determine which rd paths can attack the node
             var reservePaths:[[Reserve]] = []
-            for eachReservePath in reserve.rdReserves {
+            for eachReservePath in reserve!.rdReserves {
                 if eachReservePath[1] == oppReserve && !blocked {
                     reservePaths += [eachReservePath]
                 }
@@ -86,8 +89,8 @@ class AIEntity {
 
                 for var i = 2; i < pathLength; i++ {
                     
-                    if eachReservePath[i].localeControl == reserve.localeControl && !mayPassThruFriendly {break}
-                    else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve.localeControl {
+                    if eachReservePath[i].localeControl == reserve!.localeControl && !mayPassThruFriendly {break}
+                    else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve!.localeControl {
                         theRdThreats += eachReservePath[i].occupants
                         if !mayPassThruEnemy {break}
                     }
@@ -97,9 +100,9 @@ class AIEntity {
         }
     }
     
-    func updateNextTurnThreats () {
+    func updateNextTurnThreats (theCommand:Command? = nil) {
         
-        if command == nil {return} // No functionality yet for commands
+        if theCommand == nil {return} // No functionality yet for commands
         
         for eachApproach in approaches {
             
@@ -115,13 +118,13 @@ class AIEntity {
                 rdLessAdjacents.removeObject(eachReservePath[1])
                 for var i = 1; i < pathLength; i++ {
                     if eachReservePath[i] == reserve {break}
-                    else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve.localeControl {
+                    else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve!.localeControl {
                         theNextTurnAdjThreats += eachReservePath[i].occupants
                     }
                 }
             }
             for eachReserve in rdLessAdjacents {
-                if eachReserve.occupantCount > 0 && eachReserve.localeControl.Other() == reserve.localeControl {
+                if eachReserve.occupantCount > 0 && eachReserve.localeControl.Other() == reserve!.localeControl {
                     theNextTurnAdjThreats += eachReserve.occupants
                 }
             }
@@ -194,26 +197,49 @@ class AILocale:AIEntity {
 }
 
 // Inherits from command - these are AI commands identifiying threats / opportunities around them
-class AICommand:AIEntity {
+class AIGroup:AIEntity {
     
-    init(passedCommand:Command) {
+    var group:Group
+    var aiCommand:Command
+    
+    init(passedUnits:[Unit]) {
+        
+        group = Group(theCommand: passedUnits[0].parentCommand!, theUnits: passedUnits)
+        aiCommand = group.command
         
         var theReserve:Reserve
         var approachCommand:Bool = false
         
-        if passedCommand.currentLocationType == .Reserve {
-            theReserve = passedCommand.currentLocation! as! Reserve
+        if group.command.currentLocationType == .Reserve {
+            theReserve = group.command.currentLocation! as! Reserve
         } else {
-            theReserve = (passedCommand.currentLocation! as! Approach).ownReserve!
+            theReserve = (group.command.currentLocation! as! Approach).ownReserve!
             approachCommand = true
         }
         
         super.init(passedReserve: theReserve)
-        self.command = passedCommand
         self.commandOnApproach = approachCommand
+    }
+    
+    func refreshCommand() {
         
+        aiCommand = group.units[0].parentCommand!
     }
 }
+
+/*
+class AIUnit:AIEntity {
+    
+    var unit:Unit
+    
+    init(passedUnit:Unit) {
+        
+        unit = passedUnit
+        super.init(passedControl: passedUnit.unitSide)
+    }
+    
+}
+*/
 
 // Tracks attributes about a group of Nodes
 class NodeChain {

@@ -321,6 +321,7 @@ class AI {
     enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
     
     var aiLocales:[AILocale] = []
+    var aiGroups:[AIGroup] = []
     
     var ownCommands:[Command] = []
     var enemyCommands:[Command] = []
@@ -337,8 +338,8 @@ class AI {
     
     
     let side:Allegience
-    var armyGoal:StrategicGoal
-    var aiGroups:[Group:GroupRole] = [:]
+    var armyGoal:StrategicGoal?
+    var aiGroupRoles:[Group:GroupRole] = [:]
     var ownArmyStrength:Int = 0
     var enemyArmyStrength:Int = 0
     
@@ -353,15 +354,25 @@ class AI {
     
     init(passedSide:Allegience) {
         side = passedSide
+
+    }
+    
+    func setupAI() {
+        
         armyGoal = .LineManeuvers
+        
+        // Initialize commands for both sides
+        aiUpdateCommands()
         
         // Initialize the locales
         for eachReserve in manager!.reserves {
             let newAILocale = AILocale(passedReserve: eachReserve)
             aiLocales += [newAILocale]
-            newAILocale.updateCurrentThreats()
-            newAILocale.updateNextTurnThreats()
         }
+        refreshLocaleThreats()
+        
+        // Initialize the AI groups
+        setupAIGroups()
     }
     
     func aiUpdateStrategicGoal() {
@@ -394,11 +405,11 @@ class AI {
         // Code for finding opportunities to win battles, force retreats, etc
     }
     
-    func aiGroupRoles() {
+    func setAIGroupRoles() {
         
         for eachCommand in ownCommands {
             
-            switch (armyGoal, side) {
+            switch (armyGoal!, side) {
                 
             case (.ReduceMorale, .Austrian): break
                 
@@ -460,36 +471,43 @@ class AI {
         
     }
     
-    // Process AI thinking, returns false if no action taken (time to end AI's turn), returns true if action taken which means more thinking will be done
-    func AIEngine() -> Bool {
-        
+    func refreshLocaleThreats() {
         // Refresh the AI Locales
         for localeAI in aiLocales {
             localeAI.updateCurrentThreats()
             localeAI.updateNextTurnThreats()
         }
+    }
+    
+    func setupAIGroups() {
         
         // Create new AI Commands
-        var aiCommands:[AICommand] = []
         for eachCommand in ownCommands {
             if eachCommand.currentLocationType == .Start {continue}
-            let newAICommand = AICommand(passedCommand: eachCommand)
-            aiCommands += [newAICommand]
-            newAICommand.updateCurrentThreats()
+            let newAIGroup = AIGroup(passedUnits: eachCommand.activeUnits)
+            aiGroups += [newAIGroup]
+            newAIGroup.updateCurrentThreats(newAIGroup.aiCommand)
         }
         
+    }
+    
+    // Process AI thinking, returns false if no action taken (time to end AI's turn), returns true if action taken which means more thinking will be done
+    func AIEngine() -> Bool {
+
         switch manager!.phaseNew {
             
         case .Setup: return false
         
         case .Move:
             
-            for eachCommand in aiCommands {
-                if eachCommand.command!.unitCount == 3 && eachCommand.command!.moveNumber < 1 {
-                    manager!.groupsSelected = [Group(theCommand: eachCommand.command!, theUnits: eachCommand.command!.units)]
+            for eachAIGroup in aiGroups {
+                if eachAIGroup.group.nonLdrUnitCount == 3 && eachAIGroup.aiCommand.moveNumber < 1 {
+                    manager!.groupsSelected = [eachAIGroup.group]
                     break
                 }
             }
+            
+            if manager!.groupsSelected.count == 0 {return false}
             
             (corpsMoveButton.buttonState, corpsDetachButton.buttonState, corpsAttachButton.buttonState, independentButton.buttonState) = OrdersAvailableOnMove(manager!.groupsSelected[0], ordersLeft: ((manager!.corpsCommandsAvail), (manager!.indCommandsAvail)))
                 

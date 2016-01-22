@@ -777,7 +777,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         if aiThinking && aiThinkingStartTime != nil {
             let aiThinkTime = CFAbsoluteTimeGetCurrent() - aiThinkingStartTime!
             if aiThinkTime > 1.0 {
-                ai[manager!.actingPlayer]!.aiUpdateCommands()
+                //ai[manager!.actingPlayer]!.aiUpdateCommands()
                 if ai[manager!.actingPlayer]!.AIEngine() {
                     aiThinkingStartTime = CFAbsoluteTimeGetCurrent()
                 } else {
