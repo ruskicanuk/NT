@@ -319,12 +319,12 @@ class AI {
     
     // Role for each individual group
     enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
-    
+
     var aiLocales:[AILocale] = []
-    var aiGroups:[AIGroup] = []
     
-    var ownCommands:[Command] = []
-    var enemyCommands:[Command] = []
+    var aiGroups:[AIGroup] = [] // Groups with stored orders
+    var aiCommands:[AICommand] = [] // Commands with a specified role
+    var enemyCommands:[Command] = [] // Enemy commands (no role required)
     
     // Attributes
     var aiAdjToEnemyCommands:[Command] = []
@@ -357,22 +357,27 @@ class AI {
 
     }
     
-    func setupAI() {
+    func processAITurnStrategy() {
         
-        armyGoal = .LineManeuvers
-        
-        // Initialize commands for both sides
+        // Identify commands for both sides
         aiUpdateCommands()
-        
+
         // Initialize the locales
+        aiLocales = []
         for eachReserve in manager!.reserves {
             let newAILocale = AILocale(passedReserve: eachReserve)
             aiLocales += [newAILocale]
         }
         refreshLocaleThreats()
         
-        // Initialize the AI groups
-        setupAIGroups()
+        // Establish army goal
+        aiUpdateStrategicGoal()
+        
+        // Establish group roles
+        //aiUpdateGroupRoles()
+        
+        // Establish group orders and move priority
+        //aiUpdateGroupOrders()
     }
     
     func aiUpdateStrategicGoal() {
@@ -388,15 +393,15 @@ class AI {
         case (false, .French): armyGoal = .ReduceMorale
             
         default: break
-            
+             
         }
     }
     
     func aiUpdateAttributes() {
         
         // Army Strength
-        for eachCommand in ownCommands {
-            ownArmyStrength += eachCommand.unitsTotalStrength
+        for eachCommand in aiCommands {
+            ownArmyStrength += eachCommand.aiCommand.unitsTotalStrength
         }
         for eachCommand in enemyCommands {
             enemyArmyStrength += eachCommand.unitsTotalStrength
@@ -405,9 +410,9 @@ class AI {
         // Code for finding opportunities to win battles, force retreats, etc
     }
     
-    func setAIGroupRoles() {
+    func aiUpdateCommandRoles() {
         
-        for eachCommand in ownCommands {
+        for eachCommand in aiCommands {
             
             switch (armyGoal!, side) {
                 
@@ -462,7 +467,11 @@ class AI {
     
     func aiUpdateCommands() {
         
-        ownCommands = manager!.gameCommands[side]!
+        aiCommands = []
+        for eachCommand in manager!.gameCommands[side]! {
+            let newAICommand = AICommand(passedCommand: eachCommand)
+            aiCommands += [newAICommand]
+        }
         enemyCommands = manager!.gameCommands[side.Other()!]!
     }
     
@@ -482,13 +491,12 @@ class AI {
     func setupAIGroups() {
         
         // Create new AI Commands
-        for eachCommand in ownCommands {
-            if eachCommand.currentLocationType == .Start {continue}
-            let newAIGroup = AIGroup(passedUnits: eachCommand.activeUnits)
+        for eachCommand in aiCommands {
+            if eachCommand.aiCommand.currentLocationType == .Start {continue}
+            let newAIGroup = AIGroup(passedUnits: eachCommand.aiCommand.activeUnits)
             aiGroups += [newAIGroup]
             newAIGroup.updateCurrentThreats(newAIGroup.aiCommand)
         }
-        
     }
     
     // Process AI thinking, returns false if no action taken (time to end AI's turn), returns true if action taken which means more thinking will be done

@@ -24,6 +24,10 @@ class AIEntity {
     var rdThreats:[Approach:[Command]] = [:]
     var nextTurnAdjThreats:[Approach:[Command]] = [:]
     
+    init(passedAllegience:Allegience) {
+        control = passedAllegience
+    }
+    
     init(passedReserve:Reserve) {
         reserve = passedReserve
         if reserve!.ownApproaches.count > 0 {
@@ -212,12 +216,15 @@ class AIGroup:AIEntity {
         
         if group.command.currentLocationType == .Reserve {
             theReserve = group.command.currentLocation! as! Reserve
-        } else {
+            super.init(passedReserve: theReserve)
+        } else if group.command.currentLocationType == .Approach {
             theReserve = (group.command.currentLocation! as! Approach).ownReserve!
             approachCommand = true
+            super.init(passedReserve: theReserve)
+        } else {
+            super.init(passedAllegience: aiCommand.commandSide)
         }
         
-        super.init(passedReserve: theReserve)
         self.commandOnApproach = approachCommand
     }
     
@@ -227,11 +234,44 @@ class AIGroup:AIEntity {
     }
 }
 
+class AICommand:AIEntity {
+    
+    // Purpose is to set attributes for the aiGroup initializer to use
+    var aiCommand:Command
+    
+    init(passedCommand:Command) {
+        aiCommand = passedCommand
+    
+    var theReserve:Reserve
+    var approachCommand:Bool = false
+    
+    if aiCommand.currentLocationType == .Reserve {
+        
+        theReserve = aiCommand.currentLocation! as! Reserve
+        super.init(passedReserve: theReserve)
+    
+    } else if aiCommand.currentLocationType == .Approach {
+    
+        theReserve = (aiCommand.currentLocation! as! Approach).ownReserve!
+    
+        approachCommand = true
+        super.init(passedReserve: theReserve)
+    
+    } else {
+    
+        super.init(passedAllegience: aiCommand.commandSide)
+    }
+    
+    self.commandOnApproach = approachCommand
+        
+    }
+}
+
 /*
 class AIUnit:AIEntity {
-    
+
     var unit:Unit
-    
+
     init(passedUnit:Unit) {
         
         unit = passedUnit

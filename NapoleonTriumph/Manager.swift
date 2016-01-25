@@ -640,7 +640,7 @@ class GameManager: NSObject, NSCoding {
             aiThinkingStartTime = nil
             aiThinking = false
         } else {
-            ai[actingPlayer]!.setupAI()
+            ai[actingPlayer]!.processAITurnStrategy()
             aiThinkingStartTime = CFAbsoluteTimeGetCurrent()
             aiThinking = true
         }

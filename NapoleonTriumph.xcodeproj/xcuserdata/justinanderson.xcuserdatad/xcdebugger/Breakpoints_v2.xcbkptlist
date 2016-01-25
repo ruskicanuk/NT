@@ -5213,11 +5213,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475129401.686477"
+            timestampString = "475374984.285177"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "505"
-            endingLineNumber = "505"
+            startingLineNumber = "514"
+            endingLineNumber = "514"
             landmarkName = "AIEngine()"
             landmarkType = "5">
          </BreakpointContent>
@@ -5229,11 +5229,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475129401.686477"
+            timestampString = "475374984.285177"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "504"
-            endingLineNumber = "504"
+            startingLineNumber = "513"
+            endingLineNumber = "513"
             landmarkName = "AIEngine()"
             landmarkType = "5">
          </BreakpointContent>
@@ -5245,11 +5245,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475129401.686477"
+            timestampString = "475374984.285177"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
+            startingLineNumber = "495"
+            endingLineNumber = "495"
             landmarkName = "setupAIGroups()"
             landmarkType = "5">
          </BreakpointContent>
@@ -5261,27 +5261,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475129401.686477"
+            timestampString = "475374984.285177"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "466"
-            endingLineNumber = "466"
-            landmarkName = "aiUpdateCommands()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475129478.163099"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "487"
-            endingLineNumber = "487"
+            startingLineNumber = "497"
+            endingLineNumber = "497"
             landmarkName = "setupAIGroups()"
             landmarkType = "5">
          </BreakpointContent>
