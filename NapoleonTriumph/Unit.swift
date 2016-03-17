@@ -120,6 +120,27 @@ class Unit: SKSpriteNode {
         }
     }
     
+    func unitTypeName() -> String {
+        
+        var name:String = ""
+        
+        switch(unitType) {
+            
+        case .Grd: name = "grd"
+            
+        case .Inf: name = "inf"
+            
+        case .Cav: name = "cav"
+            
+        case .Ldr: name = "ldr"
+            
+        case .Art: name = "art"
+            
+        }
+        
+        return name
+    }
+    
     func backCodeFromStrengthAndType() -> Int {
         
         var theCode:Int = 0

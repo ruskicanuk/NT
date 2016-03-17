@@ -4440,8 +4440,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "372"
             endingLineNumber = "372"
-            landmarkName = "availableToDefend(_:)"
-            landmarkType = "5">
+            landmarkName = "Command"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -4886,8 +4886,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "272"
             endingLineNumber = "272"
-            landmarkName = "init(creatingUnits:)"
-            landmarkType = "5">
+            landmarkName = "Command"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -5250,8 +5250,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "495"
             endingLineNumber = "495"
-            landmarkName = "setupAIGroups()"
-            landmarkType = "5">
+            landmarkName = "AI"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -5266,7 +5266,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "497"
             endingLineNumber = "497"
-            landmarkName = "setupAIGroups()"
+            landmarkName = "AIEngine()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

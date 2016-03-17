@@ -88,10 +88,24 @@ class Command:SKNode {
         }
         return theUnits
     }
-    var infUnits:[Unit] {
+    var infPlusGrdUnits:[Unit] {
         var theUnits:[Unit] = []
         for eachUnit in activeUnits {
             if eachUnit.unitType == .Inf || eachUnit.unitType == .Grd {theUnits += [eachUnit]}
+        }
+        return theUnits
+    }
+    var infUnits:[Unit] {
+        var theUnits:[Unit] = []
+        for eachUnit in activeUnits {
+            if eachUnit.unitType == .Inf {theUnits += [eachUnit]}
+        }
+        return theUnits
+    }
+    var grdUnits:[Unit] {
+        var theUnits:[Unit] = []
+        for eachUnit in activeUnits {
+            if eachUnit.unitType == .Grd {theUnits += [eachUnit]}
         }
         return theUnits
     }

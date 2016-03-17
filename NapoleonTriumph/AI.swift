@@ -321,21 +321,14 @@ class AI {
     enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
 
     var aiLocales:[AILocale] = []
-    
     var aiGroups:[AIGroup] = [] // Groups with stored orders
     var aiCommands:[AICommand] = [] // Commands with a specified role
     var enemyCommands:[Command] = [] // Enemy commands (no role required)
     
-    // Attributes
+    // Army Attributes
     var aiAdjToEnemyCommands:[Command] = []
     var aiRdAttackPossibleCommands:[Command] = []
     var aiNoAttackPossibleCommands:[Command] = []
-    
-    var aiInfAttackStrength:[Command:Int] = [:]
-    var aiCavAttackStrength:[Command:Int] = [:]
-    var aiArtAttackStrength:[Command:Int] = [:]
-    var aiGrdAttackStrength:[Command:Int] = [:]
-    
     
     let side:Allegience
     var armyGoal:StrategicGoal?

@@ -9,13 +9,12 @@
 import Foundation
 import SpriteKit
 
-// Tracks locale states and other locale attributes
+// AI Entities can be locales (for testing threat conditions), groups and commands
 class AIEntity {
     
     var control:Allegience
     var reserve:Reserve?
-    //var command:Command?
-    //var unit:Unit?
+
     var approaches:[Approach] = []
     var commandOnApproach:Bool = false
     
@@ -24,10 +23,12 @@ class AIEntity {
     var rdThreats:[Approach:[Command]] = [:]
     var nextTurnAdjThreats:[Approach:[Command]] = [:]
     
+    // Applies to AICommand, AIGroup
     init(passedAllegience:Allegience) {
         control = passedAllegience
     }
     
+    // Applies to AILocale
     init(passedReserve:Reserve) {
         reserve = passedReserve
         if reserve!.ownApproaches.count > 0 {
@@ -36,6 +37,7 @@ class AIEntity {
         control = reserve!.localeControl
     }
     
+    // Applies to all child classes
     func updateCurrentThreats(theCommand:Command? = nil) {
         
         if reserve == nil {return} // Catch accidental units coming here
@@ -52,15 +54,12 @@ class AIEntity {
         // Threat routine
         for eachApproach in theApproaches {
             
+            
             let oppReserve = eachApproach.oppApproach!.ownReserve!
-            
-            let mayPassThruEnemy:Bool = theCommand == nil
-            
-            let mayPassThruFriendly:Bool = theCommand != nil
-
+            let mayPassThruEnemy:Bool = theCommand == nil // Threats on AILocale ignore enemies
+            let mayPassThruFriendly:Bool = theCommand != nil // Threats on AIGroup ignore friendlies
             let adjEnemyOccupied = oppReserve.localeControl.Other() == reserve!.localeControl
             let adjFriendlyOccupied = oppReserve.localeControl == reserve!.localeControl
-            
             var blocked = false
               
             // Captures adjacent enemies (or blank array if neutral)
@@ -162,7 +161,7 @@ class AIEntity {
                 
                 case "Cav": blockCount += eachCommand.cavUnits.count
                 
-                case "Inf": blockCount += eachCommand.infUnits.count // Inf + Grd
+                case "Inf": blockCount += eachCommand.infPlusGrdUnits.count // Inf + Grd
                 
                 case "Art": blockCount += eachCommand.artUnits.count
                 
@@ -184,9 +183,11 @@ class AILocale:AIEntity {
     var potentialFlanks:Int = 0
     var nextTurnPotentialFlanks:Int = 0
     
-    // Defense-level per approach, = strength potential (1 + 2 or 2 + 2 depending on approach being wide or narrow)
-    var approachDefenseRating:[Approach:Int] = [:]
-    var reserveDefenseRating:Int = 0
+    // Defense-level per approach, = strength potential (1 + 2 or 2 + 2 depending on approach being wide or narrow) - array deals with depth
+    var approachDefenseRating:[Approach:[Int]] = [:]
+    var approachCounterRating:[Approach:Int] = [:]
+    var reserveDefenseRating:([Int], [Int]) = ([0], [0]) // Narrow / wide
+    var reserveCounterRating:Int = 0
     
     // Number of blocks available to defend
     var reserveBlocks:Int = 0
@@ -204,7 +205,10 @@ class AILocale:AIEntity {
 class AIGroup:AIEntity {
     
     var group:Group
-    var aiCommand:Command
+    var aiCommand:Command // Might be unnecessary (consider dropping this)
+    
+    // Used for aiCommands and aiGroups
+    var gotoUnits:[String:Unit?] = [:]
     
     init(passedUnits:[Unit]) {
         
@@ -226,8 +230,45 @@ class AIGroup:AIEntity {
         }
         
         self.commandOnApproach = approachCommand
+        self.updateAIGotoUnits(group.units)
     }
     
+    // Sets up the gotoCode dictionary for aiGroup
+    func updateAIGotoUnits(theUnits:[Unit]) {
+        
+        for eachUnit in theUnits {
+            
+            let gotoCode1 = eachUnit.name! + "1"
+            let gotoCode2 = eachUnit.name! + "2"
+            
+            // Other codes: ctr, def, att [probably deal with in other logic]
+            
+            if gotoUnits[gotoCode1] == nil {
+                
+                gotoUnits[gotoCode1] = eachUnit
+                
+            } else if gotoUnits[gotoCode2] == nil {
+                
+                if eachUnit.unitStrength > gotoUnits[gotoCode1]!!.unitStrength {
+                    gotoUnits[gotoCode2] = gotoUnits[gotoCode1]
+                    gotoUnits[gotoCode1] = eachUnit
+                } else {
+                    gotoUnits[gotoCode2] = eachUnit
+                }
+                
+            } else {
+                
+                if eachUnit.unitStrength > gotoUnits[gotoCode1]!!.unitStrength {
+                    gotoUnits[gotoCode2] = gotoUnits[gotoCode1]
+                    gotoUnits[gotoCode1] = eachUnit
+                } else if eachUnit.unitStrength > gotoUnits[gotoCode2]!!.unitStrength {
+                    gotoUnits[gotoCode2] = eachUnit
+                }
+                
+            }
+        }
+    }
+
     func refreshCommand() {
         
         aiCommand = group.units[0].parentCommand!
@@ -238,6 +279,10 @@ class AICommand:AIEntity {
     
     // Purpose is to set attributes for the aiGroup initializer to use
     var aiCommand:Command
+    
+    // Query: Code:Value
+    // Codes: infWA, cavWA, artWA, grdWA, trpWA, infNA, cavNA, artNA, grdNA, trpNA, cmdWA, cmdNA, defWA, defNA
+
     
     init(passedCommand:Command) {
         aiCommand = passedCommand
@@ -265,6 +310,8 @@ class AICommand:AIEntity {
     self.commandOnApproach = approachCommand
         
     }
+    
+    
 }
 
 /*
