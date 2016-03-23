@@ -201,6 +201,25 @@ class AILocale:AIEntity {
     }
 }
 
+class AIGroups {
+    
+    var aiGroups:[AIGroup] = []
+    
+    init(passedGroups:[AIGroup]) {
+        aiGroups = passedGroups
+    }
+    
+    // Returns the units and strength of a group
+    // typeCode: ResDefense, appDefense, Attack, CtrAttack
+    func aiGroupsTrait(typeCode:String) -> (Int, [AIGroup], [Unit]) {
+    
+    
+        
+    return (0, [], [])
+    }
+    
+}
+
 // Inherits from command - these are AI commands identifiying threats / opportunities around them
 class AIGroup:AIEntity {
     
@@ -208,7 +227,7 @@ class AIGroup:AIEntity {
     var aiCommand:Command // Might be unnecessary (consider dropping this)
     
     // Used for aiCommands and aiGroups
-    var gotoUnits:[String:Unit?] = [:]
+    var orderedUnits:[String:Unit?] = [:]
     
     init(passedUnits:[Unit]) {
         
@@ -230,45 +249,48 @@ class AIGroup:AIEntity {
         }
         
         self.commandOnApproach = approachCommand
-        self.updateAIGotoUnits(group.units)
+        self.aiGroupOrganizeUnits(group.units)
     }
     
-    // Sets up the gotoCode dictionary for aiGroup
-    func updateAIGotoUnits(theUnits:[Unit]) {
+    // Sets up the orderedUnits dictionary for aiGroup
+    func aiGroupOrganizeUnits(theUnits:[Unit], maxTypeSize:Int = 8) {
         
         for eachUnit in theUnits {
             
-            let gotoCode1 = eachUnit.name! + "1"
-            let gotoCode2 = eachUnit.name! + "2"
+            let orderedCode = eachUnit.name!
             
             // Other codes: ctr, def, att [probably deal with in other logic]
             
-            if gotoUnits[gotoCode1] == nil {
+            var insertPosition:Int = maxTypeSize
+            var totalLength:Int = 0
+            
+            for var i = 1; i <= maxTypeSize; i++ {
                 
-                gotoUnits[gotoCode1] = eachUnit
-                
-            } else if gotoUnits[gotoCode2] == nil {
-                
-                if eachUnit.unitStrength > gotoUnits[gotoCode1]!!.unitStrength {
-                    gotoUnits[gotoCode2] = gotoUnits[gotoCode1]
-                    gotoUnits[gotoCode1] = eachUnit
-                } else {
-                    gotoUnits[gotoCode2] = eachUnit
-                }
-                
-            } else {
-                
-                if eachUnit.unitStrength > gotoUnits[gotoCode1]!!.unitStrength {
-                    gotoUnits[gotoCode2] = gotoUnits[gotoCode1]
-                    gotoUnits[gotoCode1] = eachUnit
-                } else if eachUnit.unitStrength > gotoUnits[gotoCode2]!!.unitStrength {
-                    gotoUnits[gotoCode2] = eachUnit
-                }
-                
+                if orderedUnits[orderedCode + String(i)] == nil {totalLength = i; break}
+                else if eachUnit.unitStrength > orderedUnits[orderedCode + String(i)]!!.unitStrength && insertPosition == 0 {insertPosition = i}
             }
+            
+            for var i = insertPosition; i < totalLength; i++ {
+                
+                orderedUnits[orderedCode + String(i+1)] = orderedUnits[orderedCode + String(i)]
+            }
+            orderedUnits[orderedCode + String(insertPosition)] = eachUnit
         }
     }
-
+    
+    // Returns the strength and units matching a unit type in a group
+    func aiGroupSelectUnits(typeCode:String) -> (Int, [Unit]) {
+        
+        // Type Codes: Inf, Cav, Art, Grd or Ldr
+        var strength:Int = 0
+        var theUnits:[Unit] = []
+        
+        for var i = 1; i <= 8; i++ {
+            if orderedUnits[typeCode + String(i)] != nil {strength = strength + orderedUnits[typeCode + String(i)]!!.unitStrength; theUnits += [orderedUnits[typeCode + String(i)]!!]}
+        }
+        return (strength, theUnits)
+    }
+    
     func refreshCommand() {
         
         aiCommand = group.units[0].parentCommand!
