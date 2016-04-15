@@ -210,10 +210,67 @@ class AIGroups {
     }
     
     // Returns the units and strength of a group
-    // typeCode: ResDefense, appDefense, Attack, CtrAttack
-    func aiGroupsTrait(typeCode:String) -> (Int, [AIGroup], [Unit]) {
+    // typeCode: ResDefense, AppDefense, Attack, CtrAttack
+    func aiGroupsDefenseAndCounter(typeCode:String, wide:Bool, approach:Bool) -> (Int, [AIGroup], [Unit]) {
     
-    
+        // 1st: Calculate counter potential for each group (inf, grd, cav)
+        // 2nd: Calculate defense potential for each counter group
+        
+        for eachGroup in aiGroups {
+            
+            //var counterStrengths:(Int, Int, Int) = (0, 0, 0)
+            //var counterTypes:(String, String, String) = ("Inf", "Grd", "Cav")
+            
+            let (groupInfStrength, groupInfBlocks, groupInfUnits) = eachGroup.aiGroupSelectUnits("Int")
+            let aiGroupInfSelection = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: 2)
+            
+            let (groupCavStrength, groupCavBlocks, groupCavUnits) = eachGroup.aiGroupSelectUnits("Cav")
+            let aiGroupCavSelection = eachGroup.aiGroupSelectUnitsTopX(groupCavUnits, topX: 2)
+            
+            let (groupGrdStrength, groupGrdBlocks, groupGrdUnits) = eachGroup.aiGroupSelectUnits("Grd")
+            let aiGroupGrdSelection = eachGroup.aiGroupSelectUnitsTopX(groupGrdUnits, topX: 2)
+            
+            let counterStrengths = (groupInfStrength, groupGrdStrength, groupCavStrength)
+            
+            // Defense Selection
+            var defenseUnits:[Unit] = []
+            var defenseUnitsStrength:Int = 0
+            
+            for eachDefenseGroup in aiGroups {
+                
+                let aiDefenseGroupCount = eachDefenseGroup.group.units.count
+                
+                // Inf Counter Case
+                switch (wide, approach) {
+                    
+                case (true, true): break
+                    
+                    // Go through first and second unit of each group, preference for strength and smaller groups
+                    
+                    
+                default: break
+                }
+                
+                
+                
+                // Cav Counter Case
+                
+                
+                // Grd Counter Case
+                
+                
+            }
+            
+        }
+        
+        // Counter: Determine candidate ctr attacks
+        
+        
+        // ResDefense: inf, grd, cav, art
+        // appDefense: 3-str inf, grd, art, 2-str inf, cav
+        // attack:
+        // Algo: assume groups are organized by command
+        //
         
     return (0, [], [])
     }
@@ -278,17 +335,45 @@ class AIGroup:AIEntity {
         }
     }
     
-    // Returns the strength and units matching a unit type in a group
-    func aiGroupSelectUnits(typeCode:String) -> (Int, [Unit]) {
+    // Returns the strength, # of blocks and units matching a unit type in a group
+    func aiGroupSelectUnits(typeCode:String) -> (Int, Int, [Unit]) {
         
-        // Type Codes: Inf, Cav, Art, Grd or Ldr
+        // Type Codes: Inf, Cav, Art, Grd, Ldr, All
         var strength:Int = 0
+        var blocks:Int = 0
         var theUnits:[Unit] = []
         
         for var i = 1; i <= 8; i++ {
-            if orderedUnits[typeCode + String(i)] != nil {strength = strength + orderedUnits[typeCode + String(i)]!!.unitStrength; theUnits += [orderedUnits[typeCode + String(i)]!!]}
+            if orderedUnits[typeCode + String(i)] != nil {strength = strength + orderedUnits[typeCode + String(i)]!!.unitStrength; theUnits += [orderedUnits[typeCode + String(i)]!!]; blocks++}
+            else {break}
         }
-        return (strength, theUnits)
+        
+        return (strength, blocks, theUnits)
+    }
+    
+    // Returns a specific number of units within a group by strength order
+    func aiGroupSelectUnitsTopX(theUnits:[Unit], topX:Int = 0) -> (Int, Int, [Unit]) {
+    
+        var newUnits:[Unit] = []
+        var newStrength:Int = 0
+        var newBlocks:Int = 0
+        
+        if topX <= 0 {
+            return (0,0,[])
+        } else {
+            
+            for var i = 0; i < theUnits.count; i++ {
+                
+                if i < topX {
+                    newUnits += [theUnits[i]]
+                    newBlocks++
+                    newStrength += theUnits[i].unitStrength
+                }
+            }
+        
+        }
+        
+        return (newStrength, newBlocks, newUnits)
     }
     
     func refreshCommand() {
