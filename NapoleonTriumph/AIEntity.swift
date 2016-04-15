@@ -1,5 +1,5 @@
 //
-//  LinePath.swift
+//  AIEntity.swift
 //  NapoleonTriumph
 //
 //  Created by Justin Anderson on 2016-01-05.
@@ -9,133 +9,158 @@
 import Foundation
 import SpriteKit
 
-// AI Entities can be locales (for testing threat conditions), groups and commands
+// Parent for AIGroup and AILocale both of which share common characteristics such as detecting nearby threats
 class AIEntity {
     
     var control:Allegience
     var reserve:Reserve?
 
     var approaches:[Approach] = []
-    var commandOnApproach:Bool = false
+    var aiGroupOnApproach:Bool = false
     
-    // Threats
     var adjThreats:[Approach:[Command]] = [:]
     var rdThreats:[Approach:[Command]] = [:]
     var nextTurnAdjThreats:[Approach:[Command]] = [:]
     
-    // Applies to AICommand, AIGroup
+    // AIGroup
     init(passedAllegience:Allegience) {
+        
         control = passedAllegience
+        
     }
     
-    // Applies to AILocale
+    // AILocale
     init(passedReserve:Reserve) {
+        
         reserve = passedReserve
         if reserve!.ownApproaches.count > 0 {
+        
             approaches = reserve!.ownApproaches
+        
         }
         control = reserve!.localeControl
     }
     
-    // Applies to all child classes
-    func updateCurrentThreats(theCommand:Command? = nil) {
+    // Refresh the relevant nearby threats - for AILocale this is which commands can attack it, for AIGroup this is which commands it can attack
+    // theAIGroup: This is the AIGroup (for the case where the AIEntity is an AIGroup)
+    func updateCurrentThreats(theAIGroup:AIGroup? = nil) {
         
-        if reserve == nil {return} // Catch accidental units coming here
+        if reserve == nil {return} // EH
         
         var theApproaches:[Approach] = []
 
-        // Checks if entity is a command on the approach (more limited options)
-        if theCommand != nil && commandOnApproach {
-            theApproaches = [theCommand!.currentLocation! as! Approach]
+        if theAIGroup != nil && aiGroupOnApproach {
+            
+            theApproaches = [theAIGroup!.aiCommand.currentLocation! as! Approach]
+        
         } else {
+        
             theApproaches = approaches
+            
         }
         
-        // Threat routine
         for eachApproach in theApproaches {
             
-            
             let oppReserve = eachApproach.oppApproach!.ownReserve!
-            let mayPassThruEnemy:Bool = theCommand == nil // Threats on AILocale ignore enemies
-            let mayPassThruFriendly:Bool = theCommand != nil // Threats on AIGroup ignore friendlies
+            let isAILocale:Bool = theAIGroup == nil
             let adjEnemyOccupied = oppReserve.localeControl.Other() == reserve!.localeControl
             let adjFriendlyOccupied = oppReserve.localeControl == reserve!.localeControl
             var blocked = false
-              
-            // Captures adjacent enemies (or blank array if neutral)
             var theThreats:[Command] = []
+            
             if eachApproach.oppApproach!.occupantCount > 0 && adjEnemyOccupied {
+                
                 theThreats += eachApproach.oppApproach!.occupants
             }
-            if (oppReserve.occupantCount > 0 && (theThreats.count == 0 || mayPassThruEnemy) && adjEnemyOccupied) {
+            if (oppReserve.occupantCount > 0 && (theThreats.count == 0 || isAILocale) && adjEnemyOccupied) {
+            
                 theThreats += oppReserve.occupants
+            
             }
             adjThreats[eachApproach] = theThreats
+            if theThreats.count > 0 && !isAILocale {blocked = true}
+            else if adjFriendlyOccupied && isAILocale {blocked = true}
+            else if aiGroupOnApproach {blocked = true}
             
-            if theThreats.count > 0 && !mayPassThruEnemy {blocked = true}
-            else if adjFriendlyOccupied && !mayPassThruFriendly {blocked = true}
-            else if commandOnApproach {blocked = true}
-            
-            // Determine which rd paths can attack the node
             var reservePaths:[[Reserve]] = []
+            
             for eachReservePath in reserve!.rdReserves {
+                
                 if eachReservePath[1] == oppReserve && !blocked {
+                
                     reservePaths += [eachReservePath]
+                
                 }
+                
             }
             
-            // From the viable rd-paths, determine if there are occupants
             var theRdThreats:[Command] = []
+            
             for eachReservePath in reservePaths {
                 
                 let pathLength = eachReservePath.count
 
                 for var i = 2; i < pathLength; i++ {
                     
-                    if eachReservePath[i].localeControl == reserve!.localeControl && !mayPassThruFriendly {break}
+                    if eachReservePath[i].localeControl == reserve!.localeControl && isAILocale {break}
                     else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve!.localeControl {
+                        
                         theRdThreats += eachReservePath[i].occupants
-                        if !mayPassThruEnemy {break}
+                        if !isAILocale {break}
+                    
                     }
+                
                 }
+            
             }
             rdThreats[eachApproach] = theRdThreats
+            
         }
+    
     }
     
-    func updateNextTurnThreats (theCommand:Command? = nil) {
+    func updateNextTurnThreats (theAIGroup:AIGroup? = nil) {
         
-        if theCommand == nil {return} // No functionality yet for commands
-        
+        if theAIGroup != nil {return} // No functionality yet for AIGroup
         for eachApproach in approaches {
             
             let oppReserve = eachApproach.oppApproach!.ownReserve!
-            
-            // Determine which commands can move to the adjacent locale
             var theNextTurnAdjThreats:[Command] = []
             var rdLessAdjacents:[Reserve] = oppReserve.adjReserves
+            
             for eachReservePath in oppReserve.rdReserves {
                 
                 let pathLength = eachReservePath.count
-                
                 rdLessAdjacents.removeObject(eachReservePath[1])
                 for var i = 1; i < pathLength; i++ {
+                    
                     if eachReservePath[i] == reserve {break}
                     else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve!.localeControl {
+                    
                         theNextTurnAdjThreats += eachReservePath[i].occupants
+                    
                     }
+                
                 }
+            
             }
             for eachReserve in rdLessAdjacents {
+                
                 if eachReserve.occupantCount > 0 && eachReserve.localeControl.Other() == reserve!.localeControl {
+                    
                     theNextTurnAdjThreats += eachReserve.occupants
+                
                 }
+            
             }
             nextTurnAdjThreats[eachApproach] = theNextTurnAdjThreats
         }
+    
     }
     
-    // Specify "type" of threat (adjacent, rd or next turn adjacent) and unit-type (Cav, Inf, etc)
+    // Specify "type" of threat (adjacent, rd or next turn adjacent) and unit-type (All, Cav, Inf, Art, Ldr)
+    // type: the kind of threat, subType: the kind of unit(s), passedApproach: approach that the theat is coming by
+    // Int: Number of blocks in the specified threat
     func countThreatBlocks(type:String = "adj", subType:String = "All", passedApproach:Approach) -> Int {
         
         var threatCommands:[Command] = []
@@ -143,12 +168,9 @@ class AIEntity {
         switch type {
             
             case "adj": if adjThreats[passedApproach] != nil {threatCommands = adjThreats[passedApproach]!}
-                
             case "rd": if rdThreats[passedApproach] != nil {threatCommands = rdThreats[passedApproach]!}
-            
             case "NextTurnAdj": if nextTurnAdjThreats[passedApproach] != nil {threatCommands = nextTurnAdjThreats[passedApproach]!}
-            
-        default: break
+            default: break
             
         }
         
@@ -158,25 +180,22 @@ class AIEntity {
             switch subType {
                 
                 case "All": blockCount += eachCommand.unitCount
-                
                 case "Cav": blockCount += eachCommand.cavUnits.count
-                
-                case "Inf": blockCount += eachCommand.infPlusGrdUnits.count // Inf + Grd
-                
+                case "Inf": blockCount += eachCommand.infPlusGrdUnits.count
                 case "Art": blockCount += eachCommand.artUnits.count
-                
                 case "Ldr": blockCount += eachCommand.activeUnits.count - eachCommand.unitCount
-                    
                 default: blockCount += eachCommand.unitCount
                 
             }
+            
         }
-        
         return blockCount
+    
     }
+
 }
 
-// Inhereits from command - these are AI commands identifiying threats / opportunities around them
+// AI associated with a locale
 class AILocale:AIEntity {
     
     // How many flank-threats exist (to the reserve)
@@ -201,6 +220,7 @@ class AILocale:AIEntity {
     }
 }
 
+// Attributes associated with an array of AIGroups
 class AIGroups {
     
     var aiGroups:[AIGroup] = []
@@ -305,7 +325,7 @@ class AIGroup:AIEntity {
             super.init(passedAllegience: aiCommand.commandSide)
         }
         
-        self.commandOnApproach = approachCommand
+        self.aiGroupOnApproach = approachCommand
         self.aiGroupOrganizeUnits(group.units)
     }
     
@@ -351,7 +371,9 @@ class AIGroup:AIEntity {
         return (strength, blocks, theUnits)
     }
     
-    // Returns a specific number of units within a group by strength order
+    // Return attributes associated with X units
+    // theUnits: units generally already ordered from strongest to weakest, topX: number of units to consider
+    // 1st Int: total strength of the X units, 2nd Int: number of blocks of the X units, [Unit]: array of the X units
     func aiGroupSelectUnitsTopX(theUnits:[Unit], topX:Int = 0) -> (Int, Int, [Unit]) {
     
         var newUnits:[Unit] = []
@@ -359,7 +381,9 @@ class AIGroup:AIEntity {
         var newBlocks:Int = 0
         
         if topX <= 0 {
+        
             return (0,0,[])
+        
         } else {
             
             for var i = 0; i < theUnits.count; i++ {
@@ -370,12 +394,12 @@ class AIGroup:AIEntity {
                     newStrength += theUnits[i].unitStrength
                 }
             }
-        
         }
         
         return (newStrength, newBlocks, newUnits)
     }
     
+    // Refresh the command associated with the first unit of the aiGroup
     func refreshCommand() {
         
         aiCommand = group.units[0].parentCommand!
@@ -414,7 +438,7 @@ class AICommand:AIEntity {
         super.init(passedAllegience: aiCommand.commandSide)
     }
     
-    self.commandOnApproach = approachCommand
+    self.aiGroupOnApproach = approachCommand
         
     }
     
