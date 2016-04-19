@@ -29,7 +29,7 @@ class AIEntity {
         
     }
     
-    // AILocale
+    // AILocale or AIGroup
     init(passedReserve:Reserve) {
         
         reserve = passedReserve
@@ -39,6 +39,7 @@ class AIEntity {
         
         }
         control = reserve!.localeControl
+    
     }
     
     // Refresh the relevant nearby threats - for AILocale this is which commands can attack it, for AIGroup this is which commands it can attack
@@ -198,7 +199,7 @@ class AIEntity {
 // AI associated with a locale
 class AILocale:AIEntity {
     
-    // How many flank-threats exist (to the reserve)
+    // Measures of locale vulnerability
     var potentialFlanks:Int = 0
     var nextTurnPotentialFlanks:Int = 0
     
@@ -216,8 +217,11 @@ class AILocale:AIEntity {
     var reserveArtBlocks:Int = 0
     
     override init(passedReserve:Reserve) {
+        
         super.init(passedReserve: passedReserve)
+    
     }
+
 }
 
 // Attributes associated with an array of AIGroups
@@ -226,11 +230,14 @@ class AIGroups {
     var aiGroups:[AIGroup] = []
     
     init(passedGroups:[AIGroup]) {
+        
         aiGroups = passedGroups
+    
     }
     
     // Returns the units and strength of a group
-    // typeCode: ResDefense, AppDefense, Attack, CtrAttack
+    // typeCode: "ResDefense", "AppDefense", "Attack", "CtrAttack", wide: is approach wide?, approach: is the location an approach?
+    // Int: Total strength of the groups, [AIGroup]:
     func aiGroupsDefenseAndCounter(typeCode:String, wide:Bool, approach:Bool) -> (Int, [AIGroup], [Unit]) {
     
         // 1st: Calculate counter potential for each group (inf, grd, cav)
@@ -240,17 +247,24 @@ class AIGroups {
             
             //var counterStrengths:(Int, Int, Int) = (0, 0, 0)
             //var counterTypes:(String, String, String) = ("Inf", "Grd", "Cav")
+            let widthInt:Int!
+            if wide {widthInt = 2} else {widthInt = 1}
             
             let (groupInfStrength, groupInfBlocks, groupInfUnits) = eachGroup.aiGroupSelectUnits("Int")
-            let aiGroupInfSelection = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: 2)
+            let aiGroupInfSelection = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: widthInt)
+            let aiGroupInfCounterInfSelected = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: 2, startX: widthInt+1)
+            let aiGroupInfCounterInfNotSelected = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: 2, startX: 1)
             
             let (groupCavStrength, groupCavBlocks, groupCavUnits) = eachGroup.aiGroupSelectUnits("Cav")
-            let aiGroupCavSelection = eachGroup.aiGroupSelectUnitsTopX(groupCavUnits, topX: 2)
+            let aiGroupCavSelection = eachGroup.aiGroupSelectUnitsTopX(groupCavUnits, topX: widthInt)
             
             let (groupGrdStrength, groupGrdBlocks, groupGrdUnits) = eachGroup.aiGroupSelectUnits("Grd")
-            let aiGroupGrdSelection = eachGroup.aiGroupSelectUnitsTopX(groupGrdUnits, topX: 2)
+            let aiGroupGrdSelection = eachGroup.aiGroupSelectUnitsTopX(groupGrdUnits, topX: widthInt)
             
-            let counterStrengths = (groupInfStrength, groupGrdStrength, groupCavStrength)
+            let totalStrength = (groupInfStrength, groupGrdStrength, groupCavStrength)
+            let totalBlocks = (groupInfBlocks, groupCavBlocks, groupGrdBlocks)
+            let approachStrength = (groupInfBlocks, groupCavBlocks, groupGrdBlocks)
+            //let totalBlocks = (groupInfBlocks, groupCavBlocks, groupGrdBlocks)
             
             // Defense Selection
             var defenseUnits:[Unit] = []
@@ -297,13 +311,13 @@ class AIGroups {
     
 }
 
-// Inherits from command - these are AI commands identifiying threats / opportunities around them
+// AI associated with a group
 class AIGroup:AIEntity {
     
     var group:Group
     var aiCommand:Command // Might be unnecessary (consider dropping this)
     
-    // Used for aiCommands and aiGroups
+    // Used by aiGroups when determining strengths
     var orderedUnits:[String:Unit?] = [:]
     
     init(passedUnits:[Unit]) {
@@ -312,32 +326,37 @@ class AIGroup:AIEntity {
         aiCommand = group.command
         
         var theReserve:Reserve
-        var approachCommand:Bool = false
         
         if group.command.currentLocationType == .Reserve {
+            
             theReserve = group.command.currentLocation! as! Reserve
             super.init(passedReserve: theReserve)
+            self.aiGroupOnApproach = false
+            
         } else if group.command.currentLocationType == .Approach {
+            
             theReserve = (group.command.currentLocation! as! Approach).ownReserve!
-            approachCommand = true
             super.init(passedReserve: theReserve)
+            self.aiGroupOnApproach = true
+        
         } else {
+        
             super.init(passedAllegience: aiCommand.commandSide)
+            self.aiGroupOnApproach = false
+        
         }
         
-        self.aiGroupOnApproach = approachCommand
-        self.aiGroupOrganizeUnits(group.units)
+        self.aiGroupOrganizeUnits()
+    
     }
     
-    // Sets up the orderedUnits dictionary for aiGroup
-    func aiGroupOrganizeUnits(theUnits:[Unit], maxTypeSize:Int = 8) {
+    // Sets up the orderedUnits dictionary for an aiGroup
+    // maxTypeSize: Max number of units to loop through in sorting
+    func aiGroupOrganizeUnits(maxTypeSize:Int = 8) {
         
-        for eachUnit in theUnits {
+        for eachUnit in self.group.units {
             
             let orderedCode = eachUnit.name!
-            
-            // Other codes: ctr, def, att [probably deal with in other logic]
-            
             var insertPosition:Int = maxTypeSize
             var totalLength:Int = 0
             
@@ -345,40 +364,50 @@ class AIGroup:AIEntity {
                 
                 if orderedUnits[orderedCode + String(i)] == nil {totalLength = i; break}
                 else if eachUnit.unitStrength > orderedUnits[orderedCode + String(i)]!!.unitStrength && insertPosition == 0 {insertPosition = i}
+            
             }
             
             for var i = insertPosition; i < totalLength; i++ {
                 
                 orderedUnits[orderedCode + String(i+1)] = orderedUnits[orderedCode + String(i)]
+            
             }
             orderedUnits[orderedCode + String(insertPosition)] = eachUnit
+        
         }
+    
     }
     
     // Returns the strength, # of blocks and units matching a unit type in a group
-    func aiGroupSelectUnits(typeCode:String) -> (Int, Int, [Unit]) {
+    // unitCode: Unit type (Inf, Cav, Art, Grd, Ldr, All)
+    // Int: aggregate strength of that unit type, Int: number of blocks of that unit type, [Unit]: the units that match the unit type
+    func aiGroupSelectUnits(unitCode:String) -> (Int, Int, [Unit]) {
         
-        // Type Codes: Inf, Cav, Art, Grd, Ldr, All
+        // Unit Codes:
         var strength:Int = 0
         var blocks:Int = 0
         var theUnits:[Unit] = []
         
         for var i = 1; i <= 8; i++ {
-            if orderedUnits[typeCode + String(i)] != nil {strength = strength + orderedUnits[typeCode + String(i)]!!.unitStrength; theUnits += [orderedUnits[typeCode + String(i)]!!]; blocks++}
+            
+            if orderedUnits[unitCode + String(i)] != nil {strength = strength + orderedUnits[unitCode + String(i)]!!.unitStrength; theUnits += [orderedUnits[unitCode + String(i)]!!]; blocks++}
+            
             else {break}
-        }
         
+        }
         return (strength, blocks, theUnits)
+    
     }
     
     // Return attributes associated with X units
-    // theUnits: units generally already ordered from strongest to weakest, topX: number of units to consider
-    // 1st Int: total strength of the X units, 2nd Int: number of blocks of the X units, [Unit]: array of the X units
-    func aiGroupSelectUnitsTopX(theUnits:[Unit], topX:Int = 0) -> (Int, Int, [Unit]) {
+    // theUnits: units generally already ordered from strongest to weakest, topX: number of units to consider, startX: Number from strongest to start from
+    // Int: total strength of the X units, Int: number of blocks of the X units, [Unit]: array of the X units
+    func aiGroupSelectUnitsTopX(theUnits:[Unit], topX:Int = 1, startX:Int = 1) -> (Int, Int, [Unit]) {
     
         var newUnits:[Unit] = []
         var newStrength:Int = 0
         var newBlocks:Int = 0
+        var count:Int = 0
         
         if topX <= 0 {
         
@@ -386,26 +415,34 @@ class AIGroup:AIEntity {
         
         } else {
             
-            for var i = 0; i < theUnits.count; i++ {
+            for var i = startX - 1; i < theUnits.count; i++ {
                 
-                if i < topX {
+                if count < topX {
+                
                     newUnits += [theUnits[i]]
                     newBlocks++
                     newStrength += theUnits[i].unitStrength
+            
                 }
-            }
-        }
+                count++
         
+            }
+        
+        }
         return (newStrength, newBlocks, newUnits)
+        
     }
     
     // Refresh the command associated with the first unit of the aiGroup
     func refreshCommand() {
         
         aiCommand = group.units[0].parentCommand!
+        
     }
+
 }
 
+/*
 class AICommand:AIEntity {
     
     // Purpose is to set attributes for the aiGroup initializer to use
@@ -445,7 +482,6 @@ class AICommand:AIEntity {
     
 }
 
-/*
 class AIUnit:AIEntity {
 
     var unit:Unit
@@ -477,4 +513,5 @@ class NodeChain {
     init() {
         
     }
+
 }
