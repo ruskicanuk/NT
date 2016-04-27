@@ -235,79 +235,37 @@ class AIGroups {
     
     }
     
-    // Returns the units and strength of a group
-    // typeCode: "ResDefense", "AppDefense", "Attack", "CtrAttack", wide: is approach wide?, approach: is the location an approach?
+    // Returns the units and strength of the counter-attacking group
+    // typeCode: "Attack", "Defense", wide: is approach wide?, approach: is the location an approach?
     // Int: Total strength of the groups, [AIGroup]:
-    func aiGroupsDefenseAndCounter(typeCode:String, wide:Bool, approach:Bool) -> (Int, [AIGroup], [Unit]) {
+    func aiGroupsCounter() -> (Int, AIGroup, [Unit]) {
     
-        // 1st: Calculate counter potential for each group (inf, grd, cav)
-        // 2nd: Calculate defense potential for each counter group
+        var counterSize:Int = 0
+        var counterAIGroup:AIGroup = self.aiGroups[0]
+        var counterUnits:[Unit] = []
         
-        for eachGroup in aiGroups {
+        for eachType in ["Int", "Cav", "Grd"] {
             
-            //var counterStrengths:(Int, Int, Int) = (0, 0, 0)
-            //var counterTypes:(String, String, String) = ("Inf", "Grd", "Cav")
-            let widthInt:Int!
-            if wide {widthInt = 2} else {widthInt = 1}
+            for eachGroup in aiGroups {
             
-            let (groupInfStrength, groupInfBlocks, groupInfUnits) = eachGroup.aiGroupSelectUnits("Int")
-            let aiGroupInfSelection = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: widthInt)
-            let aiGroupInfCounterInfSelected = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: 2, startX: widthInt+1)
-            let aiGroupInfCounterInfNotSelected = eachGroup.aiGroupSelectUnitsTopX(groupInfUnits, topX: 2, startX: 1)
-            
-            let (groupCavStrength, groupCavBlocks, groupCavUnits) = eachGroup.aiGroupSelectUnits("Cav")
-            let aiGroupCavSelection = eachGroup.aiGroupSelectUnitsTopX(groupCavUnits, topX: widthInt)
-            
-            let (groupGrdStrength, groupGrdBlocks, groupGrdUnits) = eachGroup.aiGroupSelectUnits("Grd")
-            let aiGroupGrdSelection = eachGroup.aiGroupSelectUnitsTopX(groupGrdUnits, topX: widthInt)
-            
-            let totalStrength = (groupInfStrength, groupGrdStrength, groupCavStrength)
-            let totalBlocks = (groupInfBlocks, groupCavBlocks, groupGrdBlocks)
-            let approachStrength = (groupInfBlocks, groupCavBlocks, groupGrdBlocks)
-            //let totalBlocks = (groupInfBlocks, groupCavBlocks, groupGrdBlocks)
-            
-            // Defense Selection
-            var defenseUnits:[Unit] = []
-            var defenseUnitsStrength:Int = 0
-            
-            for eachDefenseGroup in aiGroups {
-                
-                let aiDefenseGroupCount = eachDefenseGroup.group.units.count
-                
-                // Inf Counter Case
-                switch (wide, approach) {
+                let (_, _, groupUnits) = eachGroup.aiGroupSelectUnits(eachType)
+                let aiGroupCounter = eachGroup.aiGroupSelectUnitsTopX(groupUnits, topX: 2, startX: 1)
+                if aiGroupCounter.0 > counterSize {
                     
-                case (true, true): break
+                    counterSize = aiGroupCounter.0
+                    counterAIGroup = eachGroup
+                    counterUnits = aiGroupCounter.2
                     
-                    // Go through first and second unit of each group, preference for strength and smaller groups
-                    
-                    
-                default: break
                 }
                 
-                
-                
-                // Cav Counter Case
-                
-                
-                // Grd Counter Case
-                
-                
             }
-            
+    
         }
         
-        // Counter: Determine candidate ctr attacks
+        return (counterSize, counterAIGroup, counterUnits)
         
-        
-        // ResDefense: inf, grd, cav, art
-        // appDefense: 3-str inf, grd, art, 2-str inf, cav
-        // attack:
-        // Algo: assume groups are organized by command
-        //
-        
-    return (0, [], [])
     }
+
     
 }
 
@@ -402,7 +360,7 @@ class AIGroup:AIEntity {
     // Return attributes associated with X units
     // theUnits: units generally already ordered from strongest to weakest, topX: number of units to consider, startX: Number from strongest to start from
     // Int: total strength of the X units, Int: number of blocks of the X units, [Unit]: array of the X units
-    func aiGroupSelectUnitsTopX(theUnits:[Unit], topX:Int = 1, startX:Int = 1) -> (Int, Int, [Unit]) {
+    func aiGroupSelectUnitsTopX(theUnits:[Unit], topX:Int = 1, startX:Int = 1, excludeUnits:[Unit] = []) -> (Int, Int, [Unit]) {
     
         var newUnits:[Unit] = []
         var newStrength:Int = 0
@@ -417,15 +375,15 @@ class AIGroup:AIEntity {
             
             for var i = startX - 1; i < theUnits.count; i++ {
                 
-                if count < topX {
+                if count < topX && !excludeUnits.contains(theUnits[i]) {
                 
                     newUnits += [theUnits[i]]
                     newBlocks++
                     newStrength += theUnits[i].unitStrength
+                    count++
             
                 }
-                count++
-        
+                
             }
         
         }
