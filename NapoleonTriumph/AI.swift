@@ -110,7 +110,7 @@ func SelectLeadingUnits(theConflict:Conflict) {
             // Check if artillery is possible
             var count = 0
             if count == 0 && (manager!.phaseNew == .SelectAttackLeading) && (unitsRemaining[0].parentCommand!.currentLocation == theConflict.attackApproach) && theConflict.attackMoveType != .CorpsMove && (theConflict.attackApproach.turnOfLastArtVolley < manager!.turn - 1 || (theConflict.attackApproach.hillApproach && !theConflict.defenseApproach.hillApproach)) && theConflict.defenseApproach.mayArtAttack {attackLeadingArtPossible = true}
-            count++
+            count += 1
             
             let unitPriority = manager!.priorityLeaderAndBattle[manager!.actingPlayer]!
             
@@ -322,7 +322,7 @@ class AI {
 
     var aiLocales:[AILocale] = []
     var aiGroups:[AIGroup] = [] // Groups with stored orders
-    var aiCommands:[AICommand] = [] // Commands with a specified role
+    var aiCommands:[Command] = [] // Commands with a specified role
     var enemyCommands:[Command] = [] // Enemy commands (no role required)
     
     // Army Attributes
@@ -394,7 +394,7 @@ class AI {
         
         // Army Strength
         for eachCommand in aiCommands {
-            ownArmyStrength += eachCommand.aiCommand.unitsTotalStrength
+            ownArmyStrength += eachCommand.unitsTotalStrength
         }
         for eachCommand in enemyCommands {
             enemyArmyStrength += eachCommand.unitsTotalStrength
@@ -405,7 +405,7 @@ class AI {
     
     func aiUpdateCommandRoles() {
         
-        for eachCommand in aiCommands {
+        for _ in aiCommands {
             
             switch (armyGoal!, side) {
                 
@@ -460,11 +460,14 @@ class AI {
     
     func aiUpdateCommands() {
         
-        aiCommands = []
+        //aiCommands = []
+        /*
         for eachCommand in manager!.gameCommands[side]! {
             let newAICommand = AICommand(passedCommand: eachCommand)
             aiCommands += [newAICommand]
         }
+        */
+        aiCommands = manager!.gameCommands[side.Other()!]!
         enemyCommands = manager!.gameCommands[side.Other()!]!
     }
     
@@ -485,10 +488,10 @@ class AI {
         
         // Create new AI Commands
         for eachCommand in aiCommands {
-            if eachCommand.aiCommand.currentLocationType == .Start {continue}
-            let newAIGroup = AIGroup(passedUnits: eachCommand.aiCommand.activeUnits)
+            if eachCommand.currentLocationType == .Start {continue}
+            let newAIGroup = AIGroup(passedUnits: eachCommand.activeUnits)
             aiGroups += [newAIGroup]
-            newAIGroup.updateCurrentThreats(newAIGroup.aiCommand)
+            //newAIGroup.updateCurrentThreats(eachCommand)
         }
     }
     

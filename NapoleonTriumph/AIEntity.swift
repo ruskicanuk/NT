@@ -101,7 +101,7 @@ class AIEntity {
                 
                 let pathLength = eachReservePath.count
 
-                for var i = 2; i < pathLength; i++ {
+                for i in 2 ..< pathLength {
                     
                     if eachReservePath[i].localeControl == reserve!.localeControl && isAILocale {break}
                     else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve!.localeControl {
@@ -133,7 +133,7 @@ class AIEntity {
                 
                 let pathLength = eachReservePath.count
                 rdLessAdjacents.removeObject(eachReservePath[1])
-                for var i = 1; i < pathLength; i++ {
+                for i in 1 ..< pathLength {
                     
                     if eachReservePath[i] == reserve {break}
                     else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve!.localeControl {
@@ -318,14 +318,14 @@ class AIGroup:AIEntity {
             var insertPosition:Int = maxTypeSize
             var totalLength:Int = 0
             
-            for var i = 1; i <= maxTypeSize; i++ {
+            for i in 1 ... maxTypeSize {
                 
                 if orderedUnits[orderedCode + String(i)] == nil {totalLength = i; break}
                 else if eachUnit.unitStrength > orderedUnits[orderedCode + String(i)]!!.unitStrength && insertPosition == 0 {insertPosition = i}
             
             }
             
-            for var i = insertPosition; i < totalLength; i++ {
+            for i in insertPosition ..< totalLength {
                 
                 orderedUnits[orderedCode + String(i+1)] = orderedUnits[orderedCode + String(i)]
             
@@ -346,9 +346,9 @@ class AIGroup:AIEntity {
         var blocks:Int = 0
         var theUnits:[Unit] = []
         
-        for var i = 1; i <= 8; i++ {
+        for i in 1 ... 8 {
             
-            if orderedUnits[unitCode + String(i)] != nil {strength = strength + orderedUnits[unitCode + String(i)]!!.unitStrength; theUnits += [orderedUnits[unitCode + String(i)]!!]; blocks++}
+            if orderedUnits[unitCode + String(i)] != nil {strength = strength + orderedUnits[unitCode + String(i)]!!.unitStrength; theUnits += [orderedUnits[unitCode + String(i)]!!]; blocks += 1}
             
             else {break}
         
@@ -373,14 +373,14 @@ class AIGroup:AIEntity {
         
         } else {
             
-            for var i = startX - 1; i < theUnits.count; i++ {
+            for i in startX - 1 ..< theUnits.count {
                 
                 if count < topX && !excludeUnits.contains(theUnits[i]) {
                 
                     newUnits += [theUnits[i]]
-                    newBlocks++
+                    newBlocks += 1
                     newStrength += theUnits[i].unitStrength
-                    count++
+                    count += 1
             
                 }
                 

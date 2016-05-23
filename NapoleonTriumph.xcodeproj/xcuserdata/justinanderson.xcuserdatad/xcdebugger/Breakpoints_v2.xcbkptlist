@@ -4440,8 +4440,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "372"
             endingLineNumber = "372"
-            landmarkName = "Command"
-            landmarkType = "3">
+            landmarkName = "availableToDefend(_:)"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -4886,8 +4886,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "272"
             endingLineNumber = "272"
-            landmarkName = "Command"
-            landmarkType = "3">
+            landmarkName = "init(creatingUnits:)"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -5213,11 +5213,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475374984.285177"
+            timestampString = "485733827.899155"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "514"
-            endingLineNumber = "514"
+            startingLineNumber = "508"
+            endingLineNumber = "508"
             landmarkName = "AIEngine()"
             landmarkType = "5">
          </BreakpointContent>
@@ -5229,11 +5229,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475374984.285177"
+            timestampString = "485733827.899155"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "513"
-            endingLineNumber = "513"
+            startingLineNumber = "507"
+            endingLineNumber = "507"
             landmarkName = "AIEngine()"
             landmarkType = "5">
          </BreakpointContent>
@@ -5245,13 +5245,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475374984.285177"
+            timestampString = "485733827.899155"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "495"
-            endingLineNumber = "495"
-            landmarkName = "AI"
-            landmarkType = "3">
+            startingLineNumber = "488"
+            endingLineNumber = "488"
+            landmarkName = "setupAIGroups()"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -5261,12 +5261,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NapoleonTriumph/AI.swift"
-            timestampString = "475374984.285177"
+            timestampString = "485733827.899155"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "497"
-            endingLineNumber = "497"
-            landmarkName = "AIEngine()"
+            startingLineNumber = "467"
+            endingLineNumber = "467"
+            landmarkName = "aiUpdateCommands()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NapoleonTriumph/AI.swift"
+            timestampString = "485733827.899155"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "490"
+            endingLineNumber = "490"
+            landmarkName = "setupAIGroups()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
