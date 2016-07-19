@@ -64,28 +64,28 @@ class SetupScene: SKScene {
         
         frenchAIChoice = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, 100*mainMenuScaleFactor, 20*mainMenuScaleFactor))
         frenchAIChoice.backgroundColor = UIColor.blueColor()
-        frenchAIChoice.addTarget(self, action:"frenchAIChoiceAction" , forControlEvents: UIControlEvents.TouchUpInside)
+        frenchAIChoice.addTarget(self, action:#selector(SetupScene.frenchAIChoiceAction) , forControlEvents: UIControlEvents.TouchUpInside)
         self.view!.addSubview(frenchAIChoice)
         
         rightPosition += 100*mainMenuScaleFactor + 10*mainMenuScaleFactor
         
         austrianAIChoice = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, 100*mainMenuScaleFactor, 20*mainMenuScaleFactor))
         austrianAIChoice.backgroundColor = UIColor.redColor()
-        austrianAIChoice.addTarget(self, action:"austrianAIChoiceAction" , forControlEvents: UIControlEvents.TouchUpInside)
+        austrianAIChoice.addTarget(self, action:#selector(SetupScene.austrianAIChoiceAction) , forControlEvents: UIControlEvents.TouchUpInside)
         self.view!.addSubview(austrianAIChoice)
         
         rightPosition += 100*mainMenuScaleFactor + 10*mainMenuScaleFactor
         
         bothAIChoice = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, 100*mainMenuScaleFactor, 20*mainMenuScaleFactor))
         bothAIChoice.backgroundColor = UIColor.purpleColor()
-        bothAIChoice.addTarget(self, action:"bothAIChoiceAction" , forControlEvents: UIControlEvents.TouchUpInside)
+        bothAIChoice.addTarget(self, action:#selector(SetupScene.bothAIChoiceAction) , forControlEvents: UIControlEvents.TouchUpInside)
         self.view!.addSubview(bothAIChoice)
         
         rightPosition += 100*mainMenuScaleFactor + 10*mainMenuScaleFactor
         
         noAIChoice = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, 100*mainMenuScaleFactor, 20*mainMenuScaleFactor))
         noAIChoice.backgroundColor = UIColor.grayColor()
-        noAIChoice.addTarget(self, action:"noAIChoiceAction" , forControlEvents: UIControlEvents.TouchUpInside)
+        noAIChoice.addTarget(self, action:#selector(SetupScene.noAIChoiceAction) , forControlEvents: UIControlEvents.TouchUpInside)
         self.view!.addSubview(noAIChoice)
         
         frenchAIChoice.setTitle("French AI", forState: .Normal)

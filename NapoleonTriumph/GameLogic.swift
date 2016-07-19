@@ -428,7 +428,7 @@ func CheckRetreatViable(retreatGroup:[Group]) -> SelState {
     // Load reserves where available area is sufficient
     var adjReservesWithSpace:[Reserve] = []
     var spaceRequired = retreatSelection.blocksSelected
-    if retreatSelection.containsLeader {spaceRequired--}
+    if retreatSelection.containsLeader {spaceRequired -= 1}
     for eachReserve in activeGroupConflict!.defenseReserve.adjReserves {
         if eachReserve.availableSpace >= spaceRequired && eachReserve.localeControl != manager!.actingPlayer.Other() {adjReservesWithSpace += [eachReserve]}
     }
@@ -654,7 +654,7 @@ func OrdersAvailableOnAttack (groupsSelected:[Group], theConflict:Conflict) -> (
     var freeCorps = 0
     for eachGroup in groupsSelected {
         if eachGroup.command.freeCorpsMove && eachGroup.command.turnEnteredMap == manager!.turn && eachGroup.command.moveNumber == 0 {
-            if eachGroup.leaderInGroup {freeCorps++}
+            if eachGroup.leaderInGroup {freeCorps += 1}
         }
     }
     var (corpsOrders, indOrders) = manager!.PhantomOrderCheck(theConflict.phantomCorpsOrder!, addExistingOrderToPool: true)
@@ -833,7 +833,7 @@ func AttackByRdPossible(thePath:[Reserve], twoPlusCorps:Bool) -> Bool {
     if thePath.isEmpty {return false}
     var rdNotBlocked = true
     
-    for var i = 1; i < thePath.count-1; i++ {
+    for i in 1 ..< thePath.count-1 {
         
         if twoPlusCorps {  // Removes ability of 2+ corps to attack by rd (unique to app)
             if thePath[i].has2PlusCorpsPassed || thePath[i].haveCommandsEntered || manager!.actingPlayer.ContainsEnemy(thePath[i].containsAdjacent2PlusCorps) || thePath[i].localeControl == manager!.actingPlayer.Other() {
@@ -876,7 +876,7 @@ func AdjustSelectionForLeaderRulesActiveThreat(theUnits:[Unit]) -> [Unit] {
         var leaderAssignedElsewhere = false
         for eachUnit in theOtherUnits {
             if eachUnit.unitType != .Ldr && eachUnit.selected == .NotSelectable && eachUnit.threatenedConflict != nil && eachUnit.threatenedConflict!.defenseApproach != activeConflict!.defenseApproach {
-                alreadyAssignedUnits++
+                alreadyAssignedUnits += 1
             }
             else if eachUnit.unitType == .Ldr && eachUnit.selected == .NotSelectable && eachUnit.threatenedConflict != nil && eachUnit.threatenedConflict!.defenseApproach != activeConflict!.defenseApproach {
                 leaderAssignedElsewhere = true
@@ -1453,7 +1453,7 @@ func ToggleBattleWidthUnitSelection(touchedUnit:Unit!, theThreat:Conflict) {
     var theUnselectedUnit:Unit?
     for eachGroup in theThreat.defenseLeadingUnits!.groups {
         for eachUnit in eachGroup.units {
-            if eachUnit.selected == .Selected {unitsSelected++}
+            if eachUnit.selected == .Selected {unitsSelected += 1}
             else {theUnselectedUnit = eachUnit}
         }
     }
@@ -1519,24 +1519,24 @@ func ActivePaths(commandSelected:Command) -> ([[Reserve]],[Int]) {
         
         var rdIndex:Int = 0
         
-        for var i = 1; i <= moveSteps; i++ {
+        for i in 1...moveSteps {
             
             if rdIndex == 0 && i == 1 {
-                if currentPath[i] == eachPath[i] {rdIndex++}
+                if currentPath[i] == eachPath[i] {rdIndex += 1}
                 else {break}
             }
             if rdIndex == 1 && i == 2 {
-                if currentPath[i] == eachPath[i-2] {rdIndex--}
-                else if currentPath[i] == eachPath[i] {rdIndex++}
+                if currentPath[i] == eachPath[i-2] {rdIndex -= 1}
+                else if currentPath[i] == eachPath[i] {rdIndex += 1}
                 else {rdIndex = 0; break}
             }
             if rdIndex == 0 && i == 3 {
-                if currentPath[i] == eachPath[i-2] {rdIndex++}
+                if currentPath[i] == eachPath[i-2] {rdIndex += 1}
                 else {rdIndex = 0; break}
             }
             if rdIndex == 2 && i == 3 {
-                if currentPath[i] == eachPath[i-2] {rdIndex--}
-                else if currentPath[i] == eachPath[i] {rdIndex++}
+                if currentPath[i] == eachPath[i-2] {rdIndex -= 1}
+                else if currentPath[i] == eachPath[i] {rdIndex += 1}
                 else {rdIndex = 0; break}
             }
             
@@ -1557,8 +1557,8 @@ func EnemyRdTargets(theGroup:Group, twoPlusCorps:Bool = false) -> [Approach] {
     
     for (index, eachPath) in thePaths.enumerate() {
         var count = 0
-        for var i = thePathPositions[index] + 1; i < eachPath.count; i++ {
-            count++
+        for i in thePathPositions[index] + 1 ..< eachPath.count {
+            count += 1
             if moveNumber + count >= eachPath.count {continue}
 
             if eachPath[i].localeControl == manager!.actingPlayer.Other() {

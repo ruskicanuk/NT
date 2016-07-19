@@ -286,13 +286,13 @@ class GameManager: NSObject, NSCoding {
         case .RetreatOrDefenseSelection:
             
             endTurnButton.buttonState = .Off
-            generalThreatsMade++
+            generalThreatsMade += 1
             SetupThreats()
             
             for eachLocaleConflict in localeThreats {
                 for eachConflict in eachLocaleConflict.conflicts {
                     if !eachConflict.approachConflict {
-                        availableCount++
+                        availableCount += 1
                         theSingleConflict = eachConflict
                     }
                 }
@@ -321,7 +321,7 @@ class GameManager: NSObject, NSCoding {
                         } else {
                             
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
-                            availableCount++
+                            availableCount += 1
                             theSingleConflict = eachConflict
                         }
                     }
@@ -339,7 +339,7 @@ class GameManager: NSObject, NSCoding {
                         RevealLocation(eachConflict.defenseApproach, toReveal: true)
                         staticLocations += [eachConflict.defenseApproach]
                         eachConflict.defenseApproach.approachSelector!.selected = .Option
-                        availableCount++
+                        availableCount += 1
                         theSingleConflict = eachConflict
                     }
                 } else {
@@ -351,7 +351,7 @@ class GameManager: NSObject, NSCoding {
                             eachConflict.defenseApproach.approachSelector!.selected = .On
                         } else {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
-                            availableCount++
+                            availableCount += 1
                             theSingleConflict = eachConflict
                         }
                     }
@@ -375,7 +375,7 @@ class GameManager: NSObject, NSCoding {
                         if eachConflict.realAttack || !eachConflict.approachDefended {
 
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
-                            availableCount++
+                            availableCount += 1
                             theSingleConflict = eachConflict
                         }
                         else {
@@ -398,7 +398,7 @@ class GameManager: NSObject, NSCoding {
                     for eachConflict in eachLocaleConflict.conflicts {
                         if eachConflict.realAttack {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
-                            availableCount++
+                            availableCount += 1
                             theSingleConflict = eachConflict
                         } else if !eachConflict.approachDefended {
                             eachConflict.attackLeadingUnits = GroupSelection(theGroups: [])
@@ -425,7 +425,7 @@ class GameManager: NSObject, NSCoding {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             RevealLocation(eachConflict.defenseApproach, toReveal: true)
                             staticLocations += [eachConflict.defenseApproach]
-                            availableCount++
+                            availableCount += 1
                             theSingleConflict = eachConflict
                             
                             eachConflict.defenseApproach.mayNormalAttack = false
@@ -452,7 +452,7 @@ class GameManager: NSObject, NSCoding {
                             // Only allow for counter-attack if its
                             if eachConflict.mayCounterAttack {
                                 eachConflict.defenseApproach.approachSelector!.selected = .Option
-                                availableCount++
+                                availableCount += 1
                                 theSingleConflict = eachConflict
                             } else {
                                 eachConflict.counterAttackLeadingUnits = GroupSelection(theGroups: [])
@@ -520,7 +520,7 @@ class GameManager: NSObject, NSCoding {
                                         manager!.staticLocations.removeObject(eachConflict.defenseApproach)
                                         eachConflict.defenseApproach.approachSelector!.selected = .Off
                                     } else {
-                                        availableCount++
+                                        availableCount += 1
                                         theSingleConflict = eachConflict
                                         eachConflict.defenseApproach.approachSelector!.selected = .Option
                                     }
@@ -536,7 +536,7 @@ class GameManager: NSObject, NSCoding {
                                 eachConflict.parentGroupConflict!.mustDefend = false
                                 
                                 eachConflict.defenseApproach.approachSelector!.selected = .Option
-                                availableCount++
+                                availableCount += 1
                                 theSingleConflict = eachConflict
                             }
                         }
@@ -586,7 +586,7 @@ class GameManager: NSObject, NSCoding {
         
         // Save the orders
         orderHistory[orderHistoryIndex] = orders
-        orderHistoryIndex++
+        orderHistoryIndex += 1
         for each in orders {each.orderArrow?.removeFromParent()}
         orders = []
         
@@ -594,7 +594,7 @@ class GameManager: NSObject, NSCoding {
 
         // Set turn and commands available
         if phasingPlayer != player1 {
-            turn++
+            turn += 1
             corpsCommandsAvail = player1CorpsCommands
             indCommandsAvail = player1IndCommands
         
@@ -762,7 +762,7 @@ class GameManager: NSObject, NSCoding {
                 }
             } else {break}
             
-            index--
+            index -= 1
         }
         
         // Setup the group-conflicts

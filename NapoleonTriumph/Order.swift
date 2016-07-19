@@ -159,23 +159,23 @@ class Order {
         if (corpsCommand != nil && order != .Threat) && !playback && !(baseGroup!.command.freeCorpsMove && baseGroup!.command.turnEnteredMap == manager!.turn && corpsCommand!) {
             if reverse {
                 if corpsCommand! {
-                    manager!.corpsCommandsAvail++
+                    manager!.corpsCommandsAvail += 1
                 }
                 else {
-                    manager!.indCommandsAvail++
+                    manager!.indCommandsAvail += 1
                 }
                 if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare {
-                    if theConflict!.phantomCorpsOrder! {manager!.phantomCorpsCommand++} else {manager!.phantomIndCommand++}
+                    if theConflict!.phantomCorpsOrder! {manager!.phantomCorpsCommand += 1} else {manager!.phantomIndCommand += 1}
                 }
             } else {
                 if corpsCommand! {
-                    manager!.corpsCommandsAvail--
+                    manager!.corpsCommandsAvail -= 1
                 }
                 else {
-                    manager!.indCommandsAvail--
+                    manager!.indCommandsAvail -= 1
                 }
                 if manager!.phaseNew == .PreRetreatOrFeintMoveOrAttackDeclare {
-                    if theConflict!.phantomCorpsOrder! {manager!.phantomCorpsCommand--} else {manager!.phantomIndCommand--}
+                    if theConflict!.phantomCorpsOrder! {manager!.phantomCorpsCommand -= 1} else {manager!.phantomIndCommand -= 1}
                 }
             }
         }
@@ -271,7 +271,7 @@ class Order {
                     
                     // Update command movement trackers
                     if startLocation[0].locationType != .Start && startLocation[0] != endLocation {
-                        eachCommand.moveNumber++
+                        eachCommand.moveNumber += 1
                     } else {
                         eachCommand.moveNumber = 0
                         eachCommand.hasMoved = true
@@ -321,8 +321,8 @@ class Order {
                                 eachConflict.defenseApproach.approachSelector!.selected = .Off
                                 RevealLocation(eachConflict.defenseApproach, toReveal: false)
                                 if eachConflict.defenseApproach != theConflict!.defenseApproach {
-                                    if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand--}
-                                    else {manager!.phantomIndCommand--}
+                                    if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand -= 1}
+                                    else {manager!.phantomIndCommand -= 1}
                                 }
                             }
                         
@@ -425,8 +425,8 @@ class Order {
                             eachConflict.defenseApproach.approachSelector!.selected = .Option
                             RevealLocation(eachConflict.defenseApproach, toReveal: true)
                             if eachConflict.defenseApproach != theConflict!.defenseApproach {
-                                if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand++}
-                                else {manager!.phantomIndCommand++}
+                                if eachConflict.phantomCorpsOrder! {manager!.phantomCorpsCommand += 1}
+                                else {manager!.phantomIndCommand += 1}
                             }
                         }
                         
@@ -448,7 +448,7 @@ class Order {
                 for eachCommand in moveCommands[0]! {
                     
                     if endLocation.locationType != .Start && startLocation[0] != endLocation {
-                        eachCommand.moveNumber--
+                        eachCommand.moveNumber -= 1
                     } else {
                         eachCommand.hasMoved = false
                     }
@@ -560,7 +560,7 @@ class Order {
                         //for eachUnit in eachCommand.activeUnits {eachUnit.selected = .NotSelectable}
                     }
                     
-                    i++
+                    i += 1
                 }
                 
                 // Sets up proper retreat reversing
@@ -578,7 +578,7 @@ class Order {
                 for eachGroup in groupSelection!.groups {
                     let moveToLocation = endLocation
                     GenericPlayback(i, reverse: reverse, playback: playback, destination: moveToLocation, theCommand: eachGroup.command)
-                    i++
+                    i += 1
                 }
             }
                 
@@ -589,7 +589,7 @@ class Order {
                 let moveToLocation = startLocation[i]
                 
                 GenericPlayback(i, reverse: reverse, playback: playback, destination: moveToLocation, theCommand: eachGroup.command)
-                i++
+                i += 1
             }
             
             // May need to release the must-retreat condition
@@ -678,7 +678,7 @@ class Order {
                         startLocation[i].occupants.removeObject(eachCommand)
                     }
                     
-                    i++
+                    i += 1
                 }
                 
                 RevealLocation(theConflict!.defenseApproach, toReveal: false)
@@ -693,7 +693,7 @@ class Order {
                 for eachGroup in groupSelection!.groups {
                     let moveToLocation = endLocation
                     GenericPlayback(i, reverse: reverse, playback: playback, destination: moveToLocation, theCommand: eachGroup.command)
-                    i++
+                    i += 1
                 }
             }
             
@@ -704,7 +704,7 @@ class Order {
             for eachGroup in groupSelection!.groups {
                 let moveToLocation = startLocation[i]
                 GenericPlayback(i, reverse: reverse, playback: playback, destination: moveToLocation, theCommand: eachGroup.command)
-                i++
+                i += 1
             }
             
             // May need to release the must-retreat condition
@@ -793,8 +793,8 @@ class Order {
             
             theConflict!.threateningUnits = theUnits
             
-            if corpsCommand! {manager!.phantomCorpsCommand++; theConflict!.phantomCorpsOrder = true}
-            else {manager!.phantomIndCommand++; theConflict!.phantomCorpsOrder = false}
+            if corpsCommand! {manager!.phantomCorpsCommand += 1; theConflict!.phantomCorpsOrder = true}
+            else {manager!.phantomIndCommand += 1; theConflict!.phantomCorpsOrder = false}
             
         case (true, .Threat):
             
@@ -818,8 +818,8 @@ class Order {
             theConflict!.threateningUnits = []
             
             theConflict!.phantomCorpsOrder = nil
-            if corpsCommand! {manager!.phantomCorpsCommand--}
-            else {manager!.phantomIndCommand--}
+            if corpsCommand! {manager!.phantomCorpsCommand -= 1}
+            else {manager!.phantomIndCommand -= 1}
 
             theConflict = nil
 
@@ -866,7 +866,7 @@ class Order {
                 
                 if !battleReduction! && swappedUnit!.parentCommand!.unitsTotalStrength == 0 && swappedUnit!.parentCommand!.hasLeader {
                     swappedUnit!.parentCommand!.theLeader!.decrementStrength(true)
-                    if swappedUnit!.unitSide == .French {manager!.player2CorpsCommands--}
+                    if swappedUnit!.unitSide == .French {manager!.player2CorpsCommands -= 1}
                     reduceLeaderReduction = swappedUnit!.parentCommand!.theLeader!
                 }
                 
@@ -896,7 +896,7 @@ class Order {
                 // Reverse a leader-kill
                 if reduceLeaderReduction != nil {
                     reduceLeaderReduction!.decrementStrength(false)
-                    if reduceLeaderReduction!.unitSide == .French {manager!.player2CorpsCommands++}
+                    if reduceLeaderReduction!.unitSide == .French {manager!.player2CorpsCommands += 1}
                 }
                 // Reverse unit reduction
                 swappedUnit!.decrementStrength(false)
@@ -1024,7 +1024,7 @@ class Order {
                     
                     for eachGroup in theConflict!.attackGroup!.groups {
                         if !(eachGroup.command.freeCorpsMove && eachGroup.command.turnEnteredMap == manager!.turn) {
-                            manager!.corpsCommandsAvail--
+                            manager!.corpsCommandsAvail -= 1
                         }
                     }
                 }
@@ -1251,7 +1251,7 @@ class Order {
                     
                     theCommand.currentLocation!.occupants += [eachCommand]
                     theCommand.passUnitTo(unitStorage[index][i], recievingCommand: eachCommand)
-                    i++
+                    i += 1
                 }
             }
             
@@ -1279,9 +1279,9 @@ class Order {
                     if theUnit.unitType != .Ldr {
                         manager!.ReduceMorale(1, side: manager!.phasingPlayer.Other()!, mayDemoralize: true)
                     } else {
-                        if theUnit.unitSide == .French {manager!.player2CorpsCommands--}
+                        if theUnit.unitSide == .French {manager!.player2CorpsCommands -= 1}
                     }
-                    i--
+                    i -= 1
                 }
             } else {
                 var i = 0
@@ -1291,9 +1291,9 @@ class Order {
                     if theUnit.unitType != .Ldr {
                         manager!.morale[manager!.phasingPlayer.Other()!]! = manager!.morale[manager!.phasingPlayer.Other()!]! + 1
                     } else {
-                        if theUnit.unitSide == .French {manager!.player2CorpsCommands++}
+                        if theUnit.unitSide == .French {manager!.player2CorpsCommands += 1}
                     }
-                    i++
+                    i += 1
                 }
             }
         }

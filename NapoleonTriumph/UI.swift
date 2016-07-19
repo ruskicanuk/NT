@@ -339,8 +339,8 @@ func FeintDefenseUnitSelection(touchedUnit:Unit, touchedCount: Int) {
     var leaderStillSelected:Unit?
     for eachUnit in touchedUnit.parentCommand!.activeUnits {
         if eachUnit.unitType == .Ldr && eachUnit.selected == .Selected {leaderStillSelected = eachUnit}
-        if eachUnit.selected == .Selected {selectedCount++}
-        else if eachUnit.selected == .Normal {normalCount++}
+        if eachUnit.selected == .Selected {selectedCount += 1}
+        else if eachUnit.selected == .Normal {normalCount += 1}
     }
     if leaderStillSelected == nil && selectedCount == touchedUnit.parentCommand!.activeUnits.count - 1 { // Case of the hanging units
         touchedUnit.parentCommand!.theLeader!.selected = .Selected
@@ -383,8 +383,8 @@ func AttackGroupUnitSelection(touchedUnit:Unit!, realAttack:Bool, theTouchedThre
         var indArtSelected = 0
         for eachGroup in manager!.groupsSelected {
             
-            if eachGroup.leaderInGroup {fullCorpsSelected++}
-            if eachGroup.fullCommand && eachGroup.units.count == 1 && eachGroup.units[0].unitType == .Art && eachGroup.command.currentLocation!.locationType == .Approach {indArtSelected++}
+            if eachGroup.leaderInGroup {fullCorpsSelected += 1}
+            if eachGroup.fullCommand && eachGroup.units.count == 1 && eachGroup.units[0].unitType == .Art && eachGroup.command.currentLocation!.locationType == .Approach {indArtSelected += 1}
         }
         if fullCorpsSelected > 0 && fullCorpsSelected <= manager!.corpsCommandsAvail {maySelectAnotherCorps = true}
         if indArtSelected == 1 {maySelectASecondIndArt = true}

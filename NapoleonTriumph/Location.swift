@@ -171,12 +171,12 @@ class Location:SKSpriteNode {
             // Update relevant side's count
             if sideLeft {
                 
-                leftSideCommands++
+                leftSideCommands += 1
                 leftSideUnits += each.activeUnits.count
                 
             } else {
             
-                rightSideCommands++
+                rightSideCommands += 1
                 rightSideUnits += each.activeUnits.count
             }
         }

@@ -298,7 +298,7 @@ class Command:SKNode {
         var indexToPlace:Int = 0
         
         for each in units {
-            if each.unitCode > unitToCreate.unitCode {indexToPlace++}
+            if each.unitCode > unitToCreate.unitCode {indexToPlace += 1}
         }
         
         units.insert(unitToCreate, atIndex: indexToPlace)
@@ -324,7 +324,7 @@ class Command:SKNode {
             
             var position = 0
             for eachIndex in activeUnitOrder {
-                if units[eachIndex].unitCode >= each.unitCode {position++}
+                if units[eachIndex].unitCode >= each.unitCode {position += 1}
             }
             activeUnitOrder.insert(units.indexOf(each)!, atIndex: position)
             
@@ -334,20 +334,20 @@ class Command:SKNode {
                 hasLeader = true
                 theLeader = each
             } else if each.unitType == .Cav {
-                cavCount++; nonLeaderCount++
+                cavCount += 1; nonLeaderCount += 1
             } else if each.unitType == .Inf {
-                nonLeaderCount++
+                nonLeaderCount += 1
             } else if each.unitType == .Art {
-                nonLeaderCount++
+                nonLeaderCount += 1
             } else if each.unitType == .Grd {
-                nonLeaderCount++
+                nonLeaderCount += 1
             }
         }
         
         var count = 0
         for eachIndex in activeUnitOrder {
             units[eachIndex].position.y = -CGFloat(count)*unitHeight*mapScaleFactor
-            count++
+            count += 1
         }
         
         //Set command properties
@@ -436,7 +436,7 @@ class Command:SKNode {
         if !hasLeader {return false}
         var selectables = 0
         for eachUnit in nonLeaderUnits {
-            if eachUnit.selected == .Normal || eachUnit.selected == .Selected {selectables++}
+            if eachUnit.selected == .Normal || eachUnit.selected == .Selected {selectables += 1}
         }
         return selectables == 1
     }

@@ -139,7 +139,7 @@ class Reserve:Location {
             
             if eachReserveCommand.commandSide == .Austrian {localeControl = .Austrian} else {localeControl = .French}
             if eachReserveCommand.isTwoPlusCorps {has2PlusCorps = eachReserveCommand.commandSide}
-            if eachReserveCommand.moveNumber > 0 || eachReserveCommand.secondMoveUsed {haveCommandsEntered = true; commandsEntered += [eachReserveCommand]; numberCommandsEntered++}
+            if eachReserveCommand.moveNumber > 0 || eachReserveCommand.secondMoveUsed {haveCommandsEntered = true; commandsEntered += [eachReserveCommand]; numberCommandsEntered += 1}
         }
         
         // Eliminate duplicates

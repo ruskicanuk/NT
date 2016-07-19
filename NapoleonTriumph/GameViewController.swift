@@ -129,8 +129,9 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate, UIScrol
 
     }
     
+    ////// MADE a CHANGE HERE from let pan = UIPanGestureRecognizer(target:self, action:"pan:")
     func setupGestures() {
-        let pan = UIPanGestureRecognizer(target:self, action:"pan:")
+        let pan = UIPanGestureRecognizer(target:self, action: #selector(GameViewController.pan(_:)))
         pan.maximumNumberOfTouches = 1
         pan.minimumNumberOfTouches = 1
         self.view.addGestureRecognizer(pan)

@@ -115,9 +115,7 @@ class AIEntity {
             
             }
             rdThreats[eachApproach] = theRdThreats
-            
         }
-    
     }
     
     func updateNextTurnThreats (theAIGroup:AIGroup? = nil) {
@@ -156,7 +154,6 @@ class AIEntity {
             }
             nextTurnAdjThreats[eachApproach] = theNextTurnAdjThreats
         }
-    
     }
     
     // Specify "type" of threat (adjacent, rd or next turn adjacent) and unit-type (All, Cav, Inf, Art, Ldr)
@@ -188,12 +185,9 @@ class AIEntity {
                 default: blockCount += eachCommand.unitCount
                 
             }
-            
         }
         return blockCount
-    
     }
-
 }
 
 // AI associated with a locale
@@ -257,16 +251,10 @@ class AIGroups {
                     counterUnits = aiGroupCounter.2
                     
                 }
-                
             }
-    
         }
-        
         return (counterSize, counterAIGroup, counterUnits)
-        
     }
-
-    
 }
 
 // AI associated with a group

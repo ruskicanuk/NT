@@ -170,10 +170,10 @@ class Conflict {
         attackStrength += attackLead.groupSelectionStrength
         
         if approachConflict {
-            if infLead {attackStrength--}
-            if infLead {if defenseApproach.infApproach {attackStrength--}}
-            else if cavLead {if defenseApproach.cavApproach {attackStrength--}}
-            else if artLead {if defenseApproach.artApproach {attackStrength--}}
+            if infLead {attackStrength -= 1}
+            if infLead {if defenseApproach.infApproach {attackStrength -= 1}}
+            else if cavLead {if defenseApproach.cavApproach {attackStrength -= 1}}
+            else if artLead {if defenseApproach.artApproach {attackStrength -= 1}}
         }
         
         if !artLead {defenseStrength = defenseLead.groupSelectionStrength} else {defenseStrength = 0}
@@ -255,7 +255,7 @@ class Conflict {
             // Destroy the leader
             if totalUnitStrength == 1 { // Leader only
                 eachGroup.leaderUnit!.decrementStrength(true)
-                if eachGroup.leaderUnit!.unitSide == .French {manager!.player2CorpsCommands--}
+                if eachGroup.leaderUnit!.unitSide == .French {manager!.player2CorpsCommands -= 1}
             }
         }
         for eachGroup in defenseGroup!.groups {
@@ -265,7 +265,7 @@ class Conflict {
             // Destroy the leader
             if totalUnitStrength == 0 { // Leader only
                 eachGroup.command.theLeader!.decrementStrength(true)
-                if eachGroup.command.theLeader!.unitSide == .French {manager!.player2CorpsCommands--}
+                if eachGroup.command.theLeader!.unitSide == .French {manager!.player2CorpsCommands -= 1}
             }
         }
         
@@ -616,10 +616,10 @@ class Group: NSObject, NSCoding {
                 leaderInGroup = true
                 leaderUnit = eachUnit
             }
-            else if eachUnit.unitType == .Cav {cavCount++; nonLdrUnitCount++; artOnly = false; allGuard = false}
-            else if eachUnit.unitType == .Art {nonLdrUnitCount++; allCav = false; allGuard = false; artExists = true}
-            else if eachUnit.unitType == .Grd {nonLdrUnitCount++; artOnly = false; allCav = false}
-            else {nonLdrUnitCount++; artOnly = false; allCav = false; allGuard = false}
+            else if eachUnit.unitType == .Cav {cavCount += 1; nonLdrUnitCount += 1; artOnly = false; allGuard = false}
+            else if eachUnit.unitType == .Art {nonLdrUnitCount += 1; allCav = false; allGuard = false; artExists = true}
+            else if eachUnit.unitType == .Grd {nonLdrUnitCount += 1; artOnly = false; allCav = false}
+            else {nonLdrUnitCount += 1; artOnly = false; allCav = false; allGuard = false}
             
             if eachUnit.hasMoved {someUnitsHaveMoved = true}
             if eachUnit.fixed {someUnitsFixed = true}
@@ -703,23 +703,23 @@ class GroupSelection {
                 if eachUnit.selected == .Selected || !selectedOnly {
                     
                     if eachUnit.unitType == .Inf || eachUnit.unitType == .Grd {containsInfOrGuard = true}
-                    if eachUnit.unitType == .Art {artilleryInGroup++}
+                    if eachUnit.unitType == .Art {artilleryInGroup += 1}
                     if eachUnit.unitType == .Cav && eachUnit.unitStrength > 1 {containsTwoOrThreeStrCav = true}
                     if containsTwoOrThreeStrCav && eachUnit.unitStrength == 3 {containsHeavyCav = true}
                     if eachUnit.unitType == .Grd {containsGuard = true}
                     theUnits += [eachUnit] // Add to units
-                    blocksSelected++
-                    if eachUnit.unitType == .Ldr {containsLeader = true} else {nonLeaderBlocksSelected++}
+                    blocksSelected += 1
+                    if eachUnit.unitType == .Ldr {containsLeader = true} else {nonLeaderBlocksSelected += 1}
                     unitsTypes += [eachUnit.unitType] // Increment the unit type array
                     if eachUnit.unitStrength == 1 && eachUnit.unitType != .Ldr {anyOneStrengthUnits = true}
-                    if eachUnit.unitStrength < 3 {notThreeStrUnits++}
+                    if eachUnit.unitStrength < 3 {notThreeStrUnits += 1}
                     
                 }  
             }
             
             if theUnits.count > 0 {
                 groups += [Group(theCommand: eachGroup.command, theUnits: theUnits)]
-                if eachGroup.command.hasLeader {numberCorps++} else {numberDetached++}
+                if eachGroup.command.hasLeader {numberCorps += 1} else {numberDetached += 1}
             }
         }
         

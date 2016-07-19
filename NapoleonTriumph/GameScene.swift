@@ -242,7 +242,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                     shortestDistance = newDistance
                 }
             }
-            countTouches++
+            countTouches += 1
         }
         
         return touchedNode
@@ -746,7 +746,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 let historicalOrders = manager!.orderHistory[manager!.orderHistoryIndex-1]!
                 historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
                 
-                fastFwdIndex++
+                fastFwdIndex += 1
             }
             
         case (.Middle, true):
@@ -759,7 +759,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 let historicalOrders = manager!.orders
                 historicalOrders[fastFwdIndex].ExecuteOrder(false, playback: true)
 
-                fastFwdIndex++
+                fastFwdIndex += 1
             }
         
         default:
@@ -950,7 +950,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let undoImage = UIImage.init(named: "black_marker")!
         undoButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, undoImage.size.width*mapScaleFactor, undoImage.size.height*mapScaleFactor))
         undoButton.setImage(undoImage, forState: UIControlState.Normal)
-        undoButton.addTarget(self, action:"undoTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        undoButton.addTarget(self, action:#selector(GameScene.undoTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(undoButton)
         
         topPosition += 0
@@ -959,7 +959,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let endTurnImage = UIImage.init(named: "blue_marker")!
         endTurnButton = UIStateButton.init(initialState: .Option, theRect: CGRectMake(rightPosition, topPosition, endTurnImage.size.width*mapScaleFactor, endTurnImage.size.height*mapScaleFactor))
         endTurnButton.setImage(endTurnImage, forState: UIControlState.Normal)
-        endTurnButton.addTarget(self, action:"endTurnTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        endTurnButton.addTarget(self, action:#selector(GameScene.endTurnTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(endTurnButton)
         
         topPosition += endTurnImage.size.height*mapScaleFactor + 10*mapScaleFactor
@@ -968,7 +968,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let terrainImage = UIImage.init(named: "FRback")!
         terrainButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, terrainImage.size.width*mapScaleFactor, terrainImage.size.height*mapScaleFactor))
         terrainButton.setImage(terrainImage, forState: UIControlState.Normal)
-        terrainButton.addTarget(self, action:"hideTerrainTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        terrainButton.addTarget(self, action:#selector(GameScene.hideTerrainTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(terrainButton)
         
         topPosition += terrainImage.size.height*mapScaleFactor + 10*mapScaleFactor
@@ -977,7 +977,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let rewindImage = UIImage.init(named: "icon_red_down")!
         rewindButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, rewindImage.size.width*2*mapScaleFactor, rewindImage.size.height*2*mapScaleFactor))
         rewindButton.setImage(rewindImage, forState: UIControlState.Normal)
-        rewindButton.addTarget(self, action:"rewindTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        rewindButton.addTarget(self, action:#selector(GameScene.rewindTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         rewindButton.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2))
         baseMenu.addSubview(rewindButton)
         
@@ -987,7 +987,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let fastFwdImage = UIImage.init(named: "icon_blue_down")!
         fastfwdButton = UIStateButton.init(initialState: .Normal, theRect: CGRectMake(rightPosition, topPosition, fastFwdImage.size.width*2*mapScaleFactor, fastFwdImage.size.height*2*mapScaleFactor))
         fastfwdButton.setImage(fastFwdImage, forState: UIControlState.Normal)
-        fastfwdButton.addTarget(self, action:"fastFwdTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        fastfwdButton.addTarget(self, action:#selector(GameScene.fastFwdTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         fastfwdButton.transform = CGAffineTransformMakeRotation(CGFloat(-M_PI_2))
         baseMenu.addSubview(fastfwdButton)
         
@@ -997,7 +997,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let corpsMoveImage = UIImage.init(named: "corps_move_mark")!
         corpsMoveButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsMoveImage.size.width*2*mapScaleFactor, corpsMoveImage.size.height*2*mapScaleFactor))
         corpsMoveButton.setImage(corpsMoveImage, forState: UIControlState.Normal)
-        corpsMoveButton.addTarget(self, action:"corpsMoveTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        corpsMoveButton.addTarget(self, action:#selector(GameScene.corpsMoveTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(corpsMoveButton)
         
         rightPosition += corpsMoveImage.size.width*2*mapScaleFactor + 5*mapScaleFactor
@@ -1005,7 +1005,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let corpsDetachImage = UIImage.init(named: "corps_detach_mark")!
         corpsDetachButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsDetachImage.size.width*2*mapScaleFactor, corpsDetachImage.size.height*2*mapScaleFactor))
         corpsDetachButton.setImage(corpsDetachImage, forState: UIControlState.Normal)
-        corpsDetachButton.addTarget(self, action:"corpsDetachTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        corpsDetachButton.addTarget(self, action:#selector(GameScene.corpsDetachTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(corpsDetachButton)
         
         rightPosition += corpsDetachImage.size.width*2*mapScaleFactor + 5*mapScaleFactor
@@ -1013,7 +1013,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let corpsAttachImage = UIImage.init(named: "corps_attach_mark")!
         corpsAttachButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, corpsAttachImage.size.width*mapScaleFactor, corpsAttachImage.size.height*mapScaleFactor))
         corpsAttachButton.setImage(corpsAttachImage, forState: UIControlState.Normal)
-        corpsAttachButton.addTarget(self, action:"corpsAttachTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        corpsAttachButton.addTarget(self, action:#selector(GameScene.corpsAttachTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(corpsAttachButton)
         
         rightPosition += corpsAttachImage.size.width*mapScaleFactor + 5*mapScaleFactor
@@ -1021,7 +1021,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let independentImage = UIImage.init(named: "independent_mark")!
         independentButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, independentImage.size.width*mapScaleFactor, independentImage.size.height*mapScaleFactor))
         independentButton.setImage(independentImage, forState: UIControlState.Normal)
-        independentButton.addTarget(self, action:"independentMoveTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        independentButton.addTarget(self, action:#selector(GameScene.independentMoveTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(independentButton)
         
         topPosition += independentImage.size.height*mapScaleFactor + 10*mapScaleFactor
@@ -1030,7 +1030,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let retreatImage = UIImage.init(named: "AustrianFlag")!
         retreatButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, retreatImage.size.width*2*mapScaleFactor, retreatImage.size.height*2*mapScaleFactor))
         retreatButton.setImage(retreatImage, forState: UIControlState.Normal)
-        retreatButton.addTarget(self, action:"retreatTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        retreatButton.addTarget(self, action:#selector(GameScene.retreatTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(retreatButton)
         
         rightPosition = retreatImage.size.width*2*mapScaleFactor + 10*mapScaleFactor
@@ -1038,7 +1038,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let commitImage = UIImage.init(named: "Commit")!
         commitButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, commitImage.size.width*2*mapScaleFactor, commitImage.size.height*2*mapScaleFactor))
         commitButton.setImage(commitImage, forState: UIControlState.Normal)
-        commitButton.addTarget(self, action:"commitTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        commitButton.addTarget(self, action:#selector(GameScene.commitTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(commitButton)
         
         topPosition += commitImage.size.height*2*mapScaleFactor + 10*mapScaleFactor
@@ -1047,7 +1047,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let guardAttackImage = UIImage.init(named: "FRINFEL3")!
         guardButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, guardAttackImage.size.width*mapScaleFactor, guardAttackImage.size.height*mapScaleFactor))
         guardButton.setImage(guardAttackImage, forState: UIControlState.Normal)
-        guardButton.addTarget(self, action:"guardAttackTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        guardButton.addTarget(self, action:#selector(GameScene.guardAttackTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(guardButton)
         
         topPosition += guardAttackImage.size.height*mapScaleFactor + 10*mapScaleFactor
@@ -1055,7 +1055,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         let repeatAttackImage = UIImage.init(named: "Vandamme")!
         repeatAttackButton = UIStateButton.init(initialState: .Off, theRect: CGRectMake(rightPosition, topPosition, repeatAttackImage.size.width*mapScaleFactor, repeatAttackImage.size.height*mapScaleFactor))
         repeatAttackButton.setImage(repeatAttackImage, forState: UIControlState.Normal)
-        repeatAttackButton.addTarget(self, action:"repeatAttackTrigger" , forControlEvents: UIControlEvents.TouchUpInside)
+        repeatAttackButton.addTarget(self, action:#selector(GameScene.repeatAttackTrigger) , forControlEvents: UIControlEvents.TouchUpInside)
         baseMenu.addSubview(repeatAttackButton)
     }
         
@@ -1150,7 +1150,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Rewind to the end of the current turn
         if statePoint == .Front {
 
-            for var rewindIndex = manager!.orders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
+            for var rewindIndex = manager!.orders.endIndex-1; rewindIndex >= 0; rewindIndex -= 1 {
                 manager!.orders[rewindIndex].ExecuteOrder(true, playback: true)
             }
                 
@@ -1162,7 +1162,7 @@ class GameScene: SKScene, NSXMLParserDelegate {
             let historicalOrders = manager!.orderHistory[manager!.orderHistoryIndex-1]!
             undoOrAct = false
             
-            for var rewindIndex = historicalOrders.endIndex-1; rewindIndex >= 0; rewindIndex-- {
+            for var rewindIndex = historicalOrders.endIndex-1; rewindIndex >= 0; rewindIndex -= 1 {
                 historicalOrders[rewindIndex].ExecuteOrder(true, playback: true)
             }
             

@@ -224,14 +224,14 @@ class Unit: SKSpriteNode {
     func decrementStrength(reduce:Bool = true) {
         
         if reduce {
-            unitCode--
-            unitStrength--
+            unitCode -= 1
+            unitStrength -= 1
             if unitStrength == 0 {self.selected = .NotSelectable; self.removeFromParent()}
             if unitType == .Grd {unitType = .Inf; unitCode -= 10}
         } else {
             if unitStrength == 0 {parentCommand!.addChild(self); self.selected = .Normal; self.zPosition = 100}
-            unitCode++
-            unitStrength++
+            unitCode += 1
+            unitStrength += 1
             if startedAsGrd && unitStrength == 3 {unitType = .Grd; unitCode += 10}
         }
         self.updateUnitTexture()

@@ -28,7 +28,7 @@ class HowToPlayViewController: UIViewController, UITableViewDelegate, UITableVie
         self.view.addSubview(webView)
         
         //To close current screen and go back to menu sceeen
-        let backButton: UIBarButtonItem = UIBarButtonItem(title: "Close", style: UIBarButtonItemStyle.Plain, target: self, action: "closeMenu") as UIBarButtonItem
+        let backButton: UIBarButtonItem = UIBarButtonItem(title: "Close", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(HowToPlayViewController.closeMenu)) as UIBarButtonItem
         self.navigationItem.leftBarButtonItem=backButton
         self.navigationItem.title="How to play"
         
