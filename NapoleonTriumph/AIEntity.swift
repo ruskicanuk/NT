@@ -120,13 +120,15 @@ class AIEntity {
     
     func updateNextTurnThreats (theAIGroup:AIGroup? = nil) {
         
-        if theAIGroup != nil {return} // No functionality yet for AIGroup
+        if theAIGroup != nil {return} // No functionality yet for AIGroup, leave off as its quite speculative for the AI since opponent can change positioning (maybe use something like this to find guys who are on the approach)
+        
         for eachApproach in approaches {
             
             let oppReserve = eachApproach.oppApproach!.ownReserve!
             var theNextTurnAdjThreats:[Command] = []
             var rdLessAdjacents:[Reserve] = oppReserve.adjReserves
             
+            // Captures the guys who can rd-move in (and sets up the adjacent reserves with no roads)
             for eachReservePath in oppReserve.rdReserves {
                 
                 let pathLength = eachReservePath.count
@@ -135,14 +137,14 @@ class AIEntity {
                     
                     if eachReservePath[i] == reserve {break}
                     else if eachReservePath[i].occupantCount > 0 && eachReservePath[i].localeControl.Other() == reserve!.localeControl {
-                    
                         theNextTurnAdjThreats += eachReservePath[i].occupants
-                    
                     }
                 
                 }
             
             }
+            
+            // Captures the guys who are in an adjacent rd-less
             for eachReserve in rdLessAdjacents {
                 
                 if eachReserve.occupantCount > 0 && eachReserve.localeControl.Other() == reserve!.localeControl {
@@ -152,8 +154,21 @@ class AIEntity {
                 }
             
             }
+            
+            // Captures the guys who are on the approach adjacent to the adjacent to the reserve under review
+            for eachApproach in oppReserve.ownApproaches {
+                
+                if eachApproach.oppApproach!.occupantCount > 0 && eachApproach.oppApproach!.ownReserve!.localeControl.Other() == reserve!.localeControl {
+                    
+                    theNextTurnAdjThreats += eachApproach.oppApproach!.occupants
+                
+                }
+                
+            }
             nextTurnAdjThreats[eachApproach] = theNextTurnAdjThreats
+        
         }
+    
     }
     
     // Specify "type" of threat (adjacent, rd or next turn adjacent) and unit-type (All, Cav, Inf, Art, Ldr)

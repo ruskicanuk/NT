@@ -176,4 +176,14 @@ class Reserve:Location {
         haveCommandsEntered = false
         numberCommandsEntered = 0
     }
+    
+    // Returns the approaches common for the two approaches.  Tuple returns both nil if there is no common approach
+    func commonApproach(otherReserve:Reserve) -> (Approach?, Approach?) {
+        for eachOtherApproach in otherReserve.ownApproaches {
+            if eachOtherApproach.oppApproach != nil && self.ownApproaches.contains(eachOtherApproach.oppApproach!) {
+                return (eachOtherApproach.oppApproach!, eachOtherApproach)
+            }
+        }
+        return (nil, nil)
+    }
 }
