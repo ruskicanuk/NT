@@ -316,12 +316,10 @@ class AI {
     
     // Overall Strategic Objective
     enum StrategicGoal {case ReduceMorale, PreserveMorale, CaptureStars, DefendStars, LineManeuvers}
-    
-    // Role for each individual group
-    enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
 
     var aiLocales:[AILocale] = []
     var aiGroups:[AIGroup] = [] // Groups with stored orders
+    
     var aiCommands:[Command] = [] // Commands with a specified role
     var enemyCommands:[Command] = [] // Enemy commands (no role required)
     
@@ -332,7 +330,7 @@ class AI {
     
     let side:Allegience
     var armyGoal:StrategicGoal?
-    var aiGroupRoles:[Group:GroupRole] = [:]
+    //var aiGroupRoles:[AIGroup:GroupRole] = [:]
     var ownArmyStrength:Int = 0
     var enemyArmyStrength:Int = 0
     
@@ -347,13 +345,16 @@ class AI {
     
     init(passedSide:Allegience) {
         side = passedSide
+        
+        // Identify commands for both sides
+        setupAICommands()
 
     }
     
     func processAITurnStrategy() {
         
         // Identify commands for both sides
-        aiUpdateCommands()
+        //setupCommands()
 
         // Initialize the locales
         aiLocales = []
@@ -368,11 +369,14 @@ class AI {
         
         // Establish group roles
         //aiUpdateGroupRoles()
+        // This function should take the current armyGoal and assign groups and roles accordingly (on attack) or prepare for defense by making each command its own aiGroup (when ever state changes during player's turn)
+        //setupAIGroups()
         
         // Establish group orders and move priority
         //aiUpdateGroupOrders()
     }
     
+    // cBY(proceeAITurnStrategy)
     func aiUpdateStrategicGoal() {
         
         switch (manager!.frReinforcementsCalled, side) {
@@ -403,6 +407,7 @@ class AI {
         // Code for finding opportunities to win battles, force retreats, etc
     }
     
+    /*
     func aiUpdateCommandRoles() {
         
         for _ in aiCommands {
@@ -432,10 +437,7 @@ class AI {
             }
         }
     }
-    
-    func GroupRoles(theCommand:Command) {
-        
-    }
+    */
     
     func aiUpdateStrategicLine() {
         
@@ -454,20 +456,10 @@ class AI {
         }
     }
     
-    func aiGroupAssignments() {
+    // cBY(proceeAITurnStrategy)
+    func setupAICommands() {
         
-    }
-    
-    func aiUpdateCommands() {
-        
-        //aiCommands = []
-        /*
-        for eachCommand in manager!.gameCommands[side]! {
-            let newAICommand = AICommand(passedCommand: eachCommand)
-            aiCommands += [newAICommand]
-        }
-        */
-        aiCommands = manager!.gameCommands[side.Other()!]!
+        aiCommands = manager!.gameCommands[side]!
         enemyCommands = manager!.gameCommands[side.Other()!]!
     }
     
@@ -476,23 +468,15 @@ class AI {
         
     }
     
+    // cBY(proceeAITurnStrategy)
     func refreshLocaleThreats() {
+        
         // Refresh the AI Locales
         for localeAI in aiLocales {
             localeAI.updateCurrentThreats()
             localeAI.updateNextTurnThreats()
         }
-    }
-    
-    func setupAIGroups() {
         
-        // Create new AI Commands
-        for eachCommand in aiCommands {
-            if eachCommand.currentLocationType == .Start {continue}
-            let newAIGroup = AIGroup(passedUnits: eachCommand.activeUnits)
-            aiGroups += [newAIGroup]
-            //newAIGroup.updateCurrentThreats(eachCommand)
-        }
     }
     
     // Process AI thinking, returns false if no action taken (time to end AI's turn), returns true if action taken which means more thinking will be done
@@ -530,6 +514,27 @@ class AI {
         }
         
         return false
+    }
+    
+    func setupAIGroups() {
+        
+        // Algo determined by which phase we are in and whether the AI is the phasing player
+        switch (manager!.phaseNew, manager!.phasingPlayer == self.side) {
+            
+            case (.Move, true):
+            
+                // Basic aiGroups == aiCommands
+                for eachCommand in aiCommands {
+                    if eachCommand.currentLocationType == .Start {continue}
+                    let newAIGroup = AIGroup(passedUnits: eachCommand.activeUnits)
+                    aiGroups += [newAIGroup]
+                    //newAIGroup.updateCurrentThreats(eachCommand)
+                }
+            
+            default: break
+            
+        }
+        
     }
 
 }

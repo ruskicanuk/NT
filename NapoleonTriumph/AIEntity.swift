@@ -234,28 +234,27 @@ class AILocale:AIEntity {
 }
 
 // Attributes associated with an array of AIGroups
-class AIGroups {
+class AIMultipleGroups {
     
-    var aiGroups:[AIGroup] = []
+    var selectedAIGroups:[AIGroup] = []
     
     init(passedGroups:[AIGroup]) {
         
-        aiGroups = passedGroups
+        selectedAIGroups = passedGroups
     
     }
     
     // Returns the units and strength of the counter-attacking group
-    // typeCode: "Attack", "Defense", wide: is approach wide?, approach: is the location an approach?
-    // Int: Total strength of the groups, [AIGroup]:
+    // Int: Total strength of the groups, aiGroup: the counter attack group, [Unit]: the counter attacking units
     func aiGroupsCounter() -> (Int, AIGroup, [Unit]) {
     
         var counterSize:Int = 0
-        var counterAIGroup:AIGroup = self.aiGroups[0]
+        var counterAIGroup:AIGroup = self.selectedAIGroups[0]
         var counterUnits:[Unit] = []
         
         for eachType in ["Int", "Cav", "Grd"] {
             
-            for eachGroup in aiGroups {
+            for eachGroup in selectedAIGroups {
             
                 let (_, _, groupUnits) = eachGroup.aiGroupSelectUnits(eachType)
                 let aiGroupCounter = eachGroup.aiGroupSelectUnitsTopX(groupUnits, topX: 2, startX: 1)
@@ -275,7 +274,11 @@ class AIGroups {
 // AI associated with a group
 class AIGroup:AIEntity {
     
+    // Role for each individual group
+    enum GroupRole {case Harasser, Screener, StrategicGoal, Support, Organize}
+    
     var group:Group
+    var role:GroupRole?
     var aiCommand:Command // Might be unnecessary (consider dropping this)
     
     // Used by aiGroups when determining strengths
@@ -287,6 +290,7 @@ class AIGroup:AIEntity {
         aiCommand = group.command
         
         var theReserve:Reserve
+        
         
         if group.command.currentLocationType == .Reserve {
             
@@ -317,8 +321,8 @@ class AIGroup:AIEntity {
         
         for eachUnit in self.group.units {
             
-            let orderedCode = eachUnit.name!
-            var insertPosition:Int = maxTypeSize
+            let orderedCode = eachUnit.unitTypeName()
+            var insertPosition:Int = 0
             var totalLength:Int = 0
             
             for i in 1 ... maxTypeSize {
@@ -338,6 +342,8 @@ class AIGroup:AIEntity {
         }
     
     }
+    
+    // Defense select function, Attacker select function
     
     // Returns the strength, # of blocks and units matching a unit type in a group
     // unitCode: Unit type (Inf, Cav, Art, Grd, Ldr, All)

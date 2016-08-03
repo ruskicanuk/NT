@@ -11,7 +11,11 @@ import Foundation
 
 var manager:GameManager?
 
+// AI Variables
 var ai:[Allegience:AI] = [:]
+var aiThinking:Bool = false
+var aiTurn:Bool = false
+var aiThinkingStartTime:CFTimeInterval?
 
 // Available locations
 var adjMoves:[Location] = []
@@ -20,26 +24,35 @@ var mustFeintThreats:[Approach] = []
 
 // Limits user touching
 var undoOrAct:Bool = false {
+
     didSet {
+    
         if undoOrAct {
+        
             endTurnButton.buttonState = .Off
+        
         } else {
+        
             switch manager!.phaseNew {
             case .Move: endTurnButton.buttonState = .On
             default: break
+        
             }
+        
         }
+    
     }
+
 }
 
-var aiThinking:Bool = false
-var aiTurn:Bool = false
-var aiThinkingStartTime:CFTimeInterval?
-
 var zoomedMode:Bool = false {
+
     didSet {
+        
         updateZoomLevel()
+    
     }
+
 }
 
 class GameScene: SKScene, NSXMLParserDelegate {
