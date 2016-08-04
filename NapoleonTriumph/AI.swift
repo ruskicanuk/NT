@@ -347,52 +347,11 @@ class AI {
         side = passedSide
         
         // Identify commands for both sides
-        setupAICommands()
+        // setupAICommands()
 
     }
     
-    func processAITurnStrategy() {
-        
-        // Identify commands for both sides
-        //setupCommands()
 
-        // Initialize the locales
-        aiLocales = []
-        for eachReserve in manager!.reserves {
-            let newAILocale = AILocale(passedReserve: eachReserve)
-            aiLocales += [newAILocale]
-        }
-        refreshLocaleThreats()
-        
-        // Establish army goal
-        aiUpdateStrategicGoal()
-        
-        // Establish group roles
-        //aiUpdateGroupRoles()
-        // This function should take the current armyGoal and assign groups and roles accordingly (on attack) or prepare for defense by making each command its own aiGroup (when ever state changes during player's turn)
-        //setupAIGroups()
-        
-        // Establish group orders and move priority
-        //aiUpdateGroupOrders()
-    }
-    
-    // cBY(proceeAITurnStrategy)
-    func aiUpdateStrategicGoal() {
-        
-        switch (manager!.frReinforcementsCalled, side) {
-            
-        case (true, .Austrian): armyGoal = .ReduceMorale
-            
-        case (false, .Austrian): armyGoal = .ReduceMorale
-            
-        case (true, .French): armyGoal = .ReduceMorale
-            
-        case (false, .French): armyGoal = .ReduceMorale
-            
-        default: break
-             
-        }
-    }
     
     func aiUpdateAttributes() {
         
@@ -489,7 +448,7 @@ class AI {
         case .Move:
             
             for eachAIGroup in aiGroups {
-                if eachAIGroup.group.nonLdrUnitCount == 3 && eachAIGroup.aiCommand.moveNumber < 1 {
+                if eachAIGroup.group.nonLdrUnitCount == 3 && eachAIGroup.group.command.moveNumber < 1 {
                     manager!.groupsSelected = [eachAIGroup.group]
                     break
                 }
@@ -516,7 +475,39 @@ class AI {
         return false
     }
     
+    func setupAILocales() {
+        
+        aiLocales = []
+        for eachReserve in manager!.reserves {
+            let newAILocale = AILocale(passedReserve: eachReserve)
+            aiLocales += [newAILocale]
+        }
+        refreshLocaleThreats()
+        
+    }
+    
+    // Set strategy
+    func setupAIStrategy() {
+        
+        switch (manager!.frReinforcementsCalled, side) {
+            
+        case (true, .Austrian): armyGoal = .ReduceMorale
+            
+        case (false, .Austrian): armyGoal = .ReduceMorale
+            
+        case (true, .French): armyGoal = .ReduceMorale
+            
+        case (false, .French): armyGoal = .ReduceMorale
+            
+        default: break
+            
+        }
+    }
+    
+    // Set tactics
     func setupAIGroups() {
+        
+        // Here we want, based on the army goal and current army make-up (attributes), to build an army with a target number of harrassers, screeners, etc, and then form the groups (with roles) to satisfy that
         
         // Algo determined by which phase we are in and whether the AI is the phasing player
         switch (manager!.phaseNew, manager!.phasingPlayer == self.side) {
@@ -534,6 +525,13 @@ class AI {
             default: break
             
         }
+        
+    }
+    
+    // Set specific order priority
+    func setupAIOrders() {
+        
+        // Here we want to, based on the AIGroup roles
         
     }
 

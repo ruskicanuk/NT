@@ -52,7 +52,7 @@ class AIEntity {
 
         if theAIGroup != nil && aiGroupOnApproach {
             
-            theApproaches = [theAIGroup!.aiCommand.currentLocation! as! Approach]
+            theApproaches = [theAIGroup!.group.command.currentLocation! as! Approach]
         
         } else {
         
@@ -279,7 +279,7 @@ class AIGroup:AIEntity {
     
     var group:Group
     var role:GroupRole?
-    var aiCommand:Command // Might be unnecessary (consider dropping this)
+    var intendedLeader:Unit? // Set to nil if the group is "independent" (or plans to be independent), otherwise it points to the leader unit (could be a different command's leader unit if in organizing mode)
     
     // Used by aiGroups when determining strengths
     var orderedUnits:[String:Unit?] = [:]
@@ -287,10 +287,9 @@ class AIGroup:AIEntity {
     init(passedUnits:[Unit]) {
         
         group = Group(theCommand: passedUnits[0].parentCommand!, theUnits: passedUnits)
-        aiCommand = group.command
+        //aiCommand = group.command
         
         var theReserve:Reserve
-        
         
         if group.command.currentLocationType == .Reserve {
             
@@ -306,7 +305,7 @@ class AIGroup:AIEntity {
         
         } else {
         
-            super.init(passedAllegience: aiCommand.commandSide)
+            super.init(passedAllegience: group.command.commandSide)
             self.aiGroupOnApproach = false
         
         }
@@ -401,11 +400,13 @@ class AIGroup:AIEntity {
     }
     
     // Refresh the command associated with the first unit of the aiGroup
+    /*
     func refreshCommand() {
         
         aiCommand = group.units[0].parentCommand!
         
     }
+    */
 
 }
 

@@ -196,7 +196,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
         // Hide the locations
         HideAllLocations(true)
         
-        // ### Remove later
+        // ### Remove later for setup phase
+        manager!.NewTurn()
         manager!.NewTurn()
         manager!.NewTurn()
     }
@@ -1387,6 +1388,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 undoOrAct = false
                 manager!.NewPhase()
             }
+            
+        default: break // PreSetup state
         }
     }
 
@@ -1518,6 +1521,8 @@ class GameScene: SKScene, NSXMLParserDelegate {
                 
                 if CheckEndTurnStatus() {endTurnButton.buttonState = .On}
                 else {endTurnButton.buttonState = .Off}
+                
+            default: break // PreGame phase
             }
             manager!.orders.removeLast()
         }

@@ -12,7 +12,7 @@ import SpriteKit
 
 enum newGamePhase {
     
-    case Setup, Move, Commit, RetreatOrDefenseSelection, SelectDefenseLeading, PreRetreatOrFeintMoveOrAttackDeclare, SelectAttackGroup, SelectAttackLeading, FeintResponse, SelectCounterGroup, PostCombatRetreatAndVictoryResponseMoves
+    case PreSetup, Setup, Move, Commit, RetreatOrDefenseSelection, SelectDefenseLeading, PreRetreatOrFeintMoveOrAttackDeclare, SelectAttackGroup, SelectAttackLeading, FeintResponse, SelectCounterGroup, PostCombatRetreatAndVictoryResponseMoves
     
     init (initPhase:String = "Setup") {
         switch initPhase {
@@ -78,6 +78,7 @@ enum newGamePhase {
     
     var ID:String {
         switch self {
+        case .PreSetup: return "PreSetup"
         case .Setup: return "Setup"
         case .Move: return "Move"
         case .Commit: return "Commit"
@@ -113,7 +114,7 @@ class GameManager: NSObject, NSCoding {
         
         phasingPlayer = player1
         actingPlayer = player1
-        phaseNew = .Setup // ### Switch this later to .Setup, set to move for testing
+        phaseNew = .PreSetup // ### Switch this later to .Setup, set to move for testing
         corpsCommandsAvail = 0
         indCommandsAvail = 0
         
@@ -584,63 +585,75 @@ class GameManager: NSObject, NSCoding {
     
     func NewTurn() {
         
-        // Save the orders
-        orderHistory[orderHistoryIndex] = orders
-        orderHistoryIndex += 1
-        for each in orders {each.orderArrow?.removeFromParent()}
-        orders = []
+        if phaseNew != .PreSetup {
         
-        ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: true, otherSelectors: true)
+            // Save the orders
+            orderHistory[orderHistoryIndex] = orders
+            orderHistoryIndex += 1
+            for each in orders {each.orderArrow?.removeFromParent()}
+            orders = []
+            
+            ResetState(true, groupsSelectable: true, hideRevealed: true, orderSelectors: true, otherSelectors: true)
 
-        // Set turn and commands available
-        if phasingPlayer != player1 {
-            turn += 1
-            corpsCommandsAvail = player1CorpsCommands
-            indCommandsAvail = player1IndCommands
-        
-        } else if phaseNew != .Setup {
-            corpsCommandsAvail = player2CorpsCommands
-            indCommandsAvail = player2IndCommands
-        }
-        
-        // Finished pre-game and set turn based on selected
-        if phaseNew == .Setup && phasingPlayer != player1 {
-            if scenario == 1 {turn = 12}
-            phaseNew = .Move
-        }
-        
-        // Any Move turn, set units available to defend
-        if phaseNew == .Move {
+            // Set turn and commands available
+            if phasingPlayer != player1 {
+                turn += 1
+                corpsCommandsAvail = player1CorpsCommands
+                indCommandsAvail = player1IndCommands
             
-            // Reset reserve state
-            for eachReserve in reserves {eachReserve.ResetReserveState()}
+            } else if phaseNew != .Setup {
+                corpsCommandsAvail = player2CorpsCommands
+                indCommandsAvail = player2IndCommands
+            }
             
-            for eachCommand in gameCommands[actingPlayer]! + gameCommands[actingPlayer.Other()!]! {
-                eachCommand.moveNumber = 0
-                eachCommand.movedVia = .None
-                for eachUnit in eachCommand.activeUnits {
-                    eachUnit.wasInBattle = false
-                    eachUnit.approachDefended = nil
+            // Finished pre-game and set turn based on selected
+            if phaseNew == .Setup && phasingPlayer != player1 {
+                if scenario == 1 {turn = 12}
+                phaseNew = .Move
+            }
+            
+            // Any Move turn, set units available to defend
+            if phaseNew == .Move {
+                
+                // Reset reserve state
+                for eachReserve in reserves {eachReserve.ResetReserveState()}
+                
+                for eachCommand in gameCommands[actingPlayer]! + gameCommands[actingPlayer.Other()!]! {
+                    eachCommand.moveNumber = 0
+                    eachCommand.movedVia = .None
+                    for eachUnit in eachCommand.activeUnits {
+                        eachUnit.wasInBattle = false
+                        eachUnit.approachDefended = nil
+                    }
+                }
+                for eachApproach in approaches {eachApproach.mayArtAttack = true
+                    eachApproach.mayNormalAttack = true
                 }
             }
-            for eachApproach in approaches {eachApproach.mayArtAttack = true
-                eachApproach.mayNormalAttack = true
-            }
+            ResetConflictsState()
+            generalThreatsMade = 0
+            
+            // Always switch side, phasing and acting player
+            if orders.last != nil {orders.last?.unDoable = false}
+            phasingPlayer.Switch()
+            actingPlayer.Switch()
+            RefreshCommands()
+            
+        } else {
+            
+            phaseNew = .Setup
+            
         }
-        ResetConflictsState()
-        generalThreatsMade = 0
         
-        // Always switch side, phasing and acting player
-        if orders.last != nil {orders.last?.unDoable = false}
-        phasingPlayer.Switch()
-        actingPlayer.Switch()
-        RefreshCommands()
-        
+        // Kick off AI thinking if applicable
         if HumanPlayer(actingPlayer) {
             aiThinkingStartTime = nil
             aiThinking = false
         } else {
-            ai[actingPlayer]!.processAITurnStrategy()
+            ai[actingPlayer]!.setupAICommands() // Simple reference to the commands
+            ai[actingPlayer]!.setupAILocales() // Initialize the threat situation for each locale (each group should have a home locale)
+            ai[actingPlayer]!.setupAIStrategy() // set army strategy
+            ai[actingPlayer]!.setupAIGroups() // set corps and/or group tactics based on army strategy
             aiThinkingStartTime = CFAbsoluteTimeGetCurrent()
             aiThinking = true
         }
